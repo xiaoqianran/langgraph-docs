@@ -1,0 +1,658 @@
+{
+  "platform": {
+    "id": "platform",
+    "name": "Platform · LangSmith",
+    "groups": {
+      "langsmith": [
+        {
+          "title": "LangGraph CLI",
+          "rel": "langsmith/cli.md"
+        },
+        {
+          "title": "How to implement generative user interfaces with LangGraph",
+          "rel": "langsmith/generative-ui-react.md"
+        },
+        {
+          "title": "LangGraph JS/TS SDK",
+          "rel": "langsmith/langgraph-js-ts-sdk.md"
+        },
+        {
+          "title": "LangGraph Python SDK",
+          "rel": "langsmith/langgraph-python-sdk.md"
+        },
+        {
+          "title": "Trace LangGraph applications",
+          "rel": "langsmith/trace-with-langgraph.md"
+        },
+        {
+          "title": "Agent Server",
+          "rel": "langsmith/agent-server.md"
+        },
+        {
+          "title": "Agent Server",
+          "rel": "langsmith/agent-server-overview.md"
+        },
+        {
+          "title": "Local development & testing",
+          "rel": "langsmith/local-server.md"
+        }
+      ]
+    }
+  },
+  "javascript": {
+    "id": "javascript",
+    "name": "JavaScript · Guides",
+    "groups": {
+      "add-memory": [
+        {
+          "title": "Memory",
+          "rel": "oss/javascript/langgraph/add-memory.md"
+        }
+      ],
+      "agentic-rag": [
+        {
+          "title": "Build a custom RAG agent with LangGraph",
+          "rel": "oss/javascript/langgraph/agentic-rag.md"
+        }
+      ],
+      "application-structure": [
+        {
+          "title": "Application structure",
+          "rel": "oss/javascript/langgraph/application-structure.md"
+        }
+      ],
+      "backward-compatibility": [
+        {
+          "title": "Backward compatibility",
+          "rel": "oss/javascript/langgraph/backward-compatibility.md"
+        }
+      ],
+      "case-studies": [
+        {
+          "title": "Case studies",
+          "rel": "oss/javascript/langgraph/case-studies.md"
+        }
+      ],
+      "changelog-js": [
+        {
+          "title": "Changelog",
+          "rel": "oss/javascript/langgraph/changelog-js.md"
+        }
+      ],
+      "checkpointers": [
+        {
+          "title": "Checkpointers",
+          "rel": "oss/javascript/langgraph/checkpointers.md"
+        }
+      ],
+      "choosing-apis": [
+        {
+          "title": "Choosing between Graph and Functional APIs",
+          "rel": "oss/javascript/langgraph/choosing-apis.md"
+        }
+      ],
+      "deploy": [
+        {
+          "title": "Deployment",
+          "rel": "oss/javascript/langgraph/deploy.md"
+        }
+      ],
+      "event-streaming": [
+        {
+          "title": "Event streaming",
+          "rel": "oss/javascript/langgraph/event-streaming.md"
+        }
+      ],
+      "fault-tolerance": [
+        {
+          "title": "Fault tolerance",
+          "rel": "oss/javascript/langgraph/fault-tolerance.md"
+        }
+      ],
+      "frontend": [
+        {
+          "title": "Custom stream channels",
+          "rel": "oss/javascript/langgraph/frontend/custom-stream-channels.md"
+        },
+        {
+          "title": "Graph execution",
+          "rel": "oss/javascript/langgraph/frontend/graph-execution.md"
+        },
+        {
+          "title": "Overview",
+          "rel": "oss/javascript/langgraph/frontend/overview.md"
+        }
+      ],
+      "functional-api": [
+        {
+          "title": "Functional API overview",
+          "rel": "oss/javascript/langgraph/functional-api.md"
+        }
+      ],
+      "graph-api": [
+        {
+          "title": "Graph API overview",
+          "rel": "oss/javascript/langgraph/graph-api.md"
+        }
+      ],
+      "install": [
+        {
+          "title": "Install LangGraph",
+          "rel": "oss/javascript/langgraph/install.md"
+        }
+      ],
+      "interrupts": [
+        {
+          "title": "Interrupts",
+          "rel": "oss/javascript/langgraph/interrupts.md"
+        }
+      ],
+      "local-server": [
+        {
+          "title": "Run a local server",
+          "rel": "oss/javascript/langgraph/local-server.md"
+        }
+      ],
+      "observability": [
+        {
+          "title": "LangSmith Observability",
+          "rel": "oss/javascript/langgraph/observability.md"
+        }
+      ],
+      "overview": [
+        {
+          "title": "LangGraph overview",
+          "rel": "oss/javascript/langgraph/overview.md"
+        }
+      ],
+      "persistence": [
+        {
+          "title": "Persistence",
+          "rel": "oss/javascript/langgraph/persistence.md"
+        }
+      ],
+      "pregel": [
+        {
+          "title": "LangGraph runtime",
+          "rel": "oss/javascript/langgraph/pregel.md"
+        }
+      ],
+      "quickstart": [
+        {
+          "title": "Quickstart",
+          "rel": "oss/javascript/langgraph/quickstart.md"
+        }
+      ],
+      "stores": [
+        {
+          "title": "Stores",
+          "rel": "oss/javascript/langgraph/stores.md"
+        }
+      ],
+      "streaming": [
+        {
+          "title": "Streaming",
+          "rel": "oss/javascript/langgraph/streaming.md"
+        }
+      ],
+      "studio": [
+        {
+          "title": "LangSmith Studio",
+          "rel": "oss/javascript/langgraph/studio.md"
+        }
+      ],
+      "test": [
+        {
+          "title": "Test",
+          "rel": "oss/javascript/langgraph/test.md"
+        }
+      ],
+      "thinking-in-langgraph": [
+        {
+          "title": "Thinking in LangGraph",
+          "rel": "oss/javascript/langgraph/thinking-in-langgraph.md"
+        }
+      ],
+      "ui": [
+        {
+          "title": "Agent Chat UI",
+          "rel": "oss/javascript/langgraph/ui.md"
+        }
+      ],
+      "use-functional-api": [
+        {
+          "title": "Use the functional API",
+          "rel": "oss/javascript/langgraph/use-functional-api.md"
+        }
+      ],
+      "use-graph-api": [
+        {
+          "title": "Use the graph API",
+          "rel": "oss/javascript/langgraph/use-graph-api.md"
+        }
+      ],
+      "use-subgraphs": [
+        {
+          "title": "Subgraphs",
+          "rel": "oss/javascript/langgraph/use-subgraphs.md"
+        }
+      ],
+      "use-time-travel": [
+        {
+          "title": "Use time-travel",
+          "rel": "oss/javascript/langgraph/use-time-travel.md"
+        }
+      ],
+      "workflows-agents": [
+        {
+          "title": "Workflows and agents",
+          "rel": "oss/javascript/langgraph/workflows-agents.md"
+        }
+      ],
+      "common-errors": [
+        {
+          "title": "Errors",
+          "rel": "oss/javascript/langgraph/common-errors.md"
+        }
+      ],
+      "human-in-the-loop": [
+        {
+          "title": "Interrupts",
+          "rel": "oss/javascript/langgraph/human-in-the-loop.md"
+        }
+      ]
+    }
+  },
+  "migrate": {
+    "id": "migrate",
+    "name": "Migration",
+    "groups": {
+      "migrate": [
+        {
+          "title": "LangGraph v1 migration guide",
+          "rel": "oss/javascript/migrate/langgraph-v1.md"
+        },
+        {
+          "title": "Migrate from langgraph-supervisor",
+          "rel": "oss/python/migrate/langgraph-supervisor.md"
+        },
+        {
+          "title": "LangGraph v1 migration guide",
+          "rel": "oss/python/migrate/langgraph-v1.md"
+        }
+      ]
+    }
+  },
+  "docs-reference": {
+    "id": "docs-reference",
+    "name": "Docs · Reference",
+    "groups": {
+      "reference": [
+        {
+          "title": "LangGraph SDK",
+          "rel": "oss/javascript/reference/langgraph-javascript.md"
+        },
+        {
+          "title": "LangGraph SDK",
+          "rel": "oss/python/reference/langgraph-python.md"
+        }
+      ]
+    }
+  },
+  "releases": {
+    "id": "releases",
+    "name": "Releases",
+    "groups": {
+      "releases": [
+        {
+          "title": "What's new in LangGraph v1",
+          "rel": "oss/javascript/releases/langgraph-v1.md"
+        },
+        {
+          "title": "What's new in LangGraph v1",
+          "rel": "oss/python/releases/langgraph-v1.md"
+        }
+      ]
+    }
+  },
+  "python": {
+    "id": "python",
+    "name": "Python · Guides",
+    "groups": {
+      "add-memory": [
+        {
+          "title": "Memory",
+          "rel": "oss/python/langgraph/add-memory.md"
+        }
+      ],
+      "agentic-rag": [
+        {
+          "title": "Build a custom RAG agent with LangGraph",
+          "rel": "oss/python/langgraph/agentic-rag.md"
+        }
+      ],
+      "application-structure": [
+        {
+          "title": "Application structure",
+          "rel": "oss/python/langgraph/application-structure.md"
+        }
+      ],
+      "backward-compatibility": [
+        {
+          "title": "Backward compatibility",
+          "rel": "oss/python/langgraph/backward-compatibility.md"
+        }
+      ],
+      "case-studies": [
+        {
+          "title": "Case studies",
+          "rel": "oss/python/langgraph/case-studies.md"
+        }
+      ],
+      "changelog-py": [
+        {
+          "title": "Changelog",
+          "rel": "oss/python/langgraph/changelog-py.md"
+        }
+      ],
+      "checkpointers": [
+        {
+          "title": "Checkpointers",
+          "rel": "oss/python/langgraph/checkpointers.md"
+        }
+      ],
+      "choosing-apis": [
+        {
+          "title": "Choosing between Graph and Functional APIs",
+          "rel": "oss/python/langgraph/choosing-apis.md"
+        }
+      ],
+      "deploy": [
+        {
+          "title": "Deployment",
+          "rel": "oss/python/langgraph/deploy.md"
+        }
+      ],
+      "event-streaming": [
+        {
+          "title": "Event streaming",
+          "rel": "oss/python/langgraph/event-streaming.md"
+        }
+      ],
+      "fault-tolerance": [
+        {
+          "title": "Fault tolerance",
+          "rel": "oss/python/langgraph/fault-tolerance.md"
+        }
+      ],
+      "frontend": [
+        {
+          "title": "Custom stream channels",
+          "rel": "oss/python/langgraph/frontend/custom-stream-channels.md"
+        },
+        {
+          "title": "Graph execution",
+          "rel": "oss/python/langgraph/frontend/graph-execution.md"
+        },
+        {
+          "title": "Overview",
+          "rel": "oss/python/langgraph/frontend/overview.md"
+        }
+      ],
+      "functional-api": [
+        {
+          "title": "Functional API overview",
+          "rel": "oss/python/langgraph/functional-api.md"
+        }
+      ],
+      "graph-api": [
+        {
+          "title": "Graph API overview",
+          "rel": "oss/python/langgraph/graph-api.md"
+        }
+      ],
+      "install": [
+        {
+          "title": "Install LangGraph",
+          "rel": "oss/python/langgraph/install.md"
+        }
+      ],
+      "interrupts": [
+        {
+          "title": "Interrupts",
+          "rel": "oss/python/langgraph/interrupts.md"
+        }
+      ],
+      "local-server": [
+        {
+          "title": "Run a local server",
+          "rel": "oss/python/langgraph/local-server.md"
+        }
+      ],
+      "observability": [
+        {
+          "title": "LangSmith Observability",
+          "rel": "oss/python/langgraph/observability.md"
+        }
+      ],
+      "overview": [
+        {
+          "title": "LangGraph overview",
+          "rel": "oss/python/langgraph/overview.md"
+        }
+      ],
+      "persistence": [
+        {
+          "title": "Persistence",
+          "rel": "oss/python/langgraph/persistence.md"
+        }
+      ],
+      "pregel": [
+        {
+          "title": "LangGraph runtime",
+          "rel": "oss/python/langgraph/pregel.md"
+        }
+      ],
+      "quickstart": [
+        {
+          "title": "Quickstart",
+          "rel": "oss/python/langgraph/quickstart.md"
+        }
+      ],
+      "sql-agent": [
+        {
+          "title": "Build a custom SQL agent",
+          "rel": "oss/python/langgraph/sql-agent.md"
+        }
+      ],
+      "stores": [
+        {
+          "title": "Stores",
+          "rel": "oss/python/langgraph/stores.md"
+        }
+      ],
+      "streaming": [
+        {
+          "title": "Streaming",
+          "rel": "oss/python/langgraph/streaming.md"
+        }
+      ],
+      "studio": [
+        {
+          "title": "LangSmith Studio",
+          "rel": "oss/python/langgraph/studio.md"
+        }
+      ],
+      "test": [
+        {
+          "title": "Test",
+          "rel": "oss/python/langgraph/test.md"
+        }
+      ],
+      "thinking-in-langgraph": [
+        {
+          "title": "Thinking in LangGraph",
+          "rel": "oss/python/langgraph/thinking-in-langgraph.md"
+        }
+      ],
+      "ui": [
+        {
+          "title": "Agent Chat UI",
+          "rel": "oss/python/langgraph/ui.md"
+        }
+      ],
+      "use-functional-api": [
+        {
+          "title": "Use the functional API",
+          "rel": "oss/python/langgraph/use-functional-api.md"
+        }
+      ],
+      "use-graph-api": [
+        {
+          "title": "Use the graph API",
+          "rel": "oss/python/langgraph/use-graph-api.md"
+        }
+      ],
+      "use-subgraphs": [
+        {
+          "title": "Subgraphs",
+          "rel": "oss/python/langgraph/use-subgraphs.md"
+        }
+      ],
+      "use-time-travel": [
+        {
+          "title": "Use time-travel",
+          "rel": "oss/python/langgraph/use-time-travel.md"
+        }
+      ],
+      "workflows-agents": [
+        {
+          "title": "Workflows and agents",
+          "rel": "oss/python/langgraph/workflows-agents.md"
+        }
+      ],
+      "common-errors": [
+        {
+          "title": "Errors",
+          "rel": "oss/python/langgraph/common-errors.md"
+        }
+      ],
+      "human-in-the-loop": [
+        {
+          "title": "Interrupts",
+          "rel": "oss/python/langgraph/human-in-the-loop.md"
+        }
+      ]
+    }
+  },
+  "api-python": {
+    "id": "api-python",
+    "name": "API · Python",
+    "groups": {
+      "guides": [
+        {
+          "title": "langgraph",
+          "rel": "reference/python/langgraph.md"
+        }
+      ],
+      "python": [
+        {
+          "title": "langgraph.store",
+          "rel": "reference/python/langgraph.store.md"
+        },
+        {
+          "title": "langgraph.checkpoint.sqlite",
+          "rel": "reference/python/langgraph.checkpoint.sqlite.md"
+        },
+        {
+          "title": "langgraph.store.postgres",
+          "rel": "reference/python/langgraph.store.postgres.md"
+        },
+        {
+          "title": "langgraph.checkpoint",
+          "rel": "reference/python/langgraph.checkpoint.md"
+        },
+        {
+          "title": "langgraph.checkpoint.postgres",
+          "rel": "reference/python/langgraph.checkpoint.postgres.md"
+        },
+        {
+          "title": "langgraph.prebuilt",
+          "rel": "reference/python/langgraph.prebuilt.md"
+        },
+        {
+          "title": "langgraph_supervisor",
+          "rel": "reference/python/langgraph-supervisor.md"
+        },
+        {
+          "title": "langgraph_cli",
+          "rel": "reference/python/langgraph-cli.md"
+        },
+        {
+          "title": "langgraph_swarm",
+          "rel": "reference/python/langgraph-swarm.md"
+        },
+        {
+          "title": "langgraph_sdk",
+          "rel": "reference/python/langgraph-sdk.md"
+        }
+      ]
+    }
+  },
+  "api-js": {
+    "id": "api-js",
+    "name": "API · JavaScript",
+    "groups": {
+      "javascript": [
+        {
+          "title": "@langchain/langgraph-sdk",
+          "rel": "reference/javascript/langchain-langgraph-sdk.md"
+        },
+        {
+          "title": "@langchain/langgraph-checkpoint",
+          "rel": "reference/javascript/langchain-langgraph-checkpoint.md"
+        },
+        {
+          "title": "@langchain/langgraph-checkpoint-mongodb",
+          "rel": "reference/javascript/langchain-langgraph-checkpoint-mongodb.md"
+        },
+        {
+          "title": "@langchain/langgraph-checkpoint-sqlite",
+          "rel": "reference/javascript/langchain-langgraph-checkpoint-sqlite.md"
+        },
+        {
+          "title": "@langchain/langgraph-checkpoint-redis",
+          "rel": "reference/javascript/langchain-langgraph-checkpoint-redis.md"
+        },
+        {
+          "title": "@langchain/langgraph-checkpoint-validation",
+          "rel": "reference/javascript/langchain-langgraph-checkpoint-validation.md"
+        },
+        {
+          "title": "@langchain/langgraph-api",
+          "rel": "reference/javascript/langchain-langgraph-api.md"
+        },
+        {
+          "title": "@langchain/langgraph-cli",
+          "rel": "reference/javascript/langchain-langgraph-cli.md"
+        },
+        {
+          "title": "@langchain/langgraph-cua",
+          "rel": "reference/javascript/langchain-langgraph-cua.md"
+        },
+        {
+          "title": "@langchain/langgraph-supervisor",
+          "rel": "reference/javascript/langchain-langgraph-supervisor.md"
+        },
+        {
+          "title": "@langchain/langgraph-swarm",
+          "rel": "reference/javascript/langchain-langgraph-swarm.md"
+        },
+        {
+          "title": "@langchain/langgraph-checkpoint-postgres",
+          "rel": "reference/javascript/langchain-langgraph-checkpoint-postgres.md"
+        }
+      ]
+    }
+  }
+}

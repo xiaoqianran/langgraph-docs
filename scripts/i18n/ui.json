@@ -1,0 +1,15 @@
+{
+  "en": {
+    "brand": "LangGraph Docs",
+    "brandSub": "mirror",
+    "official": "Official ↗",
+    "menu": "Menu",
+    "searchPlaceholder": "Search LangGraph…",
+    "learningPath": "LangGraph · sections",
+    "copy": "Copy",
+    "copied": "Copied",
+    "footer": "Unofficial mirror · source: docs.langchain.com + reference.langchain.com",
+    "langEn": "EN",
+    "langZh": "中文"
+  }
+}

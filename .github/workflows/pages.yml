@@ -1,0 +1,92 @@
+# Fetch LangGraph docs, build static site, deploy Pages.
+
+name: Fetch · Build · Deploy Pages
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "30 9 * * *"
+  workflow_dispatch:
+    inputs:
+      skip_fetch:
+        description: "Skip re-fetch (build committed docs only)"
+        type: boolean
+        default: false
+      commit_docs:
+        description: "Commit refreshed docs back to main"
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name != 'push' || github.event.head_commit == null || !contains(github.event.head_commit.message, '[skip ci]') }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install build deps
+        run: npm install --no-save marked@15.0.0
+
+      - name: Fetch LangGraph docs
+        if: ${{ github.event_name != 'workflow_dispatch' || inputs.skip_fetch != true }}
+        env:
+          FETCH_TIMEOUT_MS: "300000"
+          FETCH_CONCURRENCY: "6"
+        run: node scripts/fetch-docs.mjs
+
+      - name: Commit refreshed docs
+        if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.commit_docs != false) }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/llms.txt docs/list.json docs/meta-tree.json docs/reference-llms.txt docs/pages || true
+          if git diff --staged --quiet; then
+            echo "No doc changes to commit"
+          else
+            git commit -m "chore: refresh LangGraph docs [skip ci]"
+            git push origin HEAD:main
+          fi
+
+      - name: Build static site
+        env:
+          PAGES_BASE: /langgraph-docs
+        run: node scripts/build-site.mjs
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
