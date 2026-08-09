@@ -21,6 +21,19 @@ import path from "node:path";
  * @param {Array<{id:string,name:string,groups:Array<{name:string,items:Array<{title:string,rel:string,href?:string}>}>}>} [opts.nav]
  * @param {number} [opts.maxFullBytes] - soft cap for llms-full (default 80MB)
  */
+
+function scrubSecrets(text) {
+  let s = String(text || "");
+  s = s.replace(/\b(sk-[A-Za-z0-9_-]{16,})\b/g, "sk-[REDACTED]");
+  s = s.replace(/\b(hf_[A-Za-z0-9]{16,})\b/g, "hf_[REDACTED]");
+  s = s.replace(/\b(xai-[A-Za-z0-9]{16,})\b/g, "xai-[REDACTED]");
+  s = s.replace(/\b(AIza[0-9A-Za-z\-_]{20,})\b/g, "[REDACTED_GOOGLE_KEY]");
+  s = s.replace(/\b(Bearer\s+)[A-Za-z0-9._\-]{20,}/g, "$1[REDACTED]");
+  s = s.replace(/(api[_-]?key[\"\s:=]+)([A-Za-z0-9_\-]{20,})/gi, "$1[REDACTED]");
+  s = s.replace(/(apiKey[\"\s:=]+)([A-Za-z0-9_\-]{20,})/gi, "$1[REDACTED]");
+  return s;
+}
+
 export function writeLlmsArtifacts(opts) {
   const {
     dist,
@@ -160,9 +173,11 @@ export function writeLlmsArtifacts(opts) {
   for (const p of sorted) {
     const title = p.title || p.rel;
     const source = absForRel(p.rel);
-    const body = String(p.md || "")
-      .replace(/^<!--[\s\S]*?-->\n*/m, "")
-      .trim();
+    const body = scrubSecrets(
+      String(p.md || "")
+        .replace(/^<!--[\s\S]*?-->\n*/m, "")
+        .trim(),
+    );
     if (!body) continue;
 
     const chunk = [
