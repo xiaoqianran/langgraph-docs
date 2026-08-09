@@ -1,5 +1,5 @@
 /**
- * langgraph Docs chrome — paradigm v3 (aligned to modal-docs)
+ * langgraph Docs chrome — paradigm v3 v3
  * multi-open accordion · TOC spy · progress · keyboard · copy · chips auto-fill
  */
 (function () {
@@ -386,30 +386,121 @@
   window.addEventListener("scroll", updateToTop, { passive: true });
   updateToTop();
 
-  // ---- TOC scroll spy ----
-  const tocLinks = [...document.querySelectorAll(".toc a[href^='#']")];
-  if (tocLinks.length && "IntersectionObserver" in window) {
-    const map = new Map();
-    tocLinks.forEach((a) => {
-      const id = decodeURIComponent(a.getAttribute("href").slice(1));
-      const el = document.getElementById(id);
-      if (el) map.set(el, a);
-    });
-    const io = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          const a = map.get(entry.target);
-          if (!a) return;
-          if (entry.isIntersecting) {
-            tocLinks.forEach((l) => l.classList.remove("active"));
-            a.classList.add("active");
-          }
-        });
-      },
-      { rootMargin: "-20% 0px -70% 0px", threshold: [0, 1] },
-    );
-    map.forEach((_, el) => io.observe(el));
+  
+  // ---- pin TOC to viewport right (desktop fixed) ----
+  function placeToc() {
+    const toc = document.querySelector("nav.toc, .toc");
+    const wrap = document.querySelector(".content-wrap");
+    if (!toc || !wrap) return;
+    if (!window.matchMedia("(min-width: 1024px)").matches) {
+      document.documentElement.style.removeProperty("--toc-right");
+      return;
+    }
+    const wr = wrap.getBoundingClientRect();
+    // distance from viewport right to the right edge of content-wrap
+    const right = Math.max(12, window.innerWidth - wr.right);
+    document.documentElement.style.setProperty("--toc-right", `${right}px`);
   }
+  placeToc();
+  window.addEventListener("resize", placeToc, { passive: true });
+  window.addEventListener("scroll", placeToc, { passive: true });
+
+  // ---- TOC: sticky/fixed right rail + mobile drawer ----
+  const toc = document.querySelector("nav.toc, .toc");
+  let tocLinks = [...document.querySelectorAll(".toc a[href^='#']")];
+
+  function closeTocDrawer() {
+    toc?.classList.remove("open");
+    document.getElementById("tocBackdrop")?.classList.remove("show");
+    document.body.style.overflow = "";
+  }
+  function openTocDrawer() {
+    if (!toc) return;
+    toc.classList.add("open");
+    document.getElementById("tocBackdrop")?.classList.add("show");
+    if (window.matchMedia("(max-width: 1023px)").matches) {
+      document.body.style.overflow = "hidden";
+    }
+  }
+
+  if (toc && tocLinks.length) {
+    // Floating "On this page" control for narrow viewports
+    if (!document.getElementById("tocFab")) {
+      const fab = document.createElement("button");
+      fab.type = "button";
+      fab.id = "tocFab";
+      fab.className = "toc-fab";
+      fab.setAttribute("aria-controls", "pageToc");
+      fab.textContent = toc.querySelector(".toc-title")?.textContent?.trim() || "On this page";
+      fab.addEventListener("click", () => {
+        if (toc.classList.contains("open")) closeTocDrawer();
+        else openTocDrawer();
+      });
+      document.body.appendChild(fab);
+
+      const bd = document.createElement("button");
+      bd.type = "button";
+      bd.id = "tocBackdrop";
+      bd.className = "toc-backdrop";
+      bd.setAttribute("aria-label", "Close table of contents");
+      bd.addEventListener("click", closeTocDrawer);
+      document.body.appendChild(bd);
+    }
+    if (!toc.id) toc.id = "pageToc";
+
+    // Clicking a TOC link closes drawer on mobile and smooth-scrolls
+    tocLinks.forEach((a) => {
+      a.addEventListener("click", () => {
+        // allow hash navigation then close drawer
+        setTimeout(closeTocDrawer, 50);
+      });
+    });
+
+    // Scroll-spy
+    if ("IntersectionObserver" in window) {
+      const map = new Map();
+      tocLinks.forEach((a) => {
+        let id = a.getAttribute("href") || "";
+        if (id.startsWith("#")) id = decodeURIComponent(id.slice(1));
+        const el = id ? document.getElementById(id) : null;
+        if (el) map.set(el, a);
+      });
+      let activeId = "";
+      const io = new IntersectionObserver(
+        (entries) => {
+          // pick the top-most intersecting heading
+          const visible = entries
+            .filter((e) => e.isIntersecting)
+            .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+          if (!visible.length) return;
+          const a = map.get(visible[0].target);
+          if (!a || a === document.querySelector(".toc a.active")) return;
+          tocLinks.forEach((l) => l.classList.remove("active"));
+          a.classList.add("active");
+          // keep active item in view inside sticky TOC
+          try {
+            a.scrollIntoView({ block: "nearest", behavior: "smooth" });
+          } catch {
+            /* ignore */
+          }
+        },
+        { rootMargin: "-15% 0px -70% 0px", threshold: [0, 0.25, 1] },
+      );
+      map.forEach((_, el) => io.observe(el));
+    }
+  }
+
+  // Esc closes TOC drawer
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeTocDrawer();
+  });
+  window.addEventListener(
+    "resize",
+    () => {
+      if (!window.matchMedia("(max-width: 1023px)").matches) closeTocDrawer();
+    },
+    { passive: true },
+  );
 
   // ---- lang preference ----
   document.querySelectorAll("[data-lang-set]").forEach((a) => {

@@ -151,7 +151,7 @@ function tocFromHtml(html) {
     const text = m[3].replace(/<[^>]+>/g, "").trim();
     if (text) items.push({ level: Number(m[1]), id: m[2], text });
   }
-  if (items.length < 2) return "";
+  if (items.length < 1) return "";
   return `<nav class="toc"><div class="toc-title">On this page</div><ul>${items
     .map((it) => `<li class="l${it.level}"><a href="#${htmlEscape(it.id)}">${htmlEscape(it.text)}</a></li>`)
     .join("")}</ul></nav>`;
