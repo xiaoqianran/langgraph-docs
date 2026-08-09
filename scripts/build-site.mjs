@@ -1,9 +1,10 @@
 #!/usr/bin/env node
-// LangGraph docs static site (EN; official English only)
+// LangGraph docs static site (EN) — modal-docs page form
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { marked } from "marked";
+import { createParadigm } from "./paradigm-page.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
@@ -14,6 +15,11 @@ const UI = JSON.parse(fs.readFileSync(path.join(__dirname, "i18n", "ui.json"), "
 
 const CHEV_SVG =
   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>';
+
+const OFFICIAL = "https://docs.langchain.com/langgraph";
+const BRAND_MARK = "LG";
+const PREFERRED = ["python","javascript"];
+const SYNC_NOTE = "synced daily from LangGraph docs";
 
 function ensureDir(p) {
   fs.mkdirSync(p, { recursive: true });
@@ -52,6 +58,8 @@ function humanize(slug) {
 function relToHtml(rel) {
   return rel.replace(/\.md$/, ".html");
 }
+
+const P = createParadigm({ htmlEscape, asset, CHEV_SVG, relToHtml });
 
 function loadPages() {
   const files = walk(PAGES);
@@ -118,31 +126,6 @@ function buildNav(pages) {
     tracks.push({ id: "all", name: "All docs", badge: "▸", groups: [{ name: "Pages", items }], count: items.length });
   }
   return tracks;
-}
-
-function renderNavHtml(tracks, activeRel) {
-  const parts = [];
-  let activeTop = "home";
-  for (const t of tracks) {
-    if (t.groups.some((g) => g.items.some((it) => it.rel === activeRel))) {
-      activeTop = t.id;
-      break;
-    }
-  }
-  for (const track of tracks) {
-    const trackActive = track.id === activeTop;
-    const open = trackActive || track.id === "home" ? "1" : "0";
-    parts.push(
-      `<div class="track" data-track="${htmlEscape(track.id)}" data-open="${open}" data-active="${trackActive ? "1" : "0"}" data-hydrated="0">`,
-    );
-    parts.push(
-      `<button type="button" class="track-btn" data-track-toggle="${htmlEscape(track.id)}" aria-expanded="${open === "1"}" data-needs-items="1"><span class="chev">${CHEV_SVG}</span><span class="track-label">${htmlEscape(track.name)}</span><span class="track-count">${track.count}</span></button>`,
-    );
-    parts.push(
-      `<div class="track-panel"><div class="track-panel-inner"><div class="track-body"><div class="muted" style="padding:0.45rem 0.5rem;font-size:0.78rem">Loading…</div></div></div></div></div>`,
-    );
-  }
-  return parts.join("\n");
 }
 
 function enhanceCode(html) {
@@ -213,19 +196,29 @@ function postProcessHtml(html, fromRel) {
   });
 }
 
-function layout({ title, bodyHtml, navHtml, tocHtml, rel }) {
+
+function renderNavHtml(tracks, activeRel) {
+  return P.renderNavHtmlFull(tracks, activeRel, PREFERRED);
+}
+function renderChipsHtml(tracks, activeRel) {
+  return P.renderChipsHtmlFull(tracks, activeRel, 12);
+}
+
+function layout({ title, bodyHtml, navHtml, chipsHtml, tocHtml, rel, ui, crumbHtml, pagerHtml }) {
+  const desc = htmlEscape(ui.homeLead || title || "");
   return `<!DOCTYPE html>
 <html lang="en" data-locale="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="${desc}" />
   <meta name="color-scheme" content="dark" />
   <meta name="theme-color" content="#08090c" />
-  <title>${htmlEscape(title)} · ${htmlEscape(UI.brand)}</title>
+  <title>${htmlEscape(title)} · ${htmlEscape(ui.brand || "Docs")}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;600;700&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.11.1/build/styles/github-dark.min.css" />
   <link rel="stylesheet" href="${asset("assets/site.css")}" />
 </head>
 <body>
@@ -233,58 +226,43 @@ function layout({ title, bodyHtml, navHtml, tocHtml, rel }) {
   <div class="progress" aria-hidden="true"></div>
   <header class="topbar">
     <div class="topbar-inner">
-      <button type="button" class="menu-btn" id="menuBtn" aria-label="${htmlEscape(UI.menu)}">${htmlEscape(UI.menu)}</button>
+      <button type="button" class="menu-btn" id="menuBtn" aria-label="${htmlEscape(ui.menu || "Menu")}">${htmlEscape(ui.menu || "Menu")}</button>
       <a class="brand" href="${asset("index.html")}">
-        <span class="brand-mark">LG</span>
-        <span class="brand-text">${htmlEscape(UI.brand)}</span>
-        <span class="brand-v">${htmlEscape(UI.brandSub)}</span>
+        <span class="brand-mark">${BRAND_MARK}</span>
+        <span class="brand-text">${htmlEscape(ui.brand || "Docs")}</span>
+        <span class="brand-v">${htmlEscape(ui.brandSub || "mirror")}</span>
       </a>
-      <nav class="chips" id="trackChips" aria-label="Tracks"></nav>
-      <a class="top-link" href="https://docs.langchain.com/oss/python/langgraph/overview" rel="noopener" target="_blank">${htmlEscape(UI.official)}</a>
+      <nav class="chips" id="trackChips" aria-label="Tracks">${chipsHtml || ""}</nav>
+      <a class="top-link" href="${OFFICIAL}" rel="noopener" target="_blank">${htmlEscape(ui.official || "Official ↗")}</a>
     </div>
   </header>
   <div class="shell">
     <aside class="sidebar" id="sidebar">
       <div class="side-head">
         <div class="search-wrap">
-          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3-3"/></svg>
-          <input class="search" id="search" type="search" placeholder="${htmlEscape(UI.searchPlaceholder)}" autocomplete="off" />
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+          <input class="search" id="search" type="search" placeholder="${htmlEscape(ui.searchPlaceholder || "Search…")}" autocomplete="off" />
           <span class="search-kbd" aria-hidden="true">/</span>
         </div>
-        <div class="side-label">${htmlEscape(UI.learningPath)}</div>
+        <p class="side-label">${htmlEscape(ui.learningPath || "Browse docs")}</p>
       </div>
-      <nav class="nav" id="nav" data-active-rel="${htmlEscape(rel)}">${navHtml}</nav>
-      <div class="side-foot">${htmlEscape(UI.footer)}</div>
+      <nav class="nav" id="nav" data-active-rel="${htmlEscape(rel || "")}" aria-label="Docs">${navHtml}</nav>
+      <div class="side-foot">${htmlEscape(ui.footer || "")}</div>
     </aside>
     <button type="button" class="backdrop" id="backdrop" aria-label="Close menu"></button>
-    <main class="main" id="main">
+    <div class="main" id="main">
+      <div class="crumb">${crumbHtml || ""}</div>
       <div class="content-wrap">
-        <article class="content prose">
-          ${bodyHtml}
-          <p class="page-foot">${htmlEscape(UI.footer)}</p>
-        </article>
-        ${tocHtml}
+        <article class="content prose">${bodyHtml}</article>
+        ${tocHtml || ""}
       </div>
-    </main>
-  </div>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script>
-  <script src="${asset("assets/site.js")}"></script>
-  <script>document.querySelectorAll("pre code").forEach((el)=>window.hljs&&hljs.highlightElement(el));</script>
-  <button type="button" class="to-top" id="toTop" aria-label="Back to top">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="18 15 12 9 6 15"></polyline></svg>
-  </button>
-
-  <div class="kbd-help" id="kbdHelp" role="dialog" aria-modal="true" aria-label="Keyboard shortcuts">
-  <div class="kbd-panel">
-    <h3>Keyboard shortcuts</h3>
-    <div class="kbd-row"><span>Focus search</span><kbd>/ · ⌘K</kbd></div>
-    <div class="kbd-row"><span>Close / clear</span><kbd>Esc</kbd></div>
-    <div class="kbd-row"><span>This help</span><kbd>?</kbd></div>
-    <div style="margin-top:0.9rem;text-align:right">
-      <button type="button" class="btn ghost" id="kbdHelpClose" style="margin:0;min-height:2.1rem;padding:0.4rem 0.85rem">Close</button>
+      ${pagerHtml || ""}
+      <footer class="page-foot">${htmlEscape(ui.footer || "")}</footer>
     </div>
   </div>
-</div>
+  ${P.kbdHelpHtml()}
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.11.1/build/highlight.min.js"></script>
+  <script src="${asset("assets/site.js")}"></script>
 </body>
 </html>`;
 }
@@ -295,6 +273,7 @@ function copyAssets() {
   for (const f of ["site.css", "site.js"]) {
     fs.copyFileSync(path.join(__dirname, "site-assets", f), path.join(out, f));
   }
+  fs.copyFileSync(path.join(__dirname, "i18n", "ui.json"), path.join(out, "ui.json"));
   ensureDir(path.join(DIST, "meta"));
   for (const f of ["llms.txt", "list.json", "meta-tree.json"]) {
     const src = path.join(ROOT, "docs", f);
@@ -315,19 +294,56 @@ function main() {
   const nav = buildNav(pages);
   fs.writeFileSync(path.join(DIST, "assets", "nav.json"), JSON.stringify(nav, null, 2));
 
+  const ui = P.enrichUi(
+    {
+      ...UI,
+      homeH1: "Build agents with LangGraph",
+      homeLead: "A polished mirror of LangGraph guides and API reference — multi-path navigation in the modal-docs chrome.",
+    },
+    "en",
+    SYNC_NOTE,
+  );
+
+  const flat = P.flattenNav(nav);
+  const homeHref = asset("index.html");
   marked.setOptions({ gfm: true, breaks: false });
   let n = 0;
   for (const page of pages) {
-    let body = marked.parse(page.md);
-    body = enhanceCode(body);
-    body = postProcessHtml(body, page.rel);
-    const toc = tocFromHtml(body);
+    const isHome = page.rel === "index.md";
+    const title = isHome ? "Home" : page.title;
+    const navHtml = renderNavHtml(nav, page.rel);
+    const chipsHtml = renderChipsHtml(nav, page.rel);
+    let body;
+    let toc = "";
+    if (isHome) {
+      body = P.renderHomeBody(nav, ui, {
+        pageCount: pages.length,
+        localeCount: 1,
+        officialUrl: OFFICIAL,
+        syncNote: SYNC_NOTE,
+        llmsHref: asset("meta/llms.txt"),
+      });
+    } else {
+      body = marked.parse(page.md);
+      body = P.addHeadingIds(body);
+      body = enhanceCode(body);
+      body = postProcessHtml(body, page.rel);
+      toc = tocFromHtml(body);
+    }
+    const meta = P.findActiveMeta(nav, page.rel);
+    meta.title = title;
+    const crumbHtml = P.renderCrumb(ui, meta, isHome, homeHref);
+    const pagerHtml = isHome ? "" : P.renderPager(flat, page.rel, ui);
     const html = layout({
-      title: page.title,
+      title,
       bodyHtml: body,
-      navHtml: renderNavHtml(nav, page.rel),
+      navHtml,
+      chipsHtml,
       tocHtml: toc,
       rel: page.rel,
+      ui,
+      crumbHtml,
+      pagerHtml,
     });
     const outFile = path.join(DIST, relToHtml(page.rel));
     ensureDir(path.dirname(outFile));
