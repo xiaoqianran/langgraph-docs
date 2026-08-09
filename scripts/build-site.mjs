@@ -229,6 +229,7 @@ function layout({ title, bodyHtml, navHtml, tocHtml, rel }) {
   <link rel="stylesheet" href="${asset("assets/site.css")}" />
 </head>
 <body>
+  <a class="skip-link" href="#main">Skip to content</a>
   <div class="progress" aria-hidden="true"></div>
   <header class="topbar">
     <div class="topbar-inner">
@@ -256,7 +257,7 @@ function layout({ title, bodyHtml, navHtml, tocHtml, rel }) {
       <div class="side-foot">${htmlEscape(UI.footer)}</div>
     </aside>
     <button type="button" class="backdrop" id="backdrop" aria-label="Close menu"></button>
-    <main class="main">
+    <main class="main" id="main">
       <div class="content-wrap">
         <article class="content prose">
           ${bodyHtml}
@@ -269,6 +270,21 @@ function layout({ title, bodyHtml, navHtml, tocHtml, rel }) {
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script>
   <script src="${asset("assets/site.js")}"></script>
   <script>document.querySelectorAll("pre code").forEach((el)=>window.hljs&&hljs.highlightElement(el));</script>
+  <button type="button" class="to-top" id="toTop" aria-label="Back to top">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="18 15 12 9 6 15"></polyline></svg>
+  </button>
+
+  <div class="kbd-help" id="kbdHelp" role="dialog" aria-modal="true" aria-label="Keyboard shortcuts">
+  <div class="kbd-panel">
+    <h3>Keyboard shortcuts</h3>
+    <div class="kbd-row"><span>Focus search</span><kbd>/ · ⌘K</kbd></div>
+    <div class="kbd-row"><span>Close / clear</span><kbd>Esc</kbd></div>
+    <div class="kbd-row"><span>This help</span><kbd>?</kbd></div>
+    <div style="margin-top:0.9rem;text-align:right">
+      <button type="button" class="btn ghost" id="kbdHelpClose" style="margin:0;min-height:2.1rem;padding:0.4rem 0.85rem">Close</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>`;
 }
