@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Build zh-CN machine translations for Hugging Face docs (English source of truth).
+ * Build zh-CN machine translations for langgraph docs (English source of truth).
  *
  * - Keep EN under docs/pages
  * - Writes cached ZH under docs/zh/pages with content-hash skip
@@ -78,6 +78,8 @@ function protect(md) {
   t = t.replace(/!\[[^\]]*\]\([^)]+\)/g, put);
   t = t.replace(/\[[^\]]*\]\([^)]+\)/g, put);
   t = t.replace(/<[^>]+>/g, put);
+  // Keep product names untranslated
+  t = t.replace(/\b(LangChain|LangGraph|LangSmith|Deep Agents|OpenAI|Anthropic|Hugging Face)\b/g, put);
   return { text: t, slots };
 }
 
@@ -199,7 +201,7 @@ async function main() {
       const zh = await translateMarkdown(en);
       ensureDir(path.dirname(zhAbs));
       const header =
-        "<!-- huggingface-docs: machine-translated zh-CN from English source -->\n\n";
+        "<!-- langgraph-docs: machine-translated zh-CN from English source -->\n\n";
       fs.writeFileSync(zhAbs, header + zh);
       manifest.files[rel] = {
         hash,
@@ -215,7 +217,7 @@ async function main() {
         ensureDir(path.dirname(zhAbs));
         fs.writeFileSync(
           zhAbs,
-          "<!-- huggingface-docs: translation failed; English fallback -->\n\n" + en,
+          "<!-- langgraph-docs: translation failed; English fallback -->\n\n" + en,
         );
         manifest.files[rel] = {
           hash,

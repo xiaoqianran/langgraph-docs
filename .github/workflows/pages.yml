@@ -1,4 +1,4 @@
-# Fetch LangGraph docs, build static site, deploy Pages.
+# Fetch LangGraph docs, machine-translate zh-CN, build static site, deploy Pages.
 
 name: Fetch · Build · Deploy Pages
 
@@ -13,8 +13,12 @@ on:
         description: "Skip re-fetch (build committed docs only)"
         type: boolean
         default: false
+      skip_translate:
+        description: "Skip zh-CN machine translation step"
+        type: boolean
+        default: false
       commit_docs:
-        description: "Commit refreshed docs back to main"
+        description: "Commit refreshed docs + zh cache back to main"
         type: boolean
         default: true
 
@@ -53,21 +57,29 @@ jobs:
           FETCH_CONCURRENCY: "6"
         run: node scripts/fetch-docs.mjs
 
-      - name: Commit refreshed docs
+      - name: Translate docs to zh-CN (hash-cached)
+        if: ${{ github.event_name != 'workflow_dispatch' || inputs.skip_translate != true }}
+        env:
+          TRANSLATE_CONCURRENCY: "3"
+          TRANSLATE_CHUNK: "1200"
+        run: node scripts/translate-docs.mjs
+        continue-on-error: true
+
+      - name: Commit refreshed docs + zh cache
         if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.commit_docs != false) }}
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs/llms.txt docs/list.json docs/meta-tree.json docs/reference-llms.txt docs/pages || true
+          git add docs/llms.txt docs/list.json docs/meta-tree.json docs/reference-llms.txt docs/pages docs/zh || true
           if git diff --staged --quiet; then
             echo "No doc changes to commit"
           else
-            git commit -m "chore: refresh LangGraph docs [skip ci]"
+            git commit -m "chore: refresh LangGraph docs + zh-CN cache [skip ci]"
             git push origin HEAD:main
           fi
 
-      - name: Build static site
+      - name: Build static site (EN + zh-CN)
         env:
           PAGES_BASE: /langgraph-docs
         run: node scripts/build-site.mjs

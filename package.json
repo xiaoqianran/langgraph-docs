@@ -5,7 +5,10 @@
   "scripts": {
     "fetch": "node scripts/fetch-docs.mjs",
     "build": "node scripts/build-site.mjs",
-    "build:pages": "PAGES_BASE=/langgraph-docs node scripts/build-site.mjs"
+    "build:pages": "PAGES_BASE=/langgraph-docs node scripts/build-site.mjs",
+    "translate": "node scripts/translate-docs.mjs",
+    "translate:smoke": "TRANSLATE_LIMIT=8 node scripts/translate-docs.mjs",
+    "build:local": "PAGES_BASE= node scripts/build-site.mjs"
   },
   "devDependencies": {
     "marked": "^15.0.0"

@@ -1,0 +1,107 @@
+<!-- langgraph-docs: machine-translated zh-CN from English source -->
+
+<!-- langgraph-docs: @langchain/langgraph-checkpoint | https://reference.langchain.com/javascript/langchain-langgraph-checkpoint.md -->
+
+# @langchain/langgraph-checkpoint
+
+> JavaScript/TypeScript 包
+
+📖[View in docs](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint)
+
+## 课程
+
+- [⟦T0⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/base/BaseCheckpointSaver)
+- [⟦T1⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/cache/BaseCache)
+- [⟦T2⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/cache/InMemoryCache)
+- [⟦T3⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/index/AsyncBatchedStore)
+- [⟦T4⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/index/BaseCache)
+- [⟦T5⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/index/BaseStore)
+- [⟦T6⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/index/InMemoryCache)
+- [⟦T7⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/index/InMemoryStore)
+- [⟦T8⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/index/InvalidNamespaceError)
+- [⟦T9⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/index/MemoryStore)
+- [⟦T10⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/index/BaseCheckpointSaver)
+- [⟦T11⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/index/MemorySaver)
+- [⟦T12⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/memory/MemorySaver)
+- [⟦T13⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/store/AsyncBatchedStore)
+- [⟦T14⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/store/BaseStore)
+- [⟦T15⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/store/InMemoryStore)
+- [⟦T16⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/store/InvalidNamespaceError)
+- [⟦T17⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/store/MemoryStore)
+
+## 函数
+
+- [⟦T18⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/base/compareChannelVersions)
+- [⟦T19⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/base/deepCopy)
+- [⟦T20⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/base/getCheckpointId)
+- [⟦T21⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/base/maxChannelVersion)
+- [⟦T22⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/id/uuid5)
+- [⟦T23⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/id/uuid6)
+- [⟦T24⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/index/getTextAtPath)
+- [⟦T25⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/index/tokenizePath)
+- [⟦T26⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/index/compareChannelVersions)
+- [⟦T27⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/index/deepCopy)
+- [⟦T28⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/index/getCheckpointId)
+- [⟦T29⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/index/maxChannelVersion)
+- [⟦T30⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/index/uuid5)
+- [⟦T31⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/index/uuid6)
+- [⟦T32⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/serde/utils/fast-safe-stringify/stringify)
+- [⟦T33⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/store/getTextAtPath)
+- [⟦T34⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/store/tokenizePath)
+
+## 接口
+
+- [⟦T35⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/base/Checkpoint)
+- [⟦T36⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/base/CheckpointTuple)
+- [⟦T37⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/base/ReadonlyCheckpoint)
+- [⟦T38⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/index/ChannelProtocol)
+- [⟦T39⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/index/GetOperation)
+- [⟦T40⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/index/IndexConfig)
+- [⟦T41⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/index/Item)
+- [⟦T42⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/index/ListNamespacesOperation)
+- [⟦T43⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/index/MatchCondition)
+- [⟦T44⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/index/PutOperation)
+- [⟦T45⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/index/SearchItem)
+- [⟦T46⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/index/SearchOperation)
+- [⟦T47⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/index/SendProtocol)
+- [⟦T48⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/index/SerializerProtocol)
+- [⟦T49⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/index/Checkpoint)
+- [⟦T50⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/index/CheckpointTuple)
+- [⟦T51⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/index/ReadonlyCheckpoint)
+- [⟦T52⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/store/GetOperation)
+- [⟦T53⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/store/IndexConfig)
+- [⟦T54⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/store/Item)
+- [⟦T55⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/store/ListNamespacesOperation)
+- [⟦T56⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/store/MatchCondition)
+- [⟦T57⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/store/PutOperation)
+- [⟦T58⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/store/SearchItem)
+- [⟦T59⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/store/SearchOperation)
+
+## 类型
+
+- [⟦T60⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/base/ChannelVersions)
+- [⟦T61⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/base/CheckpointListOptions)
+- [⟦T62⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/cache/CacheFullKey)
+- [⟦T63⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/cache/CacheNamespace)
+- [⟦T64⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/index/CacheFullKey)
+- [⟦T65⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/index/CacheNamespace)
+- [⟦T66⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/index/NamespaceMatchType)
+- [⟦T67⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/index/NameSpacePath)
+- [⟦T68⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/index/Operation)
+- [⟦T69⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/index/OperationResults)
+- [⟦T70⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/index/All)
+- [⟦T71⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/index/ChannelVersions)
+- [⟦T72⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/index/CheckpointListOptions)
+- [⟦T73⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/index/CheckpointMetadata)
+- [⟦T74⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/index/CheckpointPendingWrite)
+- [⟦T75⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/index/PendingWrite)
+- [⟦T76⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/index/PendingWriteValue)
+- [⟦T77⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/store/NamespaceMatchType)
+- [⟦T78⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/store/NameSpacePath)
+- [⟦T79⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/store/Operation)
+- [⟦T80⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/store/OperationResults)
+- [⟦T81⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/types/All)
+- [⟦T82⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/types/CheckpointMetadata)
+- [⟦T83⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/types/CheckpointPendingWrite)
+- [⟦T84⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/types/PendingWrite)
+- [⟦T85⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/types/PendingWriteValue)
