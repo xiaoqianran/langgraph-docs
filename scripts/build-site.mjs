@@ -5,6 +5,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { marked } from "marked";
 import { createParadigm } from "./paradigm-page.mjs";
+import { writeLlmsArtifacts } from "./generate-llms.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
@@ -321,7 +322,8 @@ function main() {
         localeCount: 1,
         officialUrl: OFFICIAL,
         syncNote: SYNC_NOTE,
-        llmsHref: asset("meta/llms.txt"),
+        llmsHref: asset("llms.txt"),
+        llmsFullHref: asset("llms-full.txt"),
       });
     } else {
       body = marked.parse(page.md);
@@ -350,6 +352,32 @@ function main() {
     fs.writeFileSync(outFile, html);
     n++;
   }
+
+  // --- llmstxt.org artifacts (llms.txt + llms-full.txt) ---
+  try {
+    const llmsPages = (typeof enPages !== "undefined" ? enPages : typeof pages !== "undefined" ? pages : [])
+      .filter((p) => p && p.rel && p.md)
+      .map((p) => ({ rel: p.rel, title: p.title, md: p.md }));
+    const llmsNav = (typeof enNav !== "undefined" ? enNav : typeof nav !== "undefined" ? nav : typeof navTracks !== "undefined" ? navTracks : null);
+    const llmsResult = writeLlmsArtifacts({
+      dist: DIST,
+      pages: llmsPages,
+      base: BASE,
+      origin: process.env.SITE_ORIGIN || "https://xiaoqianran.github.io",
+      brand: 'LangGraph Docs',
+      description: 'Unofficial mirror of LangGraph guides and API reference.',
+      officialUrl: 'https://docs.langchain.com/langgraph',
+      repo: 'langgraph-docs',
+      nav: llmsNav,
+    });
+    console.log(
+      `[llms] llms.txt + llms-full.txt — ${llmsResult.pageCount} pages, full=${Math.round(llmsResult.fullBytes / 1024)}KB` +
+        (llmsResult.fullTruncated ? " (truncated)" : ""),
+    );
+  } catch (err) {
+    console.warn("[llms] failed:", err?.message || err);
+  }
+
   console.log(`Built ${n} pages, ${nav.length} tracks → ${DIST} (BASE=${BASE || "/"})`);
 }
 

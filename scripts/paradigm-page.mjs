@@ -100,7 +100,8 @@ export function createParadigm({ htmlEscape, asset, CHEV_SVG, relToHtml }) {
     const trackCount = tracks.length;
     const localeCount = opts.localeCount || 1;
     const official = opts.officialUrl || "#";
-    const llmsHref = opts.llmsHref || "meta/llms.txt";
+    const llmsHref = opts.llmsHref || "llms.txt";
+    const llmsFullHref = opts.llmsFullHref || "llms-full.txt";
     const first = flat[0];
     const ctaHref = first?.href || "index.html";
 
@@ -158,6 +159,7 @@ export function createParadigm({ htmlEscape, asset, CHEV_SVG, relToHtml }) {
       <a class="btn" href="${ctaHref}">${getStarted}</a>
       <a class="btn ghost" href="${htmlEscape(official)}" target="_blank" rel="noopener">${officialLabel}</a>
       <a class="btn ghost" href="${llmsHref}">llms.txt</a>
+      <a class="btn ghost" href="${llmsFullHref}">llms-full.txt</a>
     </div>
     <div class="hero-meta">
       <span class="pill"><b>${pageCount}</b> ${pagesWord}</span>
