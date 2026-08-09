@@ -9,7 +9,7 @@
 <Tip>
   **使用人工智能编码助手？**
 
-  * 安装[LangChain Docs MCP server](/use-these-docs)，让您的代理能够访问最新的LangChain文档和示例。
+  * 安装 [LangChain Docs MCP server](/use-these-docs) 以使您的代理能够访问最新的 LangChain 文档和示例。
   * 安装[LangChain Skills](https://github.com/langchain-ai/langchain-skills)以提高代理在LangChain生态系统任务上的性能。
 </Tip>
 
@@ -19,7 +19,7 @@
 有关概念信息，请参阅 [Graph API overview](/oss/python/langgraph/graph-api) 和 [Functional API overview](/oss/python/langgraph/functional-api)。
 
 <Info>
-  对于此示例，您需要设置一个 [Claude (Anthropic)](https://www.anthropic.com/) 帐户并获取 API 密钥。然后，在终端中设置 `ANTHROPIC_API_KEY` 环境变量。请参阅 [chat model integrations](/oss/python/integrations/chat) 了解所有可用的提供商。如果您使用 [LangSmith Gateway](/langsmith/llm-gateway)，则可以使用 [bring your own provider keys](/langsmith/llm-gateway-quickstart) 或使用 [Gateway Credits](/langsmith/llm-gateway-credits) 在没有提供者密钥的情况下访问模型。
+  对于本示例，您需要设置一个 [Claude (Anthropic)](https://www.anthropic.com/) 帐户并获取 API 密钥。然后，在终端中设置 `ANTHROPIC_API_KEY` 环境变量。请参阅 [chat model integrations](/oss/python/integrations/chat) 了解所有可用的提供商。如果您使用 [LangSmith Gateway](/langsmith/llm-gateway)，则可以使用 [bring your own provider keys](/langsmith/llm-gateway-quickstart) 或使用 [Gateway Credits](/langsmith/llm-gateway-credits) 在没有提供者密钥的情况下访问模型。
 </Info>
 
 <Tabs>
@@ -84,7 +84,7 @@
     图的状态用于存储消息和 LLM 调用的数量。
 
     <Tip>
-      LangGraph 中的状态在代理执行期间持续存在。带有 `operator.add` 的 `Annotated` 类型确保新消息附加到现有列表而不是替换它。
+      LangGraph 中的状态在代理执行期间持续存在。带有 `operator.add` 的 `Annotated` 类型可确保新消息附加到现有列表而不是替换它。
     </Tip>
 
     ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
@@ -505,7 +505,7 @@
     <Tip>
       使用 [LangSmith](https://smith.langchain.com?utm_source=docs\&utm_medium=cta\&utm_campaign=langsmith-signup\&utm_content=oss-langgraph-quickstart) 跟踪和调试您的代理。按照[tracing quickstart](/langsmith/trace-with-langgraph)进行设置。准备好投入生产后，请参阅 [Deploy](/langsmith/deployment) 了解托管选项。
 
-      我们建议您还设置 [LangSmith Engine](/langsmith/engine) 来监控您的痕迹、检测问题并提出修复建议。
+      我们建议您还设置 [LangSmith Engine](/langsmith/engine) 来监视您的痕迹、检测问题并提出修复建议。
     </Tip>
 
     恭喜！您已经使用 LangGraph 功能 API 构建了第一个代理。<Accordion title="Full code example" icon="code">

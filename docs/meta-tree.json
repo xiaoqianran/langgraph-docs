@@ -249,16 +249,16 @@
           "rel": "oss/javascript/langgraph/workflows-agents.md"
         }
       ],
-      "common-errors": [
-        {
-          "title": "Errors",
-          "rel": "oss/javascript/langgraph/common-errors.md"
-        }
-      ],
       "human-in-the-loop": [
         {
           "title": "Interrupts",
           "rel": "oss/javascript/langgraph/human-in-the-loop.md"
+        }
+      ],
+      "common-errors": [
+        {
+          "title": "Errors",
+          "rel": "oss/javascript/langgraph/common-errors.md"
         }
       ]
     }
@@ -531,16 +531,16 @@
           "rel": "oss/python/langgraph/workflows-agents.md"
         }
       ],
-      "common-errors": [
-        {
-          "title": "Errors",
-          "rel": "oss/python/langgraph/common-errors.md"
-        }
-      ],
       "human-in-the-loop": [
         {
           "title": "Interrupts",
           "rel": "oss/python/langgraph/human-in-the-loop.md"
+        }
+      ],
+      "common-errors": [
+        {
+          "title": "Errors",
+          "rel": "oss/python/langgraph/common-errors.md"
         }
       ]
     }
@@ -549,28 +549,18 @@
     "id": "api-python",
     "name": "API · Python",
     "groups": {
-      "guides": [
-        {
-          "title": "langgraph",
-          "rel": "reference/python/langgraph.md"
-        }
-      ],
       "python": [
         {
-          "title": "langgraph.store",
-          "rel": "reference/python/langgraph.store.md"
-        },
-        {
-          "title": "langgraph.checkpoint.sqlite",
-          "rel": "reference/python/langgraph.checkpoint.sqlite.md"
+          "title": "langgraph.checkpoint",
+          "rel": "reference/python/langgraph.checkpoint.md"
         },
         {
           "title": "langgraph.store.postgres",
           "rel": "reference/python/langgraph.store.postgres.md"
         },
         {
-          "title": "langgraph.checkpoint",
-          "rel": "reference/python/langgraph.checkpoint.md"
+          "title": "langgraph.store",
+          "rel": "reference/python/langgraph.store.md"
         },
         {
           "title": "langgraph.checkpoint.postgres",
@@ -581,20 +571,30 @@
           "rel": "reference/python/langgraph.prebuilt.md"
         },
         {
-          "title": "langgraph_supervisor",
-          "rel": "reference/python/langgraph-supervisor.md"
+          "title": "langgraph.checkpoint.sqlite",
+          "rel": "reference/python/langgraph.checkpoint.sqlite.md"
+        },
+        {
+          "title": "langgraph_sdk",
+          "rel": "reference/python/langgraph-sdk.md"
         },
         {
           "title": "langgraph_cli",
           "rel": "reference/python/langgraph-cli.md"
         },
         {
-          "title": "langgraph_swarm",
-          "rel": "reference/python/langgraph-swarm.md"
+          "title": "langgraph_supervisor",
+          "rel": "reference/python/langgraph-supervisor.md"
         },
         {
-          "title": "langgraph_sdk",
-          "rel": "reference/python/langgraph-sdk.md"
+          "title": "langgraph_swarm",
+          "rel": "reference/python/langgraph-swarm.md"
+        }
+      ],
+      "guides": [
+        {
+          "title": "langgraph",
+          "rel": "reference/python/langgraph.md"
         }
       ]
     }
@@ -617,20 +617,24 @@
           "rel": "reference/javascript/langchain-langgraph-checkpoint-mongodb.md"
         },
         {
-          "title": "@langchain/langgraph-checkpoint-sqlite",
-          "rel": "reference/javascript/langchain-langgraph-checkpoint-sqlite.md"
+          "title": "@langchain/langgraph-checkpoint-postgres",
+          "rel": "reference/javascript/langchain-langgraph-checkpoint-postgres.md"
         },
         {
           "title": "@langchain/langgraph-checkpoint-redis",
           "rel": "reference/javascript/langchain-langgraph-checkpoint-redis.md"
         },
         {
-          "title": "@langchain/langgraph-checkpoint-validation",
-          "rel": "reference/javascript/langchain-langgraph-checkpoint-validation.md"
+          "title": "@langchain/langgraph-checkpoint-sqlite",
+          "rel": "reference/javascript/langchain-langgraph-checkpoint-sqlite.md"
         },
         {
           "title": "@langchain/langgraph-api",
           "rel": "reference/javascript/langchain-langgraph-api.md"
+        },
+        {
+          "title": "@langchain/langgraph-checkpoint-validation",
+          "rel": "reference/javascript/langchain-langgraph-checkpoint-validation.md"
         },
         {
           "title": "@langchain/langgraph-cli",
@@ -647,10 +651,6 @@
         {
           "title": "@langchain/langgraph-swarm",
           "rel": "reference/javascript/langchain-langgraph-swarm.md"
-        },
-        {
-          "title": "@langchain/langgraph-checkpoint-postgres",
-          "rel": "reference/javascript/langchain-langgraph-checkpoint-postgres.md"
         }
       ]
     }

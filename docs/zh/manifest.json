@@ -439,13 +439,29 @@
     "oss/javascript/langgraph/overview.md": {
       "hash": "6faf6fca6ed783d86662c12b87b2799f35067301",
       "translatedAt": "2026-08-09T09:08:47.493Z"
+    },
+    "oss/python/langgraph/install.md": {
+      "hash": "b3bd8e6815c9bb7ecfc8c787e93fc50fa8ac64fe",
+      "translatedAt": "2026-08-09T10:06:25.319Z"
+    },
+    "oss/python/langgraph/frontend/overview.md": {
+      "hash": "c2ea3e97bfa564a1bc2d42e810f848de1f3d4696",
+      "translatedAt": "2026-08-09T10:06:25.467Z"
+    },
+    "oss/python/langgraph/quickstart.md": {
+      "hash": "1ab2e86f143177b168bfe71d4b460ff1cad12694",
+      "translatedAt": "2026-08-09T10:06:25.558Z"
+    },
+    "oss/python/langgraph/overview.md": {
+      "hash": "5d338e25818e559d0517e4738f297dfe6a5b6097",
+      "translatedAt": "2026-08-09T10:06:25.640Z"
     }
   },
-  "updatedAt": "2026-08-09T09:08:47.493Z",
+  "updatedAt": "2026-08-09T10:06:25.640Z",
   "stats": {
-    "translated": 6,
-    "skipped": 34,
+    "translated": 4,
+    "skipped": 110,
     "failed": 0,
-    "total": 40
+    "total": 114
   }
 }
