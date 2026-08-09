@@ -219,14 +219,17 @@ function layout({ title, bodyHtml, navHtml, tocHtml, rel }) {
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="dark" />
+  <meta name="theme-color" content="#08090c" />
   <title>${htmlEscape(title)} · ${htmlEscape(UI.brand)}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;600;700&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark.min.css" />
   <link rel="stylesheet" href="${asset("assets/site.css")}" />
 </head>
 <body>
+  <div class="progress" aria-hidden="true"></div>
   <header class="topbar">
     <div class="topbar-inner">
       <button type="button" class="menu-btn" id="menuBtn" aria-label="${htmlEscape(UI.menu)}">${htmlEscape(UI.menu)}</button>
@@ -245,6 +248,7 @@ function layout({ title, bodyHtml, navHtml, tocHtml, rel }) {
         <div class="search-wrap">
           <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3-3"/></svg>
           <input class="search" id="search" type="search" placeholder="${htmlEscape(UI.searchPlaceholder)}" autocomplete="off" />
+          <span class="search-kbd" aria-hidden="true">/</span>
         </div>
         <div class="side-label">${htmlEscape(UI.learningPath)}</div>
       </div>
