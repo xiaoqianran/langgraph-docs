@@ -8,7 +8,9 @@
     "build:pages": "PAGES_BASE=/langgraph-docs node scripts/build-site.mjs",
     "translate": "node scripts/translate-docs.mjs",
     "translate:smoke": "TRANSLATE_LIMIT=8 node scripts/translate-docs.mjs",
-    "build:local": "PAGES_BASE= node scripts/build-site.mjs"
+    "build:local": "PAGES_BASE= node scripts/build-site.mjs",
+    "quality": "node scripts/quality-report.mjs",
+    "refresh": "node scripts/fetch-docs.mjs && node scripts/translate-docs.mjs && PAGES_BASE=/langgraph-docs node scripts/build-site.mjs"
   },
   "devDependencies": {
     "marked": "^15.0.0"

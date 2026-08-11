@@ -79,6 +79,13 @@ jobs:
             git push origin HEAD:main
           fi
 
+
+      - name: Body quality report
+        env:
+          QUALITY_PAGES: docs/pages
+          QUALITY_STRICT: "0"
+        run: node scripts/quality-report.mjs
+
       - name: Build static site (EN + zh-CN)
         env:
           PAGES_BASE: /langgraph-docs

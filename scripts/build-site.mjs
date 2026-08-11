@@ -3,8 +3,9 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { marked } from "marked";
 import { normalizeMdxMarkdown } from "./mdx-normalize.mjs";
+import { renderMarkdown, extractToc, tocHtml } from "./marked-renderer.mjs";
+import { createLinkRewriter } from "./link-rewrite.mjs";
 import { createParadigm } from "./paradigm-page.mjs";
 import { writeLlmsArtifacts } from "./generate-llms.mjs";
 
@@ -70,6 +71,12 @@ function pageHref(rel, locale) {
 }
 
 const P = createParadigm({ htmlEscape, asset, CHEV_SVG, relToHtml });
+
+const rewriteLinks = createLinkRewriter({
+  asset,
+  hosts: ["https://docs.langchain.com", "https://reference.langchain.com"],
+  rootPrefixes: ["/oss/", "/langsmith/", "/langgraph/", "/reference/", "/python/", "/js/"],
+});
 
 function loadPages(rootDir, stripPrefix = "langgraph-docs") {
   const files = walk(rootDir);
@@ -147,76 +154,9 @@ function buildNav(pages, locale) {
   return tracks;
 }
 
-function enhanceCode(html, ui = {}) {
-  const copy = htmlEscape(ui.copy || "Copy");
-  return html
-    .replace(
-      /<pre><code class="language-([^"]*)">([\s\S]*?)<\/code><\/pre>/g,
-      (_, lang, code) =>
-        `<div class="code-block"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="lang">${htmlEscape(lang || "text")}</span><button type="button" class="copy-btn" data-copy data-label-copy="${copy}" data-label-copied="${htmlEscape(ui.copied || "Copied")}">${copy}</button></div><pre><code class="language-${htmlEscape(lang)}">${code}</code></pre></div>`,
-    )
-    .replace(
-      /<pre><code>([\s\S]*?)<\/code><\/pre>/g,
-      (_, code) =>
-        `<div class="code-block"><div class="code-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="lang">text</span><button type="button" class="copy-btn" data-copy data-label-copy="${copy}" data-label-copied="${htmlEscape(ui.copied || "Copied")}">${copy}</button></div><pre><code>${code}</code></pre></div>`,
-    );
-}
+// enhanceCode/tocFromHtml replaced by marked-renderer.mjs
 
-function tocFromHtml(html, ui = {}) {
-  const items = [];
-  const re = /<h([23])\s+id="([^"]+)"[^>]*>([\s\S]*?)<\/h\1>/g;
-  let m;
-  while ((m = re.exec(html))) {
-    const text = m[3].replace(/<[^>]+>/g, "").trim();
-    if (text) items.push({ level: Number(m[1]), id: m[2], text });
-  }
-  if (items.length < 1) return "";
-  const title = htmlEscape(ui.onThisPage || "On this page");
-  return `<nav class="toc" aria-label="${title}"><div class="toc-title">${title}</div><ul>${items
-    .map((it) => `<li class="l${it.level}"><a href="#${htmlEscape(it.id)}">${htmlEscape(it.text)}</a></li>`)
-    .join("")}</ul></nav>`;
-}
-
-function postProcessHtml(html, fromRel, locale) {
-  return html.replace(/href="([^"]+)"/g, (full, href) => {
-    if (!href || href.startsWith("#") || href.startsWith("mailto:") || href.startsWith("data:")) return full;
-    if (/^https?:\/\/docs\.langchain\.com\//i.test(href)) {
-      let p = href.replace(/^https?:\/\/docs\.langchain\.com\//i, "").replace(/\.md$/i, "");
-      p = p.split("#")[0].replace(/\/+$/, "");
-      const hash = href.includes("#") ? "#" + href.split("#").slice(1).join("#") : "";
-      if (!p) return `href="${asset("index.html", locale)}${hash}"`;
-      return `href="${asset(p + ".html", locale)}${hash}"`;
-    }
-    if (/^https?:\/\//i.test(href)) return full;
-    if (href.endsWith(".md") || href.includes(".md#")) {
-      let target = href;
-      let hash = "";
-      const hi = target.indexOf("#");
-      if (hi >= 0) {
-        hash = target.slice(hi);
-        target = target.slice(0, hi);
-      }
-      const dir = path.posix.dirname(fromRel.replace(/\\/g, "/"));
-      let rel = target.replace(/^\.\//, "");
-      if (!rel.startsWith("/")) {
-        rel = path.posix.normalize(path.posix.join(dir === "." ? "" : dir, rel));
-      }
-      rel = rel.replace(/^\/+/, "");
-      if (rel.endsWith(".md")) rel = rel.slice(0, -3) + ".html";
-      return `href="${asset(rel, locale)}${hash}"`;
-    }
-    if (
-      href.startsWith("/oss/") ||
-      href.startsWith("/langsmith/") ||
-      href.startsWith("/api-reference/") ||
-      href.startsWith("/reference/")
-    ) {
-      let p = href.replace(/^\//, "").replace(/\.md$/i, "").replace(/\/+$/, "");
-      return `href="${asset(p + ".html", locale)}"`;
-    }
-    return full;
-  });
-}
+// postProcessHtml → link-rewrite.mjs
 
 function renderNavHtml(tracks, activeRel) {
   return P.renderNavHtmlFull(tracks, activeRel, PREFERRED);
@@ -330,7 +270,6 @@ function buildLocale(locale, pages, navTracks) {
   ensureDir(outRoot);
   const flat = P.flattenNav(navTracks);
   const homeHref = asset("index.html", locale);
-  marked.setOptions({ gfm: true, breaks: false });
   let n = 0;
   for (const page of pages) {
     const isHome = page.rel === "index.md";
@@ -349,11 +288,10 @@ function buildLocale(locale, pages, navTracks) {
         llmsFullHref: asset("llms-full.txt"),
       });
     } else {
-      body = marked.parse(normalizeMdxMarkdown(page.md));
-      body = P.addHeadingIds(body);
-      body = enhanceCode(body, ui);
-      body = postProcessHtml(body, page.rel, locale);
-      toc = tocFromHtml(body, ui);
+      const norm = normalizeMdxMarkdown(page.md);
+      body = renderMarkdown(norm, ui);
+      body = rewriteLinks(body, page.rel, locale);
+      toc = tocHtml(extractToc(norm), ui);
     }
     const meta = P.findActiveMeta(navTracks, page.rel);
     meta.title = title;
