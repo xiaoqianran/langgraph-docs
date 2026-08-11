@@ -391,7 +391,7 @@ Output of graph invocation: {'a': 'set by node_3'}
 
 ### Use pydantic models for graph state
 
-A [StateGraph](https://langchain-ai.github.io/langgraph/reference/graphs.md#langgraph.graph.StateGraph) accepts a [`state_schema`](https://reference.langchain.com/python/langchain/middleware/#langchain.agents.middleware.AgentMiddleware.state_schema) argument on initialization that specifies the "shape" of the state that the nodes in the graph can access and update.
+A [StateGraph](https://reference.langchain.com/python/langgraph/graph/state/StateGraph) accepts a [`state_schema`](https://reference.langchain.com/python/langchain/middleware/#langchain.agents.middleware.AgentMiddleware.state_schema) argument on initialization that specifies the "shape" of the state that the nodes in the graph can access and update.
 
 In our examples, we typically use a python-native `TypedDict` or [`dataclass`](https://docs.python.org/3/library/dataclasses.html) for `state_schema`, but [`state_schema`](https://reference.langchain.com/python/langchain/middleware/#langchain.agents.middleware.AgentMiddleware.state_schema) can be any [type](https://docs.python.org/3/library/stdtypes.html#type-objects).
 
@@ -1233,7 +1233,7 @@ builder.add_edge(START, "step_1")
 
 ## Create branches
 
-Parallel execution of nodes is essential to speed up overall graph operation. LangGraph offers native support for parallel execution of nodes, which can significantly enhance the performance of graph-based workflows. This parallelization is achieved through fan-out and fan-in mechanisms, utilizing both standard edges and [conditional\_edges](https://langchain-ai.github.io/langgraph/reference/graphs.md#langgraph.graph.MessageGraph.add_conditional_edges). Below are some examples showing how to add create branching dataflows that work for you.
+Parallel execution of nodes is essential to speed up overall graph operation. LangGraph offers native support for parallel execution of nodes, which can significantly enhance the performance of graph-based workflows. This parallelization is achieved through fan-out and fan-in mechanisms, utilizing both standard edges and [conditional\_edges](https://reference.langchain.com/python/langgraph/graph/state/StateGraph/add_conditional_edges). Below are some examples showing how to add create branching dataflows that work for you.
 
 ### Run graph nodes in parallel
 
@@ -2136,7 +2136,7 @@ result = await graph.ainvoke({"messages": [input_message]})  # [!code highlight]
 
 ## Combine control flow and state updates with `Command`
 
-It can be useful to combine control flow (edges) and state updates (nodes). For example, you might want to BOTH perform state updates AND decide which node to go to next in the SAME node. LangGraph provides a way to do so by returning a [Command](https://langchain-ai.github.io/langgraph/reference/types/#langgraph.types.Command) object from node functions:
+It can be useful to combine control flow (edges) and state updates (nodes). For example, you might want to BOTH perform state updates AND decide which node to go to next in the SAME node. LangGraph provides a way to do so by returning a [Command](https://reference.langchain.com/python/langgraph/types/Command) object from node functions:
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 def my_node(state: State) -> Command[Literal["my_other_node"]]:
