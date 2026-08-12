@@ -133,7 +133,7 @@ Prompt chaining is when each LLM call processes the output of the previous call.
   };
 
   // Gate function to check if the joke has a punchline
-  const checkPunchline: ConditionalEdgeRouter<typeof State, "improveJoke"> = (state) => {
+  const checkPunchline: ConditionalEdgeRouter<{ InputSchema: typeof State; Nodes: "improveJoke" }> = (state) => {
     // Simple check - does the joke contain "?" or "!"
     if (state.joke?.includes("?") || state.joke?.includes("!")) {
       return "Pass";
@@ -461,7 +461,7 @@ Routing workflows process inputs and then directs them to context-specific tasks
   };
 
   // Conditional edge function to route to the appropriate node
-  const routeDecision: ConditionalEdgeRouter<typeof State, "llmCall1" | "llmCall2" | "llmCall3"> = (state) => {
+  const routeDecision: ConditionalEdgeRouter<{ InputSchema: typeof State; Nodes: "llmCall1" | "llmCall2" | "llmCall3" }> = (state) => {
     // Return the node name you want to visit next
     if (state.decision === "story") {
       return "llmCall1";
@@ -755,7 +755,7 @@ const synthesizer: GraphNode<typeof State> = async (state) => {
 };
 
 // Conditional edge function to create llm_call workers that each write a section of the report
-const assignWorkers: ConditionalEdgeRouter<typeof State, "llmCall"> = (state) => {
+const assignWorkers: ConditionalEdgeRouter<{ InputSchema: typeof State; Nodes: "llmCall" }> = (state) => {
   // Kick off section writing in parallel via Send() API
   return state.sections.map((section) =>
     new Send("llmCall", { section })
@@ -839,7 +839,7 @@ Evaluator-optimizer workflows are commonly used when there's particular success 
   };
 
   // Conditional edge function to route back to joke generator or end based upon feedback from the evaluator
-  const routeJoke: ConditionalEdgeRouter<typeof State, "llmCallGenerator"> = (state) => {
+  const routeJoke: ConditionalEdgeRouter<{ InputSchema: typeof State; Nodes: "llmCallGenerator" }> = (state) => {
     // Route back to joke generator or end based upon feedback from the evaluator
     if (state.funnyOrNot === "funny") {
       return "Accepted";
@@ -1031,7 +1031,7 @@ const llmWithTools = llm.bindTools(tools);
   const toolNode = new ToolNode(tools);
 
   // Conditional edge function to route to the tool node or end
-  const shouldContinue: ConditionalEdgeRouter<typeof State, "toolNode"> = (state) => {
+  const shouldContinue: ConditionalEdgeRouter<{ InputSchema: typeof State; Nodes: "toolNode" }> = (state) => {
     const messages = state.messages;
     const lastMessage = messages.at(-1);
 

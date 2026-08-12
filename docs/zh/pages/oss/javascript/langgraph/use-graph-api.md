@@ -1124,7 +1124,7 @@ const nodeC: GraphNode<typeof State> = (state) => {
   return { aggregate: ["C"] };  // [!code highlight]
 };
 
-const conditionalEdge: ConditionalEdgeRouter<typeof State, "b" | "c"> = (state) => {
+const conditionalEdge: ConditionalEdgeRouter<{ InputSchema: typeof State; Nodes: "b" | "c" }> = (state) => {
   // Fill in arbitrary logic here that uses the state
   // to determine the next node
   return state.which as "b" | "c";
@@ -1166,7 +1166,7 @@ Adding "C" to ['A']
   您的条件边可以路由到多个目标节点。例如：
 
   ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  const routeBcOrCd: ConditionalEdgeRouter<typeof State, "b" | "c" | "d"> = (state) => {
+  const routeBcOrCd: ConditionalEdgeRouter<{ InputSchema: typeof State; Nodes: "b" | "c" | "d" }> = (state) => {
     if (state.which === "cd") {
       return ["c", "d"];
     }
@@ -1206,7 +1206,7 @@ const generateJoke: GraphNode<typeof OverallState> = (state) => {
   return { jokes: [jokeMap[state.subject]] };
 };
 
-const continueToJokes: ConditionalEdgeRouter<typeof OverallState, "generateJoke"> = (state) => {
+const continueToJokes: ConditionalEdgeRouter<{ InputSchema: typeof OverallState; Nodes: "generateJoke" }> = (state) => {
   return state.subjects.map((subject) => new Send("generateJoke", { subject }));
 };
 
@@ -1266,7 +1266,7 @@ for await (const message of stream.messages) {
 创建循环时，可以包含指定终止条件的条件边：
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-const route: ConditionalEdgeRouter<typeof State, "b"> = (state) => {
+const route: ConditionalEdgeRouter<{ InputSchema: typeof State; Nodes: "b" }> = (state) => {
   if (terminationCondition(state)) {
     return END;
   } else {
@@ -1322,7 +1322,7 @@ const nodeB: GraphNode<typeof State> = (state) => {
 };
 
 // Define edges
-const route: ConditionalEdgeRouter<typeof State, "b"> = (state) => {
+const route: ConditionalEdgeRouter<{ InputSchema: typeof State; Nodes: "b" }> = (state) => {
   if (state.aggregate.length < 7) {
     return "b";
   } else {
@@ -1424,7 +1424,7 @@ const State = new StateSchema({
 
 // Define the nodes
 
-const nodeA: GraphNode<typeof State, "nodeB" | "nodeC"> = (state) => {
+const nodeA: GraphNode<{ InputSchema: typeof State; Nodes: "nodeB" | "nodeC" }> = (state) => {
   console.log("Called A");
   const value = Math.random() > 0.5 ? "b" : "c";
   // this is a replacement for a conditional edge function
@@ -1521,7 +1521,7 @@ const State = new StateSchema({
   ),
 });
 
-const nodeA: GraphNode<typeof State, "nodeB" | "nodeC"> = (state) => {
+const nodeA: GraphNode<{ InputSchema: typeof State; Nodes: "nodeB" | "nodeC" }> = (state) => {
   console.log("Called A");
   const value = Math.random() > 0.5 ? "nodeB" : "nodeC";
 
@@ -1638,7 +1638,7 @@ const node2: GraphNode<typeof State> = (state) => {
   return { value: state.value * 2 };
 };
 
-const router: ConditionalEdgeRouter<typeof State, "node2"> = (state) => {
+const router: ConditionalEdgeRouter<{ InputSchema: typeof State; Nodes: "node2" }> = (state) => {
   if (state.value < 10) {
     return "node2";
   }

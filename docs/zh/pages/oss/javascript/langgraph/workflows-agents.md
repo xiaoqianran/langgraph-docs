@@ -11,7 +11,7 @@
 
 <img alt="Agent Workflow" />
 
-LangGraph 在构建代理和工作流程时提供了多种优势，包括[persistence](/oss/javascript/langgraph/persistence)、[streaming](/oss/javascript/langgraph/streaming)、以及对调试的支持以及[deployment](/oss/javascript/langgraph/deploy)。
+LangGraph 在构建代理和工作流时提供了多项优势，包括 [persistence](/oss/javascript/langgraph/persistence)、[streaming](/oss/javascript/langgraph/streaming)、调试支持以及[deployment](/oss/javascript/langgraph/deploy)。
 
 <Tip>
   跟踪并比较这些工作流程模式与[LangSmith](https://smith.langchain.com?utm_source=docs\&utm_medium=cta\&utm_campaign=langsmith-signup\&utm_content=oss-langgraph-workflows-agents)。按照[tracing quickstart](/langsmith/trace-with-langgraph)查看数据如何流经每个步骤。我们建议您还设置 [LangSmith Engine](/langsmith/engine) 来监控您的痕迹、检测问题并提出修复建议。
@@ -133,7 +133,7 @@ console.log(msg.tool_calls);
   };
 
   // Gate function to check if the joke has a punchline
-  const checkPunchline: ConditionalEdgeRouter<typeof State, "improveJoke"> = (state) => {
+  const checkPunchline: ConditionalEdgeRouter<{ InputSchema: typeof State; Nodes: "improveJoke" }> = (state) => {
     // Simple check - does the joke contain "?" or "!"
     if (state.joke?.includes("?") || state.joke?.includes("!")) {
       return "Pass";
@@ -459,7 +459,7 @@ console.log(msg.tool_calls);
   };
 
   // Conditional edge function to route to the appropriate node
-  const routeDecision: ConditionalEdgeRouter<typeof State, "llmCall1" | "llmCall2" | "llmCall3"> = (state) => {
+  const routeDecision: ConditionalEdgeRouter<{ InputSchema: typeof State; Nodes: "llmCall1" | "llmCall2" | "llmCall3" }> = (state) => {
     // Return the node name you want to visit next
     if (state.decision === "story") {
       return "llmCall1";
@@ -686,7 +686,7 @@ Orchestrator-worker 工作流程提供了更大的灵活性，并且通常在无
   ```
 </CodeGroup>
 
-### 在 LangGraph 中创建工人Orchestrator-worker 工作流程很常见，LangGraph 内置了对它们的支持。 `Send` API 允许您动态创建工作节点并向它们发送特定输入。每个工作人员都有自己的状态，所有工作人员输出都写入编排器图可访问的共享状态键。这使协调器可以访问所有工作输出，并允许将它们合成为最终输出。下面的示例迭代部分列表，并使用 `Send` API 将部分发送给每个工作人员。
+### 在LangGraph创建工人Orchestrator-worker 工作流程很常见，LangGraph 内置了对它们的支持。 `Send` API 允许您动态创建工作节点并向它们发送特定输入。每个工作人员都有自己的状态，所有工作人员输出都写入编排器图可访问的共享状态键。这使协调器可以访问所有工作输出，并允许将它们合成为最终输出。下面的示例迭代部分列表，并使用 `Send` API 将部分发送给每个工作人员。
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { StateGraph, StateSchema, ReducedValue, GraphNode, Send } from "@langchain/langgraph";
@@ -751,7 +751,7 @@ const synthesizer: GraphNode<typeof State> = async (state) => {
 };
 
 // Conditional edge function to create llm_call workers that each write a section of the report
-const assignWorkers: ConditionalEdgeRouter<typeof State, "llmCall"> = (state) => {
+const assignWorkers: ConditionalEdgeRouter<{ InputSchema: typeof State; Nodes: "llmCall" }> = (state) => {
   // Kick off section writing in parallel via Send() API
   return state.sections.map((section) =>
     new Send("llmCall", { section })
@@ -784,9 +784,9 @@ console.log(state.finalReport);
 
 在评估器-优化器工作流程中，一个 LLM 调用创建响应，另一个调用评估该响应。如果评估者或 [human-in-the-loop](/oss/javascript/langgraph/interrupts) 确定响应需要改进，则会提供反馈并重新创建响应。此循环将持续下去，直到生成可接受的响应。
 
-当任务有特定的成功标准，但需要迭代才能满足该标准时，通常会使用评估器-优化器工作流程。例如，在两种语言之间翻译文本时并不总是存在完美匹配。可能需要几次迭代才能生成两种语言具有相同含义的翻译。<img alt="evaluator_optimizer.png" />
+当任务有特定的成功标准，但需要迭代才能满足该标准时，通常会使用评估器-优化器工作流程。例如，在两种语言之间翻译文本时并不总是存在完美匹配。可能需要几次迭代才能生成两种语言具有相同含义的翻译。
 
-<CodeGroup>
+<img alt="evaluator_optimizer.png" /><CodeGroup>
   ```typescript Graph API theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
   import { StateGraph, StateSchema, GraphNode, ConditionalEdgeRouter } from "@langchain/langgraph";
   import * as z from "zod";
@@ -833,7 +833,7 @@ console.log(state.finalReport);
   };
 
   // Conditional edge function to route back to joke generator or end based upon feedback from the evaluator
-  const routeJoke: ConditionalEdgeRouter<typeof State, "llmCallGenerator"> = (state) => {
+  const routeJoke: ConditionalEdgeRouter<{ InputSchema: typeof State; Nodes: "llmCallGenerator" }> = (state) => {
     // Route back to joke generator or end based upon feedback from the evaluator
     if (state.funnyOrNot === "funny") {
       return "Accepted";
@@ -936,7 +936,7 @@ console.log(state.finalReport);
 <img alt="agent.png" />
 
 <Note>
-  要开始使用代理，请参阅LangChain中的[quickstart](/oss/javascript/langchain/quickstart)或阅读有关[how they work](/oss/javascript/langchain/agents)的更多信息。
+  要开始使用代理，请参阅[quickstart](/oss/javascript/langchain/quickstart)或在LangChain中阅读有关[how they work](/oss/javascript/langchain/agents)的更多信息。
 </Note>
 
 ```typescript Using tools theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
@@ -1025,7 +1025,7 @@ const llmWithTools = llm.bindTools(tools);
   const toolNode = new ToolNode(tools);
 
   // Conditional edge function to route to the tool node or end
-  const shouldContinue: ConditionalEdgeRouter<typeof State, "toolNode"> = (state) => {
+  const shouldContinue: ConditionalEdgeRouter<{ InputSchema: typeof State; Nodes: "toolNode" }> = (state) => {
     const messages = state.messages;
     const lastMessage = messages.at(-1);
 

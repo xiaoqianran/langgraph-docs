@@ -12,17 +12,17 @@
 
 - [⟦T0⟧](https://reference.langchain.com/python/langgraph.checkpoint.postgres/PostgresSaver)
 - [⟦T1⟧](https://reference.langchain.com/python/langgraph.checkpoint.postgres/aio/AsyncPostgresSaver)
-- [⟦T2⟧](https://reference.langchain.com/python/langgraph.checkpoint.postgres/base/BasePostgresSaver)
-- [⟦T3⟧](https://reference.langchain.com/python/langgraph.checkpoint.postgres/shallow/ShallowPostgresSaver)
-- [⟦T4⟧](https://reference.langchain.com/python/langgraph.checkpoint.postgres/shallow/AsyncShallowPostgresSaver)
+- [⟦T2⟧](https://reference.langchain.com/python/langgraph.checkpoint.postgres/shallow/ShallowPostgresSaver)
+- [⟦T3⟧](https://reference.langchain.com/python/langgraph.checkpoint.postgres/shallow/AsyncShallowPostgresSaver)
+- [⟦T4⟧](https://reference.langchain.com/python/langgraph.checkpoint.postgres/base/BasePostgresSaver)
 
 ## 函数
 
-- [⟦T5⟧](https://reference.langchain.com/python/langgraph.checkpoint.postgres/_ainternal/get_connection)
-- [⟦T6⟧](https://reference.langchain.com/python/langgraph.checkpoint.postgres/_internal/get_connection)
+- [⟦T5⟧](https://reference.langchain.com/python/langgraph.checkpoint.postgres/_internal/get_connection)
+- [⟦T6⟧](https://reference.langchain.com/python/langgraph.checkpoint.postgres/_ainternal/get_connection)
 
 ## 类型
 
-- [⟦T7⟧](https://reference.langchain.com/python/langgraph.checkpoint.postgres/_ainternal/Conn)
-- [⟦T8⟧](https://reference.langchain.com/python/langgraph.checkpoint.postgres/base/MetadataInput)
-- [⟦T9⟧](https://reference.langchain.com/python/langgraph.checkpoint.postgres/_internal/Conn)
+- [⟦T7⟧](https://reference.langchain.com/python/langgraph.checkpoint.postgres/_internal/Conn)
+- [⟦T8⟧](https://reference.langchain.com/python/langgraph.checkpoint.postgres/_ainternal/Conn)
+- [⟦T9⟧](https://reference.langchain.com/python/langgraph.checkpoint.postgres/base/MetadataInput)

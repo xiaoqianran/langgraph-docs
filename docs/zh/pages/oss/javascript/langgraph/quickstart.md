@@ -19,7 +19,7 @@
 有关概念信息，请参阅 [Graph API overview](/oss/javascript/langgraph/graph-api) 和 [Functional API overview](/oss/javascript/langgraph/functional-api)。
 
 <Info>
-  对于本示例，您需要设置一个 [Claude (Anthropic)](https://www.anthropic.com/) 帐户并获取 API 密钥。然后，在终端中设置 `ANTHROPIC_API_KEY` 环境变量。请参阅 [chat model integrations](/oss/javascript/integrations/chat) 了解所有可用的提供商。如果您使用 [LangSmith Gateway](/langsmith/llm-gateway)，则可以使用 [bring your own provider keys](/langsmith/llm-gateway-quickstart) 或使用 [Gateway Credits](/langsmith/llm-gateway-credits) 来访问模型而无需提供者密钥。
+  对于此示例，您需要设置一个 [Claude (Anthropic)](https://www.anthropic.com/) 帐户并获取 API 密钥。然后，在终端中设置 `ANTHROPIC_API_KEY` 环境变量。请参阅 [chat model integrations](/oss/javascript/integrations/chat) 了解所有可用的提供商。如果您使用 [LangSmith Gateway](/langsmith/llm-gateway)，则可以使用 [bring your own provider keys](/langsmith/llm-gateway-quickstart) 或使用 [Gateway Credits](/langsmith/llm-gateway-credits) 来访问模型而无需提供者密钥。
 </Info>
 
 <Tabs>
@@ -157,7 +157,7 @@
     条件边函数用于根据 LLM 是否进行工具调用来路由到工具节点或末端。
 
     ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    const shouldContinue: ConditionalEdgeRouter<typeof MessagesState, "toolNode"> = (state) => {
+    const shouldContinue: ConditionalEdgeRouter<{ InputSchema: typeof MessagesState; Nodes: "toolNode" }> = (state) => {
       const lastMessage = state.messages.at(-1);
 
       // Check if it's an AIMessage before accessing tool_calls
@@ -323,7 +323,7 @@
       // Step 5: Define logic to determine whether to end
       import { ConditionalEdgeRouter, END } from "@langchain/langgraph";
 
-      const shouldContinue: ConditionalEdgeRouter<typeof MessagesState, "toolNode"> = (state) => {
+      const shouldContinue: ConditionalEdgeRouter<{ InputSchema: typeof MessagesState; Nodes: "toolNode" }> = (state) => {
         const lastMessage = state.messages.at(-1);
 
         // Check if it's an AIMessage before accessing tool_calls

@@ -157,7 +157,7 @@ For conceptual information, see [Graph API overview](/oss/javascript/langgraph/g
     The conditional edge function is used to route to the tool node or end based upon whether the LLM made a tool call.
 
     ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    const shouldContinue: ConditionalEdgeRouter<typeof MessagesState, "toolNode"> = (state) => {
+    const shouldContinue: ConditionalEdgeRouter<{ InputSchema: typeof MessagesState; Nodes: "toolNode" }> = (state) => {
       const lastMessage = state.messages.at(-1);
 
       // Check if it's an AIMessage before accessing tool_calls
@@ -323,7 +323,7 @@ For conceptual information, see [Graph API overview](/oss/javascript/langgraph/g
       // Step 5: Define logic to determine whether to end
       import { ConditionalEdgeRouter, END } from "@langchain/langgraph";
 
-      const shouldContinue: ConditionalEdgeRouter<typeof MessagesState, "toolNode"> = (state) => {
+      const shouldContinue: ConditionalEdgeRouter<{ InputSchema: typeof MessagesState; Nodes: "toolNode" }> = (state) => {
         const lastMessage = state.messages.at(-1);
 
         // Check if it's an AIMessage before accessing tool_calls

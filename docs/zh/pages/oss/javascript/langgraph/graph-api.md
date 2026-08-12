@@ -4,7 +4,7 @@
 
 ## 图表
 
-LangGraph 的核心是将代理工作流程建模为图表。您可以使用三个关键组件来定义代理的行为：
+其核心是，LangGraph 将代理工作流程建模为图表。您可以使用三个关键组件来定义代理的行为：
 
 1. [⟦T47⟧](#state)：表示应用程序当前快照的共享数据结构。它可以是任何数据类型，但通常使用共享状态模式定义。
 
@@ -12,11 +12,11 @@ LangGraph 的核心是将代理工作流程建模为图表。您可以使用三�
 
 3. [⟦T49⟧](#edges)：根据当前状态决定接下来执行哪个`Node`的函数。它们可以是条件分支或固定转换。
 
-通过组合 `Nodes` 和 `Edges`，您可以创建复杂的循环工作流程，这些工作流程会随着时间的推移而演变状态。然而，真正的力量来自 LangGraph 管理该状态的方式。
+通过组合 `Nodes` 和 `Edges`，您可以创建复杂的循环工作流程，这些工作流程会随着时间的推移而演变状态。然而，真正的力量来自于LangGraph如何管理该状态。
 
 强调一下：`Nodes`和`Edges`只不过是函数——它们可以包含LLM或只是好的代码。
 
-简而言之：*节点完成工作，边缘告诉下一步做什么*。LangGraph的底层图算法使用[message passing](https://en.wikipedia.org/wiki/Message_passing)来定义通用程序。当节点完成其操作时，它会沿着一条或多条边向其他节点发送消息。然后，这些接收节点执行其功能，将结果消息传递给下一组节点，然后该过程继续。受 Google [Pregel](https://research.google/pubs/pregel-a-system-for-large-scale-graph-processing/) 系统的启发，该程序以离散的“超级步骤”进行。
+简而言之：*节点完成工作，边缘告诉下一步做什么*。LangGraph的底层图算法使用[message passing](https://en.wikipedia.org/wiki/Message_passing)定义通用程序。当节点完成其操作时，它会沿着一条或多条边向其他节点发送消息。然后，这些接收节点执行其功能，将结果消息传递给下一组节点，然后该过程继续。受 Google [Pregel](https://research.google/pubs/pregel-a-system-for-large-scale-graph-processing/) 系统的启发，该程序以离散的“超级步骤”进行。
 
 超级步骤可以被认为是图节点上的单次迭代。并行运行的节点是同一超级步骤的一部分，而顺序运行的节点则属于单独的超级步骤。在图执行开始时，所有节点都以 `inactive` 状态开始。当节点在其任何传入边缘（或“通道”）上接收到新消息（状态）时，它就会变成`active`。然后，活动节点运行其功能并以更新进行响应。在每个超级步骤结束时，没有传入消息的节点通过将自己标记为`inactive`来投票给`halt`。当所有节点都为 `inactive` 并且没有消息在传输时，图执行终止。
 
@@ -48,7 +48,7 @@ const graph = new StateGraph(StateAnnotation)
 
 指定图模式的主要方法是使用 `StateSchema` 类。架构中的每个字段可以是：* 简单字段的 **标准模式** （成为更新时覆盖的“最后值”通道）
 * A **`ReducedValue`** 用于需要自定义reducer函数的字段（当节点并行运行时）
-* 用于聊天消息列表的 **`MessagesValue`** （使用消息感知减速器预先构建）
+* 用于聊天消息列表的 **`MessagesValue`** （使用消息感知缩减器预先构建）
 * **`UntrackedValue`** 用于不应设置检查点的瞬态
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
@@ -166,9 +166,9 @@ await graph.invoke({ userInput: "My" });
 <Warning>
   **私人频道在流式传输时不会被编辑。**
 
-  输入、输出和私有模式限制每个节点*读取*的内容（其输入模式）以及`invoke`*返回*（输出模式）。他们**不会**隐藏`stream`的频道。
+  输入、输出和私有模式限制每个节点*读取*（其输入模式）和`invoke`*返回*（输出模式）的内容。他们**不会**隐藏`stream`的频道。
 
-  当您使用 `streamMode: "values"` 进行流式传输时，图表默认会发出其**所有**状态通道（包括私有通道），因为值流式传输默认为完整的状态通道集而不是输出模式。这就是为什么像`bar`这样的私人频道被`invoke`隐藏但在流式传输时可见：
+  当您使用 `streamMode: "values"` 进行流式传输时，图表默认会发出其**所有**状态通道（包括私有通道），因为值流式传输默认为完整的状态通道集而不是输出模式。这就是为什么像 `bar` 这样的私人频道被 `invoke` 隐藏，但在流式传输时可见：
 
   ```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
   import { END, START, StateGraph, StateSchema } from "@langchain/langgraph";
@@ -240,7 +240,7 @@ await graph.invoke({ userInput: "My" });
   ```如果您只需要节点实际每一步产生的通道（而不是完整的累积状态），请改用`streamMode: "updates"`。
 </Warning>
 
-### 减速机
+### 减速器
 
 减速器是理解节点更新如何应用于`State`的关键。 `State`中的每个按键都有自己独立的减速器功能。如果没有显式指定减速器函数，则假定对该键的所有更新都应覆盖它。有几种不同类型的减速器，从默认类型的减速器开始：
 
@@ -251,7 +251,7 @@ await graph.invoke({ userInput: "My" });
 * **左参数**：当前值已存储在该键的状态中。
 * **右参数**：节点返回的键的更新。
 
-当节点返回部分更新时，LangGraph 为每个更新的键调用reducer，并将返回值保存为新的状态值：
+当节点返回部分更新时，LangGraph为每个更新的键调用reducer并将返回值保存为新的状态值：
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 const newValue = reducer(currentState[key], nodeUpdate[key]); // left, right
@@ -276,7 +276,7 @@ const State = new StateSchema({
 });
 ```
 
-假设状态为`{ tags: ["draft"] }`，节点返回`{ tags: ["review"] }`。 LangGraph 调用：
+假设状态为`{ tags: ["draft"] }`，节点返回`{ tags: ["review"] }`。 LangGraph 拨打：
 
 ```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 const reducer = (left: string[], right: string[]) => left.concat(right);
@@ -360,7 +360,7 @@ const State = new StateSchema({
 * 使用`guard: false`：允许多次写入，最后一个值获胜
 
 <Warning>
-  不要将 `UntrackedValue` 用于需要在中断或时间旅行中保留的数据。使用常规状态字段或`ReducedValue`来获取持久数据。
+  不要将 `UntrackedValue` 用于需要在中断或时间旅行中保留的数据。使用常规状态字段或`ReducedValue`来存储持久数据。
 </Warning>
 
 ### 类型实用程序
@@ -392,7 +392,7 @@ const fetchNode: GraphNode<typeof State> = async (state, config) => {
 };
 
 // Node with Command routing - specify valid destinations
-const routerNode: GraphNode<typeof State, "process" | "done"> = (state) => {
+const routerNode: GraphNode<{ InputSchema: typeof State; Nodes: "process" | "done" }> = (state) => {
   if (state.count >= 10) {
     return new Command({ goto: "done" });
   }
@@ -420,7 +420,7 @@ const myNode2: typeof State.Node = (state) => ({ step: "done" });
 
 #### `ConditionalEdgeRouter`
 
-使用 `ConditionalEdgeRouter` 进行条件边中的路由函数（无状态更新，仅路由）：
+使用`ConditionalEdgeRouter`作为条件边中的路由函数（没有状态更新，只是路由）：
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { ConditionalEdgeRouter, END } from "@langchain/langgraph";
@@ -431,7 +431,7 @@ const State = new StateSchema({
 });
 
 // Router returns node name(s) or END
-const router: ConditionalEdgeRouter<typeof State, "process" | "summarize"> = (state) => {
+const router: ConditionalEdgeRouter<{ InputSchema: typeof State; Nodes: "process" | "summarize" }> = (state) => {
   if (!state.shouldContinue) {
     return END;
   }
@@ -444,7 +444,7 @@ graph.addConditionalEdges("check", router);
 
 #### `StateSchema.State` 和 `StateSchema.Update`
 
-从模式中提取状态和更新类型以用于自定义类型定义：
+从架构中提取状态和更新类型以用于自定义类型定义：
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { StateSchema } from "@langchain/langgraph";
@@ -465,7 +465,7 @@ type MyUpdate = typeof MyStateSchema.Update;
 
 ### 在图形状态下处理消息
 
-#### 为什么要使用消息？大多数现代法学硕士提供商都有一个聊天模型界面，接受消息列表作为输入。 LangChain 的[chat model interface](/oss/javascript/langchain/models) 特别接受消息对象列表作为输入。这些消息有多种形式，例如[⟦T145⟧](https://reference.langchain.com/javascript/langchain-core/messages/HumanMessage)（用户输入）或[⟦T146⟧](https://reference.langchain.com/javascript/langchain-core/messages/AIMessage)（LLM 响应）。
+#### 为什么要使用消息？大多数现代法学硕士提供商都有一个聊天模型界面，接受消息列表作为输入。 LangChain 的 [chat model interface](/oss/javascript/langchain/models) 特别接受消息对象列表作为输入。这些消息有多种形式，例如[⟦T145⟧](https://reference.langchain.com/javascript/langchain-core/messages/HumanMessage)（用户输入）或[⟦T146⟧](https://reference.langchain.com/javascript/langchain-core/messages/AIMessage)（LLM 响应）。
 
 要了解有关消息对象的更多信息，请参阅[Messages conceptual guide](/oss/javascript/langchain/messages)。
 
@@ -473,7 +473,7 @@ type MyUpdate = typeof MyStateSchema.Update;
 
 在许多情况下，将先前的对话历史记录存储为图形状态中的消息列表会很有帮助。为此，您可以使用预构建的 `MessagesValue`，它提供了一个消息感知减速器，可以自动处理消息 ID、更新和删除。
 
-`MessagesValue` 减速器对于告诉图如何在每次状态更新时更新状态中的 `Message` 对象列表至关重要。如果您不指定减速器，则每次状态更新都会用最近提供的值覆盖消息列表。 `MessagesValue` 正确处理此问题：对于全新消息，它会附加到现有列表，对于现有消息（通过 ID 匹配），它会就地更新它们。<Tip>`MessagesValue` 实际上是 `ReducedValue` 的特例，预先配置了内部 `messagesStateReducer` 来处理消息列表和更新。这为 LangGraph 图中的聊天消息历史记录提供了方便的、消息感知的状态管理。</Tip>
+`MessagesValue` 减速器对于告诉图如何在每次状态更新时更新状态中的 `Message` 对象列表至关重要。如果您不指定减速器，则每次状态更新都会用最近提供的值覆盖消息列表。 `MessagesValue` 正确处理此问题：对于全新消息，它会附加到现有列表，对于现有消息（通过 ID 匹配），它会就地更新它们。<Tip>`MessagesValue` 实际上是 `ReducedValue` 的特例，预先配置了内部 `messagesStateReducer` 来处理消息列表和更新。这为 LangGraph 图中的聊天消息历史记录提供了方便的消息感知状态管理。</Tip>
 
 #### 序列化
 
@@ -491,7 +491,7 @@ type MyUpdate = typeof MyStateSchema.Update;
 }
 ```
 
-由于使用`MessagesValue`时，状态更新总是反序列化为LangChain`Messages`，因此您应该使用点表示法来访问消息属性，例如`state.messages.at(-1).content`。下面是使用 `MessagesValue` 的图表示例：
+由于使用 `MessagesValue` 时状态更新总是反序列化为 LangChain `Messages`，因此您应该使用点表示法来访问消息属性，例如 `state.messages.at(-1).content`。下面是使用 `MessagesValue` 的图表示例：
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { StateGraph, StateSchema, MessagesValue } from "@langchain/langgraph";
@@ -560,7 +560,7 @@ builder.addNode(myNode);
 
 ### 重执行和幂等性
 
-当您使用[checkpointer](/oss/javascript/langgraph/persistence)进行编译时，LangGraph将检查点保存在[super-step](#graphs)边界，而不是节点内的中间函数。如果执行停止并稍后恢复（例如在 [interrupt](/oss/javascript/langgraph/interrupts) 或重试之后），受影响的 **节点** 从其功能开始时再次运行。暂停之前的代码和副作用再次运行。
+当您使用 [checkpointer](/oss/javascript/langgraph/persistence) 进行编译时，LangGraph 将检查点保存在 [super-step](#graphs) 边界，而不是节点内的中间函数。如果执行停止并稍后恢复（例如在 [interrupt](/oss/javascript/langgraph/interrupts) 或重试之后），受影响的 **节点** 从其功能开始时再次运行。暂停之前的代码和副作用再次运行。
 
 **幂等性。**设计**节点**逻辑，以便重新执行不会破坏状态。如果节点插入数据库行，则运行两次不应创建重复行，除非是故意的。使用幂等键、更新插入或先读后写检查。有关`interrupt()`周围的效果，请参阅[Side effects called before ⟦T174⟧ must be idempotent](/oss/javascript/langgraph/interrupts#side-effects-called-before-interrupt-must-be-idempotent)。**图形更改。** [Determinism](/oss/javascript/langgraph/functional-api#determinism) 有关代码更改的规则不适用于图形结构。您可以添加或删除**节点**和边，而不会破坏现有线程的恢复。恢复的运行使用保存的状态并执行您现在编译的任何图形。
 
@@ -678,7 +678,7 @@ graph.addEdge("nodeA", END);
 
 ### 节点缓存
 
-LangGraph 支持根据节点的输入来缓存任务/节点。使用缓存：
+LangGraph 支持根据节点的输入缓存任务/节点。使用缓存：
 
 * 编译图时指定缓存（或指定入口点）
 * 指定节点的缓存策略。每个缓存策略支持：
@@ -715,11 +715,11 @@ await graph.invoke({ x: 5 }, { streamMode: "updates" });   // [!code highlight]
 ## 边缘
 
 边定义逻辑如何路由以及图形如何决定停止。这是代理如何工作以及不同节点如何相互通信的重要组成部分。有几种关键的边类型：* 普通边：直接从一个节点到下一个节点。
-* 条件边：调用函数来确定下一个节点。
+* 条件边：调用函数来确定下一个要转到哪个节点。
 * 入口点：当用户输入到达时首先调用哪个节点。
 * 条件入口点：调用函数来确定当用户输入到达时首先调用哪个节点。
 
-一个节点可以有多个出边。如果一个节点有多个传出边，则这些目标节点的**所有**将作为下一个超级步骤的一部分并行执行。
+一个节点可以有多个出边。如果一个节点有多个传出边缘，则所有这些目标节点将作为下一个超级步骤的一部分并行执行。
 
 <Warning>
   对于每个节点，选择一种路由机制：使用普通边进行静态路由，或使用条件边/[⟦T183⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/Command)进行动态路由。不要混合来自同一节点的普通边和动态路由，因为这两条路径都可以执行并使图行为更难以推理。
@@ -785,9 +785,9 @@ graph.addConditionalEdges(START, routingFunction, {
 });
 ```
 
-## `Send`默认情况下，`Nodes`和`Edges`提前定义并在相同的共享状态上运行。但是，在某些情况下，可能无法提前知道确切的边缘和/或您可能希望同时存在不同版本的 `State`。一个常见的例子是映射缩减设计模式。在此设计模式中，第一个节点可能会生成对象列表，并且您可能希望将一些其他节点应用于所有这些对象。对象的数量可能提前未知（意味着边的数量可能未知），并且下游`Node`的输入`State`应该不同（每个生成的对象一个）。
+## `Send`By default, `Nodes` and `Edges` are defined ahead of time and operate on the same shared state.但是，在某些情况下，可能无法提前知道确切的边缘和/或您可能希望同时存在不同版本的 `State`。 A common example of this is with map-reduce design patterns. In this design pattern, a first node may generate a list of objects, and you may want to apply some other node to all those objects.对象的数量可能提前未知（意味着边的数量可能未知），并且下游`Node`的输入`State`应该不同（每个生成的对象一个）。
 
-为了支持这种设计模式，LangGraph 支持从条件边返回 [⟦T202⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/Send) 对象。 `Send` 有两个参数：第一个是节点的名称，第二个是传递给该节点的状态。
+To support this design pattern, LangGraph supports returning [⟦T202⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/Send) objects from conditional edges. `Send` takes two arguments: first is the name of the node, and second is the state to pass to that node.
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { Send } from "@langchain/langgraph";
@@ -801,7 +801,7 @@ graph.addConditionalEdges("nodeA", (state) => {
 
 ## `Command`
 
-[⟦T205⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/Command)是一种用于控制图形执行的多功能原语。它接受四个参数：* `update`：应用状态更新（类似于从节点返回更新）。
+[⟦T205⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/Command) is a versatile primitive for controlling graph execution.它接受四个参数：* `update`：应用状态更新（类似于从节点返回更新）。
 * `goto`：导航到特定节点（类似于[conditional edges](#conditional-edges)）。
 * `graph`：从 [subgraphs](/oss/javascript/langgraph/use-subgraphs) 导航时定位父图。
 * `resume`：提供一个值以在[interrupt](/oss/javascript/langgraph/interrupts)之后恢复执行。
@@ -927,7 +927,7 @@ const resumed = await graph.invoke(new Command({ resume: "yes" }), config);
 
 ## 图迁移
 
-即使使用检查指针来跟踪状态，LangGraph 也可以轻松处理图定义（节点、边和状态）的迁移。
+即使使用检查指针来跟踪状态，LangGraph也可以轻松处理图定义（节点、边和状态）的迁移。
 
 * 对于图末尾的线程（即未中断），您可以更改图的整个拓扑（即所有节点和边、删除、添加、重命名等）
 * 对于当前中断的线程，我们支持除重命名/删除节点之外的所有拓扑更改（因为该线程现在可能即将进入不再存在的节点）——如果这是一个阻止者，请与我们联系，我们可以优先考虑解决方案。
@@ -990,7 +990,7 @@ graph.addNode("myNode", (state, config) => {
 });
 ```
 
-### 递归限制递归限制设置了图在单次执行期间可以执行的最大数量 [super-steps](#graphs)。一旦达到限制，LangGraph 将提高`GraphRecursionError`。默认情况下，该值设置为 25 步。递归限制可以在运行时在任何图上设置，并通过配置对象传递给`invoke`/`stream`。重要的是，`recursionLimit`是一个独立的`config`密钥，不应像所有其他用户定义的配置一样在`configurable`密钥内传递。请参阅下面的示例：
+### 递归限制递归限制设置了图在单次执行期间可以执行的最大数量 [super-steps](#graphs)。一旦达到限额，LangGraph将提高`GraphRecursionError`。默认情况下，该值设置为 25 步。递归限制可以在运行时在任何图上设置，并通过配置对象传递给`invoke`/`stream`。重要的是，`recursionLimit`是一个独立的`config`密钥，不应像所有其他用户定义的配置一样在`configurable`密钥内传递。请参阅下面的示例：
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 await graph.invoke(inputs, {
@@ -1073,9 +1073,9 @@ try {
     // Handle the error - return partial results, notify user, etc.
   }
 }
-```#### 主动与被动方法
+```
 
-处理递归限制有两种主要方法：主动式（在图表内监控）和被动式（在外部捕获错误）。
+#### 主动与被动方法处理递归限制有两种主要方法：主动式（在图表内监控）和被动式（在外部捕获错误）。
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import {
@@ -1160,13 +1160,13 @@ const inspectMetadata: GraphNode<typeof State> = async (state, config) => {
 
 ## 可视化
 
-能够可视化图表通常是件好事，尤其是当它们变得更加复杂时。 LangGraph 附带了几种内置的图形可视化方法。请参阅[Visualize your graph](/oss/javascript/langgraph/use-graph-api#visualize-your-graph)了解更多信息。
+能够可视化图表通常是件好事，尤其是当它们变得更加复杂时。 LangGraph 带有多种内置的图表可视化方法。请参阅[Visualize your graph](/oss/javascript/langgraph/use-graph-api#visualize-your-graph)了解更多信息。
 
-## 可观察性和追踪要跟踪、调试和评估您的代理，请使用[LangSmith](/langsmith/observability)。
+## 可观察性和追踪
 
-## 了解更多
+要跟踪、调试和评估您的代理，请使用[LangSmith](/langsmith/observability)。
 
-* [How to use the Graph API](/oss/javascript/langgraph/use-graph-api)
+＃＃ 了解更多* [How to use the Graph API](/oss/javascript/langgraph/use-graph-api)
 * [Functional API conceptual overview](/oss/javascript/langgraph/functional-api)
 * [Choosing between Graph API and Functional API](/oss/javascript/langgraph/choosing-apis)
 

@@ -4,7 +4,7 @@
 
 # 内存
 
-AI 应用程序需要 [memory](/oss/javascript/concepts/memory) 在多个交互中共享上下文。在 LangGraph 中，您可以添加两种类型的内存：
+AI 应用程序需要 [memory](/oss/javascript/concepts/memory) 在多个交互中共享上下文。在LangGraph中，您可以添加两种类型的内存：
 
 * [Add short-term memory](#add-short-term-memory) 作为代理的 [state](/oss/javascript/langgraph/graph-api#state) 的一部分以启用多轮对话。
 * [Add long-term memory](#add-long-term-memory) 跨会话存储用户特定或应用程序级数据。
@@ -218,7 +218,7 @@ const graph = builder.compile({ store });
 
 ### 访问节点内的存储
 
-一旦您使用存储编译了图，LangGraph 就会自动将存储注入到您的节点函数中。访问存储的推荐方式是通过 `Runtime` 对象。
+一旦你编译了带有存储的图，LangGraph就会自动将存储注入到你的节点函数中。访问存储的推荐方式是通过 `Runtime` 对象。
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { StateGraph, StateSchema, MessagesValue, GraphNode, START } from "@langchain/langgraph";
@@ -658,7 +658,7 @@ const items = await store.search(["user_123", "memories"], {
 启用 [short-term memory](#add-short-term-memory) 后，长时间对话可能会超出 LLM 的上下文窗口。常见的解决方案有：
 
 * [Trim messages](#trim-messages)：删除前N条或后N条消息（在调用LLM之前）
-* [Delete messages](#delete-messages) 永久来自 LangGraph 状态
+* [Delete messages](#delete-messages)从LangGraph状态永久
 * [Summarize messages](#summarize-messages)：总结历史记录中较早的消息并用摘要替换它们
 * [Manage checkpoints](#manage-checkpoints) 存储和检索消息历史记录
 * 自定义策略（例如消息过滤等）
@@ -667,7 +667,7 @@ const items = await store.search(["user_123", "memories"], {
 
 ### 修剪消息
 
-大多数法学硕士都有最大支持的上下文窗口（以令牌计价）。决定何时截断消息的一种方法是计算消息历史记录中的标记，并在接近该限制时进行截断。如果您使用 LangChain，则可以使用修剪消息实用程序并指定要从列表中保留的令牌数量，以及用于处理边界的`strategy`（例如，保留最后一个`maxTokens`）。要修剪消息历史记录，请使用 [⟦T44⟧](https://js.langchain.com/docs/how_to/trim_messages/) 函数：
+大多数法学硕士都有最大支持的上下文窗口（以令牌计价）。决定何时截断消息的一种方法是计算消息历史记录中的标记，并在接近该限制时进行截断。如果您使用LangChain，则可以使用修剪消息实用程序并指定要从列表中保留的标记数量，以及用于处理边界的`strategy`（例如，保留最后一个`maxTokens`）。要修剪消息历史记录，请使用 [⟦T44⟧](https://js.langchain.com/docs/how_to/trim_messages/) 函数：
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { trimMessages } from "@langchain/core/messages";
@@ -935,7 +935,7 @@ const summarizeConversation: GraphNode<typeof State> = async (state) => {
   };
 
   // We now define the logic for determining whether to end or summarize the conversation
-  const shouldContinue: ConditionalEdgeRouter<typeof GraphState, "summarize_conversation"> = (state) => {
+  const shouldContinue: ConditionalEdgeRouter<{ InputSchema: typeof GraphState; Nodes: "summarize_conversation" }> = (state) => {
     const messages = state.messages;
     // If there are more than six messages, then we summarize the conversation
     if (messages.length > 6) {
@@ -1068,9 +1068,9 @@ await checkpointer.deleteThread(threadId);
 
 ## 数据库管理
 
-如果您使用任何数据库支持的持久性实现（例如 Postgres、Redis 或 Oracle）来存储短期和/或长期内存，则需要运行迁移来设置所需的架构，然后才能将其与数据库一起使用。按照惯例，大多数特定于数据库的库在运行所需迁移的检查点或存储实例上定义了一个 `setup()` 方法。但是，您应该检查[⟦T57⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/BaseCheckpointSaver)或[⟦T58⟧](https://reference.langchain.com/javascript/langchain-core/stores/BaseStore)的具体实现，以确认确切的方法名称和用法。
+如果您使用任何数据库支持的持久性实现（例如 Postgres、Redis 或 Oracle）来存储短期和/或长期内存，则需要运行迁移来设置所需的架构，然后才能将其与数据库一起使用。
 
-我们建议将迁移作为专用部署步骤运行，或者您可以确保它们作为服务器启动的一部分运行。
+按照惯例，大多数特定于数据库的库在运行所需迁移的检查点或存储实例上定义了一个 `setup()` 方法。但是，您应该检查[⟦T57⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/BaseCheckpointSaver)或[⟦T58⟧](https://reference.langchain.com/javascript/langchain-core/stores/BaseStore)的具体实现，以确认确切的方法名称和用法。我们建议将迁移作为专用部署步骤运行，或者您可以确保它们作为服务器启动的一部分运行。
 
 ***
 
