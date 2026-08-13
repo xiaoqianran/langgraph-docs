@@ -369,8 +369,8 @@
       "translatedAt": "2026-08-09T08:56:15.424Z"
     },
     "reference/python/langgraph-cli.md": {
-      "hash": "94df00d5d09df4c8de49476a7bc672a5e8f74264",
-      "translatedAt": "2026-08-12T10:36:41.626Z"
+      "hash": "1da2cdf08c61ac8de6666d7d18c3fef28b3cc988",
+      "translatedAt": "2026-08-13T10:37:45.897Z"
     },
     "reference/python/langgraph-swarm.md": {
       "hash": "04d89c84b30eb192555b454c70b42dd214eda4fe",
@@ -393,8 +393,8 @@
       "translatedAt": "2026-08-09T08:56:16.241Z"
     },
     "reference/python/langgraph.checkpoint.postgres.md": {
-      "hash": "89b787a759dd73b1676d59b59ecd88e5bc6d58e5",
-      "translatedAt": "2026-08-12T10:36:42.571Z"
+      "hash": "703d5fb528b346941f883ee242e25cc258514460",
+      "translatedAt": "2026-08-13T10:37:45.893Z"
     },
     "reference/python/langgraph.store.md": {
       "hash": "02adc82a13c1e43d0386aef83ab6a6b9ec620172",
@@ -457,10 +457,10 @@
       "translatedAt": "2026-08-09T10:06:25.640Z"
     }
   },
-  "updatedAt": "2026-08-12T10:37:00.567Z",
+  "updatedAt": "2026-08-13T10:37:45.897Z",
   "stats": {
-    "translated": 8,
-    "skipped": 106,
+    "translated": 2,
+    "skipped": 112,
     "failed": 0,
     "total": 114
   }
