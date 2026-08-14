@@ -4,7 +4,7 @@
 
 # 代理服务器
 
-LangSmith Deployment 的 **代理服务器** 提供用于创建和管理基于代理的应用程序的 API。它建立在[assistants](/langsmith/assistants)的概念之上，[assistants](/langsmith/assistants)是为特定任务配置的代理，并包括内置的[persistence](/oss/python/langgraph/persistence#memory-store)和[**task queue**](#task-queue)。这种多功能 API 支持广泛的代理应用程序用例，从后台处理到实时交互。
+LangSmith 部署的 **代理服务器** 提供用于创建和管理基于代理的应用程序的 API。它建立在[assistants](/langsmith/assistants)的概念之上，[assistants](/langsmith/assistants)是为特定任务配置的代理，并包括内置的[persistence](/oss/python/langgraph/persistence#memory-store)和[task queue](#task-queue)。这种多功能 API 支持广泛的代理应用程序用例，从后台处理到实时交互。
 
 使用代理服务器创建和管理：
 
@@ -39,9 +39,9 @@ LangSmith Deployment 的 **代理服务器** 提供用于创建和管理基于�
 
 ### 图表当您使用 Agent Server 部署图形时，您正在部署 [Assistant](/langsmith/assistants) 的“蓝图”。
 
-图最常实现[agent](/oss/python/langgraph/workflows-agents)，但并非必须如此。例如，图可以实现一个简单的聊天机器人，仅支持来回对话，而无法影响任何应用程序控制流。实际上，随着应用程序变得越来越复杂，图通常会实现更复杂的流程，可能会使用 [multiple agents](/oss/python/langchain/multi-agent) 协同工作。
+图最常实现 [agent](/oss/python/langgraph/workflows-agents)，但并非必须如此。例如，图可以实现一个简单的聊天机器人，仅支持来回对话，而无法影响任何应用程序控制流。实际上，随着应用程序变得越来越复杂，图通常会实现更复杂的流程，可能会使用 [multiple agents](/oss/python/langchain/multi-agent) 协同工作。
 
-图表不必用 LangGraph 来编写。您还可以使用 LangGraph 功能 API 或 `deployments-wrap-sdk` 包部署使用其他框架（例如 [Strands, Claude Agent SDK, and more](/langsmith/deploy-other-frameworks) 或 [Google ADK](/langsmith/deploy-google-adk)）构建的代理。
+图表不一定要用LangGraph来写。您还可以使用 LangGraph 功能 API 或 `deployments-wrap-sdk` 包来部署使用其他框架（例如 [Strands, Claude Agent SDK, and more](/langsmith/deploy-other-frameworks) 或 [Google ADK](/langsmith/deploy-google-adk)）构建的代理。
 
 #### 图形加载和编译
 
@@ -136,7 +136,7 @@ flowchart TB
 2. 队列工作线程获取运行，获取其租约，加载适当的图形，然后开始执行。队列强制规定给定线程一次最多可以执行 1 次运行。
 3. 当图执行时，工作线程将检查点写入持久层（频率取决于[durability mode](/oss/python/langgraph/persistence#durability-modes)）并通过配置的 pubsub 提供程序广播流事件。
 4. 如果客户端打开了 `/stream` 连接，API 服务器会订阅 pubsub 通道，并通过服务器发送的事件实时将事件转发给客户端。
-5. 执行完成后，worker 更新运行状态并释放其插槽以供下一次运行。每个工作线程最多同时执行 [⟦T8⟧](/langsmith/env-var-self-hosted) 次运行（默认值：10），因此单个工作线程容器可以并行运行多个运行。这限制了并发运行执行，而不是部署可以服务的 API 请求的数量。 API 服务器独立处理请求并单独扩展，因此请求服务能力不受`N_JOBS_PER_WORKER` 的限制。请参阅 [Configure Agent Server for scale](/langsmith/agent-server-scale) 获取调整指南。
+5. 执行完成后，worker 更新运行状态并释放其插槽以供下一次运行。每个工作线程最多同时执行 [⟦T8⟧](/langsmith/env-var-self-hosted) 次运行（默认值：10），因此单个工作线程容器可并行运行多个运行。这限制了并发运行执行，而不是部署可以服务的 API 请求的数量。 API 服务器独立处理请求并单独扩展，因此请求服务能力不受`N_JOBS_PER_WORKER` 的限制。请参阅 [Configure Agent Server for scale](/langsmith/agent-server-scale) 获取调整指南。
 
 ## 了解更多
 
