@@ -80,7 +80,7 @@ Please report any issues discovered with 1.0 on [GitHub](https://github.com/lang
 
 <div>
   <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) to Claude, VSCode, and more via MCP for real-time answers.
+    [Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
   </Callout>
 
   <Callout icon="edit">

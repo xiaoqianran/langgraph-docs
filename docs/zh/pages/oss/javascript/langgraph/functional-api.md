@@ -4,7 +4,7 @@
 
 # 功能 API 概述
 
-**功能 API** 允许您将 LangGraph 的关键功能（[persistence](/oss/javascript/langgraph/persistence)、[memory](/oss/javascript/langgraph/add-memory)、[human-in-the-loop](/oss/javascript/langgraph/interrupts) 和 [streaming](/oss/javascript/langgraph/streaming)）添加到您的应用程序中，只需对现有代码进行最少的更改。
+**函数式 API** 允许您将 LangGraph 的关键功能（[persistence](/oss/javascript/langgraph/persistence)、[memory](/oss/javascript/langgraph/add-memory)、[human-in-the-loop](/oss/javascript/langgraph/interrupts) 和 [streaming](/oss/javascript/langgraph/streaming)）添加到您的应用程序，只需对现有代码进行最少的更改。
 
 它旨在将这些功能集成到现有代码中，这些代码可以使用标准语言原语进行分支和控制流，例如`if`语句、`for`循环和函数调用。与许多需要将代码重组为显式管道或 DAG 的数据编排框架不同，功能 API 允许您合并这些功能，而无需强制执行严格的执行模型。
 
@@ -13,13 +13,13 @@
 * **`entrypoint`**：入口点封装工作流逻辑并管理执行流，包括处理长时间运行的任务和中断。
 * **`task`**：表示可以在入口点内异步执行的离散工作单元，例如 API 调用或数据处理步骤。任务返回一个类似 future 的对象，可以同步等待或解析。
 
-这为构建具有状态管理和流的工作流提供了最小的抽象。<Tip>
+这为构建具有状态管理和流的工作流提供了最小的抽象。
+
+<Tip>
   有关如何使用函数式 API 的信息，请参阅[Use Functional API](/oss/javascript/langgraph/use-functional-api)。
-</Tip>
+</Tip>## 函数式 API 与图形 API
 
-## 函数式 API 与图形 API
-
-对于喜欢更具声明性方法的用户，LangGraph 的 [Graph API](/oss/javascript/langgraph/graph-api) 允许您使用图形范式定义工作流程。这两个 API 共享相同的底层运行时，因此您可以在同一应用程序中一起使用它们。
+对于喜欢更具声明性方法的用户，LangGraph 的 [Graph API](/oss/javascript/langgraph/graph-api) 允许您使用图形范例定义工作流程。这两个 API 共享相同的底层运行时，因此您可以在同一应用程序中一起使用它们。
 
 以下是一些主要区别：
 
@@ -63,7 +63,7 @@ const workflow = entrypoint(
 ```
 
 <Accordion title="Detailed Explanation">
-  此工作流程将写一篇关于“猫”主题的文章，然后暂停以获取人类的评论。工作流程可以无限期中断，直到提供审核。
+  此工作流程将写一篇有关“猫”主题的文章，然后暂停以获取人类的评论。工作流程可以无限期中断，直到提供审核。
 
   当工作流恢复时，它会从头开始执行，但由于`writeEssay`任务的结果已经保存，因此任务结果将从检查点加载，而不是重新计算。
 
@@ -289,7 +289,7 @@ const myWorkflow = entrypoint(
 
 ### 短期记忆
 
-当使用 `checkpointer` 定义 `entrypoint` 时，它将在 [checkpoints](/oss/javascript/langgraph/checkpointers#checkpoints) 中存储同一 **线程 id** 上的连续调用之间的信息。
+当使用`checkpointer`定义`entrypoint`时，它将在[checkpoints](/oss/javascript/langgraph/checkpointers#checkpoints)中存储同一**线程id**上的连续调用之间的信息。
 
 这允许使用 `getPreviousState` 函数访问先前调用的状态。
 
@@ -412,14 +412,14 @@ LangGraph 中的序列化有两个关键方面：
 
 当您恢复工作流运行时，代码**不会**从执行停止的**同一行代码**恢复。执行返回到检查点边界，并且工作流向前**重播**，直到再次达到暂停为止。
 
-对于Functional API，重播从**入口点**的开头开始，而LangGraph从检查点恢复已完成的[**task**](/oss/javascript/langgraph/functional-api#task)和[**subgraph**](/oss/javascript/langgraph/use-subgraphs)结果，而不是重新计算它们。这保留了暂停期间记录的步骤顺序，包括长时间运行或不确定的**任务**输出。要使用**人机交互**等功能，您必须将非确定性工作（例如随机值）和副作用（例如文件写入或 API 调用）放入[**tasks**](/oss/javascript/langgraph/functional-api#task)中。
+对于功能 API，重播从 **入口点** 的开头开始，而 LangGraph 则从检查指针恢复已完成的 [**task**](/oss/javascript/langgraph/functional-api#task) 和 [**subgraph**](/oss/javascript/langgraph/use-subgraphs) 结果，而不是重新计算它们。这保留了暂停期间记录的步骤顺序，包括长时间运行或不确定的**任务**输出。要使用**人机交互**等功能，您必须将非确定性工作（例如随机值）和副作用（例如文件写入或 API 调用）放入 [**tasks**](/oss/javascript/langgraph/functional-api#task) 中。
 
 工作流的不同运行可能会产生不同的结果，但恢复**特定**线程应该重播相同的持久**任务**和**子图**结果。
 
 为了确保您的工作流程具有确定性并且可以一致地重播，请遵循以下准则：
 
 * **避免重复工作**：在**入口点**中，如果您链接多个副作用（例如，日志记录、文件写入或网络调用），请为每个副作用提供自己的**任务**，以便恢复从检查点恢复其输出，而不是再次运行它们。
-* **封装非确定性操作**：将尝试之间可能发生变化的值（例如，随机数或挂钟读取）保留在**任务**内，以便重播与检查点的内容保持一致。
+* **封装非确定性操作**：将可能在尝试之间发生变化的值（例如，随机数或挂钟读取）保留在**任务**内，以便重播与检查点的内容保持一致。
 * **使用幂等操作**：部分任务失败和重试请参见[Idempotency](#idempotency)。
 
 ## 幂等性幂等性确保多次运行相同的操作会产生相同的结果。如果某个步骤因失败而重新运行，这有助于防止重复的 API 调用和冗余处理。始终将 API 调用放置在 **tasks** 函数中以进行检查点，并将它们设计为在重新执行时具有幂等性。
@@ -434,7 +434,7 @@ LangGraph 中的序列化有两个关键方面：
 
 <Tabs>
   <Tab title="Incorrect">
-    在本例中，副作用（写入文件）直接包含在工作流中，因此在恢复工作流时将再次执行。
+    在本例中，副作用（写入文件）直接包含在工作流中，因此在恢复工作流时将第二次执行。
 
     ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
     import { entrypoint, interrupt } from "@langchain/langgraph";
@@ -554,7 +554,7 @@ LangGraph 中的序列化有两个关键方面：
 
 <div>
   <Callout icon="terminal-2">
-    通过 MCP 向 Claude、VSCode 等发送[Connect these docs](/use-these-docs) 以获得实时答案。
+    [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
   </Callout>
 
   <Callout icon="edit">

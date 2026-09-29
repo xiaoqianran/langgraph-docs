@@ -4,17 +4,17 @@
 
 # 部署
 
-使用 LangSmith Cloud 或 JavaScript 框架和托管平台将 LangGraph 代理部署到生产环境。
+使用 LangSmith 云或 JavaScript 框架和托管平台将 LangGraph 代理部署到生产环境。
 
 当您准备好将 LangGraph 代理部署到生产环境时，请选择适合您的堆栈的托管模型。 **[LangSmith Cloud](/langsmith/deploy-to-cloud)** 为有状态、长期运行的代理提供完全托管的基础设施，具有持久状态和后台执行。
 
 <Tip>
-  LangSmith 提供了云之外的多种部署选项，包括 [hybrid](/langsmith/hybrid)、[standalone servers](/langsmith/deploy-standalone-server) 和 [self-hosted with control plane](/langsmith/deploy-with-control-plane)。欲了解更多信息，请参阅[LangSmith Deployment overview](/langsmith/deployment)。
+  LangSmith提供了云之外的多种部署选项，包括[hybrid](/langsmith/hybrid)、[standalone servers](/langsmith/deploy-standalone-server)和[self-hosted with control plane](/langsmith/deploy-with-control-plane)。欲了解更多信息，请参阅[LangSmith Deployment overview](/langsmith/deployment)。
 </Tip>
 
-## 朗史密斯云
+## LangSmith 云
 
-本节介绍如何将代理从 GitHub 存储库部署到 LangSmith Cloud。 LangSmith 负责处理基础设施、扩展和运营问题。
+本节介绍如何将代理从 GitHub 存储库部署到 LangSmith 云。 LangSmith 处理基础设施、扩展和运营问题。
 
 ### 先决条件
 
@@ -27,9 +27,9 @@
 
 #### 1. 在 GitHub 上创建存储库
 
-您的应用程序代码必须驻留在 GitHub 存储库中才能部署在 LangSmith 上。支持公共和私有存储库。对于本快速入门，首先按照 [local server setup guide](/oss/python/langgraph/studio#set-up-local-agent-server) 确保您的应用程序与 LangGraph 兼容。然后，将您的代码推送到存储库。
+您的应用程序的代码必须驻留在 GitHub 存储库中才能部署在 LangSmith 上。支持公共和私有存储库。对于本快速入门，首先按照 [local server setup guide](/oss/python/langgraph/studio#set-up-local-agent-server) 确保您的应用与 LangGraph 兼容。然后，将您的代码推送到存储库。
 
-#### 2. 部署到 LangSmith<Steps>
+#### 2. 部署到LangSmith<Steps>
   <Step title="Navigate to LangSmith Deployment">
     登录[LangSmith](https://smith.langchain.com?utm_source=docs\&utm_medium=cta\&utm_campaign=langsmith-signup\&utm_content=oss-langgraph-deploy)。在左侧边栏中，选择**部署**。
   </Step>
@@ -56,7 +56,7 @@
 
 #### 4. 获取您的部署的 API URL
 
-1. 在 LangGraph 的 **部署详细信息** 视图中，单击 **API URL** 将其复制到剪贴板。
+1. 在LangGraph的**部署详细信息**视图中，单击**API URL**将其复制到剪贴板。
 2. 点击`URL`将其复制到剪贴板。
 
 #### 5. 测试 API
@@ -69,9 +69,9 @@
 
     ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
     pip install langgraph-sdk
-    ```2. 向代理发送消息：
+    ```
 
-    ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+    2. 向代理发送消息：```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
     from langgraph_sdk import get_sync_client # or get_client for async
 
     client = get_sync_client(url="your-deployment-url", api_key="your-langsmith-api-key")
@@ -119,7 +119,7 @@
 
 <div>
   <Callout icon="terminal-2">
-    通过 MCP 向 Claude、VSCode 等发送[Connect these docs](/use-these-docs) 以获得实时答案。
+    [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
   </Callout>
 
   <Callout icon="edit">

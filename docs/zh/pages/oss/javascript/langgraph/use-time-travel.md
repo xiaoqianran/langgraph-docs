@@ -8,7 +8,7 @@
 
 ## 概述
 
-LangGraph 支持通过 [checkpoints](/oss/javascript/langgraph/checkpointers#checkpoints) 进行时间旅行：
+LangGraph支持通过[checkpoints](/oss/javascript/langgraph/checkpointers#checkpoints)进行时间旅行：
 
 * **[Replay](#replay)**：从之前的检查点重试。
 * **[Fork](#fork)**：从具有修改状态的先前检查点分支以探索替代路径。
@@ -99,11 +99,11 @@ console.log(forkResult.joke); // A joke about chickens, not socks
 
 当您调用[⟦T14⟧](https://reference.langchain.com/javascript/classes/_langchain_langgraph.pregel.Pregel.html#updateState)时，将使用指定节点的编写器（包括[reducers](/oss/javascript/langgraph/graph-api#reducers)）应用值。检查点将该节点记录为已生成更新，并从该节点的后继节点恢复执行。
 
-默认情况下，LangGraph 从检查点的版本历史记录中推断 `as_node`。当从特定检查点分叉时，这个推论几乎总是正确的。
+默认情况下，LangGraph从检查点的版本历史记录中推断出`as_node`。当从特定检查点分叉时，这个推论几乎总是正确的。
 
 在以下情况下明确指定 `as_node`：
 
-* **并行分支**：多个节点在同一步骤中更新状态，LangGraph 无法确定哪个是最后一个（`InvalidUpdateError`）。
+* **并行分支**：多个节点在同一步骤中更新状态，并且LangGraph无法确定哪个是最后一个（`InvalidUpdateError`）。
 * **没有执行历史**：在新线程上设置状态（常见于[testing](/oss/javascript/langgraph/test)）。
 * **跳过节点**：将`as_node`设置为较晚的节点，使图认为该节点已经运行。
 
@@ -222,7 +222,7 @@ const result = await graph.invoke(null, forkConfig);
   </Tab>
 
   <Tab title="Subgraph checkpointer">
-    在子图上设置 `checkpointer=True` 以赋予其自己的检查点历史记录。这会在子图**内**的每个步骤创建检查点，允许您从子图中的特定点进行时间旅行 - 例如，在两个中断之间。
+    在子图上设置`checkpointer=True`以赋予其自己的检查点历史记录。这会在子图**内**的每个步骤创建检查点，允许您从子图中的特定点进行时间旅行 - 例如，在两个中断之间。
 
     使用 [⟦T23⟧](https://reference.langchain.com/javascript/classes/_langchain_langgraph.pregel.Pregel.html#getState) 和 `subgraphs=True` 访问子图自己的检查点配置，然后从中分叉：
 
@@ -260,7 +260,7 @@ const result = await graph.invoke(null, forkConfig);
 
 <div className="source-links">
   <Callout icon="terminal-2">
-    通过 MCP 向 Claude、VSCode 等发送[Connect these docs](/use-these-docs) 以获得实时答案。
+    [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
   </Callout>
 
   <Callout icon="edit">

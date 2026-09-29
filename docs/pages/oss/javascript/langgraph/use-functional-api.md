@@ -294,6 +294,10 @@ for await (const chunk of stream.values) {
 // 10
 ```
 
+<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/8737a21a-1a44-47ce-b3bd-880a15fc7375/r">
+  Open a public LangSmith run for this example.
+</Card>
+
 1. Emit custom data before computation begins.
 2. Emit another custom message after computing the result.
 3. Use `streamEvents()` to process streamed output.
@@ -672,8 +676,6 @@ Short-term memory allows storing information across different **invocations** of
 
 You can view and delete the information stored by the checkpointer.
 
-<a />
-
 #### View thread state
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
@@ -713,8 +715,6 @@ StateSnapshot {
   interrupts: []
 }
 ```
-
-<a />
 
 #### View the history of the thread
 
@@ -860,7 +860,7 @@ for await (const snapshot of stream2.values) {
 
 <div>
   <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) to Claude, VSCode, and more via MCP for real-time answers.
+    [Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
   </Callout>
 
   <Callout icon="edit">

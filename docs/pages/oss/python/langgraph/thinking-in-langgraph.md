@@ -644,6 +644,10 @@ Let's run our agent with an urgent billing issue that needs human review:
   final_state = resumed.output
   print("Email sent successfully!")
   ```
+
+  <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/2636e51a-5dcd-4a33-8b4d-23678e364ef2/r">
+    Open a public LangSmith run for this example.
+  </Card>
 </Accordion>
 
 The graph pauses when it hits `interrupt()`, saves everything to the checkpointer, and waits. It can resume days later, picking up exactly where it left off. The `thread_id` ensures all state for this conversation is preserved together.
@@ -746,7 +750,7 @@ This was an introduction to thinking about building agents with LangGraph. You c
 
 <div>
   <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) to Claude, VSCode, and more via MCP for real-time answers.
+    [Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
   </Callout>
 
   <Callout icon="edit">

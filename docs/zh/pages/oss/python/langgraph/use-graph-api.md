@@ -69,7 +69,7 @@ def node(state: State):
   节点应该直接返回状态更新，而不是改变状态。
 </Warning>
 
-接下来让我们定义一个包含该节点的简单图。我们使用[⟦T144⟧](/oss/python/langgraph/graph-api#stategraph)来定义一个在这个状态上运行的图。然后我们使用 [⟦T145⟧](/oss/python/langgraph/graph-api#nodes) 填充我们的图表。
+接下来让我们定义一个包含该节点的简单图。我们使用[⟦T145⟧](/oss/python/langgraph/graph-api#stategraph)来定义一个在这个状态上运行的图。然后我们使用 [⟦T146⟧](/oss/python/langgraph/graph-api#nodes) 填充我们的图表。
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from langgraph.graph import StateGraph
@@ -80,7 +80,7 @@ builder.set_entry_point("node")
 graph = builder.compile()
 ```
 
-LangGraph 提供用于可视化图表的内置实用程序。让我们检查一下我们的图表。有关可视化的详细信息，请参阅[Visualize your graph](#visualize-your-graph)。
+LangGraph 提供用于可视化图表的内置实用程序。让我们检查一下我们的图表。有关可视化的详细信息，请参阅[Visualize your graph](#visualize-your-graph)​​。
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from IPython.display import Image, display
@@ -175,7 +175,7 @@ Hello!
 在实践中，更新消息列表还有其他注意事项：* 我们可能希望更新该州的现有消息。
 * 我们可能希望接受 [message formats](/oss/python/langgraph/graph-api#using-messages-in-your-graph) 的简写形式，例如 [OpenAI format](https://python.langchain.com/docs/concepts/messages/#openai-format)。
 
-LangGraph 包含一个内置减速器 [⟦T148⟧](https://reference.langchain.com/python/langgraph/graph/message/add_messages)，可处理以下注意事项：
+LangGraph 包含一个内置减速器 [⟦T149⟧](https://reference.langchain.com/python/langgraph/graph/message/add_messages)，可处理以下注意事项：
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from langgraph.graph.message import add_messages
@@ -209,7 +209,7 @@ Hi
 Hello!
 ```
 
-对于涉及[chat models](https://python.langchain.com/docs/concepts/chat_models/)的应用程序来说，这是一种通用的状态表示。为了方便起见，LangGraph 包含一个预构建的 `MessagesState`，这样我们就可以：
+对于涉及[chat models](https://python.langchain.com/docs/concepts/chat_models/)的应用程序来说，这是一种通用的状态表示。为了方便起见，LangGraph 包含一个预置的 `MessagesState`，这样我们就可以：
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from langgraph.graph import MessagesState
@@ -220,7 +220,7 @@ class State(MessagesState):
 
 ### 带有 `Overwrite` 的旁路减速器
 
-在某些情况下，您可能希望绕过减速器并直接覆盖状态值。为此，LangGraph 提供了[⟦T151⟧](https://reference.langchain.com/python/langgraph/types/) 类型。当节点返回用 `Overwrite` 包装的值时，reducer 会被绕过，通道会直接设置为该值。
+在某些情况下，您可能希望绕过减速器并直接覆盖状态值。为此，LangGraph 提供了[⟦T152⟧](https://reference.langchain.com/python/langgraph/types/) 类型。当节点返回用`Overwrite`包装的值时，reducer将被绕过，通道将直接设置为该值。
 
 当您想要重置或替换累积状态而不是将其与现有值合并时，这非常有用。
 
@@ -383,11 +383,11 @@ Output of graph invocation: {'a': 'set by node_3'}
 
 ### 使用 pydantic 模型进行图状态
 
-[StateGraph](https://reference.langchain.com/python/langgraph/graph/state/StateGraph) 在初始化时接受 [⟦T157⟧](https://reference.langchain.com/python/langchain/middleware/#langchain.agents.middleware.AgentMiddleware.state_schema) 参数，该参数指定图中的节点可以访问和更新的状态的“形状”。
+[StateGraph](https://reference.langchain.com/python/langgraph/graph/state/StateGraph) 在初始化时接受 [⟦T158⟧](https://reference.langchain.com/python/langchain/middleware/#langchain.agents.middleware.AgentMiddleware.state_schema) 参数，该参数指定图中的节点可以访问和更新的状态的“形状”。
 
-在我们的示例中，我们通常使用 python 原生 `TypedDict` 或 [⟦T159⟧](https://docs.python.org/3/library/dataclasses.html) 来表示 `state_schema`，但 [⟦T161⟧](https://reference.langchain.com/python/langchain/middleware/#langchain.agents.middleware.AgentMiddleware.state_schema) 可以是任何 [type](https://docs.python.org/3/library/stdtypes.html#type-objects)。
+在我们的示例中，我们通常使用 python 原生 `TypedDict` 或 [⟦T160⟧](https://docs.python.org/3/library/dataclasses.html) 来表示 `state_schema`，但 [⟦T162⟧](https://reference.langchain.com/python/langchain/middleware/#langchain.agents.middleware.AgentMiddleware.state_schema) 可以是任何 [type](https://docs.python.org/3/library/stdtypes.html#type-objects)。
 
-在这里，我们将了解如何将 [Pydantic BaseModel](https://docs.pydantic.dev/latest/api/base_model/) 用于 [⟦T162⟧](https://reference.langchain.com/python/langchain/middleware/#langchain.agents.middleware.AgentMiddleware.state_schema) 以在 **输入** 上添加运行时验证。
+在这里，我们将了解如何将 [Pydantic BaseModel](https://docs.pydantic.dev/latest/api/base_model/) 用于 [⟦T163⟧](https://reference.langchain.com/python/langchain/middleware/#langchain.agents.middleware.AgentMiddleware.state_schema) 以在 **输入** 上添加运行时验证。
 
 <Note>
   **已知限制**
@@ -525,7 +525,7 @@ a
 </Accordion>
 
 <Accordion title="Working with Message Models">
-  在状态模式中使用 LangChain 消息类型时，序列化有重要的注意事项。当通过网络使用消息对象时，您应该使用 `AnyMessage` （而不是 `BaseMessage`）进行正确的序列化/反序列化。
+  在状态模式中使用 LangChain 消息类型时，序列化有一些重要的注意事项。当通过网络使用消息对象时，您应该使用 `AnyMessage` （而不是 `BaseMessage`）进行正确的序列化/反序列化。
 
   ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
   from langgraph.graph import StateGraph, START, END
@@ -715,7 +715,7 @@ print(graph.invoke({}, context={"my_runtime_value": "b"}))  # [!code highlight]
 
 在许多用例中，您可能希望节点具有自定义重试策略，例如，如果您正在调用 API、查询数据库或调用 LLM 等。LangGraph 允许您向节点添加重试策略。
 
-要配置重试策略，请将`retry_policy`参数传递给[⟦T167⟧](https://reference.langchain.com/python/langgraph/graph/state/StateGraph/add_node)。 `retry_policy` 参数接受一个 `RetryPolicy` 命名元组对象。下面我们用默认参数实例化一个`RetryPolicy`对象并将其与一个节点关联起来：
+要配置重试策略，请将`retry_policy`参数传递给[⟦T168⟧](https://reference.langchain.com/python/langgraph/graph/state/StateGraph/add_node)。 `retry_policy` 参数接受一个 `RetryPolicy` 命名元组对象。下面我们用默认参数实例化一个`RetryPolicy`对象并将其与一个节点关联起来：
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from langgraph.types import RetryPolicy
@@ -783,7 +783,7 @@ builder.add_node(
 
 ## 设置节点超时
 
-将 `timeout` 参数与 [⟦T188⟧](https://reference.langchain.com/python/langgraph/graph/state/StateGraph/add_node) 一起使用来限制单个异步节点调用可以运行的时间。提供以秒为单位的超时或作为 `datetime.timedelta`。
+将 `timeout` 参数与 [⟦T189⟧](https://reference.langchain.com/python/langgraph/graph/state/StateGraph/add_node) 一起使用来限制单个异步节点调用可以运行的时间。提供以秒为单位的超时或作为 `datetime.timedelta`。
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import asyncio
@@ -814,13 +814,13 @@ except NodeTimeoutError:
     print("Node timed out")
 ```
 
-仅异步节点支持节点超时。如果在同步节点上设置 `timeout`，则在编译图时，LangGraph 会引发错误，因为无法在进程中安全地取消同步 Python 执行。
+仅异步节点支持节点超时。如果在同步节点上设置 `timeout`，则在编译图形时，LangGraph 会引发错误，因为同步 Python 执行无法在进程中安全取消。
 
 当节点超过其超时时，LangGraph引发`NodeTimeoutError`，它是Python内置`TimeoutError`的子类。如果节点有重试 `TimeoutError` 或 `NodeTimeoutError` 的 `retry_policy`，则会重试超时尝试。超时独立地应用于每次尝试，因此计时器会在每次重试时重置。
 
 超时尝试不会提交其缓冲写入。这可以防止状态更新或子任务调度在超时边界后泄漏。## 配置节点超时
 
-[⟦T197⟧](https://reference.langchain.com/python/langgraph/graph/state/StateGraph/add_node) 上的 `timeout=` 参数限制了单个异步节点尝试可以运行的时间。传递数字（秒）、`timedelta`或[⟦T199⟧](https://reference.langchain.com/python/langgraph/types/TimeoutPolicy)以更好地控制运行和空闲超时。当超过限制时，LangGraph提高[⟦T200⟧](https://reference.langchain.com/python/langgraph/errors/NodeTimeoutError)，并让重试策略决定是否重试。
+[⟦T198⟧](https://reference.langchain.com/python/langgraph/graph/state/StateGraph/add_node) 上的 `timeout=` 参数限制了单个异步节点尝试可以运行的时间。传递数字（秒）、`timedelta`或[⟦T200⟧](https://reference.langchain.com/python/langgraph/types/TimeoutPolicy)以更好地控制运行和空闲超时。当超过限制时，LangGraph提高[⟦T201⟧](https://reference.langchain.com/python/langgraph/errors/NodeTimeoutError)，并让重试策略决定是否重试。
 
 <Note>
   每个节点超时需要`langgraph>=1.2`。
@@ -836,11 +836,11 @@ builder.add_node(
 )
 ```
 
-有关完整超时生命周期、空闲超时刷新源和 `runtime.heartbeat()`，请参阅 [Fault tolerance](/oss/python/langgraph/fault-tolerance#timeouts)。
+有关完整超时生命周期、空闲超时刷新源和 `runtime.heartbeat()`，请参阅[Fault tolerance](/oss/python/langgraph/fault-tolerance#timeouts)。
 
 ## 处理节点错误
 
-[⟦T204⟧](https://reference.langchain.com/python/langgraph/graph/state/StateGraph/add_node)上的`error_handler=`参数注册一个在节点失败且所有重试都用完后运行的函数。处理程序接收当前状态和带有失败上下文的类型化[⟦T205⟧](https://reference.langchain.com/python/langgraph/errors/NodeError)，并且可以通过[⟦T206⟧](https://reference.langchain.com/python/langgraph/types/Command)路由到恢复分支：
+[⟦T205⟧](https://reference.langchain.com/python/langgraph/graph/state/StateGraph/add_node)上的`error_handler=`参数注册一个在节点失败且所有重试都用完后运行的函数。处理程序接收当前状态和带有失败上下文的类型化[⟦T206⟧](https://reference.langchain.com/python/langgraph/errors/NodeError)，并且可以通过[⟦T207⟧](https://reference.langchain.com/python/langgraph/types/Command)路由到恢复分支：
 
 <Note>
   节点级错误处理程序需要`langgraph>=1.2`。
@@ -872,7 +872,7 @@ builder.add_node(
   需要`langgraph>=1.2`。
 </Note>
 
-使用 [⟦T210⟧](https://reference.langchain.com/python/langgraph/graph/state/StateGraph/set_node_defaults) 为图中的每个节点设置 `retry_policy`、`timeout`、`cache_policy` 或 `error_handler` 一次，而不是在每个 [⟦T215⟧](https://reference.langchain.com/python/langgraph/graph/state/StateGraph/add_node) 调用中重复它们。每个节点的值总是获胜，并且在 [⟦T216⟧](https://reference.langchain.com/python/langgraph/graph/state/StateGraph/compile) 时间应用默认值：
+使用 [⟦T211⟧](https://reference.langchain.com/python/langgraph/graph/state/StateGraph/set_node_defaults) 为图中的每个节点设置 `retry_policy`、`timeout`、`cache_policy` 或 `error_handler` 一次，而不是在每个 [⟦T216⟧](https://reference.langchain.com/python/langgraph/graph/state/StateGraph/add_node) 调用中重复它们。每个节点的值总是获胜，并且在 [⟦T217⟧](https://reference.langchain.com/python/langgraph/graph/state/StateGraph/compile) 时间应用默认值：
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from langgraph.types import RetryPolicy, TimeoutPolicy
@@ -959,8 +959,8 @@ graph = builder.compile()
 
 ### 访问节点内的服务器信息
 
-当您的图表在LangGraph服务器上运行时，您可以通过`runtime.server_info`访问特定于服务器的元数据。这会显示助手 ID、图形 ID 和经过身份验证的用户，而无需直接读取配置元数据或可配置密钥。|属性|类型 |描述 |
-| -------------- | ------------------ | ------------------------------------------------------------------------------------------- |
+当您的图表在LangGraph服务器上运行时，您可以通过`runtime.server_info`访问特定于服务器的元数据。这会显示助手 ID、图形 ID 和经过身份验证的用户，而无需直接读取配置元数据或可配置密钥。|属性 |类型 |描述 |
+| -------------- | ------------------ | --------------------------------------------------------------------------------------------------- |
 | `assistant_id` | `str` |当前部署的助手 ID。                                    |
 | `graph_id` | `str` |当前部署的图形 ID。                                        |
 | `user` | `BaseUser \| None` |经过身份验证的用户（如果配置了 [custom auth](/langsmith/custom-auth)）。 |
@@ -1008,7 +1008,7 @@ def my_node(state: State, runtime: Runtime) -> State:
 ```|物业 |类型 |描述 |
 | ----------------- | ------------- | ------------------------------------------------------------------------------------------------ |
 | `drain_requested` | `bool` | `True` 如果本次运行已调用 `RunControl.request_drain()`。                 |
-| `drain_reason` | `str \| None` |原因字符串传递给 `request_drain()`，如果未请求排出，则传递给 `None`。 |
+| `drain_reason` | `str \| None` |原因字符串传递给`request_drain()`，或者如果未请求排水则传递给`None`。 |
 
 <Note>
   需要`langgraph>=1.2`。请参阅 [Graceful shutdown](/oss/python/langgraph/fault-tolerance#graceful-shutdown) 了解完整的 `RunControl` API。
@@ -1016,9 +1016,9 @@ def my_node(state: State, runtime: Runtime) -> State:
 
 ## 添加节点缓存
 
-当您想要避免重复操作时，例如在执行昂贵的操作（无论是时间还是成本）时，节点缓存非常有用。 LangGraph 允许您向图中的节点添加个性化缓存策略。
+当您想要避免重复操作时，例如在执行昂贵的操作（无论是时间还是成本）时，节点缓存非常有用。 LangGraph 允许您向图中的节点添加个性化的缓存策略。
 
-要配置缓存策略，请将 `cache_policy` 参数传递给 [⟦T274⟧](https://reference.langchain.com/python/langgraph/graph/state/StateGraph/add_node) 函数。在以下示例中，实例化了一个 [⟦T275⟧](https://reference.langchain.com/python/langgraph/types/CachePolicy) 对象，其生存时间为 120 秒，并使用默认的 `key_func` 生成器。然后它与一个节点关联：
+要配置缓存策略，请将 `cache_policy` 参数传递给 [⟦T275⟧](https://reference.langchain.com/python/langgraph/graph/state/StateGraph/add_node) 函数。在以下示例中，实例化了一个 [⟦T276⟧](https://reference.langchain.com/python/langgraph/types/CachePolicy) 对象，其生存时间为 120 秒，并使用默认的 `key_func` 生成器。然后它与一个节点关联：
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from langgraph.types import CachePolicy
@@ -1048,7 +1048,7 @@ graph = builder.compile(cache=InMemoryCache())
 1. 如何构建时序图
 2. 内置用于构造相似图的速记法。
 
-要添加节点序列，我们使用 [graph](/oss/python/langgraph/graph-api#stategraph) 的 [⟦T280⟧](https://reference.langchain.com/python/langgraph/graph/state/StateGraph/add_node) 和 [⟦T281⟧](https://reference.langchain.com/python/langgraph/pregel/_draw/add_edge) 方法：
+要添加节点序列，我们使用 [graph](/oss/python/langgraph/graph-api#stategraph) 的 [⟦T281⟧](https://reference.langchain.com/python/langgraph/graph/state/StateGraph/add_node) 和 [⟦T282⟧](https://reference.langchain.com/python/langgraph/pregel/_draw/add_edge) 方法：
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from langgraph.graph import START, StateGraph
@@ -1066,7 +1066,7 @@ builder.add_edge("step_1", "step_2")
 builder.add_edge("step_2", "step_3")
 ```
 
-我们还可以使用内置简写`.add_sequence`：
+我们还可以使用内置的简写`.add_sequence`：
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 builder = StateGraph(State).add_sequence([step_1, step_2, step_3])
@@ -1119,9 +1119,9 @@ builder.add_edge(START, "step_1")
     默认情况下，这将**覆盖**相应键的值。您还可以使用 [reducers](/oss/python/langgraph/graph-api#reducers) 来控制更新的处理方式，例如，您可以将连续的更新附加到某个键。有关更多详细信息，请参阅[Process state updates with reducers](#process-state-updates-with-reducers)。
   </Note>
 
-  最后，我们定义图表。我们使用[StateGraph](/oss/python/langgraph/graph-api#stategraph)来定义一个在此状态上运行的图。
+  最后，我们定义图表。我们使用 [StateGraph](/oss/python/langgraph/graph-api#stategraph) 来定义一个在此状态上运行的图。
 
-  然后，我们将使用 [⟦T283⟧](/oss/python/langgraph/graph-api#messagesstate) 和 [⟦T284⟧](/oss/python/langgraph/graph-api#edges) 来填充我们的图表并定义其控制流。
+  然后，我们将使用 [⟦T284⟧](/oss/python/langgraph/graph-api#messagesstate) 和 [⟦T285⟧](/oss/python/langgraph/graph-api#edges) 来填充我们的图表并定义其控制流。
 
   ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
   from langgraph.graph import START, StateGraph
@@ -1139,7 +1139,7 @@ builder.add_edge(START, "step_1")
   builder.add_edge("step_2", "step_3")
   ```<Tip>
     **指定自定义名称**
-    您可以使用 [⟦T285⟧](https://reference.langchain.com/python/langgraph/graph/state/StateGraph/add_node) 为节点指定自定义名称：
+    您可以使用 [⟦T286⟧](https://reference.langchain.com/python/langgraph/graph/state/StateGraph/add_node) 为节点指定自定义名称：
 
     ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
     builder.add_node("my_node", step_1)
@@ -1148,7 +1148,7 @@ builder.add_edge(START, "step_1")
 
   请注意：
 
-  * [⟦T286⟧](https://reference.langchain.com/python/langgraph/pregel/_draw/add_edge) 采用节点名称，对于函数来说默认为 `node.__name__`。
+  * [⟦T287⟧](https://reference.langchain.com/python/langgraph/pregel/_draw/add_edge) 采用节点名称，对于函数来说默认为 `node.__name__`。
   * 我们必须指定图表的入口点。为此，我们添加一条带有 [START node](/oss/python/langgraph/graph-api#start-node) 的边。
   * 当没有更多节点要执行时，图表将停止。
 
@@ -1272,22 +1272,22 @@ Adding "D" to ['A', 'B', 'C']
 </Note>
 
 <Accordion title="Exception handling?">
-  LangGraph执行[supersteps](/oss/python/langgraph/graph-api#graphs)内的节点，这意味着虽然并行分支是并行执行的，但整个超级步骤是**事务性的**。如果这些分支中的任何一个引发异常，则不会将任何更新应用于状态（整个超级步骤错误）。
+  LangGraph执行[supersteps](/oss/python/langgraph/graph-api#graphs)内的节点，这意味着虽然并行分支是并行执行的，但整个超级步骤是**事务性的**。如果这些分支中的任何一个引发异常，则不会将任何更新应用于状态（整个超级步错误）。
 
   重要的是，当使用[checkpointer](/oss/python/langgraph/persistence)时，超级步内成功节点的结果将被保存，并且在恢复时不会重复。
 
   如果您容易出错（也许想要处理不稳定的 API 调用），LangGraph 提供了两种方法来解决这个问题：1. 您可以在节点内编写常规Python代码来捕获和处理异常。
-  2. 您可以设置 **[retry\_policy](https://langchain-ai.github.io/langgraph/reference/types/#langgraph.types.RetryPolicy)** 来指示图形重试引发某些类型异常的节点。仅重试失败的分支，因此您不必担心执行多余的工作。
+  2. 您可以设置 **[⟦T299⟧](https://reference.langchain.com/python/langgraph/types/#langgraph.types.RetryPolicy)** 来指示图形重试引发某些类型异常的节点。仅重试失败的分支，因此您不必担心执行多余的工作。
 
   这些共同使您可以执行并行执行并完全控制异常处理。
 </Accordion>
 
 <Tip>
   **设置最大并发数**
-  您可以在调用图表时通过设置[configuration](https://reference.langchain.com/python/langchain-core/runnables/config/RunnableConfig)中的`max_concurrency`来控制最大并发任务数。
+  您可以在调用图表时通过设置[configuration](https://reference.langchain.com/python/langchain-core/runnables/config/RunnableConfig)中的`max_concurrency`来控制最大并发任务数。 `max_concurrency` 是一个独立的配置键，因此将其设置在配置的顶层而不是内部`configurable`。
 
   ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  graph.invoke({"value_1": "c"}, {"configurable": {"max_concurrency": 10}})
+  graph.invoke({"value_1": "c"}, {"max_concurrency": 10})
   ```
 </Tip>
 
@@ -1295,7 +1295,7 @@ Adding "D" to ['A', 'B', 'C']
 
 当您想要延迟节点的执行直到所有其他待处理任务完成时，延迟节点执行非常有用。当分支具有不同长度时，这一点尤其重要，这在映射缩减流等工作流程中很常见。
 
-上面的示例展示了当每条路径只有一步时如何进行扇出和扇入。但如果一个分支有多个步骤怎么办？让我们在 `"b"` 分支中添加一个节点 `"b_2"`：
+上面的示例展示了当每条路径只有一步时如何进行扇出和扇入。但如果一个分支有多个步骤怎么办？让我们在 `"b"` 分支中添加一个节点 `"b_2"` ：
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import operator
@@ -1363,9 +1363,19 @@ Adding "B_2" to ['A', 'B', 'C']
 Adding "D" to ['A', 'B', 'C', 'B_2']
 ```在上面的示例中，节点`"b"`和`"c"`在同一超级步中同时执行。我们在节点 `d` 上设置 `defer=True`，以便在所有挂起的任务完成之前它不会执行。在这种情况下，这意味着 `"d"` 等待执行，直到整个 `"b"` 分支完成。
 
+当每个分支始终运行时，您可以使用列表形式的边缘而不是`defer=True`等待。 `add_edge` 还接受起始节点列表。这不是单独的 `add_edge` 调用的简写；这两种形式的行为不同：
+
+```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+builder.add_edge(["b_2", "c"], "d")  # d runs once, after both b_2 and c complete
+```* **起始节点列表** 在所有列出的节点完成后运行 `d` 一次。如果其中之一从不运行（例如，条件边不选择其分支），则 `d` 永远不会运行，并且不会引发错误。已完成的分支的状态更新仍保留在图状态中，但 `d` 不会消耗它们。
+* **单独的边** 在每个超级步骤中运行 `d` 一次，其中任何传入分支都完成。如果分支长度相等，则为单行；对于不同长度的分支，`d` 运行不止一次。
+* **使用`defer=True`**（上例中的模式）的单独边在每个选定分支完成后运行`d`一次，无论扇出选择了所有分支还是仅选择了其中一些分支。
+
+`defer=True` 推迟节点，直到图中任何地方都没有待处理的任务，而不仅仅是在为其提供数据的分支中。寻址到该节点的`Send`仍然单独调用它。
+
 ### 条件分支
 
-如果您的扇出在运行时应根据状态而变化，您可以使用 [⟦T307⟧](https://reference.langchain.com/python/langgraph/graph/state/StateGraph/add_conditional_edges) 使用图形状态选择一个或多个路径。请参阅下面的示例，其中节点 `a` 生成确定后续节点的状态更新。
+如果您的扇出在运行时应根据状态而变化，您可以使用 [⟦T323⟧](https://reference.langchain.com/python/langgraph/graph/state/StateGraph/add_conditional_edges) 使用图形状态选择一个或多个路径。请参阅下面的示例，其中节点 `a` 生成确定后续节点的状态更新。
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import operator
@@ -1420,9 +1430,7 @@ display(Image(graph.get_graph().draw_mermaid_png()))
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 result = graph.invoke({"aggregate": []})
 print(result)
-```
-
-```
+``````
 Adding "A" to []
 Adding "C" to ['A']
 {'aggregate': ['A', 'C'], 'which': 'c'}
@@ -1509,7 +1517,9 @@ for message in stream.messages:
 
 ## 创建和控制循环
 
-当创建带有循环的图时，我们需要一种终止执行的机制。最常见的方法是添加一个 [conditional edge](/oss/python/langgraph/graph-api#conditional-edges) ，一旦达到某些终止条件，该[END](/oss/python/langgraph/graph-api#end-node) 节点就会路由到 [END](/oss/python/langgraph/graph-api#end-node) 节点。您还可以在调用或流式传输图形时设置图形递归限制。递归限制设置了图表在引发错误之前允许执行的 [super-steps](/oss/python/langgraph/graph-api#graphs) 的数量。了解有关 [recursion limit concept](/oss/python/langgraph/graph-api#recursion-limit) 的更多信息。
+当创建带有循环的图时，我们需要一种终止执行的机制。最常见的方法是添加一个 [conditional edge](/oss/python/langgraph/graph-api#conditional-edges) ，一旦达到某些终止条件，该[END](/oss/python/langgraph/graph-api#end-node) 节点就会路由到 [END](/oss/python/langgraph/graph-api#end-node) 节点。
+
+您还可以在调用或流式传输图形时设置图形递归限制。递归限制设置了图表在引发错误之前允许执行的 [super-steps](/oss/python/langgraph/graph-api#graphs) 数量。了解有关 [recursion limit concept](/oss/python/langgraph/graph-api#recursion-limit) 的更多信息。
 
 让我们考虑一个带有循环的简单图，以更好地理解这些机制是如何工作的。
 
@@ -1545,9 +1555,7 @@ try:
     graph.invoke(inputs, {"recursion_limit": 3})
 except GraphRecursionError:
     print("Recursion Error")
-```
-
-让我们用一个简单的循环来定义一个图。请注意，我们使用条件边来实现终止条件。
+```让我们用一个简单的循环来定义一个图。请注意，我们使用条件边来实现终止条件。
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import operator
@@ -1601,7 +1609,9 @@ display(Image(graph.get_graph().draw_mermaid_png()))
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 graph.invoke({"aggregate": []})
-``````
+```
+
+```
 Node A sees []
 Node B sees ['A']
 Node A sees ['A', 'B']
@@ -1613,7 +1623,7 @@ Node A sees ['A', 'B', 'A', 'B', 'A', 'B']
 
 ### 施加递归限制
 
-在某些应用中，我们可能无法保证会达到给定的终止条件。在这些情况下，我们可以设置图表的[recursion limit](/oss/python/langgraph/graph-api#recursion-limit)。这将在给定数量的 [supersteps](/oss/python/langgraph/graph-api#graphs) 之后引发 `GraphRecursionError`。然后我们可以捕获并处理这个异常：
+在某些应用中，我们可能无法保证会达到给定的终止条件。在这些情况下，我们可以设置图形的[recursion limit](/oss/python/langgraph/graph-api#recursion-limit)。这将在给定数量的 [supersteps](/oss/python/langgraph/graph-api#graphs) 之后引发 `GraphRecursionError`。然后我们可以捕获并处理这个异常：
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from langgraph.errors import GraphRecursionError
@@ -1634,9 +1644,7 @@ Recursion Error
 ```
 
 <Accordion title="Extended example: return state on hitting recursion limit">
-  我们可以引入一个新的状态键来跟踪剩余步骤数，直到达到递归限制，而不是提高`GraphRecursionError`。然后我们可以使用这个键来确定是否应该结束运行。
-
-  LangGraph 实现了特殊的 `RemainingSteps` 注释。在底层，它创建了一个 `ManagedValue` 通道——一个状态通道，它将在我们的图形运行期间存在，并且不再存在。
+  我们可以引入一个新的状态键来跟踪剩余步骤数，直到达到递归限制，而不是提高`GraphRecursionError`。然后我们可以使用这个键来确定是否应该结束运行。LangGraph 实现了特殊的 `RemainingSteps` 注释。在底层，它创建了一个 `ManagedValue` 通道——一个状态通道，它将在我们的图形运行期间存在，并且不再存在。
 
   ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
   import operator
@@ -1753,7 +1761,9 @@ Recursion Error
   4. 节点A
   5....
 
-  我们有一个包含四个超级步的循环，其中节点 C 和 D 是同时执行的。像以前一样调用图表，我们看到在达到终止条件之前我们完成了两个完整的“圈”：
+  我们有一个包含四个超级步骤的循环，其中节点 C 和 D 是同时执行的。列表形式的边缘在返回`"a"`之前等待`"c"`和`"d"`。有关列表形式的边与进入同一节点的单独边的不同之处，请参阅[Defer node execution](#defer-node-execution)。
+
+  像以前一样调用图表，我们看到在达到终止条件之前我们完成了两个完整的“圈”：
 
   ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
   result = graph.invoke({"aggregate": []})
@@ -1792,9 +1802,7 @@ Recursion Error
   ```
 </Accordion>
 
-## 异步
-
-并发运行 [IO-bound](https://en.wikipedia.org/wiki/I/O_bound) 代码时（例如，向聊天模型提供者发出并发 API 请求），使用异步编程范例可以显着提高性能。
+## 异步并发运行 [IO-bound](https://en.wikipedia.org/wiki/I/O_bound) 代码时（例如，向聊天模型提供者发出并发 API 请求），使用异步编程范例可以显着提高性能。
 
 要将图的 `sync` 实现转换为 `async` 实现，您需要：
 
@@ -1842,7 +1850,9 @@ Recursion Error
   </Tab>
 
   <Tab title="Anthropic">
-    👉 阅读[Anthropic chat model integration docs](/oss/python/integrations/chat/anthropic/)<CodeGroup>
+    👉 阅读[Anthropic chat model integration docs](/oss/python/integrations/chat/anthropic/)
+
+    <CodeGroup>
       ```bash pip theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
       pip install -U "langchain[anthropic]"
       ```
@@ -1918,9 +1928,7 @@ Recursion Error
   </Tab>
 
   <Tab title="Google Gemini">
-    👉 阅读[Google GenAI chat model integration docs](/oss/python/integrations/chat/google_generative_ai/)
-
-    <CodeGroup>
+    👉 阅读[Google GenAI chat model integration docs](/oss/python/integrations/chat/google_generative_ai/)<CodeGroup>
       ```bash pip theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
       pip install -U "langchain[google-genai]"
       ```
@@ -1937,7 +1945,7 @@ Recursion Error
 
       os.environ["GOOGLE_API_KEY"] = "..."
 
-      model = init_chat_model("google_genai:gemini-2.5-flash-lite")
+      model = init_chat_model("google_genai:gemini-3.7-flash")
       ```
 
       ```python Model Class theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
@@ -1946,7 +1954,7 @@ Recursion Error
 
       os.environ["GOOGLE_API_KEY"] = "..."
 
-      model = ChatGoogleGenerativeAI(model="gemini-2.5-flash-lite")
+      model = ChatGoogleGenerativeAI(model="gemini-3.7-flash")
       ```
     </CodeGroup>
   </Tab>
@@ -1986,7 +1994,7 @@ Recursion Error
   </Tab>
 
   <Tab title="HuggingFace">
-    👉 阅读[HuggingFace chat model integration docs](/oss/python/integrations/chat/huggingface/)
+    👉阅读[HuggingFace chat model integration docs](/oss/python/integrations/chat/huggingface/)
 
     <CodeGroup>
       ```bash pip theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
@@ -2087,7 +2095,9 @@ result = await graph.ainvoke({"messages": [input_message]})  # [!code highlight]
   有关异步流式传输的示例，请参阅 [streaming guide](/oss/python/langgraph/streaming)。
 </Tip>
 
-## 将控制流和状态更新与`Command`结合起来将控制流（边）和状态更新（节点）结合起来非常有用。例如，您可能希望既执行状态更新又决定在同一节点中下一个转到哪个节点。 LangGraph 提供了一种方法，通过从节点函数返回 [Command](https://reference.langchain.com/python/langgraph/types/Command) 对象来实现此目的：
+## 将控制流和状态更新与`Command`结合起来
+
+将控制流（边）和状态更新（节点）结合起来非常有用。例如，您可能希望既执行状态更新又决定在同一节点中下一个转到哪个节点。 LangGraph 提供了一种方法，通过从节点函数返回 [Command](https://reference.langchain.com/python/langgraph/types/Command) 对象来实现此目的：
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 def my_node(state: State) -> Command[Literal["my_other_node"]]:
@@ -2137,9 +2147,7 @@ def node_b(state: State):
 def node_c(state: State):
     print("Called C")
     return {"foo": state["foo"] + "c"}
-```
-
-我们现在可以使用上述节点创建[⟦T334⟧](https://reference.langchain.com/python/langgraph/graph/state/StateGraph)。请注意，该图没有用于路由的[conditional edges](/oss/python/langgraph/graph-api#conditional-edges)！这是因为控制流是用`node_a`内部的[⟦T335⟧](https://reference.langchain.com/python/langgraph/types/Command)定义的。
+```我们现在可以使用上述节点创建[⟦T353⟧](https://reference.langchain.com/python/langgraph/graph/state/StateGraph)。请注意，该图没有用于路由的[conditional edges](/oss/python/langgraph/graph-api#conditional-edges)！这是因为控制流是用`node_a`内的[⟦T354⟧](https://reference.langchain.com/python/langgraph/types/Command)定义的。
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 builder = StateGraph(State)
@@ -2153,7 +2161,7 @@ graph = builder.compile()
 ```
 
 <Warning>
-  您可能已经注意到，我们使用 [⟦T337⟧](https://reference.langchain.com/python/langgraph/types/Command) 作为返回类型注释，例如`Command[Literal["node_b", "node_c"]]`。这对于图形渲染是必要的，并告诉LangGraph`node_a`可以导航到`node_b`和`node_c`。
+  您可能已经注意到，我们使用 [⟦T356⟧](https://reference.langchain.com/python/langgraph/types/Command) 作为返回类型注释，例如`Command[Literal["node_b", "node_c"]]`。这对于图形渲染是必要的，并告诉LangGraph`node_a`可以导航到`node_b`和`node_c`。
 </Warning>
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
@@ -2175,7 +2183,9 @@ Called A
 Called C
 ```
 
-### 导航到父图中的节点如果您使用[subgraphs](/oss/python/langgraph/use-subgraphs)，您可能希望从子图中的节点导航到不同的子图（即父图中的不同节点）。为此，您可以在 `Command` 中指定 `graph=Command.PARENT`：
+### 导航到父图中的节点
+
+如果您使用[subgraphs](/oss/python/langgraph/use-subgraphs)，您可能希望从子图中的节点导航到不同的子图（即父图中的不同节点）。为此，您可以在 `Command` 中指定 `graph=Command.PARENT`：
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 def my_node(state: State) -> Command[Literal["other_subgraph"]]:
@@ -2186,11 +2196,9 @@ def my_node(state: State) -> Command[Literal["other_subgraph"]]:
     )
 ```
 
-让我们用上面的例子来演示这一点。为此，我们将上面示例中的 `nodeA` 更改为单节点图，并将其作为子图添加到父图。
-
-<Warning>
-  **状态更新为`Command.PARENT`**
-  当您将父图和子图[state schemas](/oss/python/langgraph/graph-api#schema)共享的键的更新从子图节点发送到父图节点时，您**必须**为要在父图状态下更新的键定义一个[reducer](/oss/python/langgraph/graph-api#reducers)。请参阅下面的示例。
+让我们用上面的例子来演示这一点。为此，我们将上面示例中的 `nodeA` 更改为单节点图，并将其作为子图添加到父图。<Warning>
+  **使用 `Command.PARENT`** 进行状态更新
+  当您将父图和子图[state schemas](/oss/python/langgraph/graph-api#schema)共享的键的更新从子图节点发送到父图节点时，您**必须**为要在父图状态中更新的键定义一个[reducer](/oss/python/langgraph/graph-api#reducers)。请参阅下面的示例。
 </Warning>
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
@@ -2269,17 +2277,17 @@ def lookup_user_info(runtime: ToolRuntime):
             "messages": [ToolMessage("Successfully looked up user information", tool_call_id=runtime.tool_call_id)]
         }
     )
-```<Warning>
-  当从工具返回[⟦T349⟧](https://reference.langchain.com/python/langgraph/types/Command)时，您必须在`Command.update`中包含`messages`（或用于消息历史记录的任何状态键），并且`messages`中的消息列表必须包含`ToolMessage`。这对于生成的消息历史记录有效是必要的（LLM 提供商要求带有工具调用的 AI 消息后跟工具结果消息）。
-</Warning>
+```
 
-如果您使用通过 [⟦T352⟧](https://reference.langchain.com/python/langgraph/types/Command) 更新状态的工具，我们建议使用预构建的 [⟦T353⟧](https://reference.langchain.com/python/langgraph/agents/#langgraph.prebuilt.tool_node.ToolNode) ，它会自动处理返回 [⟦T354⟧](https://reference.langchain.com/python/langgraph/types/Command) 对象的工具并将它们传播到图形状态。如果您正在编写调用工具的自定义节点，则需要手动传播工具返回的 [⟦T355⟧](https://reference.langchain.com/python/langgraph/types/Command) 对象作为节点的更新。
+<Warning>
+  当从工具返回[⟦T368⟧](https://reference.langchain.com/python/langgraph/types/Command)时，您必须在`Command.update`中包含`messages`（或用于消息历史记录的任何状态键），并且`messages`中的消息列表必须包含`ToolMessage`。这对于生成的消息历史记录有效是必要的（LLM 提供商要求带有工具调用的 AI 消息后跟工具结果消息）。
+</Warning>如果您使用通过 [⟦T371⟧](https://reference.langchain.com/python/langgraph/types/Command) 更新状态的工具，我们建议使用预构建的 [⟦T372⟧](https://reference.langchain.com/python/langgraph/agents/#langgraph.prebuilt.tool_node.ToolNode)，它会自动处理返回 [⟦T373⟧](https://reference.langchain.com/python/langgraph/types/Command) 对象的工具并将它们传播到图形状态。如果您正在编写调用工具的自定义节点，则需要手动传播工具返回的 [⟦T374⟧](https://reference.langchain.com/python/langgraph/types/Command) 对象作为节点的更新。
 
 ## 可视化你的图表
 
 在这里，我们演示如何可视化您创建的图表。
 
-您可以可视化任意任意[Graph](https://langchain-ai.github.io/langgraph/reference/graphs/)，包括[StateGraph](https://langchain-ai.github.io/langgraph/reference/graphs/#langgraph.graph.state.StateGraph)。
+您可以可视化任意任意[Graph](https://reference.langchain.com/python/langgraph/graphs/)，包括[⟦T375⟧](https://reference.langchain.com/python/langgraph/graph/state/StateGraph)。
 
 让我们通过绘制分形来享受一些乐趣:)。
 
@@ -2378,7 +2386,9 @@ graph TD;
 
 ### PNG
 
-如果愿意，我们可以将图形渲染为`.png`。这里我们可以使用三个选项：* 使用Mermaid.ink API（不需要额外的包）
+如果愿意，我们可以将图形渲染为`.png`。这里我们可以使用三个选项：
+
+* 使用Mermaid.ink API（不需要额外的包）
 * 使用 Mermaid + Pyppeteer (需要 `pip install pyppeteer`)
 * 使用graphviz（需要`pip install graphviz`）
 
@@ -2432,7 +2442,7 @@ except ImportError:
 
 <div>
   <Callout icon="terminal-2">
-    通过 MCP 向 Claude、VSCode 等发送[Connect these docs](/use-these-docs) 以获得实时答案。
+    [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
   </Callout>
 
   <Callout icon="edit">

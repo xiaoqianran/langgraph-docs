@@ -24,6 +24,10 @@ Configure and build applications on the [Agent Server](/langsmith/agent-server) 
   <Card title="Server customization" cta="Customize your server" href="/langsmith/caching" icon="settings">
     Add caching, custom stores and checkpointers, lifespan hooks, middleware, custom routes, encryption, and configurable headers and logs.
   </Card>
+
+  <Card title="REST API" cta="Browse the API" href="/langsmith/server-api-ref" icon="book">
+    Full REST API reference for assistants, threads, runs, crons, store, A2A, MCP, and system endpoints.
+  </Card>
 </CardGroup>
 
 ## Tutorials
@@ -48,7 +52,7 @@ Configure and build applications on the [Agent Server](/langsmith/agent-server) 
 
 <div className="source-links">
   <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) to Claude, VSCode, and more via MCP for real-time answers.
+    [Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
   </Callout>
 
   <Callout icon="edit">

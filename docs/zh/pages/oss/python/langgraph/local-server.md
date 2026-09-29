@@ -12,7 +12,7 @@
 
 * [LangSmith](https://smith.langchain.com/settings) 的 API 密钥 - 免费注册
 
-## 1. 安装 LangGraph CLI
+## 1.安装LangGraph CLI
 
 <CodeGroup>
   ```bash pip theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
@@ -26,9 +26,9 @@
   ```
 </CodeGroup>
 
-## 2. 创建 LangGraph 应用程序
+## 2. 创建一个LangGraph应用程序
 
-从 [⟦T16⟧ template](https://github.com/langchain-ai/new-langgraph-project) 创建一个新应用程序。该模板演示了您可以使用自己的逻辑进行扩展的单节点应用程序。
+从 [⟦T16⟧ template](https://github.com/langchain-ai/new-langgraph-project) 创建一个新应用程序。此模板演示了您可以使用自己的逻辑进行扩展的单节点应用程序。
 
 ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 langgraph new path/to/your/app --template new-langgraph-project-python
@@ -41,7 +41,7 @@ langgraph new path/to/your/app --template new-langgraph-project-python
 
 ## 3.安装依赖项
 
-在新 LangGraph 应用程序的根目录中，以 `edit` 模式安装依赖项，以便服务器使用本地更改：
+在新的 LangGraph 应用程序的根目录中，以 `edit` 模式安装依赖项，以便服务器使用您的本地更改：
 
 <CodeGroup>
   ```bash pip theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
@@ -57,7 +57,7 @@ langgraph new path/to/your/app --template new-langgraph-project-python
 
 ## 4. 创建`.env`文件
 
-您将在新 LangGraph 应用程序的根目录中找到 `.env.example`。在新 LangGraph 应用程序的根目录中创建一个 `.env` 文件，并将 `.env.example` 文件的内容复制到其中，填写必要的 API 密钥：
+您将在新的 LangGraph 应用程序的根目录中找到 `.env.example`。在新的LangGraph应用程序的根目录中创建一个`.env`文件，并将`.env.example`文件的内容复制到其中，填写必要的API密钥：
 
 ```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 LANGSMITH_API_KEY=lsv2...
@@ -116,7 +116,7 @@ https://smith.langchain.com/studio/?baseUrl=http://myhost:3000
 
 <Tabs>
   <Tab title="Python SDK (async)">
-    1.安装LangGraph Python SDK：
+    1.安装LangGraphPython SDK：
        ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
        pip install langgraph-sdk
        ```
@@ -147,7 +147,7 @@ https://smith.langchain.com/studio/?baseUrl=http://myhost:3000
   </Tab>
 
   <Tab title="Python SDK (sync)">
-    1.安装LangGraph Python SDK：
+    1.安装LangGraphPython SDK：
        ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
        pip install langgraph-sdk
        ```
@@ -195,11 +195,11 @@ https://smith.langchain.com/studio/?baseUrl=http://myhost:3000
   </Tab>
 </Tabs>
 
-## 后续步骤现在您已经在本地运行了 LangGraph 应用程序，可以通过探索部署和高级功能来进一步推进您的旅程：
+## 后续步骤现在您已经在本地运行了 LangGraph 应用程序，通过探索部署和高级功能来进一步推进您的旅程：
 
-* [Deployment quickstart](/langsmith/deployment-quickstart)：使用 LangSmith 部署 LangGraph 应用程序。
+* [Deployment quickstart](/langsmith/deployment-quickstart)：使用LangSmith部署您的LangGraph应用程序。
 
-* [LangSmith](/langsmith/observability)：了解 LangSmith 的基本概念。
+* [LangSmith](/langsmith/observability)：了解基本的LangSmith概念。
 
 * [SDK Reference](https://reference.langchain.com/python/langsmith/deployment/sdk/)：探索 SDK API 参考。
 
@@ -207,7 +207,7 @@ https://smith.langchain.com/studio/?baseUrl=http://myhost:3000
 
 <div>
   <Callout icon="terminal-2">
-    通过 MCP 向 Claude、VSCode 等发送[Connect these docs](/use-these-docs) 以获得实时答案。
+    [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
   </Callout>
 
   <Callout icon="edit">

@@ -4,7 +4,7 @@
 
 # LangGraph 运行时
 
-[⟦T19⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/Pregel) 实现 LangGraph 的运行时，管理 LangGraph 应用程序的执行。
+[⟦T19⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/Pregel) 实现LangGraph 的运行时，管理LangGraph 应用程序的执行。
 
 编译 [StateGraph](https://reference.langchain.com/javascript/langchain-langgraph/index/StateGraph) 或创建 [entrypoint](https://reference.langchain.com/javascript/langchain-langgraph/index/entrypoint) 会生成可通过输入调用的 [⟦T20⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/Pregel) 实例。
 
@@ -18,19 +18,19 @@
 
 每个步骤由三个阶段组成：* **计划**：确定此步骤中要执行哪些**参与者**。例如，第一步，选择订阅特殊**输入**通道的**参与者**；在后续步骤中，选择订阅上一步中更新的频道的 **参与者**。
 * **执行**：并行执行所有选定的**参与者**，直到全部完成，或者一个失败，或者达到超时。在此阶段中，在下一步之前，参与者无法看到通道更新。
-* **更新**：使用此步骤中**参与者**写入的值更新通道。
+* **Update**: Update the channels with the values written by the **actors** in this step.
 
 重复直到没有**参与者**被选择执行，或者达到最大步数。
 
 ## 演员
 
-**演员**是一个`PregelNode`。它订阅通道、从中读取数据并向其中写入数据。它可以被认为是 Pregel 算法中的**演员**。 `PregelNodes` 实现LangChain的Runnable接口。
+**演员**是一个`PregelNode`。它订阅通道、从中读取数据并向其中写入数据。它可以被认为是 Pregel 算法中的**演员**。 `PregelNodes` implement LangChain's Runnable interface.
 
-## 频道通道用于在参与者（PregelNode）之间进行通信。每个通道都有一个值类型、一个更新类型和一个更新函数，该函数采用一系列更新并修改存储的值。通道可用于将数据从一个链发送到另一个链，或者在未来的步骤中将数据从一个链发送到自身。
+## 频道Channels are used to communicate between actors (PregelNodes). Each channel has a value type, an update type, and an update function—which takes a sequence of updates and modifies the stored value. Channels can be used to send data from one chain to another, or to send data from a chain to itself in a future step.
 
 ### 最后值
 
-[⟦T24⟧](https://reference.langchain.com/javascript/classes/_langchain_langgraph.channels.LastValue.html) 是默认通道类型。它存储最后写入的值，覆盖任何先前的值。将其用于输入和输出值，或将数据从一个步骤传递到下一步。
+[⟦T24⟧](https://reference.langchain.com/javascript/classes/_langchain_langgraph.channels.LastValue.html) 是默认通道类型。 It stores the last value written to it, overwriting any previous value. Use it for input and output values, or for passing data from one step to the next.
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { LastValue } from "@langchain/langgraph/channels";
@@ -40,7 +40,7 @@ const channel = new LastValue<number>();
 
 ### 主题
 
-[⟦T25⟧](https://reference.langchain.com/javascript/langchain-langgraph/channels/Topic) 是一个可配置的 PubSub 通道，可用于在参与者之间发送多个值或跨步骤累积输出。它可以配置为删除重复值或累积运行期间写入的所有值。
+[⟦T25⟧](https://reference.langchain.com/javascript/langchain-langgraph/channels/Topic) is a configurable PubSub channel useful for sending multiple values between actors or accumulating output across steps. It can be configured to deduplicate values or to accumulate all values written during a run.
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { Topic } from "@langchain/langgraph/channels";
@@ -51,7 +51,7 @@ const channel = new Topic<string>({ accumulate: true });
 
 ### 二元运算符聚合
 
-[⟦T26⟧](https://reference.langchain.com/javascript/langchain-langgraph/channels/BinaryOperatorAggregate) 存储一个持久值，该值通过将二元运算符应用于当前值和每个新更新来更新。使用它来计算跨步骤的运行聚合。
+[⟦T26⟧](https://reference.langchain.com/javascript/langchain-langgraph/channels/BinaryOperatorAggregate) stores a persistent value that is updated by applying a binary operator to the current value and each new update. Use it to compute running aggregates across steps.
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { BinaryOperatorAggregate } from "@langchain/langgraph/channels";
@@ -64,7 +64,7 @@ const total = new BinaryOperatorAggregate<number>({ operator: (a, b) => a + b })
 
 虽然大多数用户将通过 [StateGraph](https://reference.langchain.com/javascript/langchain-langgraph/index/StateGraph) API 或 [entrypoint](https://reference.langchain.com/javascript/langchain-langgraph/index/entrypoint) 装饰器与 Pregel 交互，但也可以直接与 Pregel 交互。
 
-下面是几个不同的示例，可帮助您了解 Pregel API。<Tabs>
+Below are a few different examples to give you a sense of the Pregel API.<Tabs>
   <Tab title="Single node">
     ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
     import { EphemeralValue } from "@langchain/langgraph/channels";
@@ -365,7 +365,7 @@ LangGraph 提供了两个用于创建 Pregel 应用程序的高级 API：[StateG
 
 <div>
   <Callout icon="terminal-2">
-    通过 MCP 向 Claude、VSCode 等发送[Connect these docs](/use-these-docs) 以获得实时答案。
+    [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
   </Callout>
 
   <Callout icon="edit">

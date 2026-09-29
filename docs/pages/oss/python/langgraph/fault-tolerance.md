@@ -6,9 +6,9 @@ Configure per-node timeouts, retries, and error handlers in LangGraph.
 
 When a node fails—from a slow external API, a transient network error, or an unhandled exception—LangGraph gives you three composable mechanisms to respond:
 
-* [**Retries**](#retries) — automatically re-run failed attempts based on exception type and backoff settings
-* [**Timeouts**](#timeouts) — cap how long a single attempt may run
-* [**Error handling**](#error-handling) — run a recovery function after all retries are exhausted
+* [**Retries**](#retries): automatically re-run failed attempts based on exception type and backoff settings
+* [**Timeouts**](#timeouts): cap how long a single attempt may run
+* [**Error handling**](#error-handling): run a recovery function after all retries are exhausted
 
 Use [**`set_node_defaults`**](#graph-defaults) to configure these mechanisms once for all nodes instead of repeating them on every `add_node` call.
 
@@ -678,7 +678,7 @@ except GraphDrained as e:
 
 <div>
   <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) to Claude, VSCode, and more via MCP for real-time answers.
+    [Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
   </Callout>
 
   <Callout icon="edit">

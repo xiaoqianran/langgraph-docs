@@ -263,6 +263,10 @@ for mode, chunk in stream.interleave("values"):
 # values: 10
 ```
 
+<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/1b3e500b-749a-4587-9906-5a92c0471ffe/r">
+  Open a public LangSmith run for this example.
+</Card>
+
 1. Import [`get_stream_writer`](https://reference.langchain.com/python/langgraph/config/get_stream_writer) from `langgraph.config`.
 2. Obtain a stream writer instance within the entrypoint.
 3. Emit custom data before computation begins.
@@ -640,8 +644,6 @@ Short-term memory allows storing information across different **invocations** of
 
 You can view and delete the information stored by the checkpointer.
 
-<a />
-
 #### View thread state
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
@@ -674,8 +676,6 @@ StateSnapshot(
     interrupts=()
 )
 ```
-
-<a />
 
 #### View the history of the thread
 
@@ -838,7 +838,7 @@ for snapshot in stream.values:
 
 <div>
   <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) to Claude, VSCode, and more via MCP for real-time answers.
+    [Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
   </Callout>
 
   <Callout icon="edit">

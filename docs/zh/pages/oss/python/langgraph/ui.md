@@ -4,7 +4,7 @@
 
 # 代理聊天界面
 
-[Agent Chat UI](https://github.com/langchain-ai/agent-chat-ui)是一个Next.js应用程序，提供与任何LangChain代理交互的对话界面。它支持实时聊天、工具可视化以及时间旅行调试和状态分叉等高级功能。代理聊天 UI 与使用 [⟦T2⟧](https://reference.langchain.com/python/langchain/agents/factory/create_agent) 创建的代理无缝协作，并以最少的设置为您的代理提供交互式体验，无论您是在本地运行还是在部署的上下文中（例如 [LangSmith](/langsmith/observability)）运行。
+[Agent Chat UI](https://github.com/langchain-ai/agent-chat-ui) 是一个 Next.js 应用程序，提供用于与任何 LangChain 代理交互的对话界面。它支持实时聊天、工具可视化以及时间旅行调试和状态分叉等高级功能。代理聊天 UI 与使用 [⟦T2⟧](https://reference.langchain.com/python/langchain/agents/factory/create_agent) 创建的代理无缝协作，并以最少的设置为您的代理提供交互式体验，无论您是在本地运行还是在部署的上下文中（例如 [LangSmith](/langsmith/observability)）运行。
 
 代理聊天 UI 是开源的，可以根据您的应用程序需求进行调整。
 
@@ -54,7 +54,7 @@
 
 代理聊天 UI 可以连接到 [local](/oss/python/langgraph/studio#set-up-local-agent-server) 和 [deployed agents](/oss/python/langgraph/deploy)。启动代理聊天 UI 后，您需要将其配置为连接到您的代理：
 
-1. **图表 ID**：输入您的图表名称（在 `langgraph.json` 文件中的 `graphs` 下找到）
+1. **图表 ID**：输入您的图表名称（可在 `langgraph.json` 文件中的 `graphs` 下找到）
 2. **部署 URL**：您的代理服务器的端点（例如，用于本地开发的`http://localhost:2024`，或您部署的代理的 URL）
 3. **LangSmith API 密钥（可选）**：添加您的 LangSmith API 密钥（如果您使用本地代理服务器则不需要）
 
@@ -68,7 +68,7 @@
 
 <div>
   <Callout icon="terminal-2">
-    通过 MCP 向 Claude、VSCode 等发送[Connect these docs](/use-these-docs) 以获得实时答案。
+    [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
   </Callout>
 
   <Callout icon="edit">

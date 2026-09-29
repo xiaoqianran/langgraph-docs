@@ -9,17 +9,17 @@ This guide covers how to develop and test [Agent Server](/langsmith/agent-server
 * [`langgraph dev`](#langgraph-dev): A lightweight development server for rapid iteration.
 * [`langgraph up`](#langgraph-up): A production-like testing environment for validation.
 
-| Feature               | `langgraph dev`                                                             | `langgraph up`                                                                           |
-| --------------------- | --------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| **Docker required**   | No                                                                          | Yes                                                                                      |
-| **Installation**      | `pip install langgraph-cli[inmem]`                                          | `pip install langgraph-cli`                                                              |
-| **Primary use case**  | Rapid development & testing                                                 | Production-like validation                                                               |
-| **State persistence** | In-memory & pickled to local directory                                      | PostgreSQL                                                                               |
-| **Hot reloading**     | Yes (default)                                                               | Optional (`--watch` flag)                                                                |
-| **Default port**      | `2024`                                                                      | `8123`                                                                                   |
-| **Resource usage**    | Lightweight                                                                 | Heavier (build and run separate docker containers for the server, PostgreSQL, and Redis) |
-| **IDE Debugging**     | Built-in [DAP](https://microsoft.github.io/debug-adapter-protocol/) support | Regular container debugging                                                              |
-| **Custom auth**       | Yes                                                                         | Yes (with license key)                                                                   |
+| Feature | `langgraph dev` | `langgraph up` |
+| - | - | - |
+| **Docker required** | No | Yes |
+| **Installation** | `pip install langgraph-cli[inmem]` | `pip install langgraph-cli` |
+| **Primary use case** | Rapid development & testing | Production-like validation |
+| **State persistence** | In-memory & pickled to local directory | PostgreSQL |
+| **Hot reloading** | Yes (default) | Optional (`--watch` flag) |
+| **Default port** | `2024` | `8123` |
+| **Resource usage** | Lightweight | Heavier (build and run separate docker containers for the server, PostgreSQL, and Redis) |
+| **IDE Debugging** | Built-in [DAP](https://microsoft.github.io/debug-adapter-protocol/) support | Regular container debugging |
+| **Custom auth** | Yes | Yes (with license key) |
 
 <Tip>
   For full reference details, refer to the [LangGraph CLI reference](/langsmith/cli) page.
@@ -39,11 +39,11 @@ flowchart LR
     style D fill:#F6FFDB,stroke:#6E8900,stroke-width:2px,color:#2E3900
 ```
 
-| Stage                      | Tool                                        | Purpose                                            |
-| -------------------------- | ------------------------------------------- | -------------------------------------------------- |
-| **Develop & Test Locally** | [`langgraph dev`](/langsmith/cli#dev)       | Write and iterate on your graph with hot reloading |
-| **Validate**               | [`langgraph up`](/langsmith/cli#up)         | Test production-like behavior with full stack      |
-| **Deploy**                 | [`langgraph deploy`](/langsmith/cli#deploy) | Deploy to production with confidence               |
+| Stage | Tool | Purpose |
+| - | - | - |
+| **Develop & Test Locally** | [`langgraph dev`](/langsmith/cli#dev) | Write and iterate on your graph with hot reloading |
+| **Validate** | [`langgraph up`](/langsmith/cli#up) | Test production-like behavior with full stack |
+| **Deploy** | [`langgraph deploy`](/langsmith/cli#deploy) | Deploy to production with confidence |
 
 ### Recommended workflow
 
@@ -529,7 +529,7 @@ For more details, refer to the [Platform setup comparison](/langsmith/platform-s
 
 <div className="source-links">
   <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) to Claude, VSCode, and more via MCP for real-time answers.
+    [Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
   </Callout>
 
   <Callout icon="edit">

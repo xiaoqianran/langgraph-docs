@@ -4,11 +4,11 @@
 
 # 部署
 
-使用 LangSmith Cloud 或 JavaScript 框架和托管平台将 LangGraph 代理部署到生产环境。
+使用 LangSmith 云或 JavaScript 框架和托管平台将 LangGraph 代理部署到生产环境。
 
 当您准备好将 LangGraph 代理部署到生产环境时，请选择适合您的堆栈的托管模型。 **[LangSmith Cloud](/langsmith/deploy-to-cloud)** 为有状态、长期运行的代理提供完全托管的基础设施，具有持久状态和后台执行。
 
-您还可以使用相同的 [Agent Streaming Protocol](https://github.com/langchain-ai/agent-protocol/tree/main/streaming) 在 **JavaScript 框架和平台**上进行部署，例如 Next.js、SvelteKit、Nuxt、Cloudflare Workers 和 Deno Deploy。
+您还可以使用相同的 [Agent Streaming Protocol](https://github.com/langchain-ai/agent-protocol/tree/main/streaming) 在 **JavaScript 框架和平台** 上进行部署，例如 Next.js、SvelteKit、Nuxt、Cloudflare Workers 和 Deno Deploy。
 
 <div>
   <div>
@@ -25,7 +25,7 @@
 
       <img alt="" />
 
-      <span>朗史密斯</span>
+      <span>LangSmith</span>
     </a>
 
     <a href="/langsmith/deploy-nextjs">
@@ -68,13 +68,13 @@
       <span>德诺</span>
     </a>
   </div>
-</div><Tip>
-  LangSmith 提供了云之外的多种部署选项，包括 [hybrid](/langsmith/hybrid)、[standalone servers](/langsmith/deploy-standalone-server) 和 [self-hosted with control plane](/langsmith/deploy-with-control-plane)。欲了解更多信息，请参阅[LangSmith Deployment overview](/langsmith/deployment)。
-</Tip>
+</div>
 
-## 朗史密斯云
+<Tip>
+  LangSmith提供了云之外的多种部署选项，包括[hybrid](/langsmith/hybrid)、[standalone servers](/langsmith/deploy-standalone-server)和[self-hosted with control plane](/langsmith/deploy-with-control-plane)。欲了解更多信息，请参阅[LangSmith Deployment overview](/langsmith/deployment)。
+</Tip>## LangSmith 云
 
-本节介绍如何将代理从 GitHub 存储库部署到 LangSmith Cloud。 LangSmith 负责处理基础设施、扩展和运营问题。
+本节介绍如何将代理从 GitHub 存储库部署到 LangSmith 云。 LangSmith 处理基础设施、扩展和运营问题。
 
 ### 先决条件
 
@@ -87,9 +87,9 @@
 
 #### 1. 在 GitHub 上创建存储库
 
-您的应用程序代码必须驻留在 GitHub 存储库中才能部署在 LangSmith 上。支持公共和私有存储库。对于本快速入门，首先按照 [local server setup guide](/oss/javascript/langgraph/studio#set-up-local-agent-server) 确保您的应用程序与 LangGraph 兼容。然后，将您的代码推送到存储库。
+您的应用程序的代码必须驻留在 GitHub 存储库中才能部署在 LangSmith 上。支持公共和私有存储库。对于本快速入门，首先按照 [local server setup guide](/oss/javascript/langgraph/studio#set-up-local-agent-server) 确保您的应用与 LangGraph 兼容。然后，将您的代码推送到存储库。
 
-#### 2. 部署到 LangSmith
+#### 2. 部署到LangSmith
 
 <Steps>
   <Step title="Navigate to LangSmith Deployment">
@@ -98,11 +98,11 @@
 
   <Step title="Create new deployment">
     单击 **+ 新部署** 按钮。将打开一个窗格，您可以在其中填写必填字段。
-  </Step><Step title="Link repository">
-    如果您是首次使用或添加之前未连接过的私有存储库，请单击 **添加新帐户** 按钮并按照说明连接您的 GitHub 帐户。
   </Step>
 
-  <Step title="Deploy repository">
+  <Step title="Link repository">
+    如果您是首次使用或添加之前未连接过的私有存储库，请单击 **添加新帐户** 按钮并按照说明连接您的 GitHub 帐户。
+  </Step><Step title="Deploy repository">
     选择您的应用程序的存储库。单击**提交**进行部署。这可能需要大约 15 分钟才能完成。您可以在 **部署详细信息** 视图中检查状态。
   </Step>
 </Steps>
@@ -185,7 +185,7 @@
 
 <div>
   <Callout icon="terminal-2">
-    通过 MCP 向 Claude、VSCode 等发送[Connect these docs](/use-these-docs) 以获得实时答案。
+    [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
   </Callout>
 
   <Callout icon="edit">

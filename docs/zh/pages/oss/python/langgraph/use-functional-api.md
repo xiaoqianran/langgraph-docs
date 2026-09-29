@@ -4,7 +4,7 @@
 
 # 使用函数式API
 
-[**Functional API**](/oss/python/langgraph/functional-api) 允许您将 LangGraph 的关键功能（[persistence](/oss/python/langgraph/persistence)、[memory](/oss/python/langgraph/add-memory)、[human-in-the-loop](/oss/python/langgraph/interrupts) 和 [streaming](/oss/python/langgraph/streaming)）添加到您的应用程序中，只需对现有代码进行最少的更改。
+[**Functional API**](/oss/python/langgraph/functional-api) 允许您将 LangGraph 的主要功能（[persistence](/oss/python/langgraph/persistence)、[memory](/oss/python/langgraph/add-memory)、[human-in-the-loop](/oss/python/langgraph/interrupts) 和 [streaming](/oss/python/langgraph/streaming)）添加到您的应用程序中，只需对现有代码进行最少的更改。
 
 <Tip>
   有关函数式 API 的概念信息，请参阅[Functional API](/oss/python/langgraph/functional-api)。
@@ -95,7 +95,7 @@ my_workflow.invoke({"value": 1, "another_value": 2})
 
 ## 并行执行
 
-任务可以通过并发调用并等待结果来并行执行。这对于提高 IO 绑定任务的性能很有用（例如，调用 LLM 的 API）。
+通过并发调用任务并等待结果，可以并行执行任务。这对于提高 IO 绑定任务的性能很有用（例如，调用 LLM 的 API）。
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 @task
@@ -263,6 +263,10 @@ for mode, chunk in stream.interleave("values"):
 # values: 10
 ```
 
+<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/1b3e500b-749a-4587-9906-5a92c0471ffe/r">
+  为此示例打开公共 LangSmith 运行。
+</Card>
+
 1. 从`langgraph.config`导入[⟦T34⟧](https://reference.langchain.com/python/langgraph/config/get_stream_writer)。
 2. 获取入口点内的流写入器实例。
 3. 在计算开始之前发出自定义数据。
@@ -321,9 +325,9 @@ main.invoke({'any_input': 'foobar'}, config=config)
 'OK'
 ```
 
-## 设置任务和入口点超时
+## 设置任务和入口点超时将 `timeout` 参数与 `@task` 或 `@entrypoint` 一起使用来限制单个异步尝试可以运行的时间。提供以秒为单位的超时或作为 `datetime.timedelta`。
 
-将 `timeout` 参数与 `@task` 或 `@entrypoint` 一起使用来限制单个异步尝试可以运行的时间。提供以秒为单位的超时或作为 `datetime.timedelta`。```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import asyncio
 
 from langgraph.errors import NodeTimeoutError
@@ -351,9 +355,9 @@ except NodeTimeoutError:
     print("Task timed out")
 ```
 
-仅异步任务和入口点支持超时。如果您在同步函数上设置 `timeout`，则在声明任务或入口点时 LangGraph 会引发错误。
+仅异步任务和入口点支持超时。如果您在同步函数上设置 `timeout`，则在声明任务或入口点时，LangGraph 会引发错误。
 
-当任务或入口点超过其超时时，LangGraph 会引发 `NodeTimeoutError`，它是 Python 内置 `TimeoutError` 的子类。如果重试策略重试`TimeoutError`或`NodeTimeoutError`，则会重试超时的尝试。超时独立地应用于每次尝试，因此计时器会在每次重试时重置。
+当任务或入口点超过其超时时，LangGraph引发`NodeTimeoutError`，它是Python内置`TimeoutError`的子类。如果重试策略重试`TimeoutError`或`NodeTimeoutError`，则会重试超时的尝试。超时独立地应用于每次尝试，因此计时器会在每次重试时重置。
 
 ## 缓存任务
 
@@ -628,8 +632,6 @@ def agent(messages, previous):
 
 您可以查看和删除检查点存储的信息。
 
-<a />
-
 #### 查看线程状态
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
@@ -662,8 +664,6 @@ StateSnapshot(
     interrupts=()
 )
 ```
-
-<a />
 
 #### 查看线程的历史记录
 
@@ -818,13 +818,13 @@ for snapshot in stream.values:
 
 ## 与其他库集成
 
-* [Add LangGraph's features to other frameworks using the functional API](/langsmith/deploy-other-frameworks)：将持久性、内存和流等 LangGraph 功能添加到其他不提供开箱即用的代理框架。
+* [Add LangGraph's features to other frameworks using the functional API](/langsmith/deploy-other-frameworks)：将 LangGraph 功能（如持久性、内存和流）添加到其他不提供开箱即用的代理框架。
 
 ***
 
 <div>
   <Callout icon="terminal-2">
-    通过 MCP 向 Claude、VSCode 等发送[Connect these docs](/use-these-docs) 以获得实时答案。
+    [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
   </Callout>
 
   <Callout icon="edit">

@@ -6,7 +6,7 @@
 
 通过每个节点的状态和流内容可视化多步骤图形管道
 
-LangGraph 代理不是黑匣子。每个图都由**命名节点**组成
+LangGraph 特工不是黑匣子。每个图都由**命名节点**组成
 依次或并行执行：分类、研究、分析、
 合成。图形执行卡通过渲染卡使该管道可见
 对于每个节点，显示其状态，实时传输其内容，以及
@@ -15,8 +15,8 @@ LangGraph 代理不是黑匣子。每个图都由**命名节点**组成
 
 这种模式对于生产代理特别有用，因为它可以将图形转变为图形
 结构到产品用户体验中。而不是把跑步当作一个单独的助手
-响应，您可以公开相同的检查点、节点名称、状态密钥和
-LangGraph 内部使用的流元数据。
+响应，您可以公开相同的检查点、节点名称、状态键和
+LangGraph内部使用的流元数据。
 
 <PatternEmbed />
 
@@ -29,7 +29,7 @@ LangGraph 图定义了一系列节点，每个节点负责特定的任务
 2. **研究**：收集相关信息
 3. **分析**：从研究中得出结论
 4. **综合**：产生最终的、完善的响应每个节点将其输出写入图状态中的特定键。上
-前端，您不需要像 [⟦T12⟧](https://reference.langchain.com/javascript/langchain-react/index/useStream) 发现的那样硬编码该映射
+前端，您不需要像 [⟦T12⟧](https://reference.langchain.com/javascript/langchain-react/index/useStream) 发现的那样对该映射进行硬编码
 每个节点通过 `stream.subgraphs` 运行并公开
 [⟦T14⟧](https://reference.langchain.com/javascript/langchain-react/SubgraphDiscoverySnapshot) 对于每个观察到的步骤：
 
@@ -309,7 +309,7 @@ function NodeCard({
 节点卡读取流媒体和最终内容的范围消息。这个
 避免假设图节点名称与其写入的状态键匹配（例如
 例如，`do_research`写入游乐场图中的`research`）：|来源 |何时使用 |
-| ------------------------ | | ------------------------------------------------------------------------------------------ |
+| --------------------------------------- | -------------------------------------------------------------------------------------------------- |
 | `useMessages(stream, node)` |渲染节点范围的流和最终消息 |
 | `stream.values` |使用实际状态键读取整个图状态，例如最终的 `synthesis` 字段 |
 
@@ -410,7 +410,7 @@ const activeNodes = [...stream.subgraphs.values()];
 * **自动折叠已完成的节点**。 在长管道中，自动折叠完成
   卡片，以便用户可以专注于当前活动的步骤。
 * **显示预计时间**。如果您有每个节点多长时间的历史数据
-  需要，显示时间估计来设置用户期望。
+  需要，显示时间估计来设定用户期望。
 * **添加全局进度指示器**。补充每节点卡
   管道视图顶部的整体进度条（例如，“第 2 步，共 4 步”）。
 * **处理每个节点的错误**。如果节点发生故障，则在其卡片中显示错误
@@ -421,7 +421,7 @@ const activeNodes = [...stream.subgraphs.values()];
 
 <div>
   <Callout icon="terminal-2">
-    通过 MCP 向 Claude、VSCode 等发送[Connect these docs](/use-these-docs) 以获得实时答案。
+    [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
   </Callout><Callout icon="edit">
     [Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/frontend/graph-execution.mdx) 或 [file an issue](https://github.com/langchain-ai/docs/issues/new/choose)。
   </Callout>

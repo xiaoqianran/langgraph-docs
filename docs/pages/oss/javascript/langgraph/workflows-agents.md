@@ -1247,11 +1247,15 @@ const result = await graph.invoke(
 );
 ```
 
+<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/8f11f433-50ac-4b4c-9502-14c299000473/r">
+  Open a public LangSmith run for this example.
+</Card>
+
 ***
 
 <div>
   <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) to Claude, VSCode, and more via MCP for real-time answers.
+    [Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
   </Callout>
 
   <Callout icon="edit">

@@ -531,11 +531,15 @@ Similar to how messages can be removed from the state by appending a RemoveMessa
   </Tab>
 </Tabs>
 
+## Learn more
+
+* [JS/TS SDK Reference](https://reference.langchain.com/javascript/langchain-langgraph-sdk/)
+
 ***
 
 <div>
   <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) to Claude, VSCode, and more via MCP for real-time answers.
+    [Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
   </Callout>
 
   <Callout icon="edit">

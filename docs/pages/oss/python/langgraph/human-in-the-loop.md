@@ -76,6 +76,10 @@ resumed = graph.stream_events(Command(resume=True), config=config, version="v3")
 final = resumed.output
 ```
 
+<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/924527bc-da7c-4e0a-8986-4194e622140a/r" arrow horizontal>
+  Open a public LangSmith run for this example.
+</Card>
+
 <Note>
   The default `graph.invoke(...)` API still works and surfaces interrupts under `result["__interrupt__"]`. Use it when you don't need streamed projections; otherwise prefer `graph.stream_events(..., version="v3")`.
 </Note>
@@ -134,6 +138,10 @@ while True:
     user_response = get_user_input(interrupt_info)
     stream_input = Command(resume=user_response)
 ```
+
+<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/a1d09dc8-80ac-4bad-a70c-59e4b7cdbff8/r" arrow horizontal>
+  Open a public LangSmith run for this example.
+</Card>
 
 * **`stream.messages`**: Chat-model output as content blocks; iterate each `message.text` for token deltas. For nested subgraphs, read message chunks from `stream.subgraphs[*].messages`.
 * **`stream.values`**: Full state snapshots after each step
@@ -198,6 +206,10 @@ resumed = graph.stream_events(Command(resume=resume_map), config, version="v3")
 print("Final state:", resumed.output)
 # Final state: {'vals': ['a:answer for question_a', 'b:answer for question_b']}
 ```
+
+<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/0db5e7bd-c53b-490a-9ed2-650ac477cd2d/r" arrow horizontal>
+  Open a public LangSmith run for this example.
+</Card>
 
 ### Approve or reject
 
@@ -291,6 +303,10 @@ graph.stream_events(Command(resume=False), config=config, version="v3").output
   resumed = graph.stream_events(Command(resume=True), config=config, version="v3")
   print(resumed.output["status"])
   ```
+
+  <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/dc8614c9-bbb7-4231-b852-7a5899964e10/r" arrow horizontal>
+    Open a public LangSmith run for this example.
+  </Card>
 </Accordion>
 
 ### Review and edit state
@@ -368,6 +384,10 @@ graph.stream_events(
   )
   print(final_state.output["generated_text"])  # -> "Improved draft after review"
   ```
+
+  <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/cf03e7a5-8261-499d-9612-57b0d775c4ab/r" arrow horizontal>
+    Open a public LangSmith run for this example.
+  </Card>
 </Accordion>
 
 ### Interrupts in tools
@@ -970,7 +990,7 @@ You can use [LangSmith Studio](/langsmith/studio) to set static interrupts in yo
 
 <div className="source-links">
   <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) to Claude, VSCode, and more via MCP for real-time answers.
+    [Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
   </Callout>
 
   <Callout icon="edit">

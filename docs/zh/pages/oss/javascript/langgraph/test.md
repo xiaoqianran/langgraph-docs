@@ -6,7 +6,7 @@
 
 在对 LangGraph 代理进行原型设计后，下一步自然是添加测试。本指南涵盖了编写单元测试时可以使用的一些有用模式。
 
-请注意，本指南是特定于 LangGraph 的，涵盖了具有自定义结构的图周围的场景 - 如果您刚刚开始，请查看使用 LangChain 内置 [⟦T4⟧](https://reference.langchain.com/javascript/langchain/index/createAgent) 的[Test](/oss/javascript/langchain/test/)。
+请注意，本指南是特定于 LangGraph 的，涵盖了具有自定义结构的图形周围的场景 - 如果您刚刚开始，请查看使用 LangChain 内置 [⟦T4⟧](https://reference.langchain.com/javascript/langchain/index/createAgent) 的 [Test](/oss/javascript/langchain/test/)。
 
 ## 先决条件
 
@@ -18,7 +18,7 @@ $ npm install -D vitest
 
 ## 开始使用
 
-由于许多 LangGraph 代理依赖于状态，因此一种有用的模式是在使用图形的每个测试之前创建图形，然后在测试中使用新的检查点实例对其进行编译。
+由于许多 LangGraph 代理依赖于状态，因此一种有用的模式是在使用图形的每个测试之前创建图形，然后使用新的检查点实例在测试中对其进行编译。
 
 下面的示例展示了这是如何使用一个简单的线性图来实现的，该图通过`node1`和`node2`进行。每个节点更新单个状态密钥`my_key`：
 
@@ -60,7 +60,7 @@ test('basic agent execution', async () => {
 
 ## 测试各个节点和边
 
-编译后的 LangGraph 代理将以 `graph.nodes` 的形式公开对每个单独节点的引用。您可以利用它来测试代理中的各个节点。请注意，这将绕过编译图表时传递的任何检查指针：
+编译后的LangGraph代理将对每个单独节点的引用公开为`graph.nodes`。您可以利用它来测试代理中的各个节点。请注意，这将绕过编译图表时传递的任何检查指针：
 
 ```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { test, expect } from 'vitest';
@@ -101,7 +101,7 @@ test('individual node execution', async () => {
 
 ## 部分执行对于由较大图组成的代理，您可能希望测试代理内的部分执行路径，而不是端到端的整个流程。在某些情况下，它可能对 [restructure these sections as subgraphs](/oss/javascript/langgraph/use-subgraphs) 具有语义意义，您可以像平常一样单独调用它。
 
-但是，如果您不想更改代理图的整体结构，则可以使用 LangGraph 的持久性机制来模拟代理在所需部分开始之前暂停的状态，并在所需部分结束时再次暂停。步骤如下：
+但是，如果您不想更改代理图的整体结构，您可以使用LangGraph的持久化机制来模拟代理在所需部分开始之前暂停的状态，并在所需部分结束时再次暂停。步骤如下：
 
 1. 使用检查点编译您的代理（内存中检查点[⟦T10⟧](https://reference.langchain.com/javascript/classes/_langchain_langgraph-checkpoint.MemorySaver.html)足以进行测试）。
 2. 调用代理的 [⟦T11⟧](/oss/javascript/langgraph/use-time-travel) 方法，并将 [⟦T12⟧](/oss/javascript/langgraph/use-time-travel#from-a-specific-node) 参数设置为要开始测试的节点*之前*的节点名称。
@@ -167,7 +167,7 @@ test('partial execution from node2 to node3', async () => {
 
 <div>
   <Callout icon="terminal-2">
-    通过 MCP 向 Claude、VSCode 等发送[Connect these docs](/use-these-docs) 以获得实时答案。
+    [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
   </Callout>
 
   <Callout icon="edit">

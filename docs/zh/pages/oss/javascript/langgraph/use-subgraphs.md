@@ -10,7 +10,7 @@
 
 * 大楼[multi-agent systems](/oss/javascript/langchain/multi-agent)
 * 在多个图中重用一组节点
-* 分布式开发：当您希望不同的团队独立处理图的不同部分时，您可以将每个部分定义为子图，只要尊重子图接口（输入和输出模式），就可以在不知道子图的任何细节的情况下构建父图
+* 分布式开发：当您希望不同的团队独立处理图的不同部分时，可以将每个部分定义为子图，只要尊重子图接口（输入和输出模式），就可以在不知道子图的任何细节的情况下构建父图
 
 ## 设置
 
@@ -19,18 +19,16 @@ npm install @langchain/langgraph
 ```
 
 <Tip>
-  **设置 LangSmith 进行 LangGraph 开发**
-  注册 [LangSmith](https://smith.langchain.com?utm_source=docs\&utm_medium=cta\&utm_campaign=langsmith-signup\&utm_content=oss-langgraph-use-subgraphs) 可以快速发现问题并提高 LangGraph 项目的性能。 LangSmith 允许您使用跟踪数据来调试、测试和监控使用 LangGraph 构建的 LLM 应用程序 - 了解有关 [how to get started with LangSmith](https://docs.smith.langchain.com) 的更多信息。
+  **设置LangSmith以进行LangGraph开发**
+  注册 [LangSmith](https://smith.langchain.com?utm_source=docs\&utm_medium=cta\&utm_campaign=langsmith-signup\&utm_content=oss-langgraph-use-subgraphs) 可以快速发现问题并提高 LangGraph 项目的性能。 LangSmith 可让您使用跟踪数据来调试、测试和监控使用 LangGraph 构建的 LLM 应用程序 — 了解有关 [how to get started with LangSmith](https://docs.smith.langchain.com) 的更多信息。
 </Tip>
 
 ## 定义子图通信
 
 添加子图时，需要定义父图和子图如何通信：|图案|何时使用 |状态模式 |
-| --------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| --------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------- |
 | [Call a subgraph inside a node](#call-a-subgraph-inside-a-node) |父图和子图具有**不同的状态模式**（没有共享密钥），或者您需要在它们之间转换状态 |您编写一个包装函数，将父状态映射到子图输入，并将子图输出映射回父状态 |
-| [Add a subgraph as a node](#add-a-subgraph-as-a-node) |父图和子图**共享状态键**——子图与父图读取和写入相同的通道 |您将编译后的子图直接传递给`add_node`——无需包装函数 |
-
-<a />
+| [Add a subgraph as a node](#add-a-subgraph-as-a-node) |父图和子图 **共享状态键** - 子图与父图读取和写入相同的通道 |您将编译后的子图直接传递给`add_node`——无需包装函数 |
 
 ### 调用节点内的子图当父图和子图具有**不同的状态模式**（无共享键）时，在节点函数内调用子图。当您想要为 [multi-agent](/oss/javascript/langchain/multi-agent) 系统中的每个代理保留私人消息历史记录时，这种情况很常见。
 
@@ -222,8 +220,6 @@ const graph = builder.compile();
   ```
 </Accordion>
 
-<a />
-
 ### 添加子图作为节点
 
 当父图和子图**共享状态键**时，您可以将编译后的子图直接传递给`add_node`。不需要包装函数——子图自动读取和写入父级的状态通道。例如，在[multi-agent](/oss/javascript/langchain/multi-agent)系统中，代理通常通过共享的[messages](/oss/javascript/langgraph/graph-api#why-use-messages)密钥进行通信。
@@ -231,7 +227,7 @@ const graph = builder.compile();
 <img alt="SQL agent graph" />
 
 如果您的子图与父图共享状态键，您可以按照以下步骤将其添加到您的图中：1.定义子图工作流程（下例中的`subgraphBuilder`）并编译
-2.定义父图工作流程时，将编译后的子图传递给`.addNode`方法
+2.定义父图工作流程时将编译后的子图传递给`.addNode`方法
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { StateGraph, StateSchema, START } from "@langchain/langgraph";
@@ -317,10 +313,10 @@ const graph = builder.compile();
 
 ## 子图持久化
 
-当您使用子图时，您需要决定调用之间其内部数据会发生什么。考虑一个委托给专业子代理的客户支持机器人：“计费专家”子代理应该记住客户之前的问题，还是每次被呼叫时都重新开始？
+当您使用子图时，您需要决定调用之间其内部数据会发生什么。考虑一个委托给专业子代理的客户支持机器人：“计费专家”子代理是否应该记住客户之前的问题，还是在每次被呼叫时重新开始？
 
 `.compile()`上的`checkpointer`参数控制子图持久化：|模式| `checkpointer=` |行为 |
-| ---------------------------------------------------- | ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| -------------------------------------------------- | ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | [Per-invocation](#per-invocation-default) | `None`（默认）|每个调用都会重新开始，并继承父级的检查指针，以在单个调用中支持 [interrupts](/oss/javascript/langgraph/interrupts) 和 [durable execution](/oss/javascript/langgraph/persistence)。 |
 | [Per-thread](#per-thread) | `True` |状态在同一线程上的调用之间累积。每个呼叫都会从上一个呼叫中断的地方接续。                                                                                                               |
 | [Stateless](#stateless) | `False` |根本没有检查点——像普通函数调用一样运行。无中断或持久执行。                                                                                                                     |对于大多数应用程序来说，每次调用是正确的选择，包括子代理处理独立请求的[multi-agent](/oss/javascript/langchain/multi-agent)系统。当子代理需要多轮对话记忆时（例如，通过多次交换构建上下文的研究助理），请使用每线程。
@@ -330,7 +326,7 @@ const graph = builder.compile();
 </Note>
 
 <Info>
-  下面的例子使用了LangChain的[⟦T47⟧](https://reference.langchain.com/javascript/langchain/index/createAgent)，这是构建代理的常用方式。 `create_agent` 在底层生成[LangGraph graph](/oss/javascript/langgraph/graph-api)，因此所有子图持久性概念都直接适用。如果您使用原始 LangGraph `StateGraph` 进行构建，则适用相同的模式和配置选项 - 有关详细信息，请参阅 [Graph API](/oss/javascript/langgraph/graph-api)。
+  下面的示例使用LangChain的[⟦T47⟧](https://reference.langchain.com/javascript/langchain/index/createAgent)，这是构建代理的常用方法。 `create_agent` 在底层生成[LangGraph graph](/oss/javascript/langgraph/graph-api)，因此所有子图持久性概念都直接适用。如果您使用原始 LangGraph `StateGraph` 进行构建，则适用相同的模式和配置选项 - 有关详细信息，请参阅 [Graph API](/oss/javascript/langgraph/graph-api)。
 </Info>
 
 ### 有状态
@@ -503,7 +499,7 @@ const agent = createAgent({
 <Warning>
   每线程子图不支持并行工具调用。当 LLM 可以访问每线程子代理作为工具时，它可能会尝试并行多次调用该工具（例如，同时向水果专家询问有关苹果和香蕉的信息）。这会导致检查点冲突，因为两个调用都写入同一名称空间。
 
-  下面的例子使用LangChain的`ToolCallLimitMiddleware`来防止这种情况。如果您使用纯 LangGraph `StateGraph` 进行构建，则需要自行防止并行工具调用，例如，通过配置模型以禁用并行工具调用或添加逻辑以确保不会多次并行调用同一子图。
+  下面的示例使用 LangChain 的 `ToolCallLimitMiddleware` 来防止这种情况。如果您使用纯 LangGraph `StateGraph` 进行构建，则需要自行防止并行工具调用，例如，通过配置模型以禁用并行工具调用或添加逻辑以确保不会多次并行调用同一子图。
 </Warning>
 
 以下示例使用使用`checkpointer=True`编译的水果专家子代理：
@@ -616,7 +612,7 @@ const agent = createAgent({
   <Tab title="Multiple subgraph calls">
     当您有多个**不同的**每线程子图（例如，水果专家和蔬菜专家）时，每个子图都需要自己的存储空间，以便它们的检查点不会相互覆盖。这称为**命名空间隔离**。
 
-    如果您[call subgraphs inside a node](#call-a-subgraph-inside-a-node)，LangGraph 会根据调用顺序（第一次调用、第二次调用等）分配命名空间。这意味着重新排序您的调用可能会混淆哪个子图加载哪个状态。为了避免这种情况，请使用唯一的节点名称将每个子代理包装在自己的 `StateGraph` 中 - 这为每个子图提供了稳定、唯一的命名空间：
+    如果您[call subgraphs inside a node](#call-a-subgraph-inside-a-node)，LangGraph会根据调用顺序（第一次调用、第二次调用等）分配命名空间。这意味着重新排序您的调用可能会混淆哪个子图加载哪个状态。为了避免这种情况，请使用唯一的节点名称将每个子代理包装在自己的 `StateGraph` 中 - 这为每个子图提供了稳定、唯一的命名空间：
 
     ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
     import { StateGraph, StateSchema, MessagesValue, START } from "@langchain/langgraph";
@@ -678,7 +674,7 @@ const subgraph = builder.compile({ checkpointer: false });  // or true, or null
 ```
 
 |特色|每次调用（默认）|每线程 |无国籍|
-| ------------------------------------------------ | ------------------------ | -------------------- | ---------|
+| ------------------------------------------------ | ------------------------ | -------------------- | --------- |
 | `checkpointer=` | `None` | `True` | `False` |
 |中断（HITL）| ✅ | ✅ | ❌ |
 |多圈记忆| ❌ | ✅ | ❌ |
@@ -693,7 +689,7 @@ const subgraph = builder.compile({ checkpointer: false });  // or true, or null
 ## 查看子图状态
 
 当您启用[persistence](/oss/javascript/langgraph/persistence)时，您可以使用子图选项检查子图状态。使用[stateless](#stateless)检查点（`checkpointer=False`），不会保存子图检查点，因此子图状态不可用。<Note>
-  查看子图状态要求 LangGraph 可以**静态地发现**子图，即它是[added as a node](#add-a-subgraph-as-a-node)或[called inside a node](#call-a-subgraph-inside-a-node)。当在 [tool](/oss/javascript/langchain/tools) 函数或其他间接方式（例如 [subagents](/oss/javascript/langchain/multi-agent/subagents) 模式）内调用子图时，它不起作用。无论嵌套如何，中断仍然会传播到顶层图。
+  查看子图状态需要LangGraph可以**静态地发现**子图，即它是[added as a node](#add-a-subgraph-as-a-node)或[called inside a node](#call-a-subgraph-inside-a-node)。当在 [tool](/oss/javascript/langchain/tools) 函数或其他间接（例如 [subagents](/oss/javascript/langchain/multi-agent/subagents) 模式）内调用子图时，它不起作用。无论嵌套如何，中断仍然会传播到顶层图。
 </Note>
 
 <Tabs>
@@ -857,7 +853,7 @@ for await (const snapshot of stream.values) {
 
 <div>
   <Callout icon="terminal-2">
-    通过 MCP 向 Claude、VSCode 等发送[Connect these docs](/use-these-docs) 以获得实时答案。
+    [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
   </Callout>
 
   <Callout icon="edit">

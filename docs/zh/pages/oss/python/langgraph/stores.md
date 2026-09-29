@@ -6,7 +6,7 @@
 
 LangGraph 存储提供跨线程长期内存，补充了每线程检查点持久性。
 
-存储让代理能够跨线程保存信息，包括用户偏好、积累的知识以及在一次对话之后仍能保存的事实。与[checkpointers](/oss/python/langgraph/checkpointers)不同的是，[checkpointers](/oss/python/langgraph/checkpointers)保存了一个线程范围内的完整图状态，存储保存了可从任何线程访问的任意键值数据。
+存储让代理可以跨线程保存信息，包括用户偏好、积累的知识以及在一次对话之后仍能保存的事实。与[checkpointers](/oss/python/langgraph/checkpointers)不同的是，[checkpointers](/oss/python/langgraph/checkpointers)保存了一个线程范围内的完整图状态，存储保存了可从任何线程访问的任意键值数据。
 
 <img alt="Model of shared state" />
 
@@ -25,7 +25,7 @@ LangGraph 存储提供跨线程长期内存，补充了每线程检查点持久�
 
 ## 基本用法
 
-以下代码片段在不使用 LangGraph 的情况下单独显示了 [InMemoryStore](https://reference.langchain.com/python/langchain-core/stores/InMemoryStore)：
+以下代码片段单独显示了[InMemoryStore](https://reference.langchain.com/python/langchain-core/stores/InMemoryStore)，而不使用LangGraph：
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from langgraph.store.memory import InMemoryStore
@@ -75,7 +75,7 @@ memories[-1].dict()
 
 ## 列出命名空间中的项目
 
-在没有 `query` 和没有 `filter` 的情况下调用 [⟦T41⟧](https://reference.langchain.com/python/langgraph/store/#langgraph.store.base.BaseStore.search)（或异步 [⟦T42⟧](https://reference.langchain.com/python/langgraph/store/#langgraph.store.base.BaseStore.asearch)）会返回存储在 `namespace_prefix` 下的项目，最多为 `limit`。当您不需要语义排名时，可以使用它来枚举命名空间中的所有内容。
+在没有 `query` 和没有 `filter` 的情况下调用 [⟦T41⟧](https://reference.langchain.com/python/langgraph/store/#langgraph.store.base.BaseStore.search)（或异步 [⟦T42⟧](https://reference.langchain.com/python/langgraph/store/#langgraph.store.base.BaseStore.asearch)）会返回存储在 `namespace_prefix` 下的项目，最多为 `limit`。当您不需要语义排名时，可以使用它来枚举名称空间中的所有内容。
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 # Return up to 100 items stored under ("alice", "memories").
@@ -158,7 +158,7 @@ store.put(
 )
 ```
 
-## 在 LangGraph 中使用
+## 在LangGraph中使用
 
 存储与检查指针携手合作：如上所述，检查指针将状态保存到线程，并且存储允许您存储任意信息以供*跨*线程访问。使用检查指针和存储编译图形，如下所示。
 
@@ -278,7 +278,7 @@ for update in graph.stream(
     print(update)
 ```
 
-当您在本地使用 LangSmith 时（例如，在[Studio](/langsmith/studio)）或[hosted](/langsmith/platform-setup)中，默认情况下可以使用基本存储，并且不需要在图形编译期间指定它。但是，要启用语义搜索，您**确实**需要在 `langgraph.json` 文件中配置索引设置。例如：
+当您在本地使用LangSmith（例如，在[Studio](/langsmith/studio)中）或[hosted](/langsmith/platform-setup)时，默认情况下可以使用基本存储，并且不需要在图形编译期间指定它。但是，要启用语义搜索，您**确实**需要在 `langgraph.json` 文件中配置索引设置。例如：
 
 ```json theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 {
@@ -299,10 +299,10 @@ for update in graph.stream(
 
 要使用内置实现之外的存储后端，请子类 [BaseStore](https://reference.langchain.com/python/langchain-core/stores/BaseStore) 并实现其所需的方法。内置的[InMemoryStore](https://reference.langchain.com/python/langchain-core/stores/InMemoryStore)是最简单的参考实现。
 
-### 基础合约所有五个异步方法都是必需的。同步对应项（`put`、`get`、`delete`、`search`、`list_namespaces`）是可选的，但建议使用以与同步图执行兼容。
+### 基础合约所有五个异步方法都是必需的。同步对应项（`put`、`get`、`delete`、`search`、`list_namespaces`）是可选的，但建议与同步图执行兼容。
 
 |方法|描述 |
-| ------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------- |
+| ------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------- |
 | `aput(namespace, key, value, index=None)` |存储或覆盖单个项目 |
 | `aget(namespace, key)` |通过键检索单个项目；如果缺失则返回`None` |
 | `adelete(namespace, key)` |删除单个项目 |
@@ -346,10 +346,10 @@ CREATE INDEX ON store_items USING gin(namespace);
 如果您的后端支持矢量搜索，请在 `asearch` 上实现 `query` 参数：
 
 * 接受`query: str | None` 参数。
-* 当`query`不是`None`时，将其嵌入并按余弦相似度对结果进行排名。
+* 当`query`不是`None`时，将其嵌入并按余弦相似度对结果进行排序。
 * 当提供 `query` 时，结果应在每个 `Item` 上包含 `score` 字段。
 
-如果您的后端不支持向量搜索，请在传递 `query` 时引发 `NotImplementedError`。
+如果您的后端不支持矢量搜索，请在传递 `query` 时引发 `NotImplementedError`。
 
 ### 测试
 
@@ -400,7 +400,7 @@ async def test_search_prefix(store, reference):
 
 <div>
   <Callout icon="terminal-2">
-    通过 MCP 向 Claude、VSCode 等发送[Connect these docs](/use-these-docs) 以获得实时答案。
+    [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
   </Callout><Callout icon="edit">
     [Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/stores.mdx) 或[file an issue](https://github.com/langchain-ai/docs/issues/new/choose)。
   </Callout>

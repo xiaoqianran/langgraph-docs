@@ -4,11 +4,78 @@
 
 This quickstart demonstrates how to build a calculator agent using the LangGraph Graph API or the Functional API.
 
+<Prompt description="Build the LangGraph calculator quickstart" icon="sparkles">
+  Build a LangGraph calculator agent in this working directory by following the LangGraph quickstart.
+
+  ## Step 1: Read the guide
+
+  Detect whether this project uses Python or TypeScript/JavaScript. Fetch and follow the matching page; treat it as the source of truth for package names, model strings, and code:
+
+  * Python: [https://docs.langchain.com/oss/python/langgraph/quickstart.md](https://docs.langchain.com/oss/python/langgraph/quickstart.md)
+  * TypeScript: [https://docs.langchain.com/oss/javascript/langgraph/quickstart.md](https://docs.langchain.com/oss/javascript/langgraph/quickstart.md)
+
+  Ask the user whether to use the Graph API or the Functional API. If they have no preference, use the Graph API path.
+
+  ## Step 2: Install dependencies
+
+  Install the packages required by the chosen path with the package manager already used in this project.
+
+  ## Step 3: Configure model credentials
+
+  This quickstart uses Anthropic by default. Check whether `ANTHROPIC_API_KEY` is set. If it is not, ask the user to create a key and set it in the shell or a `.env` file, then stop and wait for confirmation. Do not invent, hardcode, or commit API keys. If the user prefers another chat model provider from the integrations docs, adapt the example accordingly after confirming.
+
+  ## Step 4: Implement the calculator agent
+
+  Implement the selected quickstart path end to end: tools for add, multiply, and divide; the agent graph or functional workflow; and a sample invocation that exercises tool calling. Print the final result so the user can verify the run.
+
+  ## Rules
+
+  * Stay scoped to this quickstart. Do not add deployment, evals, or unrelated frameworks unless the user asks.
+  * Prefer the APIs and structure shown on the fetched guide over inventing a different agent pattern.
+  * Ask rather than guess when a secret, API choice, or project convention is unclear.
+</Prompt>
+
 <Tip>
   **Using an AI coding assistant?**
 
-  * Install the [LangChain Docs MCP server](/use-these-docs) to give your agent access to up-to-date LangChain documentation and examples.
+  * Install the [LangChain Docs MCP servers](/use-these-docs) to give your agent access to up-to-date LangChain documentation and examples.
+
+    <Prompt description="Connect LangChain docs MCP servers" icon="plug">
+      Connect both LangChain documentation MCP servers to my coding agent so it can look up current LangChain, LangGraph, and LangSmith docs and API reference.
+
+      Servers to add:
+
+      * `docs-langchain`: [https://docs.langchain.com/mcp](https://docs.langchain.com/mcp)
+      * `reference-langchain`: [https://reference.langchain.com/mcp](https://reference.langchain.com/mcp)
+
+      Detect which agent or editor I am using (Claude Code, Cursor, Codex CLI, Claude Desktop, Deep Agents Code, VS Code, Antigravity, or another MCP-compatible client). Use the matching setup from [https://docs.langchain.com/use-these-docs.md](https://docs.langchain.com/use-these-docs.md):
+
+      * Claude Code: `claude mcp add --transport http` for each server (project scope by default; use `--scope user` only if I ask for global access).
+      * Codex CLI: `codex mcp add` with each server URL.
+      * Cursor, Deep Agents Code, VS Code, or Antigravity: merge both entries into the MCP settings JSON using the field names shown on that page for my client.
+      * Claude Desktop: add both URLs under Settings > Connectors.
+
+      Do not invent alternate MCP URLs. After configuring, confirm both servers are listed and reachable.
+    </Prompt>
   * Install [LangChain Skills](https://github.com/langchain-ai/langchain-skills) to improve your agent's performance on LangChain ecosystem tasks.
+
+    <Prompt description="Install LangChain Skills" icon="puzzle">
+      Install LangChain Skills for my coding agent so it can perform better on LangChain, LangGraph, and Deep Agents tasks.
+
+      Use the Agent Skills installer from [https://github.com/langchain-ai/langchain-skills](https://github.com/langchain-ai/langchain-skills):
+
+      ```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+      npx skills add langchain-ai/langchain-skills --skill '*' --yes
+      ```
+
+      If I ask for a global install instead, use:
+
+      ```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+      npx skills add langchain-ai/langchain-skills --skill '*' --yes --global
+      ```
+
+      Detect which agent or editor I am using. If I use Claude Code and prefer the plugin path, follow the marketplace install from that repository README (`/plugin marketplace add` then `/plugin install`). Do not invent alternate skill package names or install URLs. After installing, confirm the skills are available to the agent.
+    </Prompt>
 </Tip>
 
 * [Use the Graph API](#use-the-graph-api) if you prefer to define your agent as a graph of nodes and edges.
@@ -17,7 +84,7 @@ This quickstart demonstrates how to build a calculator agent using the LangGraph
 For conceptual information, see [Graph API overview](/oss/python/langgraph/graph-api) and [Functional API overview](/oss/python/langgraph/functional-api).
 
 <Info>
-  For this example, you will need to set up a [Claude (Anthropic)](https://www.anthropic.com/) account and get an API key. Then, set the `ANTHROPIC_API_KEY` environment variable in your terminal. See [chat model integrations](/oss/python/integrations/chat) for all available providers. If you use [LangSmith Gateway](/langsmith/llm-gateway), you can [bring your own provider keys](/langsmith/llm-gateway-quickstart) or use [Gateway Credits](/langsmith/llm-gateway-credits) to access models without a provider key.
+  For this example, you will need to set up a [Claude (Anthropic)](https://www.anthropic.com/) account and get an API key. Then, set the `ANTHROPIC_API_KEY` environment variable in your terminal. See [chat model integrations](/oss/python/integrations/chat) for all available providers. If you use [LangSmith Gateway](/langsmith/llm-gateway), you can [bring your own provider keys](/langsmith/llm-gateway-quickstart#send-a-request) or use [Gateway Credits](/langsmith/llm-gateway-credits) to access models without a provider key.
 </Info>
 
 <Tabs>
@@ -635,7 +702,7 @@ For conceptual information, see [Graph API overview](/oss/python/langgraph/graph
 
 <div>
   <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) to Claude, VSCode, and more via MCP for real-time answers.
+    [Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
   </Callout>
 
   <Callout icon="edit">

@@ -11,7 +11,7 @@
 
 <img alt="Agent Workflow" />
 
-LangGraph 在构建代理和工作流程时提供了多种优势，包括[persistence](/oss/python/langgraph/persistence)、[streaming](/oss/python/langgraph/streaming)、以及对调试的支持以及[deployment](/oss/python/langgraph/deploy)。
+LangGraph 在构建代理和工作流程时提供了多项优势，包括 [persistence](/oss/python/langgraph/persistence)、[streaming](/oss/python/langgraph/streaming)、调试支持以及[deployment](/oss/python/langgraph/deploy)。
 
 <Tip>
   使用 [LangSmith](https://smith.langchain.com?utm_source=docs\&utm_medium=cta\&utm_campaign=langsmith-signup\&utm_content=oss-langgraph-workflows-agents) 跟踪并比较这些工作流程模式。按照[tracing quickstart](/langsmith/trace-with-langgraph)查看数据如何流经每个步骤。我们建议您还设置 [LangSmith Engine](/langsmith/engine) 来监控您的痕迹、检测问题并提出修复建议。
@@ -57,9 +57,11 @@ from pydantic import BaseModel, Field
 
 
 class SearchQuery(BaseModel):
-    search_query: str = Field(None, description="Query that is optimized web search.")
-    justification: str = Field(
-        None, description="Why this query is relevant to the user's request."
+    search_query: str | None = Field(
+        default=None, description="Query that is optimized web search."
+    )
+    justification: str | None = Field(
+        default=None, description="Why this query is relevant to the user's request."
     )
 
 
@@ -68,6 +70,7 @@ structured_llm = llm.with_structured_output(SearchQuery)
 
 # Invoke the augmented LLM
 output = structured_llm.invoke("How does Calcium CT score relate to high cholesterol?")
+print(output)  # The model returns an instance of SearchQuery.
 
 # Define a tool
 def multiply(a: int, b: int) -> int:
@@ -78,9 +81,7 @@ llm_with_tools = llm.bind_tools([multiply])
 
 # Invoke the LLM with input that triggers the tool call
 msg = llm_with_tools.invoke("What is 2 times 3?")
-
-# Get the tool call
-msg.tool_calls
+print(msg.tool_calls)  # The model returns a request to call the tool.
 ```
 
 ## 提示链接提示链接是指每个 LLM 调用处理前一个调用的输出时。它通常用于执行明确定义的任务，这些任务可以分解为更小的、可验证的步骤。一些例子包括：
@@ -361,7 +362,7 @@ msg.tool_calls
   ```
 </CodeGroup>
 
-## 路由路由工作流处理输入，然后将其引导至特定于上下文的任务。这允许您为复杂任务定义专门的流程。例如，为回答产品相关问题而构建的工作流程可能会首先处理问题类型，然后将请求路由到定价、退款、退货等特定流程。
+## 路由路由工作流处理输入，然后将其引导至特定于上下文的任务。这允许您为复杂任务定义专门的流程。例如，为回答产品相关问题而构建的工作流程可能首先处理问题类型，然后将请求路由到定价、退款、退货等特定流程。
 
 <img alt="routing.png" />
 
@@ -663,7 +664,7 @@ Orchestrator-worker 工作流程提供了更大的灵活性，并且通常在无
   ```
 </CodeGroup>
 
-### 在 LangGraph 中创建工人Orchestrator-worker 工作流程很常见，LangGraph 内置了对它们的支持。 `Send` API 允许您动态创建工作节点并向它们发送特定输入。每个工作人员都有自己的状态，所有工作人员输出都写入编排器图可访问的共享状态键。这使协调器可以访问所有工作输出，并允许将它们合成为最终输出。下面的示例迭代部分列表，并使用 `Send` API 将部分发送给每个工作人员。
+### 在LangGraph中创建工人Orchestrator-worker 工作流程很常见，LangGraph 内置了对它们的支持。 `Send` API 允许您动态创建工作节点并向它们发送特定输入。每个工作人员都有自己的状态，所有工作人员输出都写入编排器图可访问的共享状态键。这使协调器可以访问所有工作输出，并允许将它们合成为最终输出。下面的示例迭代部分列表，并使用 `Send` API 将部分发送给每个工作人员。
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from langgraph.types import Send
@@ -772,9 +773,9 @@ Markdown(state["final_report"])
 
 在评估器-优化器工作流程中，一个 LLM 调用创建响应，另一个调用评估该响应。如果评估者或 [human-in-the-loop](/oss/python/langgraph/interrupts) 确定响应需要改进，则会提供反馈并重新创建响应。此循环将持续下去，直到生成可接受的响应。
 
-当任务有特定的成功标准，但需要迭代才能满足该标准时，通常会使用评估器-优化器工作流程。例如，在两种语言之间翻译文本时并不总是存在完美匹配。可能需要几次迭代才能生成两种语言具有相同含义的翻译。<img alt="evaluator_optimizer.png" />
+当任务有特定的成功标准，但需要迭代才能满足该标准时，通常会使用评估器-优化器工作流程。例如，在两种语言之间翻译文本时并不总是存在完美匹配。可能需要几次迭代才能生成两种语言具有相同含义的翻译。
 
-<CodeGroup>
+<img alt="evaluator_optimizer.png" /><CodeGroup>
   ```python Graph API theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
   # Graph state
   class State(TypedDict):
@@ -919,7 +920,7 @@ Markdown(state["final_report"])
 <img alt="agent.png" />
 
 <Note>
-  要开始使用代理，请参阅[quickstart](/oss/python/langchain/quickstart)或阅读LangChain中有关[how they work](/oss/python/langchain/agents)的更多信息。
+  要开始使用代理，请参阅 [quickstart](/oss/python/langchain/quickstart) 或在 LangChain 中阅读有关 [how they work](/oss/python/langchain/agents) 的更多信息。
 </Note>
 
 ```python Using tools theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
@@ -1204,11 +1205,15 @@ result = graph.invoke(
 )
 ```
 
+<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/afaeb6f7-9e5a-4417-9ea0-22352736f755/r">
+  为此示例打开公共 LangSmith 运行。
+</Card>
+
 ***
 
 <div>
   <Callout icon="terminal-2">
-    通过 MCP 向 Claude、VSCode 等发送[Connect these docs](/use-these-docs) 以获得实时答案。
+    [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
   </Callout>
 
   <Callout icon="edit">

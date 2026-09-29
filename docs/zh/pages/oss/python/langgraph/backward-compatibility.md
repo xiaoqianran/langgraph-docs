@@ -6,9 +6,9 @@
 
 更新生产中的 LangGraph 图形代码，而不会中断运行中的运行。
 
-软件需要在生产中改变。新的需求、错误修复和重构最终都会出现在您的图形代码中。由于 LangGraph 针对现有线程的[persisted](/oss/python/langgraph/persistence)状态运行最新部署的图，因此您发布的每个更改实际上都是相对于现有检查点的向后兼容的 API 更改。
+软件需要在生产中改变。新的需求、错误修复和重构最终都会出现在您的图形代码中。因为 LangGraph 针对现有线程的 [persisted](/oss/python/langgraph/persistence) 状态运行最新部署的图，所以您发布的每个更改实际上都是相对于现有检查点的向后兼容的 API 更改。
 
-与将运行固定到其开始的代码版本的工作流引擎不同，LangGraph 立即将最新的图形应用于*每个*线程，包括新线程和从检查点恢复的线程。这很方便：错误修复无需仪式即可传播到飞行中的对话和代理。这还意味着您必须推断每个更改如何与在先前版本的代码下启动的运行交互。
+与将运行固定到其开始的代码版本的工作流引擎不同，LangGraph将最新的图表立即应用于*每个*线程，包括新线程和从检查点恢复的线程。这很方便：错误修复无需仪式即可传播到飞行中的对话和代理。这还意味着您必须推断每个更改如何与在先前版本的代码下启动的运行交互。
 
 需要注意三类兼容性问题，大致按照您遇到的顺序排列：1. [Technical compatibility](#technical-compatibility)：最常见；新代码仍然必须针对现有状态加载和执行。
 2. [Business compatibility](#business-compatibility)：不太常见；即使代码已更改，现有运行也应继续遵循旧的业务逻辑。
@@ -20,11 +20,11 @@
 
 ## 技术兼容性
 
-技术兼容性相当于微服务中 API 的重大更改。这里的“API”是图形代码和现有线程的[checkpointer](/oss/python/langgraph/checkpointers#checkpointer-libraries)已经保存的数据之间的契约。当线程恢复时，LangGraph 反序列化保存的状态，按名称将其分派到节点，并期望该节点返回适合状态模式的值。
+技术兼容性相当于微服务中 API 的重大更改。这里的“API”是图形代码和现有线程的[checkpointer](/oss/python/langgraph/checkpointers#checkpointer-libraries)已经保存的数据之间的契约。当线程恢复时，LangGraph反序列化保存的状态，按名称将其分派到节点，并期望该节点返回适合状态模式的值。
 
-常见技术故障：* **重命名或删除节点**，当线程暂停或即将进入该节点时，例如在 [⟦T2⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 处或通过仍路由到旧名称的检查点条件边。恢复时，LangGraph 无法通过保存的名称找到该节点，并且运行失败。恢复运行的起点是执行停止的节点的开头，因此丢失的节点无处可恢复。
+常见技术故障：* **重命名或删除节点**，当线程暂停或即将进入该节点时，例如在 [⟦T2⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 处或通过仍路由到旧名称的检查点条件边。恢复时，LangGraph无法通过保存的名称找到节点，并且运行失败。恢复运行的起点是执行停止的节点的开头，因此丢失的节点无处可恢复。
 * **重命名或删除旧检查点仍然包含的或下游节点仍然读取的状态密钥**。
-* **收紧状态字段**，例如将 `Optional` 字段设为必填、缩小类型范围或添加新的不带默认值的必填字段。现有检查点将无法满足新模式。
+* **收紧状态字段**，例如将 `Optional` 字段设置为必填字段、缩小类型范围或添加新的不带默认值的必填字段。现有检查点将无法满足新模式。
 
 边缘拓扑本身*不*保留在检查点中。在仍然存在的节点之间添加、删除或重新路由边对于运行中的线程来说是安全的。根据 [Graph migrations](/oss/python/langgraph/graph-api#graph-migrations) 总结，唯一可能破坏中断线程的拓扑更改是重命名或删除节点。
 
@@ -41,7 +41,7 @@
       summary: NotRequired[str]  # [!code ++]
   ```* 将删除视为弃用。将状态上定义的字段保留至少一个耗尽周期，即使没有节点读取它，以便现有检查点继续加载。
 
-* 通过*添加然后删除*重命名。将新字段或节点与旧字段或节点一起添加，双重写入或路由到两者以形成弃用窗口，然后在确认没有运行中的线程依赖于旧字段或节点后删除旧字段或节点。
+* 通过*添加然后删除*重命名。将新字段或节点与旧字段或节点一起添加，双重写入或路由到两者以获得弃用窗口，然后在确认没有运行中的线程依赖于旧字段或节点后删除旧字段或节点。
 
 * 保持节点功能对未知密钥的容忍度。 `TypedDict` 在运行时忽略额外的键，因此除非节点显式读取丢失的键，否则旧代码版本的剩余状态不会引发。
 
@@ -51,7 +51,7 @@
 
 在删除节点、重命名 State 键或以其他方式进行旧线程无法容忍的更改之前，您需要了解当前是否有任何线程停放在您要删除的代码版本上。 LangGraph 本身不维护线程状态的搜索索引，因此答案取决于图的运行位置。**如果您部署到[LangSmith](/langsmith/deployment)。**使用代理服务器的线程搜索按状态进行过滤。 `status`字段接受`idle`、`busy`、`interrupted`和`error`，因此您可以批量查询`interrupted`或`busy`线程，可以选择使用元数据过滤器缩小范围。参见[Filter by thread status](/langsmith/use-threads#filter-by-thread-status)和[List threads](/langsmith/use-threads#list-threads)。
 
-**LangGraph 运行的任何地方。** 使用 [LangSmith tracing](/oss/python/langgraph/observability) 监控生产中哪些节点正在进入和退出。这是最可靠的信号，表明节点或状态字段在任何活动代码路径中都不再可达。
+**在LangGraph运行的任何地方。**使用[LangSmith tracing](/oss/python/langgraph/observability)监视生产中哪些节点正在进入和退出。这是最可靠的信号，表明节点或状态字段在任何活动代码路径中都不再可达。
 
 **当您已经拥有 `thread_id` 时。** 直接检查该单线程：
 
@@ -62,7 +62,7 @@
 
 ## 业务兼容性有时，更改在技术上是有效的（每个现有检查点仍然加载并且每个节点仍然解析），但新图的*含义*与旧图不同。新行为对于新线程来说是正确的，并且您不希望将其追溯应用到在旧逻辑下启动的线程。
 
-例如，假设您的图表运行 `intake → triage → respond`，并且您决定在 `triage` 和 `respond` 之间插入一个新的 `policy_check` 步骤：
+例如，假设您的图运行 `intake → triage → respond`，并且您决定在 `triage` 和 `respond` 之间插入一个新的 `policy_check` 步骤：
 
 * 已经通过`triage`的线程应该直接继续到`respond`（旧流程）。
 * 新线程应该运行完整的新流程。
@@ -134,7 +134,7 @@ graph = builder.compile()
 
 <div>
   <Callout icon="terminal-2">
-    通过 MCP 向 Claude、VSCode 等发送[Connect these docs](/use-these-docs) 以获得实时答案。
+    [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
   </Callout>
 
   <Callout icon="edit">

@@ -38,7 +38,7 @@ async function approvalNode(state: State) {
 
 当您拨打 [⟦T47⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 时，会发生以下情况：1. **图形执行在调用 [⟦T48⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 的确切位置暂停**
 
-2. **使用检查指针保存状态**，以便稍后可以恢复执行，在生产中，这应该是持久检查指针（例如由数据库支持）
+2. **使用检查指针保存状态**，以便稍后可以恢复执行，在生产中，这应该是一个持久的检查指针（例如由数据库支持）
 
 3. **值在`__interrupt__`下返回**给调用者；它可以是任何 JSON 可序列化的值（字符串、对象、数组等）
 
@@ -80,14 +80,14 @@ await graph.invoke(new Command({ resume: true }), config);
 ## 常见模式
 
 中断解锁的关键是能够暂停执行并等待外部输入。这对于各种用例都很有用，包括：* <Icon icon="circle-check" /> [Approval workflows](#approve-or-reject)：在执行关键操作（API 调用、数据库更改、金融交易）之前暂停
-* <Icon icon="link" /> [Handling multiple interrupts](#handling-multiple-interrupts)：在单次调用中恢复多个中断时，将中断 ID 与恢复值配对
+* <Icon icon="link" /> [Handling multiple interrupts](#handling-multiple-interrupts)：在单次调用中恢复多个中断时将中断 ID 与恢复值配对
 * <Icon icon="pencil" /> [Review and edit](#review-and-edit-state)：让人们在继续之前检查和修改LLM输出或工具调用
-* <Icon icon="tool" /> [Interrupting tool calls](#interrupts-in-tools)：执行工具调用前暂停，以在执行前查看和编辑工具调用
+* <Icon icon="tool" /> [Interrupting tool calls](#interrupts-in-tools)：执行工具调用前暂停，以便在执行前查看和编辑工具调用
 * <Icon icon="shield-check" /> [Validating human input](#validating-human-input)：在继续下一步验证人工输入之前暂停
 
-### 具有人机参与循环 (HITL) 中断的流
+### 具有人机交互 (HITL) 中断的流
 
-在使用人机交互工作流程构建交互式代理时，您可以使用[event streaming](/oss/javascript/langgraph/event-streaming)在处理中断时同时使用消息块和状态快照。
+当使用人机交互工作流程构建交互式代理时，您可以使用[event streaming](/oss/javascript/langgraph/event-streaming)在处理中断的同时同时使用消息块和状态快照。
 
 循环使用 `graph.stream_events(..., version="v3")` 返回的类型化投影，直到运行完成：
 
@@ -124,14 +124,18 @@ while (true) {
   const userResponse = await getUserInput(interruptInfo);
   streamInput = new Command({ resume: userResponse });
 }
-```* **`stream.messages`**：聊天模型输出为内容块；迭代 `message.text` 以获得代币增量。对于嵌套子图，从`stream.subgraphs[*].messages`读取消息块。
+```
+
+<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/2f053efa-abf1-42a0-9c10-df949570681a/r" arrow horizontal>
+  为此示例打开公共 LangSmith 运行。
+</Card>* **`stream.messages`**：聊天模型输出为内容块；迭代 `message.text` 以获得代币增量。对于嵌套子图，从`stream.subgraphs[*].messages`读取消息块。
 * **`stream.values`**：每一步后的完整状态快照
 * **`stream.interrupted` / `stream.interrupts`**：每次运行后，检查图形是否暂停；从`stream.interrupts`读取有效负载
 * **`Command(resume=...)`**：作为下一个`streamEvents`输入进行恢复；循环直到运行完成而不中断
 
 ### 处理多个中断
 
-当并行分支同时中断时（例如，扇出到多个节点，每个节点都调用`interrupt()`），您可能需要在单次调用中恢复多个中断。
+当并行分支同时中断时（例如，扇出到每个调用`interrupt()`的多个节点），您可能需要在单次调用中恢复多个中断。
 当通过一次调用恢复多个中断时，将每个中断 ID 映射到其恢复值。
 这可确保每个响应在运行时与正确的中断配对。
 
@@ -503,7 +507,7 @@ const sendEmailTool = tool(
 ### 验证人工输入有时您需要验证人类的输入并重新提示该值是否无效。推荐的方法是调用`interrupt()` **每次节点调用一次**，从状态中存储错误消息的节点返回，并使用**条件边**循环回节点，直到提供有效值。
 
 <Warning>
-  **避免 `while True` + `interrupt()` 在单个节点内循环。** 因为节点在每次恢复时都从头开始重新运行（请参阅 [Rules of interrupts](#rules-of-interrupts)），多次调用 `interrupt()` 的循环会导致每个恢复重播所有先前的迭代：第一个恢复重播 1 次迭代，第二次重播 2 次迭代，依此类推。结果是循环体内任何代码的指数重新执行。
+  **避免 `while True` + `interrupt()` 在单个节点内循环。** 因为节点在每次恢复时都从头重新运行（请参阅 [Rules of interrupts](#rules-of-interrupts)），所以多次调用 `interrupt()` 的循环会导致每个恢复重播所有先前的迭代：第一个恢复重播 1 次迭代，第二次重播 2 次迭代，依此类推。结果是循环体内任何代码的指数重新执行。
 </Warning>
 
 正确的模式：
@@ -531,7 +535,11 @@ const getAgeNode: typeof State.Node = (state) => {
 // builder.addConditionalEdges("collectAge", (state) =>
 //   state.age !== null ? END : "collectAge"
 // );
-```每个恢复都会调用 `getAgeNode` 一次，运行 `interrupt()` 调用一次，然后退出。当答案无效时，条件边沿循环返回，并且下一个中断会重新提示更新的问题。
+```
+
+<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/04c9112c-edbf-497d-92b8-7263fb485ff5/r" arrow horizontal>
+  为此示例打开公共 LangSmith 运行。
+</Card>每个恢复都会调用 `getAgeNode` 一次，运行 `interrupt()` 调用一次，然后退出。当答案无效时，条件边沿循环返回，并且下一个中断会重新提示更新的问题。
 
 <Accordion title="Full example">
   ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
@@ -585,7 +593,7 @@ const getAgeNode: typeof State.Node = (state) => {
 
 ## 中断规则
 
-当您在节点内调用 [⟦T98⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 时，LangGraph 会通过引发异常来指示运行时暂停来暂停执行。该异常通过调用堆栈向上传播并被运行时捕获，通知图保存当前状态并等待外部输入。
+当您在节点内调用 [⟦T98⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 时，LangGraph 会引发异常，指示运行时暂停，从而暂停执行。该异常通过调用堆栈向上传播并被运行时捕获，通知图保存当前状态并等待外部输入。
 
 当执行恢复时（在您提供请求的输入之后），运行时会从头开始重新启动整个节点 - 它不会从调用 [⟦T99⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 的确切行恢复。这意味着在 [⟦T100⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 之前运行的任何代码都将再次执行。因此，在处理中断时需要遵循一些重要规则，以确保它们按预期运行。
 
@@ -645,7 +653,7 @@ async function nodeA(state: State) {
 
 在单个节点中使用多个中断是很常见的，但是如果处理不仔细，这可能会导致意外的行为。
 
-当一个节点包含多个中断调用时，LangGraph 会保留一个特定于执行该节点的任务的恢复值列表。每当执行恢复时，它都会从节点的开头开始。对于遇到的每个中断，LangGraph 都会检查任务的恢复列表中是否存在匹配的值。匹配**严格基于索引**，因此节点内中断调用的顺序很重要。
+当节点包含多个中断调用时，LangGraph 保留特定于执行该节点的任务的恢复值列表。每当执行恢复时，它都会从节点的开头开始。对于遇到的每个中断，LangGraph 检查任务的恢复列表中是否存在匹配的值。匹配**严格基于索引**，因此节点内中断调用的顺序很重要。
 
 * ✅ 保持 [⟦T107⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 调用在节点执行之间保持一致
 
@@ -731,7 +739,7 @@ async function nodeA(state: State) {
   ```
 </CodeGroup>
 
-* 🔴 不要将函数、类实例或其他复杂对象传递给[⟦T113⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt)
+* 🔴不要将函数、类实例或其他复杂对象传递给[⟦T113⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt)
 
 <CodeGroup>
   ```typescript Functions theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
@@ -775,7 +783,7 @@ async function nodeA(state: State) {
 
 例如，您可能有一个 API 调用来更新节点内的记录。如果在调用之后调用[⟦T116⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt)，则当节点恢复时它将重新运行多次，可能会覆盖初始更新或创建重复记录。* ✅ 在[⟦T117⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt)之前使用幂等操作
 * ✅ 在 [⟦T118⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 调用之后放置副作用
-* ✅ 如果可能的话，将副作用分离到单独的节点中
+* ✅尽可能将副作用分离到单独的节点中
 
 <CodeGroup>
   ```typescript Idempotent operations theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
@@ -868,7 +876,7 @@ async function nodeA(state: State) {
 
 ## 与称为函数的子图一起使用
 
-当调用节点内的子图时，父图将从调用子图并触发 [⟦T120⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 的**节点**开始处恢复执行。同样，**子图**也会从调用 [⟦T121⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 的节点的开头开始恢复。
+当调用节点内的子图时，父图将从调用子图并触发[⟦T120⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt)的节点**开始处恢复执行。同样，**子图**也会从调用 [⟦T121⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 的节点的开头开始恢复。
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 async function nodeInParentGraph(state: State) {
@@ -918,7 +926,7 @@ async function nodeInSubgraph(state: State) {
     2. `interruptBefore` 指定执行该节点之前应暂停执行的节点。
     3. `interruptAfter` 指定该节点执行完毕后应暂停执行的节点。
     4. 需要一个检查点来启用断点。
-    5. 运行图表直至遇到第一个断点。
+    5. 运行图表直到遇到第一个断点。
     6. 通过传入 `null` 作为输入来恢复图表。这将运行图表直到遇到下一个断点。
   </Tab>
 
@@ -937,7 +945,7 @@ async function nodeInSubgraph(state: State) {
     await graph.invoke(null, config);  // [!code highlight]
     ```
 
-    1. 使用`interruptBefore`和`interruptAfter`参数调用`graph.invoke`。这是一个运行时配置，可以在每次调用时更改。
+    1. 使用`interruptBefore`和`interruptAfter`参数调用`graph.invoke`。这是一个运行时配置，可以针对每次调用进行更改。
     2. `interruptBefore` 指定执行该节点之前应暂停执行的节点。
     3. `interruptAfter` 指定该节点执行完毕后应暂停执行的节点。
     4. 运行图表直到遇到第一个断点。
@@ -949,7 +957,7 @@ async function nodeInSubgraph(state: State) {
   要调试中断，请使用[LangSmith](/langsmith/observability)。
 </Tip>
 
-### 使用 LangSmith Studio在运行图表之前，您可以使用 [LangSmith Studio](/langsmith/studio) 在 UI 中的图表中设置静态中断。您还可以使用 UI 在执行过程中的任意时刻检查图形状态。
+### 使用LangSmith Studio在运行图表之前，您可以使用 [LangSmith Studio](/langsmith/studio) 在 UI 中的图表中设置静态中断。您还可以使用 UI 在执行过程中的任意时刻检查图形状态。
 
 <img src="https://mintcdn.com/langchain-5e9cc07a/dL5Sn6Cmy9pwtY0V/oss/images/static-interrupt.png?fit=max&auto=format&n=dL5Sn6Cmy9pwtY0V&q=85&s=5aa4e7cea2ab147cef5b4e210dd6c4a1" alt="image" width="1252" height="1040" data-path="oss/images/static-interrupt.png" />
 
@@ -957,7 +965,7 @@ async function nodeInSubgraph(state: State) {
 
 <div className="source-links">
   <Callout icon="terminal-2">
-    通过 MCP 向 Claude、VSCode 等发送[Connect these docs](/use-these-docs) 以获得实时答案。
+    [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
   </Callout>
 
   <Callout icon="edit">

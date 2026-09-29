@@ -4,14 +4,14 @@
 
 来自 [docs.langchain.com](https://docs.langchain.com) + [reference.langchain.com](https://reference.langchain.com) 的 **LangGraph** 文档的非官方镜像。
 
-- 页数：113
+- 页数：114
 - 来源：llms-full（已过滤）+额外指南+API参考包
 
 ## 部分
 
 - **Python·指南** (`python`)：38 页
 - **JavaScript · 指南** (`javascript`)：37 页
-- **API·JavaScript** (`api-js`)：12 页
+- **API·JavaScript** (`api-js`)：13 页
 - **API·Python** (`api-python`)：11 页
 - **平台·LangSmith** (`platform`)：8页
 - **迁移** (`migrate`)：3 页

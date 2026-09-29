@@ -25,10 +25,14 @@
 
   <Card title="Server customization" cta="Customize your server" href="/langsmith/caching" icon="settings">
     添加缓存、自定义存储和检查点、生命周期挂钩、中间件、自定义路由、加密以及可配置标头和日志。
+  </Card><Card title="REST API" cta="Browse the API" href="/langsmith/server-api-ref" icon="book">
+    适用于助手、线程、运行、crons、存储、A2A、MCP 和系统端点的完整 REST API 参考。
   </Card>
 </CardGroup>
 
-## 教程* [Collect user feedback for Agent Server runs](/langsmith/agent-server-feedback)：将最终用户反馈附加到运行和跟踪中
+## 教程
+
+* [Collect user feedback for Agent Server runs](/langsmith/agent-server-feedback)：将最终用户反馈附加到运行和跟踪中
 * [Deploy other frameworks (e.g., Strands, CrewAI)](/langsmith/deploy-other-frameworks)：使用功能 API 包装现有代理并部署
 * [Implement generative user interfaces with LangGraph](/langsmith/generative-ui-react)：将 UI 元素流式传输到 React 客户端
 * [Implement a CI/CD pipeline](/langsmith/cicd-pipeline-example)：使用 GitHub Actions 自动化测试、评估和部署
@@ -48,7 +52,7 @@
 
 <div className="source-links">
   <Callout icon="terminal-2">
-    通过 MCP 向 Claude、VSCode 等发送[Connect these docs](/use-these-docs) 以获得实时答案。
+    [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
   </Callout>
 
   <Callout icon="edit">

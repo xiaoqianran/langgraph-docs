@@ -122,7 +122,7 @@ In production, use a checkpointer backed by a database:
 
   <Tip>
     **Setup**
-    To use `MongoDBSaver`, you will need a MongoDB cluster. Follow [this guide](https://www.mongodb.com/docs/guides/atlas/cluster/) to create a cluster if you don't already have one.
+    To use `MongoDBSaver`, you will need a MongoDB cluster. Follow [this guide](https://www.mongodb.com/docs/guides/atlas/cluster/) to create a cluster if you don't already have one. For an agent-focused walkthrough, see [short-term memory with MongoDB Atlas](/oss/javascript/integrations/memory/mongodb-short-term-memory).
   </Tip>
 
   ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
@@ -369,6 +369,10 @@ In production, use a store backed by a database:
   ```
   npm install @langchain/langgraph-checkpoint-mongodb
   ```
+
+  <Tip>
+    For an agent-focused walkthrough, see [long-term memory with MongoDB Atlas](/oss/javascript/integrations/memory/mongodb-long-term-memory).
+  </Tip>
 
   ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
   import { ChatAnthropic } from "@langchain/anthropic";
@@ -1013,8 +1017,6 @@ const summarizeConversation: GraphNode<typeof State> = async (state) => {
 
 You can view and delete the information stored by the checkpointer.
 
-<a />
-
 #### View thread state
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
@@ -1047,8 +1049,6 @@ await graph.getState(config);
   interrupts: []
 }
 ```
-
-<a />
 
 #### View the history of the thread
 
@@ -1084,7 +1084,7 @@ We recommend running migrations as a dedicated deployment step, or you can ensur
 
 <div>
   <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) to Claude, VSCode, and more via MCP for real-time answers.
+    [Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
   </Callout>
 
   <Callout icon="edit">

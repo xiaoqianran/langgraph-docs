@@ -11,23 +11,23 @@
 * [⟦T27⟧](#langgraph-dev)：快速迭代的轻量级开发服务器。
 * [⟦T28⟧](#langgraph-up)：用于验证的类似生产的测试环境。
 
-|特色 | `langgraph dev` | `langgraph up` |
-| -------------------- | --------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+|特色| `langgraph dev` | `langgraph up` |
+| - | - | - |
 | **需要 Docker** |没有 |是的 |
-| **安装** | `pip install langgraph-cli[inmem]` | `pip install langgraph-cli` || **主要用例** |快速开发和测试|类似生产的验证 |
+| **安装** | `pip install langgraph-cli[inmem]` | `pip install langgraph-cli` |
+| **主要用例** |快速开发和测试|类似生产的验证 |
 | **状态持久性** |内存中并腌制到本地目录 | PostgreSQL |
 | **热重载** |是（默认）|可选（`--watch`标志）|
 | **默认端口** | `2024` | `8123` |
-| **资源使用** |轻量化|更重（为服务器、PostgreSQL 和 Redis 构建和运行单独的 docker 容器）|
-| **IDE 调试** |内置[DAP](https://microsoft.github.io/debug-adapter-protocol/)支持 |定期容器调试 || **自定义授权** |是的 |是（带有许可证密钥）|
+| **资源使用** |轻量化|更重（为服务器、PostgreSQL 和 Redis 构建并运行单独的 docker 容器）|
+| **IDE 调试** |内置[DAP](https://microsoft.github.io/debug-adapter-protocol/)支持 |定期容器调试 |
+| **自定义授权** |是的 |是（带有许可证密钥）|
 
 <Tip>
   有关完整的参考详细信息，请参阅[LangGraph CLI reference](/langsmith/cli)页面。
 </Tip>
 
-## 发展
-
-以下是构建应用程序时的典型工作流程：
+## 发展以下是构建应用程序时的典型工作流程：
 
 ```mermaid theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 flowchart LR
@@ -40,7 +40,7 @@ flowchart LR
 ```
 
 |舞台|工具|目的|
-| -------------------------- | ------------------------------------------- | -------------------------------------------------- |
+| - | - | - |
 | **本地开发和测试** | [⟦T36⟧](/langsmith/cli#dev) |通过热重载在图表上写入和迭代 |
 | **验证** | [⟦T37⟧](/langsmith/cli#up) |使用完整堆栈测试类似生产的行为 |
 | **部署** | [⟦T38⟧](/langsmith/cli#deploy) |充满信心地部署到生产中 |
@@ -52,15 +52,15 @@ flowchart LR
 3. **部署前检查**：运行 `langgraph up --recreate` 进行全新构建。
 4. **部署**：通过[LangSmith UI](/langsmith/deployment-quickstart)或[Control Plane API](/langsmith/api-ref-control-plane)推送到生产环境。
 
-## `langgraph dev`[⟦T43⟧](/langsmith/cli#dev) 命令直接在您的环境中运行轻量级服务器，旨在提高主动开发过程中的速度和便利性。主要特点包括：
+## `langgraph dev`
+
+[⟦T43⟧](/langsmith/cli#dev) 命令直接在您的环境中运行轻量级服务器，旨在提高主动开发过程中的速度和便利性。主要特点包括：
 
 * **无需 Docker**：直接在您的环境中运行。
 * **热重载**：更改代码时自动重新加载。
 * **快速启动**：几秒钟内即可就绪。
 * **内置 [Debug Adapter Protocol](https://microsoft.github.io/debug-adapter-protocol/) 支持**：将 IDE 调试器连接到服务器以进行行级断点和调试。
-* **本地存储**：状态保存到本地目录。
-
-<Note>
+* **本地存储**：状态保存到本地目录。<Note>
   `dev` 服务器使用与生产相同的集成测试套件进行测试，以确保其行为在开发过程中相同，同时使用最少的资源。
 </Note>
 
@@ -72,7 +72,7 @@ flowchart LR
 
   <Steps>
     <Step title="Create a LangGraph app">
-      从[⟦T45⟧ template](https://github.com/langchain-ai/new-langgraph-project)或[⟦T46⟧ template](https://github.com/langchain-ai/new-langgraphjs-project)创建一个新应用程序。该模板演示了您可以使用自己的逻辑进行扩展的单节点应用程序。
+      从[⟦T45⟧ template](https://github.com/langchain-ai/new-langgraph-project)或[⟦T46⟧ template](https://github.com/langchain-ai/new-langgraphjs-project)创建一个新应用程序。此模板演示了您可以使用自己的逻辑进行扩展的单节点应用程序。
 
       <Tabs>
         <Tab title="Python server">
@@ -86,7 +86,9 @@ flowchart LR
           npx @langchain/langgraph-cli new path/to/your/app --template new-langgraph-project-js
           ```
         </Tab>
-      </Tabs><Tip>
+      </Tabs>
+
+      <Tip>
         **附加模板**<br />
         如果您使用[⟦T47⟧](/langsmith/cli)而不指定模板，您将看到一个交互式菜单，允许您从可用模板列表中进行选择。
       </Tip>
@@ -136,12 +138,10 @@ flowchart LR
       >
       >    - Studio Web UI: https://smith.langchain.com/studio/?baseUrl=http://127.0.0.1:2024
       ```
-    </Step>
-
-    <Step title="Test the API">
+    </Step><Step title="Test the API">
       <Tabs>
         <Tab title="Python SDK (async)">
-          1.安装LangGraph Python SDK：
+          1.安装LangGraphPython SDK：
 
           ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
           pip install langgraph-sdk
@@ -175,7 +175,7 @@ flowchart LR
         </Tab>
 
         <Tab title="Python SDK (sync)">
-          1.安装LangGraph Python SDK：
+          1.安装LangGraphPython SDK：
 
           ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
           pip install langgraph-sdk
@@ -206,7 +206,7 @@ flowchart LR
         </Tab>
 
         <Tab title="Javascript SDK">
-          1.安装LangGraph JS SDK：
+          1.安装LangGraphJS SDK：
 
           ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
           npm install @langchain/langgraph-sdk
@@ -263,7 +263,9 @@ flowchart LR
       </Tabs>
     </Step>
   </Steps>
-</Accordion>### 用例
+</Accordion>
+
+### 用例
 
 使用 `langgraph dev` 作为您的主要开发工具：
 
@@ -274,9 +276,7 @@ flowchart LR
 * **没有 Docker 的环境**：在 Docker 不可用的 CI/CD 管道或轻量级虚拟机中：
   ```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
   langgraph dev --no-browser
-  ```
-
-* **调试器附件**：使用 `--debug-port` 附加 IDE 调试器，以便在开发过程中进行逐步调试。
+  ```* **调试器附件**：使用 `--debug-port` 附加 IDE 调试器，以便在开发过程中进行逐步调试。
 
 ## `langgraph up`
 
@@ -300,7 +300,9 @@ flowchart LR
 
 ### 用例
 
-使用 `langgraph up` 进行验证和生产就绪测试：* **部署前验证**：在部署到生产环境之前，您可以使用全新构建运行最终检查，以确保您的依赖项均已正确指定。
+使用 `langgraph up` 进行验证和生产就绪测试：
+
+* **部署前验证**：在部署到生产环境之前，您可以使用全新构建运行最终检查，以确保您的依赖项均已正确指定。
 
   ```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
   langgraph up --recreate
@@ -308,11 +310,9 @@ flowchart LR
 
   这可以捕获与容器中的依赖关系解析相关的问题以及任何其他构建过程问题。
 
-* **主要功能验证**：实施重大更改后，定期使用完整的生产堆栈进行测试，以确保一切在容器化环境中正常运行。
+* **主要功能验证**：实施重大更改后，定期使用完整的生产堆栈进行测试，以确保一切在容器化环境中正常运行。* **Docker 故障排除**：调试仅在生产中出现的容器特定问题、网络问题或环境变量配置时。
 
-* **Docker 故障排除**：调试仅在生产中出现的容器特定问题、网络问题或环境变量配置时。
-
-## 部署前检查清单
+## 部署前检查表
 
 在部署应用程序之前，请使用 `langgraph up` 验证以下内容：
 
@@ -324,16 +324,16 @@ flowchart LR
 
 ## 依赖配置
 
-`langgraph dev`和`langgraph up`都从[configuration files](/langsmith/application-structure#configuration-file)读取应用程序的[dependencies](/langsmith/application-structure#dependencies)，但它们运行在不同的环境中：* **`langgraph dev`** 直接在本地环境（Python 或 Node.js）中运行代码，无需使用 Docker。
+`langgraph dev`和`langgraph up`都从[configuration files](/langsmith/application-structure#configuration-file)读取应用程序的[dependencies](/langsmith/application-structure#dependencies)，但它们运行在不同的环境中：
+
+* **`langgraph dev`** 直接在本地环境（Python 或 Node.js）中运行代码，无需使用 Docker。
 * **`langgraph up`** 构建一个 Docker 容器并在该隔离容器内运行您的代码。
 
 正确配置依赖项可确保这两个命令正常工作，并且本地测试的内容与部署到生产环境的内容相匹配。
 
 ### `langgraph.json` 文件
 
-`dependencies` 字段告诉 [CLI](/langsmith/cli) **在哪里**找到您的应用程序代码。 `dependencies`字段可以指向：
-
-* **包含包配置的目录**（包含`pyproject.toml`、`setup.py`、`requirements.txt`或`package.json`）
+`dependencies` 字段告诉 [CLI](/langsmith/cli) **在哪里**找到您的应用程序代码。 `dependencies`字段可以指向：* **包含包配置的目录**（包含`pyproject.toml`、`setup.py`、`requirements.txt`或`package.json`）
 * **特定子目录**：`"dependencies": ["./my_agent"]`
 * **特定包**：`"dependencies": ["my-package==1.0.0"]` (Python) 或 `"dependencies": ["my-package@1.0.0"]` (JavaScript)
 
@@ -410,12 +410,12 @@ flowchart LR
 
 ### 依赖解析过程
 
-当您运行 [⟦T69⟧](/langsmith/cli#up) 时，CLI 将按照以下步骤安装应用程序的依赖项：1. [⟦T70⟧](/langsmith/application-structure#configuration-file) 告诉 CLI **在哪里**查找您的应用程序代码。 `dependencies: ["."]`字段指向当前目录。
+当您运行 [⟦T69⟧](/langsmith/cli#up) 时，CLI 将按照以下步骤安装应用程序的依赖项：
+
+1. [⟦T70⟧](/langsmith/application-structure#configuration-file) 告诉 CLI **在哪里**寻找您的应用程序代码。 `dependencies: ["."]`字段指向当前目录。
 2. **查找包配置**：CLI 在该目录中查找包配置文件（[⟦T72⟧](/langsmith/setup-pyproject)、[⟦T73⟧](/langsmith/setup-app-requirements-txt) 或 [⟦T74⟧](/langsmith/setup-javascript)）。
 3. **读取依赖项列表**：CLI 从配置文件中读取包列表。
-4. **安装包**：CLI 使用适合您的语言的包管理器安装所有包（对于 Python 为`uv` 或 `pip`，对于 JavaScript 为`npm`）。
-
-这种两个文件的方法分离了关注点：`langgraph.json`处理应用程序结构和位置，而包配置文件处理特定于语言的包依赖性。
+4. **安装包**：CLI 使用适合您的语言的包管理器安装所有包（对于 Python 为`uv` 或 `pip`，对于 JavaScript 为`npm`）。这种两个文件方法分离了关注点：`langgraph.json` 处理应用程序结构和位置，而包配置文件处理特定于语言的包依赖性。
 
 有关安装程序的更多信息，请参阅[CLI configuration file](/langsmith/cli#configuration-file)。
 
@@ -440,7 +440,9 @@ langgraph up --recreate
 
 即使 `langgraph up` 在本地计算机上失败，生产部署也可能成功。发生这种情况是因为生产使用托管基础设施，而 `langgraph up` 在您的计算机上本地运行完整堆栈。
 
-以下是不影响生产的常见本地环境问题。### Docker 配置问题
+以下是不影响生产的常见本地环境问题。
+
+### Docker 配置问题
 
 `langgraph up` 需要本地 Docker：
 
@@ -474,9 +476,7 @@ lsof -i :6379  # Redis
 * Redis容器
 * API服务器容器
 
-**解决方案**：释放资源或使用`langgraph dev`。
-
-### 网络配置
+**解决方案**：释放资源或使用`langgraph dev`。### 网络配置
 
 VPN 连接、防火墙规则或公司代理设置可能会影响本地 Docker 网络。
 
@@ -484,7 +484,7 @@ VPN 连接、防火墙规则或公司代理设置可能会影响本地 Docker �
 
 ## 后续步骤
 
-现在您已经在本地运行了一个 LangGraph 应用程序，您就可以部署它了：
+现在您已经在本地运行了 LangGraph 应用程序，您就可以部署它了：
 
 **为 LangSmith 选择托管选项：**
 
@@ -498,13 +498,15 @@ VPN 连接、防火墙规则或公司代理设置可能会影响本地 Docker �
 * [Deploy to Cloud quickstart](/langsmith/deployment-quickstart)：快速设置指南。
 * [Full Cloud setup guide](/langsmith/deploy-to-cloud)：全面的部署文档。
 
-**探索功能：*** **[Studio](/langsmith/studio)**：使用 Studio UI 可视化、交互和调试您的应用程序。尝试一下[Studio quickstart](/langsmith/quick-start-studio)。
+**探索功能：**
+
+* **[Studio](/langsmith/studio)**：使用 Studio UI 可视化、交互和调试您的应用程序。尝试一下[Studio quickstart](/langsmith/quick-start-studio)。
 * **API 参考**：[LangSmith Deployment API](https://langchain-ai.github.io/langgraph/cloud/reference/api/api_ref/)、[Python SDK](/langsmith/langgraph-python-sdk)、[JS/TS SDK](/langsmith/langgraph-js-ts-sdk)
 
 ## 相关资源
 
 * [CLI Reference](/langsmith/cli)：所有 CLI 命令的详细文档
-* [Application Structure](/langsmith/application-structure)：如何构建 LangGraph 应用程序
+* [Application Structure](/langsmith/application-structure)：如何构建您的LangGraph应用程序
 * [Troubleshooting](/langsmith/troubleshooting-studio)：常见问题及解决方案
 * [Setting up with pyproject.toml](/langsmith/setup-pyproject)：配置Python依赖
 * [Setting up with requirements.txt](/langsmith/setup-app-requirements-txt)：替代依赖配置
@@ -513,7 +515,7 @@ VPN 连接、防火墙规则或公司代理设置可能会影响本地 Docker �
 
 <div className="source-links">
   <Callout icon="terminal-2">
-    通过 MCP 向 Claude、VSCode 等发送[Connect these docs](/use-these-docs) 以获得实时答案。
+    [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
   </Callout>
 
   <Callout icon="edit">

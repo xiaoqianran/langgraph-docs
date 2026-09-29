@@ -4,6 +4,21 @@
 
 # LangGraph v1 迁移指南
 
+<Prompt description="Migrate a codebase to LangGraph v1." icon="arrow-right">
+  将此代码库迁移到 LangGraph v1（需要 v1 上的 `@langchain/langgraph` 和 `@langchain/core`，以及从 `createReactAgent` 迁移时需要 v1 上的 `langchain` 和 Node.js 22+）。
+
+  主要变化：
+
+  1. **升级包**：安装`@langchain/langgraph@latest`和`@langchain/core@latest`。如果您使用`createReactAgent`，还需安装`langchain@latest`。
+  2. **`createReactAgent`→`createAgent`**：将`import { createReactAgent } from "@langchain/langgraph/prebuilts"`替换为`import { createAgent } from "langchain"`。将 `prompt` 重命名为 `systemPrompt`。
+  3. **类型化中断**：通过 `StateGraph` 上的 `interrupts` 配置在图构建时定义中断类型。
+  4. **`toLangGraphEventStream` 已删除**：将 `graph.stream` 与 `encoding` 选项（例如 `"text/event-stream"`）一起使用，而不是 `toLangGraphEventStream` / `toLangGraphEventStreamResponse`。
+  5. **`useStream`**：支持自定义传输。
+  6. **构建输出**：不要从包`dist/`路径导入；使用公共模块导出。
+
+  在代码库中搜索 `createReactAgent`、`toLangGraphEventStream`、`toLangGraphEventStreamResponse` 和 `@langchain/langgraph/prebuilts`，并应用必要的更改。标记任何无法自动迁移的内容。
+</Prompt>
+
 本指南概述了 LangGraph v1 中的更改以及如何从以前的版本迁移。有关新功能的高级概述，请参阅 [release notes](/oss/javascript/releases/langgraph-v1)。
 
 要升级，
@@ -26,12 +41,10 @@
   ```
 </CodeGroup>
 
-## 变更摘要
-
-|面积 |发生了什么变化|
-| -------------------------------- | ---------------------------------------------------------------------- |
-|反应预建 | `createReactAgent` 已弃用；使用浪链`createAgent` |
-|中断 |通过 `interrupts` 配置支持类型化中断 |
+## 变更摘要|面积 |发生了什么变化|
+| -------------------------------- | ---------------------------------------------------------------------------------- |
+|反应预建 | `createReactAgent` 已弃用；使用 LangChain `createAgent` |
+|中断|通过 `interrupts` 配置支持类型化中断 |
 | `toLangGraphEventStream` 已删除 |将 `graph.stream` 与所需的 `encoding` 格式结合使用 |
 | `useStream` |支持自定义传输 |
 
@@ -39,9 +52,9 @@
 
 ## 弃用：`createReactAgent` → `createAgent`
 
-LangGraph v1 弃用了预构建的 `createReactAgent`。使用LangChain的`createAgent`，它运行在LangGraph上并添加了灵活的中间件系统。
+LangGraph v1 弃用了预构建的 `createReactAgent`。使用LangChain的`createAgent`，它运行在LangGraph上，并添加了灵活的中间件系统。
 
-详情请参阅 LangChain v1 文档：
+有关详细信息，请参阅 LangChain v1 文档：
 
 * [Release notes](/oss/javascript/releases/langchain-v1#createagent)
 * [Migration guide](/oss/javascript/migrate/langchain-v1#createagent)
@@ -72,7 +85,9 @@ LangGraph v1 弃用了预构建的 `createReactAgent`。使用LangChain的`creat
 
 ## 类型中断
 
-您现在可以在图形构造时定义中断类型，以严格键入传递到中断和从中断接收的值。<CodeGroup>
+您现在可以在图形构造时定义中断类型，以严格键入传递到中断和从中断接收的值。
+
+<CodeGroup>
   ```typescript v1 (new) theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
   import { StateGraph, interrupt } from "@langchain/langgraph";
   import * as z from "zod";
@@ -135,13 +150,11 @@ LangGraph v1 弃用了预构建的 `createReactAgent`。使用LangChain的`creat
   ```
 </CodeGroup>
 
-***
-
-## 重大变更
+***## 重大变更
 
 ### 删除了 Node 18 支持
 
-所有 LangGraph 包现在都需要 **Node.js 22 或更高版本**。 Node.js 18 于 2025 年 3 月达到[end of life](https://nodejs.org/en/about/releases/)。
+所有 LangGraph 包现在都需要 **Node.js 22 或更高版本**。 Node.js 18 于 2025 年 3 月达到 [end of life](https://nodejs.org/en/about/releases/)。
 
 ### 新构建输出
 
@@ -151,7 +164,7 @@ LangGraph v1 弃用了预构建的 `createReactAgent`。使用LangChain的`creat
 
 <div>
   <Callout icon="terminal-2">
-    通过 MCP 向 Claude、VSCode 等发送[Connect these docs](/use-these-docs) 以获得实时答案。
+    [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
   </Callout>
 
   <Callout icon="edit">

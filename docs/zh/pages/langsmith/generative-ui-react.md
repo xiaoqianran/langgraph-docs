@@ -2,7 +2,7 @@
 
 <!-- langgraph-docs: How to implement generative user interfaces with LangGraph | https://docs.langchain.com/langsmith/generative-ui-react -->
 
-# 如何使用 LangGraph 实现生成用户界面
+# 如何使用 LangGraph 实现生成式用户界面
 
 <Info>
   **先决条件**
@@ -211,13 +211,13 @@ export default function Page() {
 }
 ```
 
-在幕后，`LoadExternalComponent`将从 LangSmith 获取 UI 组件的 JS 和 CSS，并将它们渲染在影子 DOM 中，从而确保与应用程序的其余部分的样式隔离。
+在幕后，`LoadExternalComponent`将从LangSmith获取UI组件的JS和CSS，并将它们渲染在shadow DOM中，从而确保与应用程序的其余部分的样式隔离。
 
 ## 操作指南
 
 ### 在客户端提供自定义组件
 
-如果您已经在客户端应用程序中加载了组件，则可以提供此类组件的映射以直接呈现，而无需从 LangSmith 获取 UI 代码。
+如果您已经在客户端应用程序中加载了组件，则可以提供此类组件的映射以直接渲染，而无需从 LangSmith 获取 UI 代码。
 
 ```tsx theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 const clientComponents = {
@@ -527,11 +527,15 @@ const { thread, submit } = useStream({
   </Tab>
 </Tabs>
 
+## 了解更多
+
+* [JS/TS SDK Reference](https://reference.langchain.com/javascript/langchain-langgraph-sdk/)
+
 ***
 
 <div>
   <Callout icon="terminal-2">
-    通过 MCP 向 Claude、VSCode 等发送[Connect these docs](/use-these-docs) 以获得实时答案。
+    [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
   </Callout>
 
   <Callout icon="edit">

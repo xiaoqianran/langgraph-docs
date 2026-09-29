@@ -144,15 +144,16 @@ const graph = new StateGraph({
     return { foo: state.userInput + " name" };
   })
   .addNode("node2", (state) => {
-    // Read from OverallState, write to PrivateState
+    // Read from OverallState, write to the private bar channel
     return { bar: state.foo + " is" };
   })
   .addNode(
     "node3",
     (state) => {
-      // Read from PrivateState, write to OutputState
+      // Read from the private bar channel, write to OutputState
       return { graphOutput: state.bar + " Lance" };
     },
+    // This input schema declares what node3 reads and registers bar as a graph channel.
     { input: PrivateState },
   )
   .addEdge(START, "node1")
@@ -164,6 +165,10 @@ const graph = new StateGraph({
 await graph.invoke({ userInput: "My" });
 // { graphOutput: 'My name is Lance' }
 ```
+
+<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/2ec2bda1-e202-4d3f-940b-81bdd0e23be1/r">
+  Open a public LangSmith run for this example.
+</Card>
 
 There are two subtle and important points to note here:
 
@@ -234,6 +239,10 @@ There are two subtle and important points to note here:
   // { foo: 'My name', userInput: 'My', graphOutput: 'My name is Lance', bar: 'My name is' }
   ```
 
+  <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/03351e93-f024-493a-afae-ed5827ec7751/r">
+    Open a public LangSmith run for this example.
+  </Card>
+
   To restrict the streamed values to a specific set of channels (e.g. only the output schema), pass `outputKeys`:
 
   ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
@@ -286,6 +295,10 @@ const State = new StateSchema({
 });
 ```
 
+<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/93ae7eff-5da7-48ae-893a-2e85e87ecd2c/r">
+  Open a public LangSmith run for this example.
+</Card>
+
 Suppose the state is `{ tags: ["draft"] }` and a node returns `{ tags: ["review"] }`. LangGraph calls:
 
 ```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
@@ -312,6 +325,10 @@ const State = new StateSchema({
 });
 ```
 
+<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/b3536d55-6b2a-4b92-b956-be768be61b3d/r">
+  Open a public LangSmith run for this example.
+</Card>
+
 In this example, no reducer functions are specified for any key. Let's assume the input to the graph is:
 
 `{ foo: 1, bar: ["hi"] }`. Let's then assume the first `Node` returns `{ foo: 2 }`. This is treated as an update to the state. Notice that the `Node` does not need to return the whole `State` schema - just an update. After applying this update, the `State` would then be `{ foo: 2, bar: ["hi"] }`. If the second node returns `{ bar: ["bye"] }` then the `State` would then be `{ foo: 2, bar: ["bye"] }`
@@ -333,7 +350,80 @@ const State = new StateSchema({
 });
 ```
 
+<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/65abf4d1-0932-4229-9d3f-c21e52d6008c/r">
+  Open a public LangSmith run for this example.
+</Card>
+
 In this example, we've used `ReducedValue` to specify a reducer function for the second key (`bar`). Note that the first key remains unchanged. Let's assume the input to the graph is `{ foo: 1, bar: ["hi"] }`. Let's then assume the first `Node` returns `{ foo: 2 }`. This is treated as an update to the state. Notice that the `Node` does not need to return the whole `State` schema - just an update. After applying this update, the `State` would then be `{ foo: 2, bar: ["hi"] }`. If the second node returns `{ bar: ["bye"] }` then the `State` would then be `{ foo: 2, bar: ["hi", "bye"] }`. Notice here that the `bar` key is updated by concatenating the two arrays together.
+
+#### Resetting a reducer field
+
+A common source of confusion with reducers: with a merging reducer, returning an empty value does **not** clear the field. Because the reducer merges the right argument into the left one, an empty update is merged in and previously accumulated values are kept.
+
+This pattern matters for error buffers or retry counters that must be cleared between retry attempts:
+
+```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import { ReducedValue, StateSchema } from "@langchain/langgraph";
+import { z } from "zod/v4";
+
+const State = new StateSchema({
+  errors: new ReducedValue(
+    z.array(z.string()).default(() => []),
+    { reducer: (state: string[], update: string[]) => state.concat(update) },
+  ),
+});
+
+// node A returns { errors: ["bad sql"] }
+// node B returns { errors: [] }
+// state.errors is still ["bad sql"]; the empty array is merged in, not cleared
+```
+
+<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/c65687b5-c6a9-4dca-9f6b-17ff20669c52/r">
+  Open a public LangSmith run for this example.
+</Card>
+
+To let a node reset (clear) the field, define a custom reducer that replaces the accumulated value instead of merging it:
+
+```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import { ReducedValue, StateSchema } from "@langchain/langgraph";
+import { z } from "zod/v4";
+
+const State = new StateSchema({
+  errors: new ReducedValue(
+    z.array(z.string()).default(() => []),
+    { reducer: (_state: string[], update: string[]) => update }
+  ),
+});
+
+// node can now clear the field with { errors: [] }
+```
+
+<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/f08045e6-6826-46ab-8437-73b120f5f615/r">
+  Open a public LangSmith run for this example.
+</Card>
+
+Alternatively, wrap the update with `Overwrite` to bypass the reducer for a single update, while keeping the field's normal merging behavior for every other update:
+
+```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import { Overwrite, ReducedValue, StateSchema } from "@langchain/langgraph";
+import { z } from "zod/v4";
+
+const State = new StateSchema({
+  errors: new ReducedValue(
+    z.array(z.string()).default(() => []),
+    { reducer: (state: string[], update: string[]) => state.concat(update) },
+  ),
+});
+
+const clearErrors = (_state: typeof State.State) => {
+  return { errors: new Overwrite([]) };
+};
+
+// node can clear the field with { errors: new Overwrite([]) }
+// while a normal node can still append with { errors: ["new error"] }
+```
+
+For more information, see [Bypass reducers with Overwrite](/oss/javascript/langgraph/use-graph-api#bypass-reducers-with-overwrite).
 
 ### Untracked values
 
@@ -478,6 +568,8 @@ type MyState = typeof MyStateSchema.State;
 type MyUpdate = typeof MyStateSchema.Update;
 // { messages?: Messages, count?: number }
 ```
+
+:::
 
 ### Working with messages in graph state
 
@@ -633,6 +725,10 @@ If a [node](#nodes) contains multiple operations, you may find it easier to impl
 
     await graph.invoke({ url: "https://www.example.com" }, config);
     ```
+
+    <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/9a25fd41-1999-46d9-800d-3da14ff1cf7a/r">
+      Open a public LangSmith run for this example.
+    </Card>
   </Tab>
 
   <Tab title="With task">
@@ -679,6 +775,10 @@ If a [node](#nodes) contains multiple operations, you may find it easier to impl
 
     await graph.invoke({ urls: ["https://www.example.com"] }, config);
     ```
+
+    <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/10423c16-9de8-476c-808f-08a150d19d34/r">
+      Open a public LangSmith run for this example.
+    </Card>
   </Tab>
 </Tabs>
 
@@ -1221,7 +1321,7 @@ To trace, debug and evaluate your agents, use [LangSmith](/langsmith/observabili
 
 <div>
   <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) to Claude, VSCode, and more via MCP for real-time answers.
+    [Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
   </Callout>
 
   <Callout icon="edit">

@@ -118,6 +118,10 @@ graph.invoke({"user_input": "My"})
 # {'graph_output': 'My name is Lance'}
 ```
 
+<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/db7e0ca9-0d20-4958-9b72-48bcc6564c0e/r">
+  Open a public LangSmith run for this example.
+</Card>
+
 There are two subtle and important points to note here:
 
 1. We pass `state: InputState` as the input schema to `node_1`. But, we write out to `foo`, a channel in `OverallState`. How can we write out to a state channel that is not included in the input schema? This is because a node *can write to any state channel in the graph state.* The graph state is the union of the state channels defined at initialization, which includes `OverallState` and the filters `InputState` and `OutputState`.
@@ -152,6 +156,10 @@ There are two subtle and important points to note here:
   # {'foo': 'My name', 'user_input': 'My', 'bar': 'My name is'}        # <-- private channel
   # {'foo': 'My name', 'user_input': 'My', 'graph_output': 'My name is Lance', 'bar': 'My name is'}
   ```
+
+  <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/41466c41-ad4c-4ca8-965a-bfae7b03ab67/r">
+    Open a public LangSmith run for this example.
+  </Card>
 
   To restrict the streamed values to a specific set of channels (e.g. only the output schema), pass `output_keys`:
 
@@ -254,6 +262,195 @@ In this example, we've used the `Annotated` type to specify a reducer function (
   In some cases, you may want to bypass a reducer and directly overwrite a state value. LangGraph provides the [`Overwrite`](https://reference.langchain.com/python/langgraph/types/) type for this purpose. [Learn how to use `Overwrite` here](/oss/python/langgraph/use-graph-api#bypass-reducers-with-overwrite).
 </Tip>
 
+#### Resetting a reducer field
+
+A common source of confusion with reducers: with a merging reducer, returning an empty value does **not** clear the field. Because the reducer merges the right argument into the left one, an empty update is merged in and previously accumulated values are kept.
+
+This pattern matters for error buffers or retry counters that must be cleared between retry attempts:
+
+```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+from operator import add
+from typing import Annotated
+
+from typing_extensions import TypedDict
+
+
+class State(TypedDict):
+    errors: Annotated[list[str], add]
+
+
+# node A returns {"errors": ["bad sql"]}
+# node B returns {"errors": []}
+# state["errors"] is still ["bad sql"]; the empty list is merged in, not cleared
+```
+
+To clear the field while keeping a merging reducer, wrap the update with [`Overwrite`](https://reference.langchain.com/python/langgraph/types/):
+
+```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+from operator import add
+from typing import Annotated
+
+from langgraph.types import Overwrite
+from typing_extensions import TypedDict
+
+
+class State(TypedDict):
+    errors: Annotated[list[str], add]
+
+
+def clear_errors(state: State):
+    # Bypass the merging reducer and clear the field
+    return {"errors": Overwrite([])}
+```
+
+For more information, see [Bypass reducers with Overwrite](/oss/python/langgraph/use-graph-api#bypass-reducers-with-overwrite).
+
+### Untracked values
+
+`UntrackedValue` is used for state fields that should exist during graph execution but should **never be checkpointed**. When a graph resumes from a checkpoint, untracked values will be reset to their initial state (or be unavailable).
+
+This is useful for:
+
+* **Database connections** that can't be serialized
+* **Temporary caches** that should be rebuilt on resume
+* **Large objects** you don't want to persist
+* **Runtime-only configuration** that should be passed fresh each time
+
+```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import { StateSchema, UntrackedValue, MessagesValue } from "@langchain/langgraph";
+import { z } from "zod/v4";
+
+const State = new StateSchema({
+  messages: MessagesValue,
+
+  // Untracked: throws if multiple nodes write in same step (guard: true is default)
+  dbConnection: new UntrackedValue<DatabaseConnection>(),
+
+  // Untracked with guard: false allows multiple writes, keeps last value
+  tempCache: new UntrackedValue(
+    z.record(z.string(), z.unknown()),
+    { guard: false }
+  ),
+
+  // Untracked without a schema (for maximum flexibility)
+  runtimeConfig: new UntrackedValue(),
+});
+```
+
+**Behavior:**
+
+* During execution: Values are stored and accessible like normal state
+* On checkpoint: Untracked values are **excluded** from the checkpoint data
+* On resume: Untracked values start fresh (empty or with their default value)
+* With `guard: true` (default): Throws error if multiple nodes write in the same step
+* With `guard: false`: Multiple writes allowed, last value wins
+
+<Warning>
+  Don't use `UntrackedValue` for data you need to persist across interrupts or time travel. Use regular state fields or `ReducedValue` for persistent data.
+</Warning>
+
+### Type utilities
+
+LangGraph provides several type utilities for better TypeScript type safety when defining nodes and conditional edges.
+
+#### `GraphNode`
+
+Use `GraphNode` to type node functions defined outside the graph builder:
+
+```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import { GraphNode, StateSchema, Command } from "@langchain/langgraph";
+import { z } from "zod/v4";
+
+const State = new StateSchema({
+  count: z.number().default(0),
+  result: z.string(),
+});
+
+// Basic node - receives state, returns partial update
+const incrementNode: GraphNode<typeof State> = (state) => {
+  return { count: state.count + 1 };
+};
+
+// Async node
+const fetchNode: GraphNode<typeof State> = async (state, config) => {
+  const response = await fetch(`/api/data/${state.count}`);
+  return { result: await response.text() };
+};
+
+// Node with Command routing - specify valid destinations
+const routerNode: GraphNode<{ InputSchema: typeof State; Nodes: "process" | "done" }> = (state) => {
+  if (state.count >= 10) {
+    return new Command({ goto: "done" });
+  }
+  return new Command({
+    update: { count: state.count + 1 },
+    goto: "process"
+  });
+};
+```
+
+#### `State.Node` shorthand
+
+Each `StateSchema` instance has a `Node` property that provides a shorthand for typing nodes:
+
+```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+const State = new StateSchema({
+  messages: MessagesValue,
+  step: z.string(),
+});
+
+// These are equivalent:
+const myNode1: GraphNode<typeof State> = (state) => ({ step: "done" });
+const myNode2: typeof State.Node = (state) => ({ step: "done" });
+```
+
+#### `ConditionalEdgeRouter`
+
+Use `ConditionalEdgeRouter` for routing functions in conditional edges (no state updates, just routing):
+
+```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import { ConditionalEdgeRouter, END } from "@langchain/langgraph";
+
+const State = new StateSchema({
+  shouldContinue: z.boolean(),
+  step: z.string(),
+});
+
+// Router returns node name(s) or END
+const router: ConditionalEdgeRouter<{ InputSchema: typeof State; Nodes: "process" | "summarize" }> = (state) => {
+  if (!state.shouldContinue) {
+    return END;
+  }
+  return state.step === "initial" ? "process" : "summarize";
+};
+
+// Use in graph
+graph.addConditionalEdges("check", router);
+```
+
+#### `StateSchema.State` and `StateSchema.Update`
+
+Extract the state and update types from a schema for use in custom type definitions:
+
+```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import { StateSchema } from "@langchain/langgraph";
+
+const MyStateSchema = new StateSchema({
+  messages: MessagesValue,
+  count: z.number().default(0),
+});
+
+// Extract the full state type
+type MyState = typeof MyStateSchema.State;
+// { messages: BaseMessage[], count: number }
+
+// Extract the update type (partial, with reducer input types)
+type MyUpdate = typeof MyStateSchema.Update;
+// { messages?: Messages, count?: number }
+```
+
+:::
+
 ### Working with messages in graph state
 
 #### Why use messages?
@@ -272,7 +469,7 @@ However, you might also want to manually update messages in your graph state (e.
 
 In addition to keeping track of message IDs, the [`add_messages`](https://reference.langchain.com/python/langgraph/graph/message/add_messages) function will also try to deserialize messages into LangChain `Message` objects whenever a state update is received on the `messages` channel.
 
-For more information, see [LangChain serialization/deserialization](https://python.langchain.com/docs/how_to/serialization/). This allows sending graph inputs / state updates in the following format:
+For more information, see [LangChain serialization/deserialization](/oss/python/langchain/messages#serialization). This allows sending graph inputs / state updates in the following format:
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 # this is supported
@@ -411,6 +608,10 @@ If a [node](#nodes) contains multiple operations, you may find it easier to impl
 
     graph.invoke({"url": "https://www.example.com"}, config)
     ```
+
+    <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/ecb04879-c086-47c3-9244-405be60f0c26/r">
+      Open a public LangSmith run for this example.
+    </Card>
   </Tab>
 
   <Tab title="With task">
@@ -456,6 +657,10 @@ If a [node](#nodes) contains multiple operations, you may find it easier to impl
 
     graph.invoke({"urls": ["https://www.example.com"]}, config)
     ```
+
+    <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/cc6bd7b8-a3c0-45bb-80e1-a8428c1fcd4d/r">
+      Open a public LangSmith run for this example.
+    </Card>
   </Tab>
 </Tabs>
 
@@ -757,6 +962,10 @@ resumed = graph.stream_events(Command(resume="yes"), config, version="v3")
 final = resumed.output
 ```
 
+<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/55c552d5-6214-4be2-8271-571acd47e3e3/r">
+  Open a public LangSmith run for this example.
+</Card>
+
 Check out the [interrupts conceptual guide](/oss/python/langgraph/interrupts) for full details on interrupt patterns, including multiple interrupts and validation loops.
 
 ### Return from tools
@@ -1000,7 +1209,7 @@ To trace, debug and evaluate your agents, use [LangSmith](/langsmith/observabili
 
 <div>
   <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) to Claude, VSCode, and more via MCP for real-time answers.
+    [Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
   </Callout>
 
   <Callout icon="edit">

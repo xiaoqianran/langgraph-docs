@@ -4,37 +4,41 @@
 
 # 商店
 
-LangGraph 存储提供跨线程长期内存，补充了每线程检查点持久性。
+LangGraph stores provide cross-thread long-term memory, complementing per-thread checkpointer persistence.
 
-存储让代理能够跨线程保存信息，包括用户偏好、积累的知识以及在一次对话之后仍能保存的事实。与 [checkpointers](/oss/javascript/langgraph/checkpointers) 不同的是，[checkpointers](/oss/javascript/langgraph/checkpointers) 保存了一个线程范围内的完整图状态，存储保存了可从任何线程访问的任意键值数据。
+存储让代理可以跨线程保存信息，包括用户偏好、积累的知识以及在一次对话之后仍能保存的事实。 Unlike [checkpointers](/oss/javascript/langgraph/checkpointers), which save the full graph state scoped to one thread, stores hold arbitrary key-value data accessible from any thread.
 
 <img alt="Model of shared state" />
 
 <Info>
   **代理服务器自动处理存储**
-  使用[Agent Server](/langsmith/agent-server)时，您不需要手动实现或配置存储。 API 在幕后为您处理所有存储基础设施。
+  When using the [Agent Server](/langsmith/agent-server), you do not need to implement or configure stores manually. The API handles all storage infrastructure for you behind the scenes.
 </Info>
 
 <Note>
-  [InMemoryStore](https://reference.langchain.com/javascript/langchain-core/stores/InMemoryStore)适合开发和测试。对于生产，请使用持久存储，例如 `PostgresStore`、`MongoDBStore`、`RedisStore` 或 `UpstashStore`。所有实现都扩展[BaseStore](https://reference.langchain.com/javascript/langchain-core/stores/BaseStore)，这是在节点函数签名中使用的类型注释。
+  [InMemoryStore](https://reference.langchain.com/javascript/langchain-core/stores/InMemoryStore) is suitable for development and testing. For production, use a persistent store like `PostgresStore`, `MongoDBStore`, `RedisStore`, or `UpstashStore`. All implementations extend [BaseStore](https://reference.langchain.com/javascript/langchain-core/stores/BaseStore), which is the type annotation to use in node function signatures.
+</Note>
+
+<Note>
+  See [store integrations](/oss/javascript/integrations/long-term-memory/index) for the full list of available providers.
 </Note>
 
 ## 基本用法
 
-以下代码片段在不使用 LangGraph 的情况下单独显示了 [InMemoryStore](https://reference.langchain.com/javascript/langchain-core/stores/InMemoryStore)：
+The following code snippet shows the [InMemoryStore](https://reference.langchain.com/javascript/langchain-core/stores/InMemoryStore) in isolation without using LangGraph:
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { MemoryStore } from "@langchain/langgraph";
 
 const memoryStore = new MemoryStore();
-```
-
-内存由 `tuple` 命名，在以下示例中为 `(<user_id>, "memories")`。命名空间可以是任意长度并代表任何内容，不必是特定于用户的。
+```内存由 `tuple` 命名，在以下示例中为 `(<user_id>, "memories")`。命名空间可以是任意长度并代表任何内容，不必是特定于用户的。
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 const userId = "1";
 const namespaceForMemory = [userId, "memories"];
-```使用`store.put`方法将内存保存到store中的命名空间中。指定上面定义的命名空间，以及内存的键值对：键只是内存的唯一标识符（`memory_id`），值（字典）是内存本身。
+```
+
+使用`store.put`方法将内存保存到store中的命名空间中。指定上面定义的命名空间，以及内存的键值对：键只是内存的唯一标识符（`memory_id`），值（字典）是内存本身。
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 const memoryId = crypto.randomUUID();
@@ -71,9 +75,9 @@ memories[memories.length - 1];
 
 * `createdAt`：创建该内存的时间戳
 
-* `updatedAt`：此内存更新的时间戳
+* `updatedAt`：此内存更新的时间戳## 列出命名空间中的项目
 
-## 列出命名空间中的项目在没有 `query` 和 `filter` 的情况下调用 `store.search` 将返回存储在命名空间前缀下的项目，直到 `limit`。当您不需要语义排名时，可以使用它来枚举命名空间中的所有内容。
+在没有 `query` 和 `filter` 的情况下调用 `store.search` 将返回存储在命名空间前缀下的项目，最多为 `limit`。当您不需要语义排名时，可以使用它来枚举名称空间中的所有内容。
 
 ```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 // Return up to 100 items stored under ["alice", "memories"].
@@ -156,7 +160,7 @@ await store.put(
 );
 ```
 
-## 在 LangGraph 中使用
+## 在LangGraph中使用
 
 `memoryStore` 与检查指针协同工作：如上所述，检查指针将状态保存到线程，而 `memoryStore` 允许您存储任意信息以便*跨*线程访问。使用检查点和 `memoryStore` 编译图表，如下所示。
 
@@ -263,7 +267,7 @@ for await (const update of await graph.stream(
 }
 ```
 
-当您在本地使用 LangSmith 时（例如，在[Studio](/langsmith/studio)）或[hosted](/langsmith/platform-setup)中，默认情况下可以使用基本存储，并且您不需要在图形编译期间指定它。但是，要启用语义搜索，您**确实**需要在 `langgraph.json` 文件中配置索引设置。例如：
+当您在本地使用LangSmith（例如，在[Studio](/langsmith/studio)中）或[hosted](/langsmith/platform-setup)时，默认情况下可以使用基本存储，并且不需要在图形编译期间指定它。但是，要启用语义搜索，您**确实**需要在 `langgraph.json` 文件中配置索引设置。例如：
 
 ```json theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 {
@@ -289,7 +293,7 @@ for await (const update of await graph.stream(
 
 <div>
   <Callout icon="terminal-2">
-    通过 MCP 向 Claude、VSCode 等发送[Connect these docs](/use-these-docs) 以获得实时答案。
+    [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
   </Callout>
 
   <Callout icon="edit">

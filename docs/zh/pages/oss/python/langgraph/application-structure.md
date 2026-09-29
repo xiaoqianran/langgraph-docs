@@ -9,12 +9,12 @@ LangGraph 应用程序由一个或多个图、一个配置文件 (`langgraph.jso
 本指南展示了应用程序的典型结构，并向您展示如何提供使用 [LangSmith Deployment](/langsmith/deployment) 部署应用程序所需的配置。
 
 <Info>
-  LangSmith Deployment 是一个托管平台，用于部署和扩展 LangGraph 代理。它处理基础设施、扩展和操作问题，因此您可以直接从存储库部署有状态、长期运行的代理。在[Deployment documentation](/langsmith/deployment)了解更多信息。
+  LangSmith Deployment 是一个托管托管平台，用于部署和扩展LangGraph 代理。它处理基础架构、扩展和操作问题，因此您可以直接从存储库部署有状态、长期运行的代理。在[Deployment documentation](/langsmith/deployment)了解更多信息。
 </Info>
 
 ## 关键概念
 
-要使用 LangSmith 进行部署，应提供以下信息：
+使用LangSmith进行部署，需要提供以下信息：
 
 1. [LangGraph configuration file](#configuration-file-concepts) (`langgraph.json`)，指定应用程序使用的依赖项、图表和环境变量。
 2. 实现应用程序逻辑的[graphs](#graphs)。
@@ -60,14 +60,12 @@ LangGraph 应用程序由一个或多个图、一个配置文件 (`langgraph.jso
     ```
   </Tab>
 </Tabs><Note>
-  LangGraph 应用程序的目录结构可能会根据所使用的编程语言和包管理器的不同而有所不同。
+  LangGraph 应用程序的目录结构可能会根据所使用的编程语言和包管理器而有所不同。
 </Note>
-
-<a />
 
 ## 配置文件
 
-`langgraph.json` 文件是一个 JSON 文件，指定部署 LangGraph 应用程序所需的依赖项、图形、环境变量和其他设置。
+`langgraph.json` 文件是一个 JSON 文件，指定部署 LangGraph 应用程序所需的依赖项、图表、环境变量和其他设置。
 
 有关 JSON 文件中所有支持的键的详细信息，请参阅 [LangGraph configuration file reference](/langsmith/cli#configuration-file)。
 
@@ -99,11 +97,11 @@ LangGraph 应用程序可能依赖于其他 Python 包。
 
 1. 目录中指定依赖项的文件（例如 `requirements.txt`、`pyproject.toml` 或 `package.json`）。
 
-2. [LangGraph configuration file](#configuration-file-concepts) 中的`dependencies` 键指定运行 LangGraph 应用程序所需的依赖项。
+2. [LangGraph configuration file](#configuration-file-concepts) 中的`dependencies` 键，指定运行LangGraph 应用程序所需的依赖项。
 
-3. 任何其他二进制文件或系统库都可以使用 [LangGraph configuration file](#configuration-file-concepts) 中的 `dockerfile_lines` 键指定。## 图表
+3. 任何其他二进制文件或系统库都可以使用 [LangGraph configuration file](#configuration-file-concepts) 中的`dockerfile_lines` 键指定。
 
-使用 [LangGraph configuration file](#configuration-file-concepts) 中的 `graphs` 键指定哪些图将在已部署的 LangGraph 应用程序中可用。
+## 图表使用 [LangGraph configuration file](#configuration-file-concepts) 中的 `graphs` 键指定哪些图表将在已部署的 LangGraph 应用程序中可用。
 
 您可以在配置文件中指定一个或多个图表。每个图都由名称（应该是唯一的）和路径来标识：(1) 已编译的图或 (2) 定义了生成图的函数。
 
@@ -117,7 +115,7 @@ LangGraph 应用程序可能依赖于其他 Python 包。
 
 <div>
   <Callout icon="terminal-2">
-    通过 MCP 向 Claude、VSCode 等发送[Connect these docs](/use-these-docs) 以获得实时答案。
+    [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
   </Callout>
 
   <Callout icon="edit">

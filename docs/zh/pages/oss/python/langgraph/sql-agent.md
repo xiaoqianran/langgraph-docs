@@ -6,20 +6,20 @@
 
 在本教程中，我们将构建一个自定义代理，它可以使用 LangGraph 回答有关 SQL 数据库的问题。
 
-LangChain提供内置的[agent](/oss/python/langchain/agents)实现，使用[LangGraph](/oss/python/langgraph/overview)原语实现。如果需要更深入的定制，可以直接在 LangGraph 中实现代理。本指南演示了 SQL 代理的示例实现。实用介绍请参见[building a SQL agent using higher-level LangChain abstractions](/oss/python/langchain/sql-agent)。
+LangChain 提供内置 [agent](/oss/python/langchain/agents) 实现，使用 [LangGraph](/oss/python/langgraph/overview) 原语实现。如果需要更深入的定制，可以直接在LangGraph中实现代理。本指南演示了 SQL 代理的示例实现。实用介绍请参见[building a SQL agent using higher-level LangChain abstractions](/oss/python/langchain/sql-agent)。
 
 <Warning>
   构建 SQL 数据库的问答系统需要执行模型生成的 SQL 查询。这样做存在固有的风险。确保数据库连接权限的范围始终尽可能缩小，以满足代理的需求。这将减轻（但不能消除）构建模型驱动系统的风险。
 </Warning>
 
-[prebuilt agent](/oss/python/langchain/sql-agent)让我们快速上手，但我们依靠系统提示来限制其行为 - 例如，我们指示代理始终从“列表表”工具开始，并始终在执行查询之前运行查询检查器工具。我们可以通过定制代理来在 LangGraph 中实施更高程度的控制。在这里，我们实现了一个简单的 ReAct-agent 设置，其中包含用于特定工具调用的专用节点。我们将使用与预构建代理相同的 \[state]。
+[prebuilt agent](/oss/python/langchain/sql-agent)让我们快速上手，但我们依靠系统提示来限制其行为 - 例如，我们指示代理始终从“列表表”工具开始，并始终在执行查询之前运行查询检查器工具。我们可以通过定制代理来对LangGraph实施更高程度的控制。在这里，我们实现了一个简单的 ReAct-agent 设置，其中包含用于特定工具调用的专用节点。我们将使用与预构建代理相同的 \[state]。
 
 ### 概念
 
 我们将涵盖以下概念：
 
 * [Tools](/oss/python/langchain/tools) 用于从 SQL 数据库读取
-* LangGraph[Graph API](/oss/python/langgraph/graph-api)，包括状态、节点、边和条件边。
+* LangGraph [Graph API](/oss/python/langgraph/graph-api)，包括状态、节点、边和条件边。
 * [Human-in-the-loop](/oss/python/langgraph/interrupts)流程
 
 ## 设置
@@ -32,7 +32,7 @@ LangChain提供内置的[agent](/oss/python/langchain/agents)实现，使用[Lan
   ```
 </CodeGroup>
 
-### 朗史密斯
+### LangSmith
 
 设置 [LangSmith](https://smith.langchain.com?utm_source=docs\&utm_medium=cta\&utm_campaign=langsmith-signup\&utm_content=oss-langgraph-sql-agent) 来检查您的连锁店或代理内部发生的情况。然后设置以下环境变量：
 
@@ -178,7 +178,7 @@ export LANGSMITH_API_KEY="..."
 
       os.environ["GOOGLE_API_KEY"] = "..."
 
-      model = init_chat_model("google_genai:gemini-2.5-flash-lite")
+      model = init_chat_model("google_genai:gemini-3.7-flash")
       ```
 
       ```python Model Class theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
@@ -187,7 +187,7 @@ export LANGSMITH_API_KEY="..."
 
       os.environ["GOOGLE_API_KEY"] = "..."
 
-      model = ChatGoogleGenerativeAI(model="gemini-2.5-flash-lite")
+      model = ChatGoogleGenerativeAI(model="gemini-3.7-flash")
       ```
     </CodeGroup>
   </Tab><Tab title="AWS Bedrock">
@@ -306,7 +306,7 @@ export LANGSMITH_API_KEY="..."
   </Tab>
 </Tabs>
 
-以下示例中显示的输出使用 OpenAI。
+以下示例中显示的输出使用OpenAI。
 
 ## 2.配置数据库
 
@@ -332,7 +332,7 @@ else:
         print(f"Failed to download the file. Status code: {response.status_code}")
 ```
 
-我们将使用Python内置的`sqlite3`模块与数据库进行交互：
+我们将使用Python内置的`sqlite3`模块与数据库交互：
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import sqlite3
@@ -596,7 +596,7 @@ def check_query(state: MessagesState):
 
 ## 5. 实现代理
 
-现在，我们可以使用 [Graph API](/oss/python/langgraph/graph-api) 将这些步骤组装到工作流程中。我们在查询生成步骤定义一个[conditional edge](/oss/python/langgraph/graph-api#conditional-edges)，如果生成查询，它将路由到查询检查器，或者如果不存在工具调用，则结束，以便LLM已交付对查询的响应。
+现在，我们可以使用 [Graph API](/oss/python/langgraph/graph-api) 将这些步骤组装到工作流程中。我们在查询生成步骤定义一个[conditional edge](/oss/python/langgraph/graph-api#conditional-edges)，如果生成了查询，它将路由到查询检查器，或者如果不存在工具调用则结束，以便LLM已交付对查询的响应。
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 def should_continue(state: MessagesState) -> Literal[END, "check_query"]:
@@ -738,7 +738,7 @@ The genre with the longest tracks on average is "Sci Fi & Fantasy," with an aver
 
 ## 6. 实施人机交互审核在执行代理的 SQL 查询之前检查是否存在任何意外操作或效率低下，这可能是谨慎的做法。
 
-在这里，我们利用 LangGraph 的 [human-in-the-loop](/oss/python/langgraph/interrupts) 功能在执行 SQL 查询之前暂停运行并等待人工审核。使用 LangGraph 的[persistence layer](/oss/python/langgraph/persistence)，我们可以无限期地暂停运行（或者至少只要持久层还活着）。
+在这里，我们利用 LangGraph 的 [human-in-the-loop](/oss/python/langgraph/interrupts) 功能在执行 SQL 查询之前暂停运行并等待人工审核。使用LangGraph的[persistence layer](/oss/python/langgraph/persistence)，我们可以无限期地暂停运行（或者至少只要持久层还活着）。
 
 让我们将 `sql_db_query` 工具包装在接收人工输入的节点中。我们可以使用 [interrupt](/oss/python/langgraph/interrupts) 函数来实现这一点。下面，我们允许输入以批准工具调用、编辑其参数或提供用户反馈。
 
@@ -891,13 +891,13 @@ The genre with the longest average track length is "Sci Fi & Fantasy" with an av
 
 详情请参阅[human-in-the-loop guide](/oss/python/langgraph/interrupts)。
 
-## 后续步骤查看 [Evaluate a graph](/langsmith/evaluate-graph) 指南，使用 LangSmith 评估 LangGraph 应用程序，包括像这样的 SQL 代理。
+## 后续步骤
 
-***
+查看 [Evaluate a graph](/langsmith/evaluate-graph) 指南，以评估 LangGraph 应用程序，包括使用 LangSmith 的 SQL 代理。***
 
 <div>
   <Callout icon="terminal-2">
-    通过 MCP 向 Claude、VSCode 等发送[Connect these docs](/use-these-docs) 以获得实时答案。
+    [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
   </Callout>
 
   <Callout icon="edit">

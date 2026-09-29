@@ -132,6 +132,10 @@ while (true) {
 }
 ```
 
+<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/2f053efa-abf1-42a0-9c10-df949570681a/r" arrow horizontal>
+  Open a public LangSmith run for this example.
+</Card>
+
 * **`stream.messages`**: Chat-model output as content blocks; iterate `message.text` for token deltas. For nested subgraphs, read message chunks from `stream.subgraphs[*].messages`.
 * **`stream.values`**: Full state snapshots after each step
 * **`stream.interrupted` / `stream.interrupts`**: After each run, check whether the graph paused; read payloads from `stream.interrupts`
@@ -544,6 +548,10 @@ const getAgeNode: typeof State.Node = (state) => {
 //   state.age !== null ? END : "collectAge"
 // );
 ```
+
+<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/04c9112c-edbf-497d-92b8-7263fb485ff5/r" arrow horizontal>
+  Open a public LangSmith run for this example.
+</Card>
 
 Each resume invokes `getAgeNode` exactly once, runs the `interrupt()` call once, and exits. When the answer is invalid, the conditional edge loops back and the next interrupt re-prompts with the updated question.
 
@@ -981,7 +989,7 @@ You can use [LangSmith Studio](/langsmith/studio) to set static interrupts in yo
 
 <div className="source-links">
   <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) to Claude, VSCode, and more via MCP for real-time answers.
+    [Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
   </Callout>
 
   <Callout icon="edit">

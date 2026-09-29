@@ -4,9 +4,9 @@
 
 # 检查点
 
-LangGraph 检查点将图状态保存为每个步骤的检查点，从而实现持久性、人机交互和容错执行。
+LangGraph 检查点将图状态保存为每一步的检查点，从而实现持久性、人机交互和容错执行。
 
-检查指针在每个超级步骤保存图形状态的快照，并组织成**线程**。使用检查点编译图形，以实现人机交互工作流程、时间旅行调试、容错执行和会话内存。
+检查指针在每个超级步骤保存图形状态的快照，并组织成**线程**。使用检查点编译图形，以实现人机循环工作流程、时间旅行调试、容错执行和会话内存。
 
 <img alt="Checkpoints" />
 
@@ -23,18 +23,16 @@ LangGraph 检查点将图状态保存为每个步骤的检查点，从而实现�
 
 以下功能需要检查点：* **人机交互**：检查点通过允许人类检查、中断和批准图形步骤来促进[human-in-the-loop workflows](/oss/python/langgraph/interrupts)。这些工作流程需要检查点，因为人员必须能够在任何时间点查看图形的状态，并且图形必须能够在人员对状态进行任何更新后恢复执行。有关示例，请参阅[Interrupts](/oss/python/langgraph/interrupts)。
 * **内存**：检查点允许交互之间存在["memory"](/oss/python/concepts/memory)。在重复的人际交互（如对话）的情况下，任何后续消息都可以发送到该线程，该线程将保留先前消息的记忆。有关如何使用检查点添加和管理对话内存的信息，请参阅[Add memory](/oss/python/langgraph/add-memory)。
-* **时间旅行**：检查点允许["time travel"](/oss/python/langgraph/use-time-travel)，允许用户重放之前的图形执行以查看和/或调试特定的图形步骤。此外，检查点使得可以在任意检查点分叉图状态以探索替代轨迹。
-* **容错**：检查点提供容错和错误恢复：如果一个或多个节点在给定的超级步骤中失败，您可以从上一个成功的步骤重新启动图形。
-
-<a />* **挂起写入**：当图节点在给定[super-step](#super-steps)执行中失败时，LangGraph 会存储来自在该超级步骤成功完成的任何其他节点的挂起检查点写入。当您从该超级步骤恢复图形执行时，您不会重新运行成功的节点。
+* **时间旅行**：检查点允许["time travel"](/oss/python/langgraph/use-time-travel)，允许用户重播之前的图形执行以查看和/或调试特定的图形步骤。此外，检查点使得可以在任意检查点分叉图状态以探索替代轨迹。
+* **容错**：检查点提供容错和错误恢复：如果一个或多个节点在给定的超级步骤中失败，您可以从上一个成功的步骤重新启动图形。- **挂起写入**：当图形节点在给定的 [super-step](#super-steps) 执行过程中失败时，LangGraph 存储来自在该超级步骤成功完成的任何其他节点的挂起检查点写入。当您从该超级步骤恢复图形执行时，您不会重新运行成功的节点。
 
 ## 核心概念
 
 ### 话题
 
-线程是分配给检查点保存的每个检查点的唯一ID或线程标识符。它包含[runs](/langsmith/runs)序列的累积状态。当运行执行时，助手底层图的[state](/oss/python/langgraph/graph-api#state)将被持久化到线程中。
+线程是分配给检查指针保存的每个检查点的唯一 ID 或线程标识符。它包含[runs](/langsmith/runs)序列的累积状态。当运行执行时，助手底层图的[state](/oss/python/langgraph/graph-api#state)将被持久化到线程中。
 
-当使用检查点调用图形时，您**必须**指定 `thread_id` 作为配置的 `configurable` 部分的一部分：
+使用检查点调用图形时，您**必须**指定 `thread_id` 作为配置的 `configurable` 部分的一部分：
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 {"configurable": {"thread_id": "1"}}
@@ -48,7 +46,7 @@ LangGraph 检查点将图状态保存为每个步骤的检查点，从而实现�
 
 #### 超级步骤
 
-LangGraph 在每个**超级步骤**边界处创建一个检查点。超级步骤是图表的单个“刻度”，其中为该步骤安排的所有节点都执行（可能并行）。对于像 `START -> A -> B -> END` 这样的顺序图，输入、节点 A 和节点 B 都有单独的超级步骤 - 在每个超级步骤之后生成一个检查点。了解超级步边界对于[time travel](/oss/python/langgraph/use-time-travel)很重要，因为您只能从检查点（即超级步边界）恢复执行。除了超步检查点之外，LangGraph 还保留**节点（任务）级别**的写入。当超级步骤中的每个节点完成时，其输出将作为链接到正在进行的检查点的任务条目写入检查点的`checkpoint_writes`表。这些按任务写入可以实现[pending writes](#pending-writes)恢复：如果同一超级步骤中的另一个节点发生故障，成功节点的写入已经是持久的，不需要在恢复时重新运行。一旦超级步骤完成，就会提交完整状态快照。
+LangGraph 在每个**超级步骤**边界创建一个检查点。超级步骤是图表的单个“刻度”，其中为该步骤安排的所有节点都执行（可能并行）。对于像 `START -> A -> B -> END` 这样的顺序图，输入、节点 A 和节点 B 有单独的超级步骤 - 在每个超级步骤之后生成一个检查点。了解超级步边界对于[time travel](/oss/python/langgraph/use-time-travel)很重要，因为您只能从检查点（即超级步边界）恢复执行。除了超步检查点之外，LangGraph还保留**节点（任务）级别**的写入。当超级步骤中的每个节点完成时，其输出将作为链接到正在进行的检查点的任务条目写入检查点的`checkpoint_writes`表。这些按任务写入可以实现[pending writes](#pending-writes)恢复：如果同一超级步骤中的另一个节点发生故障，成功节点的写入已经是持久的，不需要在恢复时重新运行。一旦超级步骤完成，就会提交完整状态快照。
 
 LangGraph 还保留超级步骤中各个节点执行的写入。这些写入存储为任务并用于容错：如果同一超级步骤中的另一个节点发生故障，则在恢复时不需要重新计算成功的节点写入。这些任务写入不是完整的`StateSnapshot`检查点，因此时间旅行从超步边界的完整检查点恢复。
 
@@ -138,14 +136,15 @@ StateSnapshot(
     config={'configurable': {'thread_id': '1', 'checkpoint_ns': '', 'checkpoint_id': '1ef663ba-28fe-6528-8002-5a559208592c'}},
     metadata={'source': 'loop', 'writes': {'node_b': {'foo': 'b', 'bar': ['b']}}, 'step': 2},
     created_at='2024-08-29T19:19:38.821749+00:00',
-    parent_config={'configurable': {'thread_id': '1', 'checkpoint_ns': '', 'checkpoint_id': '1ef663ba-28f9-6ec4-8001-31981c2c39f8'}}, tasks=()
+    parent_config={'configurable': {'thread_id': '1', 'checkpoint_ns': '', 'checkpoint_id': '1ef663ba-28f9-6ec4-8001-31981c2c39f8'}},
+    tasks=()
 )
 ```
 
 #### 状态快照字段
 
-|领域|类型 |描述 |
-| ---------------- | ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|领域 |类型 |描述 |
+| ---------------- | ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `values` | `dict` |该检查点的状态通道值。                                                                                                                   || `next` | `tuple[str, ...]` |接下来要执行的节点名称。空`()`表示图是完整的。                                                                                        |
 | `config` | `dict` |包含 `thread_id`、`checkpoint_ns` 和 `checkpoint_id`。                                                                                                |
 | `metadata` | `dict` |执行元数据。包含`source`（`"input"`、`"loop"`或`"update"`）、`writes`（节点输出）和`step`（超级计步器）。                      |
@@ -244,7 +243,7 @@ interrupted = next(
 
 ## 耐久性模式
 
-LangGraph 支持三种持久性模式，可让您平衡性能和数据一致性。您可以在调用任何图形执行方法时指定持久性模式：
+LangGraph 支持三种持久性模式，让您平衡性能和数据一致性。您可以在调用任何图形执行方法时指定持久性模式：
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 graph.stream(
@@ -253,32 +252,33 @@ graph.stream(
 )
 ```
 
-耐用性模式（从最不耐用到最耐用）如下：* `"exit"`：LangGraph 仅在图形执行成功退出、出现错误或由于人机循环中断时才保留更改。这为长时间运行的图形提供了最佳性能，但意味着不会保存中间状态，因此您无法从执行过程中的系统故障（例如进程崩溃）中恢复。
-* `"async"`：LangGraph 在下一步执行时异步保存更改。这提供了良好的性能和耐用性，但存在一个小风险，即如果进程在执行期间崩溃，LangGraph 不会写入检查点。
-* `"sync"`：LangGraph 在下一步开始之前同步保存更改。这确保了 LangGraph 在继续执行之前写入每个检查点，以一些性能开销为代价提供高持久性。
+耐用性模式（从最不耐用到最耐用）如下：* `"exit"`：LangGraph 仅在图形执行成功退出、出现错误或由于人机循环中断时才保留更改。这为长时间运行的图形提供了最佳性能，但意味着不会保存中间状态，因此您无法从执行中的系统故障（例如进程崩溃）中恢复。
+* `"async"`：LangGraph 在执行下一步时异步保留更改。这提供了良好的性能和耐用性，但存在一个小风险，即如果进程在执行过程中崩溃，LangGraph不会写入检查点。
+* `"sync"`：LangGraph在下一步开始之前同步保存更改。这确保了LangGraph在继续执行之前写入每个检查点，以一些性能开销为代价提供高持久性。
 
 ## 优化检查点存储
 
-默认情况下，LangGraph 检查点在每个超级步骤写入每个状态通道的完整值。对于具有大量累积的长时间运行的线程（例如多轮对话），这可能会随着时间的推移产生显着的存储增长。[⟦T89⟧](https://reference.langchain.com/python/langgraph/channels/delta/DeltaChannel) 仅存储增量增量而不是完整的累加值，从而大大减少了大量追加通道的检查点大小。有关使用情况以及存储与延迟的权衡，请参阅[DeltaChannel](/oss/python/langgraph/pregel#deltachannel)。
+默认情况下，LangGraph检查点在每个超级步骤写入每个状态通道的完整值。对于具有大量累积的长时间运行的线程（例如多轮对话），这可能会随着时间的推移产生显着的存储增长。[⟦T89⟧](https://reference.langchain.com/python/langgraph/channels/delta/DeltaChannel) 仅存储增量增量而不是完整的累加值，从而大大减少了大量追加通道的检查点大小。有关使用情况以及存储与延迟的权衡，请参阅[DeltaChannel](/oss/python/langgraph/pregel#deltachannel)。
 
 <Warning>
-  `DeltaChannel` 需要`langgraph>=1.2`，目前处于测试阶段。 API 可能会在未来版本中发生变化。
+  `DeltaChannel` 需要 `langgraph>=1.2`，目前处于测试阶段。 API 可能会在未来版本中发生变化。
 </Warning>
 
 ## 检查点库
 
-在底层，检查点由符合 [⟦T92⟧](https://reference.langchain.com/python/langgraph/checkpoints/#langgraph.checkpoint.base.BaseCheckpointSaver) 接口的检查点对象提供支持。 LangGraph 提供了几种检查点实现，所有这些都是通过独立的可安装库实现的。
+在底层，检查点由符合 [⟦T92⟧](https://reference.langchain.com/python/langgraph/checkpoints/#langgraph.checkpoint.base.BaseCheckpointSaver) 接口的检查点对象提供支持。 LangGraph 提供了多种检查点实现，全部通过独立的可安装库实现。
 
 <Note>
   请参阅[checkpointer integrations](/oss/python/integrations/checkpointers/index)了解可用的提供商。
-</Note>* `langgraph-checkpoint`：检查点保存器（[⟦T94⟧](https://reference.langchain.com/python/langgraph/checkpoints/#langgraph.checkpoint.base.BaseCheckpointSaver)）和序列化/反序列化接口（[⟦T95⟧](https://reference.langchain.com/python/langgraph/checkpoints/#langgraph.checkpoint.serde.base.SerializerProtocol)）的基本接口。包括用于实验的内存检查指针实现 ([⟦T96⟧](https://reference.langchain.com/python/langgraph/checkpoints/#langgraph.checkpoint.memory.InMemorySaver))。 LangGraph 附带`langgraph-checkpoint`。
-* `langgraph-checkpoint-sqlite`：使用 SQLite 数据库 ([⟦T99⟧](https://reference.langchain.com/python/langgraph/checkpoints/#langgraph.checkpoint.sqlite.SqliteSaver) / [⟦T100⟧](https://reference.langchain.com/python/langgraph/checkpoints/#langgraph.checkpoint.sqlite.aio.AsyncSqliteSaver)) 的 LangGraph 检查点实现。非常适合实验和本地工作流程。需要单独安装。
-* `langgraph-checkpoint-postgres`：使用Postgres数据库（[⟦T102⟧](https://reference.langchain.com/python/langgraph/checkpoints/#langgraph.checkpoint.postgres.PostgresSaver) / [⟦T103⟧](https://reference.langchain.com/python/langgraph/checkpoints/#langgraph.checkpoint.postgres.aio.AsyncPostgresSaver)）的高级检查点，在LangSmith中使用。非常适合在生产中使用。需要单独安装。
-* `langchain-azure-cosmosdb`：使用 Azure Cosmos DB for NoSQL 的 LangGraph 检查点实现 ([⟦T105⟧](https://reference.langchain.com/python/langchain-azure-cosmosdb/) / [⟦T106⟧](https://reference.langchain.com/python/langchain-azure-cosmosdb/))。非常适合在 Azure 生产中使用。支持同步和异步操作，并具有 Microsoft Entra ID 身份验证。需要单独安装。
+</Note>* `langgraph-checkpoint`：检查指针保存器（[⟦T94⟧](https://reference.langchain.com/python/langgraph/checkpoints/#langgraph.checkpoint.base.BaseCheckpointSaver)）和序列化/反序列化接口（[⟦T95⟧](https://reference.langchain.com/python/langgraph/checkpoints/#langgraph.checkpoint.serde.base.SerializerProtocol)）的基本接口。包括用于实验的内存检查指针实现 ([⟦T96⟧](https://reference.langchain.com/python/langgraph/checkpoints/#langgraph.checkpoint.memory.InMemorySaver))。 LangGraph 附带`langgraph-checkpoint`。
+* `langgraph-checkpoint-sqlite`：使用 SQLite 数据库 ([⟦T99⟧](https://reference.langchain.com/python/langgraph/checkpoints/#langgraph.checkpoint.sqlite.SqliteSaver) / [⟦T100⟧](https://reference.langchain.com/python/langgraph/checkpoints/#langgraph.checkpoint.sqlite.aio.AsyncSqliteSaver)) 的LangGraph 检查点实现。非常适合实验和本地工作流程。需要单独安装。
+* `langgraph-checkpoint-postgres`：使用Postgres数据库的高级检查点（[⟦T102⟧](https://reference.langchain.com/python/langgraph/checkpoints/#langgraph.checkpoint.postgres.PostgresSaver) / [⟦T103⟧](https://reference.langchain.com/python/langgraph/checkpoints/#langgraph.checkpoint.postgres.aio.AsyncPostgresSaver)），用于LangSmith。非常适合在生产中使用。需要单独安装。
+* `langgraph-checkpoint-mongodb`：使用 MongoDB 的高级检查点（`MongoDBSaver` / `AsyncMongoDBSaver`）。非常适合在生产中使用。需要单独安装。
+* `langchain-azure-cosmosdb`：LangGraph 检查指针的实现，使用 Azure Cosmos DB for NoSQL ([⟦T108⟧](https://reference.langchain.com/python/langchain-azure-cosmosdb/) / [⟦T109⟧](https://reference.langchain.com/python/langchain-azure-cosmosdb/))。非常适合在 Azure 生产中使用。支持同步和异步操作，并具有 Microsoft Entra ID 身份验证。需要单独安装。
 
 ### 检查点接口
 
-每个检查点都符合[⟦T107⟧](https://reference.langchain.com/python/langgraph/checkpoints/#langgraph.checkpoint.base.BaseCheckpointSaver)接口并实现以下方法：* `.put` - 存储检查点及其配置和元数据。
+每个检查点都符合[⟦T110⟧](https://reference.langchain.com/python/langgraph/checkpoints/#langgraph.checkpoint.base.BaseCheckpointSaver)接口并实现以下方法：* `.put` - 存储检查点及其配置和元数据。
 * `.put_writes` - 存储链接到检查点的中间写入（即[pending writes](#pending-writes)）。
 * `.get_tuple` - 获取用于给定配置的检查点元组（`thread_id` 和 `checkpoint_id`）。这用于填充`graph.get_state()`中的`StateSnapshot`。
 * `.list` - 列出与给定配置和过滤条件匹配的检查点。这用于填充 `graph.get_state_history()` 中的状态历史记录
@@ -286,19 +286,19 @@ graph.stream(
 如果检查指针与异步图执行一起使用（即通过`.ainvoke`、`.astream`、`.abatch`执行图），则将使用上述方法的异步版本（`.aput`、`.aput_writes`、`.aget_tuple`、`.alist`）。
 
 <Note>
-  为了异步运行图形，您可以使用 [⟦T124⟧](https://reference.langchain.com/python/langgraph/checkpoints/#langgraph.checkpoint.memory.InMemorySaver) 或 Sqlite/Postgres 检查点的异步版本 - [⟦T125⟧](https://reference.langchain.com/python/langgraph/checkpoints/#langgraph.checkpoint.sqlite.aio.AsyncSqliteSaver) / [⟦T126⟧](https://reference.langchain.com/python/langgraph/checkpoints/#langgraph.checkpoint.postgres.aio.AsyncPostgresSaver) 检查点。
+  为了异步运行图形，您可以使用 [⟦T127⟧](https://reference.langchain.com/python/langgraph/checkpoints/#langgraph.checkpoint.memory.InMemorySaver) 或 Sqlite/Postgres 检查点的异步版本 - [⟦T128⟧](https://reference.langchain.com/python/langgraph/checkpoints/#langgraph.checkpoint.sqlite.aio.AsyncSqliteSaver) / [⟦T129⟧](https://reference.langchain.com/python/langgraph/checkpoints/#langgraph.checkpoint.postgres.aio.AsyncPostgresSaver) 检查点。
 </Note>
 
 ### 序列化器
 
 当检查指针保存图状态时，它们需要序列化状态中的通道值。这是使用序列化器对象完成的。
 
-`langgraph_checkpoint`定义了[protocol](https://reference.langchain.com/python/langgraph/checkpoints/#langgraph.checkpoint.serde.base.SerializerProtocol)来实现序列化器，提供了处理各种类型的默认实现（[⟦T128⟧](https://reference.langchain.com/python/langgraph/checkpoints/#langgraph.checkpoint.serde.jsonplus.JsonPlusSerializer)），包括LangChain和LangGraph原语、日期时间、枚举等。
+`langgraph_checkpoint` 定义 [protocol](https://reference.langchain.com/python/langgraph/checkpoints/#langgraph.checkpoint.serde.base.SerializerProtocol) 用于实现序列化器，提供了处理各种类型的默认实现 ([⟦T131⟧](https://reference.langchain.com/python/langgraph/checkpoints/#langgraph.checkpoint.serde.jsonplus.JsonPlusSerializer))，包括 LangChain 和 LangGraph 原语、日期时间、枚举等。
 
-#### 使用 `pickle` 进行序列化默认序列化器[⟦T130⟧](https://reference.langchain.com/python/langgraph/checkpoints/#langgraph.checkpoint.serde.jsonplus.JsonPlusSerializer)在底层使用ormsgpack和JSON，这并不适合所有类型的对象。
+#### 使用 `pickle` 进行序列化默认序列化器[⟦T133⟧](https://reference.langchain.com/python/langgraph/checkpoints/#langgraph.checkpoint.serde.jsonplus.JsonPlusSerializer)在底层使用ormsgpack和JSON，这并不适合所有类型的对象。
 
 如果您想对 msgpack 编码器当前不支持的对象（例如 Pandas 数据帧）回退到 pickle，
-您可以使用 [⟦T132⟧](https://reference.langchain.com/python/langgraph/checkpoints/#langgraph.checkpoint.serde.jsonplus.JsonPlusSerializer) 的 `pickle_fallback` 参数：
+您可以使用 [⟦T135⟧](https://reference.langchain.com/python/langgraph/checkpoints/#langgraph.checkpoint.serde.jsonplus.JsonPlusSerializer) 的 `pickle_fallback` 参数：
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from langgraph.checkpoint.memory import InMemorySaver
@@ -312,7 +312,7 @@ graph.compile(
 
 #### 加密
 
-检查点可以选择加密所有持久状态。要启用此功能，请将 [⟦T133⟧](https://reference.langchain.com/python/langgraph/checkpoints/#langgraph.checkpoint.serde.encrypted.EncryptedSerializer) 的实例传递给任何 [⟦T135⟧](https://reference.langchain.com/python/langgraph/checkpoints/#langgraph.checkpoint.base.BaseCheckpointSaver) 实现的 `serde` 参数。创建加密序列化器的最简单方法是通过 [⟦T136⟧](https://reference.langchain.com/python/langgraph/checkpoints/#langgraph.checkpoint.serde.encrypted.EncryptedSerializer.from_pycryptodome_aes)，它从 `LANGGRAPH_AES_KEY` 环境变量中读取 AES 密钥（或接受 `key` 参数）：
+检查点可以选择加密所有持久状态。要启用此功能，请将 [⟦T136⟧](https://reference.langchain.com/python/langgraph/checkpoints/#langgraph.checkpoint.serde.encrypted.EncryptedSerializer) 的实例传递给任何 [⟦T138⟧](https://reference.langchain.com/python/langgraph/checkpoints/#langgraph.checkpoint.base.BaseCheckpointSaver) 实现的 `serde` 参数。创建加密序列化器的最简单方法是通过 [⟦T139⟧](https://reference.langchain.com/python/langgraph/checkpoints/#langgraph.checkpoint.serde.encrypted.EncryptedSerializer.from_pycryptodome_aes)，它从 `LANGGRAPH_AES_KEY` 环境变量中读取 AES 密钥（或接受 `key` 参数）：
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import sqlite3
@@ -333,7 +333,7 @@ checkpointer = PostgresSaver.from_conn_string("postgresql://...", serde=serde)
 checkpointer.setup()
 ```
 
-在 LangSmith 上运行时，只要存在 `LANGGRAPH_AES_KEY` 就会自动启用加密，因此您只需提供环境变量即可。通过实现[⟦T140⟧](https://reference.langchain.com/python/langgraph/checkpoints/#langgraph.checkpoint.serde.base.CipherProtocol)并将其提供给[⟦T141⟧](https://reference.langchain.com/python/langgraph/checkpoints/#langgraph.checkpoint.serde.encrypted.EncryptedSerializer)，可以使用其他加密方案。
+在LangSmith上运行时，只要存在`LANGGRAPH_AES_KEY`，就会自动启用加密，因此您只需提供环境变量即可。通过实现[⟦T143⟧](https://reference.langchain.com/python/langgraph/checkpoints/#langgraph.checkpoint.serde.base.CipherProtocol)并将其提供给[⟦T144⟧](https://reference.langchain.com/python/langgraph/checkpoints/#langgraph.checkpoint.serde.encrypted.EncryptedSerializer)，可以使用其他加密方案。
 
 ## 构建自定义检查点
 
@@ -343,7 +343,7 @@ checkpointer.setup()
 
 ### 概述
 
-LangGraph 的持久层构建在两个存储抽象之上：
+LangGraph的持久层构建在两个存储抽象之上：
 
 * **检查点表** — 每个超级步一行；存储序列化图状态（`channel_values`、`channel_versions`、`versions_seen`）并链接到其父检查点。
 * **写表** — 超级步中每个节点输出一行；存储链接到检查点的 `(task_id, channel, value)` 元组。
@@ -407,8 +407,8 @@ class MyCheckpointer(BaseCheckpointSaver):
 
 存储一行检查点。使用存储的`checkpoint_id`返回更新的配置。
 
-关键要求：* 使用 `self.serde.dumps_typed(checkpoint)` 序列化检查点 — 这可以处理所有 LangGraph 原生类型，包括 delta 通道使用的 `_DeltaSnapshot` blob。
-* 完整存储`metadata` — 不要删除未知的密钥。 LangGraph 在次要版本中添加了新的元数据字段（例如增量通道的`counters_since_delta_snapshot`）；默默地丢弃它们会破坏功能。
+关键要求：* 使用 `self.serde.dumps_typed(checkpoint)` 序列化检查点 — 这可以处理所有 LangGraph 原生类型，包括增量通道使用的 `_DeltaSnapshot` blob。
+* 完整存储`metadata` — 不要删除未知的密钥。 LangGraph 在次要版本中添加了新的元数据字段（例如用于增量通道的`counters_since_delta_snapshot`）；默默地丢弃它们会破坏功能。
 * 将`config["configurable"].get("checkpoint_id")`存储为父检查点ID，以便`get_tuple`可以填充`parent_config`。
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
@@ -574,7 +574,7 @@ CREATE TABLE writes (
 
 **对于非 SQL 存储：**同样的原则适用。无论您使用什么密钥方案，通过 `(thread_id, checkpoint_ns, checkpoint_id)` 直接查找都必须是 O(1) 或接近 O(1)。避免这样的设计：通过 id 查找检查点的唯一方法是扫描线程的所有行。### 序列化
 
-始终使用`self.serde`（继承自`BaseCheckpointSaver`，默认为`JsonPlusSerializer`）进行检查点、写入和元数据。不要直接将 `pickle` 用于元数据 - 它可以工作，但 `JsonPlusSerializer` 会生成人类可读的输出并更好地处理版本控制。
+始终使用 `self.serde` （继承自 `BaseCheckpointSaver`，默认为 `JsonPlusSerializer`）用于检查点、写入和元数据。不要直接将 `pickle` 用于元数据 - 它可以工作，但 `JsonPlusSerializer` 会生成人类可读的输出并更好地处理版本控制。
 
 `JsonPlusSerializer` 自动处理所有 LangGraph 原生类型：
 
@@ -586,7 +586,7 @@ CREATE TABLE writes (
 ### 扩展功能
 
 这些方法是可选的，但可以解锁其他代理服务器功能。如果您的存储后端可以有效地支持它们，请实施它们。|方法|它能实现什么 |
-| ---------------------------- | -------------------------------------------------------------------- |
+| ---------------------------- | -------------------------------------------------------------------------------- |
 | `adelete_for_runs` |回滚多任务策略|
 | `acopy_thread` |高效的线程分叉 |
 | `aprune` |线程历史修剪|
@@ -594,13 +594,13 @@ CREATE TABLE writes (
 
 代理服务器会自动检测您的检查点在启动时实现的功能并激活相应的功能。
 
-### 达美频道支持
+### 达美渠道支持
 
 <Info>
   **DeltaChannel 处于测试阶段。** 当设计稳定时，API 和磁盘上的表示可能会发生变化。
 </Info>
 
-`DeltaChannel` 是一个减速器通道，它仅在检查点 blob 中存储哨兵 (`MISSING`)，而不是完整的通道值。状态是通过减速器重放祖先写入来重建的。对于像 `messages` 这样随时间累积的通道，这使得检查点 blob 每步的复杂度为 O(1)，而不是 O(N)。
+`DeltaChannel` 是一个减速器通道，仅在检查点 blob 中存储哨兵 (`MISSING`)，而不是完整的通道值。状态是通过减速器重放祖先写入来重建的。对于像 `messages` 这样随时间累积的通道，这使得检查点 blob 每步的复杂度为 O(1)，而不是 O(N)。
 
 #### 运行时需要什么当加载`channel_values`中不存在增量通道的检查点时，LangGraph调用`saver.get_delta_channel_history(config=config, channels=[...])`。对于每个通道，这将返回：
 
@@ -641,7 +641,7 @@ def get_delta_channel_history(self, *, config, channels):
     }
 ```
 
-**关键依赖项：** `get_tuple(cursor)` 始终使用特定的 `checkpoint_id` （父级 ID）进行调用。如果该查找返回 `None`，则步行会立即停止，并且每个增量通道都会默默地重建为空，没有错误。这就是为什么`get_tuple`中的特定ID路径必须是正确的。
+**关键依赖项：** `get_tuple(cursor)` 始终使用特定的 `checkpoint_id` （父级 ID）进行调用。如果该查找返回 `None`，则步行会立即停止，并且每个增量通道都会重新构建为空 — 静默地、没有错误。这就是为什么`get_tuple`中的特定ID路径必须是正确的。
 
 #### 性能覆盖
 
@@ -720,12 +720,12 @@ async def aget_delta_channel_history(self, *, config, channels):
     return result
 ```
 
-#### 使用 Delta 通道进行修剪`DeltaChannel` 状态不是独立于单个检查点的——它依赖于返回最近的 `_DeltaSnapshot` 的祖先写链。如果您实现`prune`或`delete_for_runs`，则不得删除幸存检查点的增量通道所依赖的写入行。
+#### 使用 Delta 通道进行修剪`DeltaChannel` 状态不是独立于单个检查点的——它依赖于返回最近的 `_DeltaSnapshot` 的祖先写链。如果您实现`prune`或`delete_for_runs`，则不得删除尚存检查点的增量通道所依赖的写入行。
 
 安全选项：
 
 1. **修剪前遍历** - 对于您打算保留的每个检查点，遍历其祖先链并将所有写入行标记为最近的 `_DeltaSnapshot` 为不可删除。
-2. **在修剪之前强制创建快照** — 在您保留的检查点上重写 `channel_values[ch] = _DeltaSnapshot(reconstructed_value)`，然后自由删除祖先。
+2. **在修剪之前强制创建快照** — 在您保留的检查点上重写`channel_values[ch] = _DeltaSnapshot(reconstructed_value)`，然后自由删除祖先。
 3. **跳过增量通道线程的修剪** - 如果您还不需要修剪，这是最安全的短期选项。
 
 #### 使用增量通道复制线程
@@ -763,7 +763,7 @@ asyncio.run(main())
 
 <div>
   <Callout icon="terminal-2">
-    通过 MCP 向 Claude、VSCode 等发送[Connect these docs](/use-these-docs) 以获得实时答案。
+    [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
   </Callout>
 
   <Callout icon="edit">

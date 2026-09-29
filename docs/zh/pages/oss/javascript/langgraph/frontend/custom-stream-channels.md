@@ -10,7 +10,7 @@ LangGraph 代理传输的不仅仅是消息和工具调用。服务器端
 **流转换器**可以在协议流向时检查或重写协议
 客户端并在命名的**自定义通道**上发布自己的结构化数据。的
 前端使用两个选择器读取该通道：[⟦T17⟧](https://reference.langchain.com/javascript/langchain-react/useExtension)代表最新的
-有效载荷，以及 [⟦T18⟧](https://reference.langchain.com/javascript/langchain-react/useChannel) 作为原始事件逃生舱口。
+有效负载，以及 [⟦T18⟧](https://reference.langchain.com/javascript/langchain-react/useChannel) 作为原始事件逃生舱口。
 
 下面的示例是一个客户支持代理，其变压器编辑了 PII
 （电子邮件、电话号码、SSN、卡号、IP）之前的每个活动
@@ -81,7 +81,7 @@ const agent = createAgent({
 });
 ```
 
-有效负载类型是变压器推送的任何类型。下面的客户端示例
+有效负载类型是变压器推送的任何内容。下面的客户端示例
 读这个形状：
 
 ```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
@@ -295,7 +295,7 @@ const rawEvents = useChannel(
 ## 在`useExtension`和`useChannel`之间选择
 
 两者读取相同的自定义通道，但返回的内容不同：|                  | `useExtension` | `useChannel` |
-| ---------------- | ---------------------------------- | -------------------------------------------------------------------- |
+| ---------------- | ---------------------------------- | -------------------------------------------------------------------------------- |
 | **退货** |最新有效负载（`T \| undefined`）|原始事件的有界缓冲区 (`Event[]`) |
 | **形状** |解开的、输入的有效负载 |原始协议事件；自己拆开`event.params.data` |
 | **订阅者** |频道名称 (`"redaction-stats"`) |完整频道 ID (`["custom:redaction-stats"]`) |
@@ -315,8 +315,8 @@ const rawEvents = useChannel(
   长期运行的工具。
 * **实时指标**：运行期间令牌使用情况、延迟或成本累积。
 * **来源和引文**：检索到的文档被推送到侧面板作为
-  代理人的回答是有根据的。
-* **域事件**：您的后端想要显示的任何结构化更新
+  代理人的回答是有依据的。
+* **领域事件**：您的后端想要显示的任何结构化更新
   而不更改消息记录。
 
 ## 相关
@@ -330,7 +330,7 @@ const rawEvents = useChannel(
 
 <div>
   <Callout icon="terminal-2">
-    通过 MCP 向 Claude、VSCode 等发送[Connect these docs](/use-these-docs) 以获得实时答案。
+    [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
   </Callout>
 
   <Callout icon="edit">

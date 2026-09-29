@@ -82,7 +82,7 @@ Node generate_joke updated: {'joke': 'Why did the ice cream go to school? To get
 ### Stream output format (v2)
 
 <Note>
-  Requires LangGraph >= 1.1. All examples on this page use `version="v2"`.
+  Requires LangGraph 1.1 or later. All examples on this page use `version="v2"`.
 </Note>
 
 Pass `version="v2"` to `stream()` or `astream()` to get a unified output format. Every chunk is a `StreamPart` dict with a consistent shape — regardless of stream mode, number of modes, or subgraph settings:
@@ -150,8 +150,6 @@ Pass one or more of the following stream modes as a list to the [`stream`](https
 | [checkpoints](#checkpoints) | [`CheckpointStreamPart`](https://reference.langchain.com/python/langgraph/types/CheckpointStreamPart) | Checkpoint events (same format as `get_state()`). Requires a checkpointer.                                                           |
 | [tasks](#tasks)             | [`TasksStreamPart`](https://reference.langchain.com/python/langgraph/types/TasksStreamPart)           | Task start/finish events with results and errors. Requires a checkpointer.                                                           |
 | [debug](#debug)             | [`DebugStreamPart`](https://reference.langchain.com/python/langgraph/types/DebugStreamPart)           | All available info — combines `checkpoints` and `tasks` with extra metadata.                                                         |
-
-<a />
 
 ### Graph state
 
@@ -434,6 +432,10 @@ initial_state: State = {"topic": "AI", "answer": "", "notes": ""}
 stream = graph.stream_events(initial_state, version="v3")
 ```
 
+<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/e17f4132-e295-47d7-a61d-eb85ca98fbfa/r">
+  Open a public LangSmith run for this example.
+</Card>
+
 #### Filter by node
 
 To stream tokens only from specific nodes, use `stream_mode="messages"` and filter the outputs by the `langgraph_node` field in the streamed metadata:
@@ -594,7 +596,7 @@ To include outputs from [subgraphs](/oss/python/langgraph/use-subgraphs) in the 
 The outputs will be streamed as tuples `(namespace, data)`, where `namespace` is a tuple with the path to the node where a subgraph is invoked, e.g. `("parent_node:<task_id>", "child_node:<task_id>")`.
 
 <Tabs>
-  <Tab title="v2 (LangGraph >= 1.1)">
+  <Tab title="v2 (LangGraph 1.1 or later)">
     With `version="v2"`, subgraph events use the same `StreamPart` format. The `ns` field identifies the source:
 
     ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
@@ -768,8 +770,6 @@ for chunk in graph.stream(
     if chunk["type"] == "tasks":
         print(chunk["data"])
 ```
-
-<a />
 
 ### Debug
 
@@ -1082,8 +1082,6 @@ for chunk in graph.stream(
     print(type(chunk["data"]))  # <class 'MyState'>
 ```
 
-<a />
-
 ### Async with Python \< 3.11
 
 In Python versions \< 3.11, [asyncio tasks](https://docs.python.org/3/library/asyncio-task.html#asyncio.create_task) do not support the `context` parameter.
@@ -1172,7 +1170,7 @@ This limits LangGraph ability to automatically propagate context, and affects La
 
 <div>
   <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) to Claude, VSCode, and more via MCP for real-time answers.
+    [Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
   </Callout>
 
   <Callout icon="edit">

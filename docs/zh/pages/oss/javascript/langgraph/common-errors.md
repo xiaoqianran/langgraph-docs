@@ -9,7 +9,7 @@
 当下面引用的错误在代码中抛出时，将具有与以下代码之一相对应的 `lc_error_code` 属性。
 
 |错误代码 |
-| ----------------------------------------------------------------------------------------------------------- |
+| - |
 | [GRAPH\_RECURSION\_LIMIT](/oss/javascript/langgraph/errors/GRAPH_RECURSION_LIMIT) |
 | [INVALID\_CHAT\_HISTORY](/oss/javascript/langgraph/errors/INVALID_CHAT_HISTORY) |
 | [INVALID\_CONCURRENT\_GRAPH\_UPDATE](/oss/javascript/langgraph/errors/INVALID_CONCURRENT_GRAPH_UPDATE) |
@@ -28,7 +28,7 @@
 
 <div className="source-links">
   <Callout icon="terminal-2">
-    通过 MCP 向 Claude、VSCode 等发送[Connect these docs](/use-these-docs) 以获得实时答案。
+    [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
   </Callout>
 
   <Callout icon="edit">

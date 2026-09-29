@@ -169,7 +169,7 @@ The first node is the agent decision point. Given the conversation so far, the m
 
       const State = MessagesAnnotation;
       const model = new ChatOpenAI({
-        model: "google-genai:gemini-3.6-flash",
+        model: "google:gemini-3.6-flash",
         temperature: 0,
       }).bindTools(tools);
 
@@ -205,7 +205,7 @@ The first node is the agent decision point. Given the conversation so far, the m
 
       const State = MessagesAnnotation;
       const model = new ChatOpenAI({
-        model: "anthropic:claude-sonnet-4-6",
+        model: "anthropic:claude-sonnet-5",
         temperature: 0,
       }).bindTools(tools);
 
@@ -223,7 +223,7 @@ The first node is the agent decision point. Given the conversation so far, the m
 
       const State = MessagesAnnotation;
       const model = new ChatOpenAI({
-        model: "openrouter:openrouter:z-ai/glm-5.2",
+        model: "openrouter:z-ai/glm-5.2",
         temperature: 0,
       }).bindTools(tools);
 
@@ -371,7 +371,7 @@ A normal edge always sends the graph to the same next node. A [conditional edge]
       });
 
       const gradeModel = new ChatOpenAI({
-        model: "google-genai:gemini-3.6-flash",
+        model: "google:gemini-3.6-flash",
         temperature: 0,
       }).withStructuredOutput(gradeDocumentsSchema);
       const gradeFallbackModel = new ChatOpenAI({
@@ -489,7 +489,7 @@ A normal edge always sends the graph to the same next node. A [conditional edge]
       });
 
       const gradeModel = new ChatOpenAI({
-        model: "anthropic:claude-sonnet-4-6",
+        model: "anthropic:claude-sonnet-5",
         temperature: 0,
       }).withStructuredOutput(gradeDocumentsSchema);
       const gradeFallbackModel = new ChatOpenAI({
@@ -548,7 +548,7 @@ A normal edge always sends the graph to the same next node. A [conditional edge]
       });
 
       const gradeModel = new ChatOpenAI({
-        model: "openrouter:openrouter:z-ai/glm-5.2",
+        model: "openrouter:z-ai/glm-5.2",
         temperature: 0,
       }).withStructuredOutput(gradeDocumentsSchema);
       const gradeFallbackModel = new ChatOpenAI({
@@ -1040,7 +1040,7 @@ async function runAgenticRag() {
 
 <div>
   <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) to Claude, VSCode, and more via MCP for real-time answers.
+    [Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
   </Callout>
 
   <Callout icon="edit">

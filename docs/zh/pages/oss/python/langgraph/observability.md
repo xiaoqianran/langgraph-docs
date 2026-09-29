@@ -2,7 +2,7 @@
 
 <!-- langgraph-docs: LangSmith Observability | https://docs.langchain.com/oss/python/langgraph/observability -->
 
-# 朗史密斯可观测性
+# LangSmith 可观测性
 
 跟踪是应用程序从输入到输出所采取的一系列步骤。每个单独的步骤都由一次运行表示。您可以使用[LangSmith](https://smith.langchain.com?utm_source=docs\&utm_medium=cta\&utm_campaign=langsmith-signup\&utm_content=oss-langgraph-observability)来可视化这些执行步骤。要使用它，[enable tracing for your application](/langsmith/trace-with-langgraph)。这使您能够执行以下操作：
 
@@ -14,8 +14,8 @@
 
 在开始之前，请确保您具备以下条件：
 
-* **LangSmith 帐户**：注册（免费）或通过 [smith.langchain.com](https://smith.langchain.com?utm_source=docs\&utm_medium=cta\&utm_campaign=langsmith-signup\&utm_content=oss-langgraph-observability) 登录。
-* **LangSmith API 密钥**：遵循 [Create an API key](/langsmith/create-account-api-key) 指南​​。
+* **LangSmith帐户**：注册（免费）或登录[smith.langchain.com](https://smith.langchain.com?utm_source=docs\&utm_medium=cta\&utm_campaign=langsmith-signup\&utm_content=oss-langgraph-observability)。
+* **A LangSmith API 密钥**：遵循 [Create an API key](/langsmith/create-account-api-key) 指南​​。
 
 ## 启用跟踪
 
@@ -105,7 +105,7 @@ with ls.tracing_context(
 
 ## 使用匿名器来防止在跟踪中记录敏感数据
 
-您可能想要屏蔽敏感数据以防止其被记录到 LangSmith。您可以创建 [anonymizers](/langsmith/mask-inputs-outputs#rule-based-masking-of-inputs-and-outputs) 并将其应用到
+您可能想要屏蔽敏感数据以防止其被记录到LangSmith。您可以创建 [anonymizers](/langsmith/mask-inputs-outputs#rule-based-masking-of-inputs-and-outputs) 并将其应用到
 您的图表使用配置。此示例将从发送到 LangSmith 的跟踪中编辑与社会保障号格式 XXX-XX-XXXX 匹配的任何内容。
 
 ```python Python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
@@ -134,7 +134,7 @@ graph = (
 
 <div>
   <Callout icon="terminal-2">
-    通过 MCP 向 Claude、VSCode 等发送[Connect these docs](/use-these-docs) 以获得实时答案。
+    [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
   </Callout>
 
   <Callout icon="edit">

@@ -4,7 +4,7 @@
 
 # LangGraph 运行时
 
-[⟦T24⟧](https://reference.langchain.com/python/langgraph/pregel/main/Pregel) 实现 LangGraph 的运行时，管理 LangGraph 应用程序的执行。
+[⟦T24⟧](https://reference.langchain.com/python/langgraph/pregel/main/Pregel) 实现LangGraph 的运行时，管理LangGraph 应用程序的执行。
 
 编译 [StateGraph](https://reference.langchain.com/python/langgraph/graph/state/StateGraph) 或创建 [⟦T25⟧](https://reference.langchain.com/python/langgraph/func/entrypoint) 会生成可通过输入调用的 [⟦T26⟧](https://reference.langchain.com/python/langgraph/pregel/main/Pregel) 实例。
 
@@ -24,7 +24,7 @@
 
 ## 演员
 
-**演员**是一个`PregelNode`。它订阅通道、从中读取数据并向其中写入数据。它可以被认为是 Pregel 算法中的**演员**。 `PregelNodes` 实现LangChain的Runnable接口。
+**演员**是一个`PregelNode`。它订阅通道、从中读取数据并向其中写入数据。它可以被认为是 Pregel 算法中的**演员**。 `PregelNodes` 实现LangChain 的 Runnable 接口。
 
 ## 频道通道用于在参与者（PregelNode）之间进行通信。每个通道都有一个值类型、一个更新类型和一个更新函数，该函数采用一系列更新并修改存储的值。通道可用于将数据从一个链发送到另一个链，或者在未来的步骤中将数据从一个链发送到自身。
 
@@ -92,21 +92,21 @@ class State(TypedDict):
 
 #### 散装减速机要求
 
-传递给 `DeltaChannel` 的 `reducer` 是一个 **批量减速器**：它在单个调用中接收当前状态和当前步骤中所有写入的 *序列* - 不像标准减速器那样成对。这与 `StateGraph` 中与 `Annotated` 一起使用的每键减速器不同，其中每次更新都会调用一次减速器。
+传递给 `DeltaChannel` 的 `reducer` 是一个 **批量减速器**：它在单个调用中接收当前状态和当前步骤中所有写入的*序列* - 不像标准减速器那样成对。这与 `StateGraph` 中与 `Annotated` 一起使用的每键减速器不同，其中每次更新都会调用一次减速器。
 
 <Warning>
   批量缩减器**必须是关联的**（批处理不变）：
 
   ```
   reducer(reducer(state, [xs]), [ys]) == reducer(state, [xs, ys])
-  ```如果您的减速器不是关联的，则重建的状态可能会有所不同，具体取决于 LangGraph 跨步骤批量写入的方式，从而产生不一致的行为。
+  ```如果您的减速器不是关联的，则重建状态可能会有所不同，具体取决于 LangGraph 跨步骤批量写入的方式，从而产生不一致的行为。
 </Warning>
 
 <Warning>
   **减速器在重建时运行，而不是在写入时运行。** 与 [⟦T45⟧](https://reference.langchain.com/python/langgraph/channels/binop/BinaryOperatorAggregate) 不同，[⟦T45⟧](https://reference.langchain.com/python/langgraph/channels/binop/BinaryOperatorAggregate) 的减速器在写入时调用，因此组合值被序列化到检查点中，而 `DeltaChannel` 减速器在通道值从其持久写入“重建”时被调用。原始的每步写入是序列化的；仅当值具体化时（在下一次读取时、在下一步的参与者上或在重播历史记录时）才会调用减速器。
 
-  设计减速器时的实际后果：* **使其成为`(state, writes)`的纯函数。** 任何副作用、随机性或挂钟读取（例如，`uuid.uuid4()`、`datetime.now()`）都会在每次重建值时执行，并在每次重播时产生不同的结果。它们“没有”被烘焙到持久写入中。
-  * **不要依赖对传入写入的突变进行持久化。** 如果您的reducer对写入对象进行了突变（例如，为没有稳定ID的项目分配一个稳定的ID），则该突变仅存在于重建值中。存储的写入仍然具有原始形状，因此下一次重建将再次看到未突变的输入。
+  设计减速器时的实际后果：* **使其成为 `(state, writes)` 的纯函数。** 任何副作用、随机性或挂钟读取（例如，`uuid.uuid4()`、`datetime.now()`）都会在每次重建值时执行，并在每次重放时产生不同的结果。它们“没有”被烘焙到持久写入中。
+  * **不要依赖对传入写入的突变进行持久化。** 如果您的reducer对写入对象进行了突变（例如，为没有稳定ID的项目分配一个稳定的ID），则该突变仅存在于重建值中。存储的写入仍然具有原始形状，因此下一次重建将再次看到未变异的输入。
   * **在上游附加身份和其他稳定的元数据。** 如果下游代码需要通过 ID 跨轮引用某个项目（例如，稍后更新或删除它），请在将值写入通道之前分配该 ID，而不是在减速器内部。
 </Warning>
 
@@ -146,19 +146,21 @@ class State(TypedDict):
     ]
 ```
 
-较高的 `snapshot_frequency` 值可减少存储开销，但会增加读取延迟。较低的值会更紧密地限制延迟，但代价是检查点更大。 `None`（默认）完全跳过快照——适用于读取很少或线程较短的情况。
+较高的 `snapshot_frequency` 值可减少存储开销，但会增加读取延迟。较低的值会更紧密地限制延迟，但代价是检查点较大。 `None`（默认）完全跳过快照——适用于读取很少或线程较短的情况。
 
 #### 版本兼容性和回滚
 
 <Warning>
-  **不支持回滚到不支持 `DeltaChannel` 的版本。** `langgraph>=1.2` 以早期版本无法读取的新格式写入增量通道检查点。一旦线程使用了`DeltaChannel`，降级 LangGraph 会使这些检查点变得不可读，因为旧的运行时不理解增量格式并且无法重建通道状态。如果需要回滚，请在降级之前使用[delta-channel-dump recovery script](https://github.com/langchain-ai/langgraph/tree/main/examples/delta-channel-dump)迁移受影响的线程，或丢弃它们。
+  不建议将持久通道从 `DeltaChannel` 更改为非增量通道。检查点以不同的方式对这些通道类型进行编码，因此更改现有线程的类型可能会导致状态重建不完整或不正确。在线程的生命周期内保持通道定义稳定。在更改通道类型之前，请将受影响的线程迁移到新的表示形式，或者丢弃它们并启动新线程。**不支持回滚到不支持 `DeltaChannel` 的版本。** `langgraph>=1.2` 以早期版本无法读取的新格式写入增量通道检查点。一旦线程使用了`DeltaChannel`，降级LangGraph就会使这些检查点变得不可读，因为旧的运行时不理解增量格式并且无法重建通道状态。如果需要回滚，请在降级之前使用[delta-channel-dump recovery script](https://github.com/langchain-ai/langgraph/tree/main/examples/delta-channel-dump)迁移受影响的线程，或丢弃它们。
 </Warning>
 
 ## 示例
 
-虽然大多数用户将通过 [StateGraph](https://reference.langchain.com/python/langgraph/graph/state/StateGraph) API 或 [⟦T57⟧](https://reference.langchain.com/python/langgraph/func/entrypoint) 装饰器与 Pregel 交互，但也可以直接与 Pregel 交互。
+虽然大多数用户将通过 [StateGraph](https://reference.langchain.com/python/langgraph/graph/state/StateGraph) API 或 [⟦T58⟧](https://reference.langchain.com/python/langgraph/func/entrypoint) 装饰器与 Pregel 交互，但也可以直接与 Pregel 交互。
 
-下面是几个不同的示例，可帮助您了解 Pregel API。<Tabs>
+下面是几个不同的示例，可帮助您了解 Pregel API。
+
+<Tabs>
   <Tab title="Single node">
     ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
     from langgraph.channels import EphemeralValue
@@ -262,7 +264,7 @@ class State(TypedDict):
   </Tab>
 
   <Tab title="BinaryOperatorAggregate">
-    这个例子演示了如何使用[⟦T58⟧](https://reference.langchain.com/python/langgraph/channels/binop/BinaryOperatorAggregate)通道来实现reducer。
+    这个例子演示了如何使用[⟦T59⟧](https://reference.langchain.com/python/langgraph/channels/binop/BinaryOperatorAggregate)通道来实现reducer。
 
     ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
     from langgraph.channels import EphemeralValue, BinaryOperatorAggregate
@@ -339,9 +341,7 @@ class State(TypedDict):
   </Tab>
 </Tabs>
 
-## 高级 API
-
-LangGraph 提供了两个用于创建 Pregel 应用程序的高级 API：[StateGraph (Graph API)](/oss/python/langgraph/graph-api) 和 [Functional API](/oss/python/langgraph/functional-api)。
+## 高级 APILangGraph 提供了两个用于创建 Pregel 应用程序的高级 API：[StateGraph (Graph API)](/oss/python/langgraph/graph-api) 和 [Functional API](/oss/python/langgraph/functional-api)。
 
 <Tabs>
   <Tab title="StateGraph (Graph API)">
@@ -414,8 +414,10 @@ LangGraph 提供了两个用于创建 Pregel 应用程序的高级 API：[StateG
      'branch:score_essay:__self__:score_essay': <langgraph.channels.ephemeral_value.EphemeralValue at 0x7d05e2d8b400>,
      'start:write_essay': <langgraph.channels.ephemeral_value.EphemeralValue at 0x7d05e2d8b280>}
     ```
-  </Tab><Tab title="Functional API">
-    在[Functional API](/oss/python/langgraph/functional-api)中，您可以使用[⟦T60⟧](https://reference.langchain.com/python/langgraph/func/entrypoint)来创建Pregel应用程序。 `entrypoint` 装饰器允许您定义一个接受输入并返回输出的函数。
+  </Tab>
+
+  <Tab title="Functional API">
+    在[Functional API](/oss/python/langgraph/functional-api)中，您可以使用[⟦T61⟧](https://reference.langchain.com/python/langgraph/func/entrypoint)来创建Pregel应用程序。 `entrypoint` 装饰器允许您定义一个接受输入并返回输出的函数。
 
     ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
     from typing import TypedDict
@@ -456,7 +458,7 @@ LangGraph 提供了两个用于创建 Pregel 应用程序的高级 API：[StateG
 
 <div>
   <Callout icon="terminal-2">
-    通过 MCP 向 Claude、VSCode 等发送[Connect these docs](/use-these-docs) 以获得实时答案。
+    [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
   </Callout>
 
   <Callout icon="edit">

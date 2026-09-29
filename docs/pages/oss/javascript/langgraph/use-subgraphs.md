@@ -30,8 +30,6 @@ When adding subgraphs, you need to define how the parent graph and the subgraph 
 | [Call a subgraph inside a node](#call-a-subgraph-inside-a-node) | Parent and subgraph have **different state schemas** (no shared keys), or you need to transform state between them | You write a wrapper function that maps parent state to subgraph input and subgraph output back to parent state |
 | [Add a subgraph as a node](#add-a-subgraph-as-a-node)           | Parent and subgraph **share state keys**—the subgraph reads from and writes to the same channels as the parent     | You pass the compiled subgraph directly to `add_node`—no wrapper function needed                               |
 
-<a />
-
 ### Call a subgraph inside a node
 
 When the parent graph and subgraph have **different state schemas** (no shared keys), invoke the subgraph inside a node function. This is common when you want to keep a private message history for each agent in a [multi-agent](/oss/javascript/langchain/multi-agent) system.
@@ -225,8 +223,6 @@ const graph = builder.compile();
   [[], { parent2: { myKey: 'hi Bob, how are you today? bye!' } }]
   ```
 </Accordion>
-
-<a />
 
 ### Add a subgraph as a node
 
@@ -879,7 +875,7 @@ for await (const snapshot of stream.values) {
 
 <div>
   <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) to Claude, VSCode, and more via MCP for real-time answers.
+    [Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
   </Callout>
 
   <Callout icon="edit">

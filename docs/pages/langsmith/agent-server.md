@@ -158,7 +158,7 @@ Each worker executes up to [`N_JOBS_PER_WORKER`](/langsmith/env-var-self-hosted)
 
 <div className="source-links">
   <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) to Claude, VSCode, and more via MCP for real-time answers.
+    [Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
   </Callout>
 
   <Callout icon="edit">

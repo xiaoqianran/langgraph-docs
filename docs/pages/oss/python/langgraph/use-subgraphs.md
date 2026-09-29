@@ -36,8 +36,6 @@ When adding subgraphs, you need to define how the parent graph and the subgraph 
 | [Call a subgraph inside a node](#call-a-subgraph-inside-a-node) | Parent and subgraph have **different state schemas** (no shared keys), or you need to transform state between them | You write a wrapper function that maps parent state to subgraph input and subgraph output back to parent state |
 | [Add a subgraph as a node](#add-a-subgraph-as-a-node)           | Parent and subgraph **share state keys**—the subgraph reads from and writes to the same channels as the parent     | You pass the compiled subgraph directly to `add_node`—no wrapper function needed                               |
 
-<a />
-
 ### Call a subgraph inside a node
 
 When the parent graph and subgraph have **different state schemas** (no shared keys), invoke the subgraph inside a node function. This is common when you want to keep a private message history for each agent in a [multi-agent](/oss/python/langchain/multi-agent) system.
@@ -82,6 +80,7 @@ graph = builder.compile()
   ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
   from typing_extensions import TypedDict
   from langgraph.graph.state import StateGraph, START
+  from langgraph.stream import UpdatesTransformer
 
   # Define subgraph
   class SubgraphState(TypedDict):
@@ -123,7 +122,7 @@ graph = builder.compile()
   builder.add_edge("node_1", "node_2")
   graph = builder.compile()
 
-  stream = graph.stream_events({"foo": "foo"}, version="v3")
+  stream = graph.stream_events({"foo": "foo"}, version="v3", transformers=[UpdatesTransformer])
   for event in stream:
       if event["method"] == "updates":
           print(event["params"]["namespace"], event["params"]["data"])
@@ -144,6 +143,7 @@ graph = builder.compile()
   # Grandchild graph
   from typing_extensions import TypedDict
   from langgraph.graph.state import StateGraph, START, END
+  from langgraph.stream import UpdatesTransformer
 
   class GrandChildState(TypedDict):
       my_grandchild_key: str
@@ -207,7 +207,7 @@ graph = builder.compile()
 
   parent_graph = parent.compile()
 
-  stream = parent_graph.stream_events({"my_key": "Bob"}, version="v3")
+  stream = parent_graph.stream_events({"my_key": "Bob"}, version="v3", transformers=[UpdatesTransformer])
   for event in stream:
       if event["method"] == "updates":
           print(event["params"]["namespace"], event["params"]["data"])
@@ -221,8 +221,6 @@ graph = builder.compile()
   [] {'parent_2': {'my_key': 'hi Bob, how are you today? bye!'}}
   ```
 </Accordion>
-
-<a />
 
 ### Add a subgraph as a node
 
@@ -264,6 +262,7 @@ graph = builder.compile()
   ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
   from typing_extensions import TypedDict
   from langgraph.graph.state import StateGraph, START
+  from langgraph.stream import UpdatesTransformer
 
   # Define subgraph
   class SubgraphState(TypedDict):
@@ -299,7 +298,7 @@ graph = builder.compile()
   builder.add_edge("node_1", "node_2")
   graph = builder.compile()
 
-  stream = graph.stream_events({"foo": "foo"}, version="v3")
+  stream = graph.stream_events({"foo": "foo"}, version="v3", transformers=[UpdatesTransformer])
   for event in stream:
       if event["method"] == "updates" and not event["params"]["namespace"]:
           print(event["params"]["data"])
@@ -437,6 +436,10 @@ agent = create_agent(
     resumed = agent.stream_events(Command(resume=True), config=config, version="v3")
     final = resumed.output
     ```
+
+    <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/b9877a82-7701-4a9b-9430-bf5cb8740be0/r">
+      Open a public LangSmith run for this example.
+    </Card>
   </Tab>
 
   <Tab title="Multi-turn">
@@ -565,6 +568,10 @@ agent = create_agent(
     resumed = agent.stream_events(Command(resume=True), config=config, version="v3")
     final = resumed.output
     ```
+
+    <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/b9877a82-7701-4a9b-9430-bf5cb8740be0/r">
+      Open a public LangSmith run for this example.
+    </Card>
   </Tab>
 
   <Tab title="Multi-turn">
@@ -774,7 +781,9 @@ for subgraph in stream.subgraphs:
 If you need the raw protocol events, iterate the stream directly and filter on `event["method"]` and `event["params"]["namespace"]`:
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-stream = graph.stream_events({"foo": "foo"}, version="v3")
+from langgraph.stream import UpdatesTransformer
+
+stream = graph.stream_events({"foo": "foo"}, version="v3", transformers=[UpdatesTransformer])
 for event in stream:
     if event["method"] == "updates":
         print(event["params"]["namespace"], event["params"]["data"])
@@ -784,6 +793,7 @@ for event in stream:
   ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
   from typing_extensions import TypedDict
   from langgraph.graph.state import StateGraph, START
+  from langgraph.stream import UpdatesTransformer
 
   # Define subgraph
   class SubgraphState(TypedDict):
@@ -819,7 +829,7 @@ for event in stream:
   builder.add_edge("node_1", "node_2")
   graph = builder.compile()
 
-  stream = graph.stream_events({"foo": "foo"}, version="v3")  # [!code highlight]
+  stream = graph.stream_events({"foo": "foo"}, version="v3", transformers=[UpdatesTransformer])  # [!code highlight]
   for event in stream:
       if event["method"] == "updates":
           print(event["params"]["namespace"], event["params"]["data"])
@@ -837,7 +847,7 @@ for event in stream:
 
 <div>
   <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) to Claude, VSCode, and more via MCP for real-time answers.
+    [Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
   </Callout>
 
   <Callout icon="edit">

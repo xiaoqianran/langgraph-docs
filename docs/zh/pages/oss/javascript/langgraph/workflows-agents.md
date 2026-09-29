@@ -11,10 +11,10 @@
 
 <img alt="Agent Workflow" />
 
-LangGraph 在构建代理和工作流时提供了多项优势，包括 [persistence](/oss/javascript/langgraph/persistence)、[streaming](/oss/javascript/langgraph/streaming)、调试支持以及[deployment](/oss/javascript/langgraph/deploy)。
+LangGraph 在构建代理和工作流时提供了多项优势，包括 [persistence](/oss/javascript/langgraph/persistence)、[streaming](/oss/javascript/langgraph/streaming)、调试支持以及 [deployment](/oss/javascript/langgraph/deploy)。
 
 <Tip>
-  跟踪并比较这些工作流程模式与[LangSmith](https://smith.langchain.com?utm_source=docs\&utm_medium=cta\&utm_campaign=langsmith-signup\&utm_content=oss-langgraph-workflows-agents)。按照[tracing quickstart](/langsmith/trace-with-langgraph)查看数据如何流经每个步骤。我们建议您还设置 [LangSmith Engine](/langsmith/engine) 来监控您的痕迹、检测问题并提出修复建议。
+  使用 [LangSmith](https://smith.langchain.com?utm_source=docs\&utm_medium=cta\&utm_campaign=langsmith-signup\&utm_content=oss-langgraph-workflows-agents) 跟踪并比较这些工作流程模式。按照[tracing quickstart](/langsmith/trace-with-langgraph)查看数据如何流经每个步骤。我们建议您还设置 [LangSmith Engine](/langsmith/engine) 来监控您的痕迹、检测问题并提出修复建议。
 </Tip>
 
 ## 设置
@@ -379,7 +379,7 @@ console.log(msg.tool_calls);
   ```
 </CodeGroup>
 
-## 路由路由工作流处理输入，然后将其引导至特定于上下文的任务。这允许您为复杂任务定义专门的流程。例如，为回答产品相关问题而构建的工作流程可能会首先处理问题类型，然后将请求路由到定价、退款、退货等特定流程。
+## 路由路由工作流处理输入，然后将其引导至特定于上下文的任务。这允许您为复杂任务定义专门的流程。例如，为回答产品相关问题而构建的工作流程可能首先处理问题类型，然后将请求路由到定价、退款、退货等特定流程。
 
 <img alt="routing.png" />
 
@@ -1152,7 +1152,7 @@ const toolNode = new ToolNode([search, calculator]);
 
 #### 从工具访问图形状态和上下文
 
-由`ToolNode`执行的工具接收模型生成的参数，如下所示
+由`ToolNode`执行的工具接收模型生成的参数：
 他们的第一个论点。读取不是由生成的图端数据
 模型，使用以下选项之一：* 在Python中，从注入的状态和运行范围的上下文中读取
   [⟦T27⟧](https://reference.langchain.com/javascript/langchain/index/Runtime) 论证。
@@ -1239,11 +1239,15 @@ const result = await graph.invoke(
 );
 ```
 
+<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/8f11f433-50ac-4b4c-9502-14c299000473/r">
+  为此示例打开公共 LangSmith 运行。
+</Card>
+
 ***
 
 <div>
   <Callout icon="terminal-2">
-    通过 MCP 向 Claude、VSCode 等发送[Connect these docs](/use-these-docs) 以获得实时答案。
+    [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
   </Callout>
 
   <Callout icon="edit">

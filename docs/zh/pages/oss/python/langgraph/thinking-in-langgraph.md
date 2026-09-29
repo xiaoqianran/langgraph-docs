@@ -2,9 +2,9 @@
 
 <!-- langgraph-docs: Thinking in LangGraph | https://docs.langchain.com/oss/python/langgraph/thinking-in-langgraph -->
 
-# LangGraph 中的思考
+#LangGraph的思考
 
-了解如何考虑使用 LangGraph 构建代理
+通过 LangGraph 了解如何思考构建代理
 
 当您使用 LangGraph 构建代理时，您首先将其分解为称为 **节点** 的离散步骤。然后，您将描述每个节点的不同决策和转换。最后，通过每个节点都可以读取和写入的共享**状态**将节点连接在一起。
 
@@ -33,11 +33,11 @@ Example scenarios to handle:
 5. Complex technical issue: "Our API integration fails intermittently with 504 errors"
 ```
 
-要在 LangGraph 中实现代理，您通常会遵循相同的五个步骤。
+要在LangGraph中实现代理，您通常会遵循相同的五个步骤。
 
 ## 第 1 步：将您的工作流程规划为离散步骤
 
-首先确定流程中的不同步骤。每个步骤都将成为一个**节点**（执行一项特定操作的函数）。然后，勾勒出这些步骤如何相互连接。
+首先确定流程中的不同步骤。每个步骤都将成为一个**节点**（执行一项特定操作的函数）。然后，勾画出这些步骤如何相互连接。
 
 ```mermaid theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 flowchart TD
@@ -69,7 +69,7 @@ flowchart TD
 * `Doc Search`：查询您的知识库以获取相关信息
 * `Bug Track`：在跟踪系统中创建或更新问题
 * `Draft Reply`：生成适当的响应
-* `Human Review`：升级至人工代理以供批准或处理
+* `Human Review`：升级至人工代理以获得批准或处理
 * `Send Reply`：发送邮件回复
 
 <Tip>
@@ -162,7 +162,7 @@ flowchart TD
 
 ## 步骤 3：设计你的状态
 
-状态是代理中所有节点均可访问的共享 [memory](/oss/python/concepts/memory)。将其视为您的代理用来跟踪其在整个过程中学习和做出决定的所有内容的笔记本。
+状态是代理中所有节点都可以访问的共享 [memory](/oss/python/concepts/memory)。将其视为您的代理用来跟踪其在整个过程中学习和做出决定的所有内容的笔记本。
 
 ### 什么属于状态？
 
@@ -236,11 +236,11 @@ class EmailAgentState(TypedDict):
 不同的错误需要不同的处理策略：
 
 |错误类型|谁来解决这个问题？战略|何时使用 |
-| --------------------------------------------------------------------------- | ----------------------- | ---------------------------------- | -------------------------------------------------------------------- |
+| --------------------------------------------------------------------------- | ------------------------ | ---------------------------------- | ------------------------------------------------------------------ |
 |瞬时错误（网络问题、速率限制）|系统（自动）|重试政策 |通常重试即可解决的临时故障 |
 | LLM 可恢复错误（工具故障、解析问题）|法学硕士 |将错误存储在状态中并循环返回 | LLM可以看到错误并调整其方法|
 |用户可修复的错误（信息缺失、说明不明确）|人类 |按 `interrupt()` 暂停 |需要用户输入才能继续 ||重试后可恢复的故障 |开发人员（声明性）| `error_handler` |重试耗尽后运行补偿/恢复分支 |
-|意外错误 |开发商|让它们冒泡|需要调试的未知问题 |
+|意外错误 |开发商 |让它们冒泡|需要调试的未知问题 |
 
 <Tabs>
   <Tab title="Transient errors" icon="rotate">
@@ -571,7 +571,7 @@ class EmailAgentState(TypedDict):
   ```
 </Accordion>
 
-图结构很小，因为路由通过 [⟦T38⟧](https://reference.langchain.com/python/langgraph/types/Command) 对象在节点内部发生。每个节点都使用像`Command[Literal["node1", "node2"]]`这样的类型提示来声明它可以去哪里，使流程明确且可追踪。
+图结构很小，因为路由通过 [⟦T38⟧](https://reference.langchain.com/python/langgraph/types/Command) 对象发生在节点内部。每个节点都使用像`Command[Literal["node1", "node2"]]`这样的类型提示来声明它可以去哪里，使流程明确且可追踪。
 
 ### 试试你的代理
 
@@ -633,13 +633,17 @@ class EmailAgentState(TypedDict):
   final_state = resumed.output
   print("Email sent successfully!")
   ```
+
+  <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/2636e51a-5dcd-4a33-8b4d-23678e364ef2/r">
+    为此示例打开公共 LangSmith 运行。
+  </Card>
 </Accordion>当到达 `interrupt()` 时，图表会暂停，将所有内容保存到检查指针，然后等待。它可以在几天后恢复，从上次中断的地方继续。 `thread_id` 确保此会话的所有状态都保存在一起。
 
 ## 摘要和后续步骤
 
 ### 关键见解
 
-构建这个电子邮件代理向我们展示了 LangGraph 的思维方式：
+构建这个电子邮件代理向我们展示了LangGraph的思维方式：
 
 <CardGroup>
   <Card title="Break into discrete steps" icon="sitemap" href="#step-1-map-out-your-workflow-as-discrete-steps">
@@ -688,12 +692,12 @@ class EmailAgentState(TypedDict):
 
   一种不同的有效方法：您可以将 `Read Email` 和 `Classify Intent` 组合到单个节点中。您将无法在分类之前检查原始电子邮件，并且会在该节点出现任何故障时重复这两个操作。对于大多数应用程序来说，单独节点的可观察性和调试优势值得权衡。
 
-  应用程序级问题：步骤 2 中的缓存讨论（是否缓存搜索结果）是应用程序级决策，而不是 LangGraph 框架功能。您可以根据您的具体要求在节点函数中实现缓存 - LangGraph 没有规定这一点。
+  应用程序级问题：第 2 步中的缓存讨论（是否缓存搜索结果）是应用程序级决策，而不是LangGraph 框架功能。您可以根据您的具体要求在节点功能中实现缓存 - LangGraph 没有规定这一点。
 
-  性能注意事项：更多节点并不意味着执行速度更慢。 LangGraph 默认在后台写入检查点 ([async durability mode](/oss/python/langgraph/checkpointers#durability-modes))，因此您的图表将继续运行，而无需等待检查点完成。这意味着您可以获得频繁的检查点，同时对性能的影响最小。如果需要，您可以调整此行为 - 使用 `"exit"` 模式仅在完成时检查点，或使用 `"sync"` 模式阻止执行，直到写入每个检查点。
+  性能注意事项：更多节点并不意味着执行速度更慢。 LangGraph 默认在后台写入检查点 ([async durability mode](/oss/python/langgraph/checkpointers#durability-modes))，因此您的图表会继续运行，而无需等待检查点完成。这意味着您可以获得频繁的检查点，同时对性能的影响最小。如果需要，您可以调整此行为 - 使用 `"exit"` 模式仅在完成时检查点，或使用 `"sync"` 模式阻止执行，直到写入每个检查点。
 </Accordion>
 
-### 从这里到哪里去这是对使用 LangGraph 构建代理的思考的介绍。您可以通过以下方式扩展此基础：
+### 从这里到哪里去这是关于如何使用 LangGraph 构建代理的介绍。您可以通过以下方式扩展此基础：
 
 <CardGroup>
   <Card title="Human-in-the-loop patterns" icon="user-check" href="/oss/python/langgraph/interrupts">
@@ -725,7 +729,7 @@ class EmailAgentState(TypedDict):
 
 <div>
   <Callout icon="terminal-2">
-    通过 MCP 向 Claude、VSCode 等发送[Connect these docs](/use-these-docs) 以获得实时答案。
+    [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
   </Callout>
 
   <Callout icon="edit">

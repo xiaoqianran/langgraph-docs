@@ -6,11 +6,11 @@
 
 在 LangGraph 中配置每个节点的超时、重试和错误处理程序。
 
-当节点因缓慢的外部 API、瞬态网络错误或未处理的异常而发生故障时，LangGraph 为您提供三种可组合的响应机制：
+当节点因缓慢的外部 API、瞬时网络错误或未处理的异常而发生故障时，LangGraph 为您提供三种可组合的响应机制：
 
-* [**Retries**](#retries) — 根据异常类型和退避设置自动重新运行失败的尝试
-* [**Timeouts**](#timeouts) — 限制单次尝试可以运行的时间
-* [**Error handling**](#error-handling) — 在所有重试都用尽后运行恢复功能
+* [**Retries**](#retries)：根据异常类型和退避设置自动重新运行失败的尝试
+* [**Timeouts**](#timeouts)：限制单次尝试可以运行的时间
+* [**Error handling**](#error-handling)：在所有重试次数耗尽后运行恢复功能
 
 使用[**⟦T22⟧**](#graph-defaults)为所有节点配置一次这些机制，而不是在每次`addNode`调用时重复它们。
 
@@ -59,22 +59,22 @@ const graph = new StateGraph(State)
   .compile();
 ```
 
-### 默认行为重试是可选的。仅当节点直接或通过使用 [⟦T29⟧](#graph-defaults) 配置了 `retryPolicy` 时，节点才会重试。一个空保单（`{}`）就足够了。如果没有策略，第一次失败就会结束尝试，LangGraph 不会调用 `retryOn`。
+### 默认行为重试是可选的。仅当节点直接或通过使用 [⟦T29⟧](#graph-defaults) 配置了 `retryPolicy` 时，节点才会重试。一个空保单（`{}`）就足够了。如果没有策略，第一次失败就会结束尝试，并且 LangGraph 不会调用 `retryOn`。
 
-如果策略省略 `retryOn`，LangGraph 将使用内置处理程序重试抛出的错误，但以下情况除外：
+如果策略省略 `retryOn`，LangGraph 使用内置处理程序重试抛出的错误，但以下情况除外：
 
 * 中止和取消错误：`error.name === "AbortError"`或`error.message`以`"Cancel"`或`"AbortError"`开头
 * `GraphValueError`，与`error.name`匹配
 * 中止连接：`error.code === "ECONNABORTED"`
 * 状态为 400、401、402、403、404、405、406、407 或 409 的 HTTP 客户端错误，从 `error.response?.status` 或 `error.status` 读取，适用于 `fetch`、Axios 和类似客户端
-* OpenAI 风格的配额错误：`error.error?.code === "insufficient_quota"`
+* OpenAI 式配额错误：`error.error?.code === "insufficient_quota"`
 
 其他 HTTP 状态（包括 408 和 5xx 响应）是可重试的，除非您覆盖 `retryOn`。 [⟦T45⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/NodeTimeoutError) 不在该阻止列表中，因此在配置重试策略时可以重试。
 
 有些故障会绕过`retryOn`。图形控制流错误，例如 `GraphInterrupt` 和 `Command` 路由，无需重试即可冒泡。中止的运行信号也会停止重试循环，即使 `retryOn` 将返回 `true`。
 
 ＃＃＃ 参数|参数|类型 |默认|描述 |
-| ----------------- | -------------------------------------- | -------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| ----------------- | -------------------------------------- | -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
 | `maxAttempts` | `number` | `3` |最大尝试次数，包括第一次。                                                |
 | `initialInterval` | `number` | `500` |第一次重试之前的毫秒数。                                                            |
 | `backoffFactor` | `number` | `2.0` |乘数应用于每次重试后的间隔。                                            |
@@ -132,8 +132,8 @@ const graph = new StateGraph(State)
 ```
 
 `executionInfo`公开以下字段：|属性 |类型 |描述 |
-| ---------------------- | -------------------- | ------------------------------------------------------------------------------------------ |
-| `nodeAttempt` | `number` |当前尝试次数（1-索引）。第一次尝试时`1`，第一次重试时`2`，等等 |
+| ---------------------------------- | -------------------- | -------------------------------------------------------------------------------------------------- |
+| `nodeAttempt` | `number` |当前尝试次数（1-索引）。第一次尝试时为`1`，第一次重试时为`2`，等等 |
 | `nodeFirstAttemptTime` | `number \| undefined` |第一次尝试开始时的 Unix 时间戳（毫秒）。重试后保持不变。        |
 | `threadId` | `string \| undefined` |当前执行的线程 ID。 `undefined` 没有检查点。               |
 | `runId` | `string \| undefined` |当前执行的运行 ID。 `undefined` 当配置中未提供时。             |
@@ -173,7 +173,7 @@ const graph = new StateGraph(State)
   .compile();
 ```
 
-当超出限制时，LangGraph 会引发[⟦T102⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/NodeTimeoutError)，清除失败尝试中的所有写入，并让重试策略决定是否重试。
+当超过限制时，LangGraph提高[⟦T102⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/NodeTimeoutError)，清除失败尝试中的所有写入，并让重试策略决定是否重试。
 
 ### 空闲超时
 
@@ -250,7 +250,7 @@ const graph = new StateGraph(State)
 
 ### 节点超时错误
 
-当超时触发时，LangGraph 会引发 [⟦T113⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/NodeTimeoutError) ，其中包含有关达到哪个限制的结构化上下文：|属性 |类型 |描述 |
+当超时触发时，LangGraph会引发[⟦T113⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/NodeTimeoutError)，并带有有关达到哪个限制的结构化上下文：|属性 |类型 |描述 |
 | ------------- | -------------------- | --------------------------------------------------- |
 | `node` | `string` |执行超时的节点名称。         |
 | `elapsed` | `number` |在超时触发之前已经过去了几毫秒。      |
@@ -261,7 +261,7 @@ const graph = new StateGraph(State)
 
 使用 `isNodeTimeoutError(error)` 缩小 TypeScript 中捕获的错误范围。
 
-`NodeTimeoutError` 默认是可重试的。将 `timeout` 与重试策略相结合，开箱即用 - 每次新尝试时超时时钟都会重置，并且在下一次重试之前清除超时尝试的写入：
+`NodeTimeoutError` 默认是可重试的。将 `timeout` 与重试策略相结合，可以开箱即用 - 每次新尝试时超时时钟都会重置，并且在下一次重试之前清除超时尝试的写入：
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 const graph = new StateGraph(State)
@@ -272,7 +272,7 @@ const graph = new StateGraph(State)
   .compile();
 ```
 
-### 发送的动态超时当使用[⟦T129⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/Send)动态调度节点时（例如，在map-reduce模式中），您可以直接在`Send`上传递超时，以覆盖目标节点针对该特定推送的静态超时：
+### 发送的动态超时当使用 [⟦T129⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/Send) 动态调度节点时（例如，在 Map-Reduce 模式中），您可以直接在 `Send` 上传递超时，以覆盖目标节点针对该特定推送的静态超时：
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { Send } from "@langchain/langgraph";
@@ -284,7 +284,7 @@ const fanOut = (state: typeof State.State) =>
   );
 ```
 
-如果在`Send`上省略超时，则应用目标节点的超时（在[⟦T132⟧](https://reference.langchain.com/javascript/classes/_langchain_langgraph.index.StateGraph.html#addNode)时间设置）。这使您可以在节点上设置默认超时并针对各个调用收紧它。
+如果在 `Send` 上省略超时，则应用目标节点的超时（在 [⟦T132⟧](https://reference.langchain.com/javascript/classes/_langchain_langgraph.index.StateGraph.html#addNode) 时间设置）。这使您可以在节点上设置默认超时并针对各个调用收紧它。
 
 ## 错误处理
 
@@ -359,7 +359,7 @@ const myHandler = (state: typeof State.State, error: NodeError) => {
 ```
 
 [⟦T140⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/NodeError) 是一个具有两个字段的类：|属性 |类型 |描述 |
-| ---------| -------- | ---------------------------------------------------- |
+| --------- | -------- | ---------------------------------------------------------------- |
 | `node` | `string` |执行失败的节点名称。 |
 | `error` | `Error` |失败节点抛出的异常。 |
 
@@ -419,7 +419,7 @@ const graph = new StateGraph(State)
   .compile();
 ```
 
-`chargePayment` 重试 `ConnectionError` 最多 3 次。如果重试次数用尽（或者错误不是`ConnectionError`），处理程序会通过更新状态并路由到`finalize`来进行补偿，而不是中止图表。
+`chargePayment` 重试 `ConnectionError` 最多 3 次。如果重试次数已用完（或者错误不是`ConnectionError`），处理程序会通过更新状态并路由到`finalize`来进行补偿，而不是中止图表。
 
 ### 恢复安全故障
 
@@ -481,7 +481,7 @@ const graph = new StateGraph(State)
   .compile();
 ```
 
-### 默认错误处理程序当每个图形运行映射到外部进程（例如后台作业行）并且任何未处理的节点故障都应将该进程标记为失败，而不是在每个 `addNode` 上重复 `errorHandler` 时，`errorHandler` 默认值特别有价值。当步骤需要自己的补偿逻辑时，每节点处理程序仍然优先：
+### 默认错误处理程序当每个图形运行都映射到外部进程（例如后台作业行）并且任何未处理的节点故障都应将该进程标记为失败，而不是在每个 `addNode` 上重复 `errorHandler` 时，`errorHandler` 默认值特别有价值。当步骤需要自己的补偿逻辑时，每节点处理程序仍然优先：
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { Command, NodeError, StateGraph, START } from "@langchain/langgraph";
@@ -515,12 +515,12 @@ const graph = new StateGraph(State)
   .compile();
 ```
 
-如果重试后`fetchData`失败，则`markProcessFailed`运行。如果 `chargePayment` 在重试后失败，则 `refundPayment` 会运行，因为每个节点处理程序会覆盖默认值。
+如果重试后`fetchData`失败，则`markProcessFailed`运行。如果 `chargePayment` 在重试后失败，则 `refundPayment` 会改为运行，因为每个节点处理程序会覆盖默认值。
 
 ### 适用性矩阵
 
-并非所有默认值都适用于所有节点类型。错误处理程序节点（通过`addNode(..., { errorHandler })`注册的节点）被排除在某些默认值之外，以防止不安全行为：| `setNodeDefaults`参数|适用于常规节点 |适用于错误处理程序节点 |原因 |
-| ------------------------ | | ------------------------ | ------------------------------------------ | ----------------------------------------------------------- |
+并非所有默认值都适用于所有节点类型。错误处理程序节点（通过`addNode(..., { errorHandler })`注册的节点）被排除在某些默认值之外，以防止不安全行为：| `setNodeDefaults`参数|适用于常规节点|适用于错误处理程序节点 |原因 |
+| --------------------------------------- | ------------------------ | ------------------------------ | ----------------------------------------------------------------------- |
 | `retryPolicy` | ✅ | ✅ |应对暂时性故障重试处理程序 |
 | `timeout` | ✅ | ✅ |卡住的处理程序应该像卡住的常规节点一样被取消 |
 | `errorHandler` | ✅ | ❌ |处理者绝不能抓住自己|
@@ -565,7 +565,7 @@ const myWorkflow = entrypoint(
   需要`@langchain/langgraph>=1.4.0`。
 </Note>
 
-创建一个 [⟦T196⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/RunControl) 并将其作为 `control` 传递给 `invoke` 或 `stream`。从任何上下文调用 `requestDrain()` 来发出运行应该停止的信号：
+创建一个 [⟦T196⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/RunControl) 并将其作为 `control` 传递给 `invoke` 或 `stream`。从任何上下文中调用 `requestDrain()` 来发出运行应该停止的信号：
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { RunControl, GraphDrained } from "@langchain/langgraph";
@@ -590,9 +590,9 @@ try {
 
 ### 语义
 
-Drain 是协作式的，在超级步骤之间运行，不会抢占已经在运行的工作：|场景|行为 |
-| -------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
-|节点执行中期|运行至完成。 Drain 在下一个超级步骤中生效。                                 |
+Drain 是协作式的，在超级步骤之间运行，不会抢占已经在运行的工作：|场景 |行为 |
+| -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+|节点执行中期 |运行至完成。 Drain 在下一个超级步骤中生效。                                 |
 |具有重试策略的节点当前正在重试 |重试循环运行至耗尽或成功。排水后生效。                           |
 |图形在与耗尽相同的刻度上自然完成 |正常返回。检查`control.drainRequested`以区别于正常运行。          |
 |仍有更多超级步骤|加薪`GraphDrained(reason)`。检查点已保存并可恢复。                             |
@@ -652,13 +652,13 @@ try {
 * **`setNodeDefaults` 不被子图继承**：每个图独立管理自己的默认值。
 * **错误处理程序仅限于 `StateGraph`**：将 `errorHandler` 传递给 `StateGraph.addNode`，而不是基类 `Graph`。错误处理程序在 `task` / `entrypoint` 上不可用。
 * **每个节点一个处理程序**：每个节点最多可以有一个`errorHandler`。
-* **处理程序失败冒泡**：如果错误处理程序本身抛出，则该异常会传播，就像节点没有处理程序一样。
+* **处理程序失败冒泡**：如果错误处理程序本身抛出，则该异常会传播，就好像该节点没有处理程序一样。
 
 ***
 
 <div>
   <Callout icon="terminal-2">
-    通过 MCP 向 Claude、VSCode 等发送[Connect these docs](/use-these-docs) 以获得实时答案。
+    [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
   </Callout>
 
   <Callout icon="edit">

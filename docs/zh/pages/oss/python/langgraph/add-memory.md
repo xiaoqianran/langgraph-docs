@@ -4,7 +4,7 @@
 
 # 内存
 
-AI 应用程序需要[memory](/oss/python/concepts/memory) 在多个交互中共享上下文。在 LangGraph 中，您可以添加两种类型的内存：
+AI 应用程序需要[memory](/oss/python/concepts/memory) 在多个交互中共享上下文。在LangGraph中，您可以添加两种类型的内存：
 
 * [Add short-term memory](#add-short-term-memory) 作为代理的 [state](/oss/python/langgraph/graph-api#state) 的一部分以启用多轮对话。
 * [Add long-term memory](#add-long-term-memory) 跨会话存储用户特定或应用程序级数据。
@@ -154,7 +154,7 @@ with PostgresSaver.from_conn_string(DB_URI) as checkpointer:  # [!code highlight
 
   <Tip>
     **设置**
-    要使用[MongoDB checkpointer](https://pypi.org/project/langgraph-checkpoint-mongodb/)，您需要一个 MongoDB 集群。如果您还没有集群，请按照 [this guide](https://www.mongodb.com/docs/guides/atlas/cluster/) 创建集群。
+    要使用[MongoDB checkpointer](https://pypi.org/project/langgraph-checkpoint-mongodb/)，您需要一个 MongoDB 集群。如果您还没有集群，请按照 [this guide](https://www.mongodb.com/docs/guides/atlas/cluster/) 创建集群。有关以代理为中心的演练，请参阅 [short-term memory with MongoDB Atlas](/oss/python/integrations/memory/mongodb-short-term-memory)。
   </Tip>
 
   <Tabs>
@@ -306,9 +306,7 @@ with PostgresSaver.from_conn_string(DB_URI) as checkpointer:  # [!code highlight
           for snapshot in stream.values:
               print(snapshot)
       ```
-    </Tab>
-
-    <Tab title="Async">
+    </Tab><Tab title="Async">
       ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
       from langchain.chat_models import init_chat_model
       from langgraph.graph import StateGraph, MessagesState, START
@@ -356,14 +354,16 @@ with PostgresSaver.from_conn_string(DB_URI) as checkpointer:  # [!code highlight
       ```
     </Tab>
   </Tabs>
-</Accordion><Accordion title="Example: using Oracle checkpointer">
+</Accordion>
+
+<Accordion title="Example: using Oracle checkpointer">
   ```
   pip install -U langgraph langgraph-oracledb
   ```
 
   <Note>
     **设置**
-    要使用 [Oracle checkpointer](https://pypi.org/project/langgraph-oracledb/)，您将需要一个 Oracle AI 数据库实例。 OCI 中的本地容器（例如 `gvenzl/oracle-free:23-slim`）或 Oracle 自治数据库都可以工作。
+    要使用 [Oracle checkpointer](https://pypi.org/project/langgraph-oracledb/)，您需要一个 Oracle AI 数据库实例。 OCI 中的本地容器（例如 `gvenzl/oracle-free:23-slim`）或 Oracle 自治数据库都可以工作。
   </Note>
 
   <Tip>
@@ -522,7 +522,7 @@ graph = builder.compile(store=store)  # [!code highlight]
 
 ### 访问节点内的存储
 
-一旦您使用存储编译了图，LangGraph 就会自动将存储注入到您的节点函数中。访问存储的推荐方式是通过 `Runtime` 对象。
+一旦你编译了带有存储的图，LangGraph就会自动将存储注入到你的节点函数中。访问存储的推荐方式是通过 `Runtime` 对象。
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from dataclasses import dataclass
@@ -1190,7 +1190,7 @@ items = store.search(
 ## 管理短期记忆
 
 启用 [short-term memory](#add-short-term-memory) 后，长时间对话可能会超出 LLM 的上下文窗口。常见的解决方案有：* [Trim messages](#trim-messages)：删除前N条或后N条消息（在调用LLM之前）
-* [Delete messages](#delete-messages) 永久来自 LangGraph 状态
+* [Delete messages](#delete-messages)从LangGraph状态永久
 * [Summarize messages](#summarize-messages)：总结历史记录中较早的消息并用摘要替换它们
 * [Manage checkpoints](#manage-checkpoints) 存储和检索消息历史记录
 * 自定义策略（例如消息过滤等）
@@ -1199,7 +1199,7 @@ items = store.search(
 
 ### 修剪消息
 
-大多数法学硕士都有最大支持的上下文窗口（以令牌计价）。决定何时截断消息的一种方法是计算消息历史记录中的标记，并在接近该限制时进行截断。如果您使用 LangChain，则可以使用修剪消息实用程序并指定要从列表中保留的令牌数量，以及用于处理边界的`strategy`（例如，保留最后一个`max_tokens`）。
+大多数法学硕士都有最大支持的上下文窗口（以令牌计价）。决定何时截断消息的一种方法是计算消息历史记录中的标记，并在接近该限制时进行截断。如果您使用LangChain，则可以使用修剪消息实用程序并指定要从列表中保留的标记数量，以及用于处理边界的`strategy`（例如，保留最后一个`max_tokens`）。
 
 要修剪消息历史记录，请使用 [⟦T62⟧](https://reference.langchain.com/python/langchain-core/messages/utils/trim_messages) 函数：
 
@@ -1274,7 +1274,7 @@ builder.add_node(call_model)
 
 ### 删除消息
 
-您可以从图形状态中删除消息以管理消息历史记录。当您想要删除特定消息或清除整个消息历史记录时，这非常有用。要从图状态中删除消息，您可以使用`RemoveMessage`。要使 `RemoveMessage` 工作，您需要使用带有 [⟦T65⟧](https://reference.langchain.com/python/langgraph/graph/message/add_messages) [reducer](/oss/python/langgraph/graph-api#reducers) 的状态密钥，例如 [⟦T66⟧](/oss/python/langgraph/graph-api#messagesstate)。
+您可以从图形状态中删除消息以管理消息历史记录。当您想要删除特定消息或清除整个消息历史记录时，这非常有用。要从图形状态中删除消息，您可以使用`RemoveMessage`。为了使 `RemoveMessage` 工作，您需要使用带有 [⟦T65⟧](https://reference.langchain.com/python/langgraph/graph/message/add_messages) [reducer](/oss/python/langgraph/graph-api#reducers) 的状态密钥，例如 [⟦T66⟧](/oss/python/langgraph/graph-api#messagesstate)。
 
 要删除特定消息：
 
@@ -1324,6 +1324,7 @@ def delete_messages(state):
 
   checkpointer = InMemorySaver()
   app = builder.compile(checkpointer=checkpointer)
+  config = {"configurable": {"thread_id": "1"}}
 
   stream = app.stream_events(
       {"messages": [{"role": "user", "content": "hi! I'm bob"}]},
@@ -1467,8 +1468,6 @@ def summarize_conversation(state: State):
 
 您可以查看和删除检查点存储的信息。
 
-<a />
-
 #### 查看线程状态
 
 <Tabs>
@@ -1542,8 +1541,6 @@ def summarize_conversation(state: State):
     ```
   </Tab>
 </Tabs>
-
-<a />
 
 #### 查看线程的历史记录
 
@@ -1742,7 +1739,7 @@ checkpointer.delete_thread(thread_id)
 
 <div>
   <Callout icon="terminal-2">
-    通过 MCP 向 Claude、VSCode 等发送[Connect these docs](/use-these-docs) 以获得实时答案。
+    [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
   </Callout>
 
   <Callout icon="edit">

@@ -5,16 +5,16 @@
 # 流媒体
 
 <Tip>
-  对于新应用程序，我们推荐[event streaming](/oss/javascript/langgraph/event-streaming)——LangGraph v1.2 中引入的类型化投影 API。事件流为每个投影（消息、值、子图、输出）提供单独的迭代器，因此您可以独立使用它们，而不是在 `stream_mode` 块上分支。
+  For new applications, we recommend [event streaming](/oss/javascript/langgraph/event-streaming)—the typed-projection API introduced in LangGraph v1.2.事件流为每个投影（消息、值、子图、输出）提供单独的迭代器，因此您可以独立使用它们，而不是在 `stream_mode` 块上分支。
 </Tip>
 
-本页介绍了 LangGraph 的流模式 API。它通过`updates`、`values`、`messages`、`custom`、`checkpoints`、`tasks`和`debug`等流模式公开图形执行。当您需要直接访问图形运行时事件或特定流模式输出时，请使用它。
+本页介绍了 LangGraph 的流模式 API。 It exposes graph execution through stream modes such as `updates`, `values`, `messages`, `custom`, `checkpoints`, `tasks`, and `debug`. Use it when you need direct access to graph-runtime events or specific stream-mode output.
 
 ## 开始吧
 
 ### 基本用法
 
-LangGraph 图公开了 [⟦T35⟧](https://reference.langchain.com/javascript/classes/_langchain_langgraph.pregel.Pregel.html#stream) 方法，以将流式输出作为迭代器生成。
+LangGraph graphs expose the [⟦T35⟧](https://reference.langchain.com/javascript/classes/_langchain_langgraph.pregel.Pregel.html#stream) method to yield streamed outputs as iterators.
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 for await (const chunk of await graph.stream(inputs, {
@@ -30,16 +30,14 @@ for await (const chunk of await graph.stream(inputs, {
 
 ## 流模式
 
-将以下一种或多种流模式作为列表传递给 [⟦T36⟧](https://reference.langchain.com/javascript/classes/_langchain_langgraph.index.CompiledStateGraph.html#stream) 方法：|模式|描述 |
-| :---------------------- | :-------------------------------------------------------------------------------------------- |
+Pass one or more of the following stream modes as a list to the [⟦T36⟧](https://reference.langchain.com/javascript/classes/_langchain_langgraph.index.CompiledStateGraph.html#stream) method:|模式|描述 |
+| :---------------------- | ：------------------------------------------------------------------------------------------------------------------ |
 | [values](#graph-state) |每一步后的完整状态。                                                                    |
 | [updates](#graph-state) |每个步骤后状态都会更新。同一步骤中的多个更新分别进行流式传输。      |
 | [messages](#llm-tokens) |来自 LLM 调用的 2 元组（LLM 令牌、元数据）。                                              |
 | [custom](#custom-data) |通过 `writer` 配置参数从节点发出的自定义数据。                              |
 | [tools](#tool-progress) |工具调用生命周期事件（`on_tool_start`、`on_tool_event`、`on_tool_end`、`on_tool_error`）。 |
 | [debug](#debug) |整个图表执行过程中的所有可用信息。                                                 |
-
-<a />
 
 ### 图状态
 
@@ -320,6 +318,10 @@ const stream = await graph.streamEvents(
 );
 ```
 
+<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/c687f067-9c14-4e17-9ebe-0333c2344f1c/r">
+  为此示例打开公共 LangSmith 运行。
+</Card>
+
 #### 按节点过滤
 
 要仅从特定节点流式传输令牌，请使用 `stream_mode="messages"` 并通过流式元数据中的 `langgraph_node` 字段过滤输出：
@@ -471,7 +473,7 @@ for await (const [msg, metadata] of await graph.stream(
 使用`tools`流模式接收工具执行的实时生命周期事件。这对于在工具运行时在 UI 中显示进度指示器、部分结果和错误状态非常有用。
 
 `tools` 流模式发出四种事件类型：|活动 |当 |有效负载|
-| ---------------- | -------------------------------------- | ------------------------------------------ |
+| ---------------- | -------------------------------------- | ------------------------------ |
 | `on_tool_start` |工具调用开始 | `name`、`input`、`toolCallId` |
 | `on_tool_event` |工具产生中间数据 | `name`、`data`、`toolCallId` |
 | `on_tool_end` |工具返回其最终结果 | `name`、`output`、`toolCallId` |
@@ -556,12 +558,12 @@ for await (const [mode, chunk] of await graph.stream(
 #### 在 React 中使用工具进度 `useStream`
 
 当您在流模式中包含 `"tools"` 时，来自 `@langchain/langgraph-sdk/react` 的 [⟦T94⟧](https://reference.langchain.com/javascript/langchain-react/index/useStream) 挂钩会公开 `toolProgress` 数组。每个条目都是一个 `ToolProgress` 对象，用于跟踪正在运行的工具的当前状态：|领域 |描述 |
-| ------------ | ------------------------------------------------------------------------------------------- |
+| ------------ | --------------------------------------------------------------------------------------------------- |
 | `name` |工具名称|
 | `state` |当前生命周期状态：`"starting"`、`"running"`、`"completed"` 或 `"error"` |
 | `toolCallId` | LLM 的工具调用 ID |
 | `input` |该工具的输入参数 |
-| `data` | `on_tool_event`最新产生的数据 |
+| `data` | `on_tool_event` 最新产生的数据 |
 | `result` |最终结果，定于`on_tool_end`|
 | `error` |错误，设置在`on_tool_error` |
 
@@ -847,8 +849,6 @@ for await (const chunk of await graph.stream(
   ```**注意**，我们不仅接收节点更新，还接收命名空间，它告诉我们从哪个图（或子图）进行流式传输。
 </Accordion>
 
-<a />
-
 ### 调试
 
 使用 `debug` 流模式在整个图表执行过程中流式传输尽可能多的信息。流式输出包括节点的名称以及完整状态。
@@ -880,9 +880,9 @@ for await (const [mode, chunk] of await graph.stream(inputs, {
 
 ### 与任何 LLM 一起使用
 
-您可以使用`streamMode: "custom"`从**任何LLM API**传输数据——即使该API**没有**实现LangChain聊天模型接口。
+您可以使用 `streamMode: "custom"` 从**任何 LLM API** 流式传输数据，即使该 API **未**实现 LangChain 聊天模型接口。
 
-这使您可以集成原始 LLM 客户端或提供自己的流接口的外部服务，使 LangGraph 对于自定义设置高度灵活。
+这使您可以集成原始的 LLM 客户端或提供自己的流接口的外部服务，使 LangGraph 对于自定义设置高度灵活。
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { StateGraph, GraphNode, StateSchema } from "@langchain/langgraph";
@@ -1061,7 +1061,7 @@ const model = new ChatOpenAI({
 
 <div>
   <Callout icon="terminal-2">
-    通过 MCP 向 Claude、VSCode 等发送[Connect these docs](/use-these-docs) 以获得实时答案。
+    [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
   </Callout>
 
   <Callout icon="edit">

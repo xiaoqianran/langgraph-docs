@@ -28,11 +28,11 @@ LangGraph 提供了两种不同的 API 来构建代理工作流程：**Graph API
 
 ## 详细比较
 
-### 何时使用图形 API[Graph API](/oss/python/langgraph/graph-api) 使用声明式方法，您可以定义节点、边和共享状态来创建可视化图形结构。
+### 何时使用图形 API[Graph API](/oss/python/langgraph/graph-api) 使用声明性方法，您可以定义节点、边和共享状态来创建可视化图形结构。
 
 **1.复杂的决策树和分支逻辑**
 
-当您的工作流程有多个取决于各种条件的决策点时，Graph API 会使这些分支变得明确且易于可视化。
+当您的工作流程有多个取决于各种条件的决策点时，Graph API 使这些分支变得明确且易于可视化。
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 # Graph API: Clear visualization of decision paths
@@ -117,7 +117,7 @@ workflow.add_node("output_formatting", frontend_team_function)
 
 ### 何时使用函数式 API
 
-[Functional API](/oss/python/langgraph/functional-api) 使用命令式方法将 LangGraph 功能集成到标准程序代码中。
+[Functional API](/oss/python/langgraph/functional-api) 使用命令式方法将 LangGraph 功能集成到标准过程代码中。
 
 **1.现有程序代码**
 
@@ -303,13 +303,13 @@ def simple_workflow(input_data: str) -> str:
 
 当您需要显式控制工作流结构、复杂分支、并行处理或团队协作优势时，请选择 **Graph API**。
 
-当您想要以最小的更改将 LangGraph 功能添加到现有代码、具有简单的线性工作流程或需要快速原型设计功能时，请选择 **Functional API**。这两个 API 都提供相同的核心 LangGraph 功能（持久性、流式传输、人机循环、内存），但将它们封装在不同的范例中，以适应不同的开发风格和用例。
+当您想要以最小的更改向现有代码添加 LangGraph 功能、具有简单的线性工作流程或需要快速原型设计功能时，请选择 **函数式 API**。这两个 API 都提供相同的核心 LangGraph 功能（持久性、流式传输、人机交互、内存），但将它们封装在不同的范例中，以适应不同的开发风格和用例。
 
 ***
 
 <div>
   <Callout icon="terminal-2">
-    通过 MCP 向 Claude、VSCode 等发送[Connect these docs](/use-these-docs) 以获得实时答案。
+    [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
   </Callout>
 
   <Callout icon="edit">

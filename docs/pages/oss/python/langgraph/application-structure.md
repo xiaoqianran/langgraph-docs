@@ -63,8 +63,6 @@ Below are examples of directory structures for applications:
   The directory structure of a LangGraph application can vary depending on the programming language and the package manager used.
 </Note>
 
-<a />
-
 ## Configuration file
 
 The `langgraph.json` file is a JSON file that specifies the dependencies, graphs, environment variables, and other settings required to deploy a LangGraph application.
@@ -119,7 +117,7 @@ For a production deployment, you will typically want to configure the environmen
 
 <div>
   <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) to Claude, VSCode, and more via MCP for real-time answers.
+    [Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
   </Callout>
 
   <Callout icon="edit">

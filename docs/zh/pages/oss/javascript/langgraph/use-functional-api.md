@@ -4,7 +4,7 @@
 
 # 使用函数式API
 
-[**Functional API**](/oss/javascript/langgraph/functional-api) 允许您将 LangGraph 的关键功能（[persistence](/oss/javascript/langgraph/persistence)、[memory](/oss/javascript/langgraph/add-memory)、[human-in-the-loop](/oss/javascript/langgraph/interrupts) 和 [streaming](/oss/javascript/langgraph/streaming)）添加到您的应用程序中，只需对现有代码进行最少的更改。
+[**Functional API**](/oss/javascript/langgraph/functional-api) 允许您将 LangGraph 的主要功能（[persistence](/oss/javascript/langgraph/persistence)、[memory](/oss/javascript/langgraph/add-memory)、[human-in-the-loop](/oss/javascript/langgraph/interrupts) 和 [streaming](/oss/javascript/langgraph/streaming)）添加到您的应用程序中，只需对现有代码进行最少的更改。
 
 <Tip>
   有关函数式 API 的概念信息，请参阅[Functional API](/oss/javascript/langgraph/functional-api)。
@@ -105,7 +105,7 @@ await myWorkflow.invoke({ value: 1, anotherValue: 2 });
 
 ## 并行执行
 
-任务可以通过并发调用并等待结果来并行执行。这对于提高 IO 绑定任务的性能很有用（例如，调用 LLM 的 API）。
+通过并发调用任务并等待结果，可以并行执行任务。这对于提高 IO 绑定任务的性能很有用（例如，调用 LLM 的 API）。
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 const addOne = task("addOne", async (number: number) => {
@@ -294,6 +294,10 @@ for await (const chunk of stream.values) {
 // 10
 ```
 
+<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/8737a21a-1a44-47ce-b3bd-880a15fc7375/r">
+  为此示例打开公共 LangSmith 运行。
+</Card>
+
 1. 在计算开始之前发出自定义数据。
 2. 计算结果后发出另一条自定义消息。
 3. 使用`streamEvents()`处理流式输出。
@@ -457,9 +461,7 @@ try {
 } catch (err) {
   // Handle the failure gracefully
 }
-```
-
-当我们恢复执行时，我们不需要重新运行`slowTask`，因为它的结果已经保存在检查点中。
+```当我们恢复执行时，我们不需要重新运行`slowTask`，因为它的结果已经保存在检查点中。
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 await main.invoke(null, config);
@@ -469,7 +471,9 @@ await main.invoke(null, config);
 'Ran slow task.'
 ```
 
-## 人机交互函数式 API 支持使用 [⟦T36⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 函数和 `Command` 原语的 [human-in-the-loop](/oss/javascript/langgraph/interrupts) 工作流程。
+## 人机交互
+
+函数式 API 支持使用 [⟦T36⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 函数和 `Command` 原语的 [human-in-the-loop](/oss/javascript/langgraph/interrupts) 工作流程。
 
 ### 基本的人机交互工作流程
 
@@ -553,9 +557,9 @@ for await (const message of stream.messages) {
 
 ### 查看工具调用
 
-为了在执行前检查工具调用，我们添加了一个调用 [⟦T47⟧](/oss/javascript/langgraph/interrupts#pause-using-interrupt) 的 `review_tool_call` 函数。当调用此函数时，执行将暂停，直到我们发出命令来恢复它。
+为了在执行前检查工具调用，我们添加了一个调用 [⟦T47⟧](/oss/javascript/langgraph/interrupts#pause-using-interrupt) 的 `review_tool_call` 函数。当调用此函数时，执行将暂停，直到我们发出命令来恢复它。给定一个工具调用，我们的函数将[⟦T48⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt)进行人工审查。那时我们可以：
 
-给定一个工具调用，我们的函数将[⟦T48⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt)进行人工审查。那时我们可以：* 接受工具调用
+* 接受工具调用
 * 修改工具调用并继续
 * 生成自定义工具消息（例如，指示模型重新格式化其工具调用）
 
@@ -668,8 +672,6 @@ const agent = entrypoint(
 
 您可以查看和删除检查点存储的信息。
 
-<a />
-
 #### 查看线程状态
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
@@ -709,8 +711,6 @@ StateSnapshot {
   interrupts: []
 }
 ```
-
-<a />
 
 #### 查看线程的历史记录
 
@@ -848,13 +848,13 @@ for await (const snapshot of stream2.values) {
 
 ## 与其他库集成
 
-* [Add LangGraph's features to other frameworks using the functional API](/langsmith/deploy-other-frameworks)：将持久性、内存和流等 LangGraph 功能添加到其他不提供开箱即用的代理框架。
+* [Add LangGraph's features to other frameworks using the functional API](/langsmith/deploy-other-frameworks)：将 LangGraph 功能（如持久性、内存和流）添加到其他不提供开箱即用的代理框架。
 
 ***
 
 <div>
   <Callout icon="terminal-2">
-    通过 MCP 向 Claude、VSCode 等发送[Connect these docs](/use-these-docs) 以获得实时答案。
+    [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
   </Callout>
 
   <Callout icon="edit">

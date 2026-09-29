@@ -8,12 +8,12 @@
 
 使用 LangGraph 构建一个 [retrieval](/oss/javascript/deepagents/retrieval) 代理，决定何时搜索矢量存储而不是直接回答用户。
 
-LangChain 提供基于 [LangGraph](/oss/javascript/langgraph/overview) 原语的内置 [agent](/oss/javascript/langchain/agents) 实现。当您需要更深入的定制时，直接在 LangGraph 中实现代理。本教程将介绍一种检索代理模式。
+LangChain 提供基于 [LangGraph](/oss/javascript/langgraph/overview) 原语构建的内置 [agent](/oss/javascript/langchain/agents) 实现。当需要更深入的定制时，直接在LangGraph中实现代理即可。本教程将介绍一种检索代理模式。
 
 在本教程中，您将：
 
 1. 获取并预处理文档以供检索。
-2. 为这些文档建立索引以进行语义搜索，并为代理创建检索器工具。
+2. 对这些文档进行索引以进行语义搜索，并为代理创建检索器工具。
 3. 构建一个代理 RAG 系统，可以决定何时使用检索器工具。
 
 <img alt="Hybrid RAG" />
@@ -50,7 +50,7 @@ LangChain 提供基于 [LangGraph](/oss/javascript/langgraph/overview) 原语的
   ```
 </CodeGroup>
 
-### 设置 LangSmithRAG 应用程序按顺序运行检索和生成。当您运行本教程中的示例时，[LangSmith](/langsmith/observability) 会记录每个查询的跟踪，以便您可以检查检索、工具调用和模型响应。
+### 设置LangSmithRAG 应用程序按顺序运行检索和生成。当您运行本教程中的示例时，[LangSmith](/langsmith/observability) 会记录每个查询的跟踪，以便您可以检查检索、工具调用和模型响应。
 在[sign up for LangSmith](https://smith.langchain.com?utm_source=docs\&utm_medium=cta\&utm_campaign=langsmith-signup\&utm_content=oss-langgraph-agentic-rag)之后，设置环境变量以开始记录跟踪：
 
 ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
@@ -118,7 +118,7 @@ export LANGSMITH_API_KEY="..."
 
 <Steps>
   <Step title="Index documents and create the tool">
-    使用内存向量存储和 OpenAI 嵌入，然后使用 LangChain 的预构建`createRetrieverTool` 创建检索器工具：
+    使用内存向量存储和 OpenAI 嵌入，然后使用 LangChain 的预构建 `createRetrieverTool` 创建检索器工具：
 
     ```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
     import { MemoryVectorStore } from "@langchain/classic/vectorstores/memory";
@@ -148,13 +148,13 @@ export LANGSMITH_API_KEY="..."
 
 ## 生成查询或响应
 
-准备好检索器工具后，开始将代理构建为 LangGraph 图。在[Graph API](/oss/javascript/langgraph/graph-api)中，图表由以下部分组成：* **[State](/oss/javascript/langgraph/graph-api#state)**：节点读取和更新的共享数据。本教程使用[⟦T40⟧](/oss/javascript/langgraph/graph-api#using-messages-in-your-graph)，它存储[chat messages](/oss/javascript/langchain/messages)的`messages`列表。
+准备好检索器工具后，开始将代理构建为LangGraph图。在[Graph API](/oss/javascript/langgraph/graph-api)中，图表由以下部分组成：* **[State](/oss/javascript/langgraph/graph-api#state)**：节点读取和更新的共享数据。本教程使用[⟦T40⟧](/oss/javascript/langgraph/graph-api#using-messages-in-your-graph)，它存储[chat messages](/oss/javascript/langchain/messages)的`messages`列表。
 
 * **[Nodes](/oss/javascript/langgraph/graph-api#nodes)**：获取当前状态、运行步骤（例如，调用模型或工具）并返回状态更新的函数。
 
 * **[Edges](/oss/javascript/langgraph/graph-api#edges)**：定义接下来运行哪个节点的连接，包括基于状态的分支[conditional edges](/oss/javascript/langgraph/graph-api#conditional-edges)。
 
-第一个节点是代理决策点。鉴于到目前为止的对话，该模型要么直接回答用户，要么在问题需要博客上下文时调用检索器工具。这种选择使得系统具有代理性，而不是固定的检索然后生成管道：检索仅在模型请求时运行。
+第一个节点是代理决策点。鉴于到目前为止的对话，该模型要么直接回答用户，要么在问题需要博客上下文时调用检索器工具。这种选择使系统变得代理，而不是固定的检索然后生成管道：检索仅在模型请求时运行。
 
 <Steps>
   <Step title="Build the node">
@@ -167,7 +167,7 @@ export LANGSMITH_API_KEY="..."
 
       const State = MessagesAnnotation;
       const model = new ChatOpenAI({
-        model: "google-genai:gemini-3.6-flash",
+        model: "google:gemini-3.6-flash",
         temperature: 0,
       }).bindTools(tools);
 
@@ -203,7 +203,7 @@ export LANGSMITH_API_KEY="..."
 
       const State = MessagesAnnotation;
       const model = new ChatOpenAI({
-        model: "anthropic:claude-sonnet-4-6",
+        model: "anthropic:claude-sonnet-5",
         temperature: 0,
       }).bindTools(tools);
 
@@ -221,7 +221,7 @@ export LANGSMITH_API_KEY="..."
 
       const State = MessagesAnnotation;
       const model = new ChatOpenAI({
-        model: "openrouter:openrouter:z-ai/glm-5.2",
+        model: "openrouter:z-ai/glm-5.2",
         temperature: 0,
       }).bindTools(tools);
 
@@ -367,7 +367,7 @@ export LANGSMITH_API_KEY="..."
       });
 
       const gradeModel = new ChatOpenAI({
-        model: "google-genai:gemini-3.6-flash",
+        model: "google:gemini-3.6-flash",
         temperature: 0,
       }).withStructuredOutput(gradeDocumentsSchema);
       const gradeFallbackModel = new ChatOpenAI({
@@ -485,7 +485,7 @@ export LANGSMITH_API_KEY="..."
       });
 
       const gradeModel = new ChatOpenAI({
-        model: "anthropic:claude-sonnet-4-6",
+        model: "anthropic:claude-sonnet-5",
         temperature: 0,
       }).withStructuredOutput(gradeDocumentsSchema);
       const gradeFallbackModel = new ChatOpenAI({
@@ -544,7 +544,7 @@ export LANGSMITH_API_KEY="..."
       });
 
       const gradeModel = new ChatOpenAI({
-        model: "openrouter:openrouter:z-ai/glm-5.2",
+        model: "openrouter:z-ai/glm-5.2",
         temperature: 0,
       }).withStructuredOutput(gradeDocumentsSchema);
       const gradeFallbackModel = new ChatOpenAI({
@@ -818,7 +818,7 @@ export LANGSMITH_API_KEY="..."
   </Step>
 </Steps>
 
-## 重写问题如果评分者将检索到的文档标记为不相关，则图表不应从该上下文中进行回答。相反，请将原始用户问题重写为更清晰的搜索查询，然后将控制发送回生成查询或响应节点，以便代理可以再次检索。此重试循环是代理如何从较弱的首次检索中恢复的方式，而不是停止或幻觉答案。
+## 重写问题如果评分者将检索到的文档标记为不相关，则图表不应从该上下文中进行回答。相反，请将原始用户问题重写为更清晰的搜索查询，然后将控制发送回生成查询或响应节点，以便代理可以再次检索。此重试循环是代理如何从较弱的首次检索中恢复的方式，而不是停止或产生幻觉答案。
 
 <Steps>
   <Step title="Build the rewrite node">
@@ -1032,7 +1032,7 @@ async function runAgenticRag() {
 
 <div>
   <Callout icon="terminal-2">
-    通过 MCP 向 Claude、VSCode 等发送[Connect these docs](/use-these-docs) 以获得实时答案。
+    [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
   </Callout>
 
   <Callout icon="edit">

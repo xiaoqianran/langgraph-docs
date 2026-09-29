@@ -4,18 +4,6 @@
 
 LangGraph's persistence layer gives agents short-term memory through checkpointers and long-term memory through stores.
 
-<a />
-
-<a />
-
-<a />
-
-<a />
-
-<a />
-
-<a />
-
 Persistence lets LangGraph applications keep useful information beyond a single graph run. It matters when an agent needs to continue a conversation, resume after an interruption, recover from a failure, or remember information across interactions.
 
 LangGraph provides two complementary persistence systems:
@@ -97,7 +85,7 @@ When a subgraph updates state, the parent graph may not see the changes immediat
 
 <div>
   <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) to Claude, VSCode, and more via MCP for real-time answers.
+    [Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
   </Callout>
 
   <Callout icon="edit">

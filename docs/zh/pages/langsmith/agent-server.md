@@ -39,13 +39,13 @@ LangSmith 部署的 **代理服务器** 提供用于创建和管理基于代理�
 
 ### 图表当您使用 Agent Server 部署图形时，您正在部署 [Assistant](/langsmith/assistants) 的“蓝图”。
 
-图最常实现 [agent](/oss/python/langgraph/workflows-agents)，但并非必须如此。例如，图可以实现一个简单的聊天机器人，仅支持来回对话，而无法影响任何应用程序控制流。实际上，随着应用程序变得越来越复杂，图通常会实现更复杂的流程，可能会使用 [multiple agents](/oss/python/langchain/multi-agent) 协同工作。
+图最常实现[agent](/oss/python/langgraph/workflows-agents)，但并非必须如此。例如，图可以实现一个简单的聊天机器人，仅支持来回对话，而无法影响任何应用程序控制流。实际上，随着应用程序变得越来越复杂，图通常会实现更复杂的流程，可能会使用 [multiple agents](/oss/python/langchain/multi-agent) 协同工作。
 
 图表不一定要用LangGraph来写。您还可以使用 LangGraph 功能 API 或 `deployments-wrap-sdk` 包来部署使用其他框架（例如 [Strands, Claude Agent SDK, and more](/langsmith/deploy-other-frameworks) 或 [Google ADK](/langsmith/deploy-google-adk)）构建的代理。
 
 #### 图形加载和编译
 
-图表的编译方式和时间取决于您在 [application structure](/langsmith/application-structure) 中的注册方式：1. **编译图**（推荐）：导出已编译的`CompiledGraph`实例。服务器在容器启动时加载一次，并在每次运行时重用它——每个请求没有编译开销。
+图表的编译方式和时间取决于您如何在 [application structure](/langsmith/application-structure) 中注册它：1. **编译图**（推荐）：导出已编译的`CompiledGraph`实例。服务器在容器启动时加载一次，并在每次运行时重用它——每个请求没有编译开销。
 2. **工厂函数**：导出服务器每次需要图时调用的代理工厂函数。仅当您需要每次运行图形自定义时才使用此选项（例如，根据助手配置选择不同的模型或工具）。保持工厂函数轻量级，因为它们在每次调用时运行。
 
 <Tip>
@@ -62,7 +62,7 @@ Agent Server 持久保存三种类型的数据，默认情况下均由 [PostgreS
 
 ### 任务队列
 
-当客户端创建运行时，API 服务器将其放入队列，然后队列工作线程将其拾取以执行。还可以通知工作人员取消正在进行的运行，并发布打开 `/stream` 连接的输出事件，实时转发到客户端。[Redis](https://redis.io/) 处理 API 服务器和队列工作人员之间的信令、取消和流媒体发布/订阅。它仅存储临时数据 - Redis 中不会保留任何用户或运行数据。运行数据本身总是从 PostgreSQL 读取和写入。
+当客户端创建运行时，API 服务器将其放入队列，然后队列工作线程将其拾取以执行。还可以通知工作人员取消正在进行的运行，并发布打开 `/stream` 连接的输出事件，实时转发到客户端。[Redis](https://redis.io/) 处理 API 服务器和队列工作人员之间的信令、取消和流媒体发布/订阅。它仅存储临时数据——Redis 中不会保留任何用户或运行数据。运行数据本身始终从 PostgreSQL 读取和写入。
 
 有关如何设置和管理这些组件的更多信息，请查看 [hosting options](/langsmith/platform-setup) 指南。
 
@@ -147,7 +147,7 @@ flowchart TB
 
 <div className="source-links">
   <Callout icon="terminal-2">
-    通过 MCP 向 Claude、VSCode 等发送[Connect these docs](/use-these-docs) 以获得实时答案。
+    [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
   </Callout>
 
   <Callout icon="edit">

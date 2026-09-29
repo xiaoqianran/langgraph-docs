@@ -4,23 +4,11 @@
 
 # 坚持
 
-LangGraph 的持久层通过检查点为代理提供短期记忆，通过存储为代理提供长期记忆。
+LangGraph 的持久层通过检查点为代理提供短期记忆，并通过存储为代理提供长期记忆。
 
-<a />
+持久性让 LangGraph 应用程序能够在单个图形运行之外保留有用的信息。当代理需要继续对话、中断后恢复、从故障中恢复或记住交互过程中的信息时，这一点很重要。
 
-<a />
-
-<a />
-
-<a />
-
-<a />
-
-<a />
-
-持久性使 LangGraph 应用程序可以在单个图形运行之外保留有用的信息。当代理需要继续对话、中断后恢复、从故障中恢复或记住交互过程中的信息时，这一点很重要。
-
-LangGraph 提供了两个互补的持久化系统：
+LangGraph提供了两个互补的持久化系统：
 
 * **[Checkpointers](/oss/javascript/langgraph/checkpointers)** 将线程的图形状态保留为检查点。将它们用于短期、线程范围的记忆，包括对话连续性、人机交互工作流程、时间旅行和容错。
 * **[Stores](/oss/javascript/langgraph/stores)** 在图状态之外保留应用程序定义的数据。将它们用于长期、跨线程记忆，包括用户偏好、事实和共享知识。
@@ -50,13 +38,13 @@ const result = await graph.invoke(
 
 ## 检查点与存储
 
-|                |检查点 |商店 |
-| -------------- | ---------------------------------------------------------------------------------------- | --------------------------------------------------- |
+|                |检查点|商店 |
+| -------------- | -------------------------------------------------------------------------------------------------- | --------------------------------------------------- |
 |坚持 |图状态快照 |应用程序定义的键值数据 |
-|范围 |单线程 |跨线程|
+|范围 |单线程|跨线程 |
 |内存类型|短期、线程范围内存 |长期、跨线程内存|
-|用于 |对话连续性、人机交互、时间旅行和容错 |用户偏好、事实和共享知识 ||访问模式|在图形配置中传递 `thread_id` |从节点或应用程序代码读取和写入项目 |
-|完整指南 | [Checkpointers](/oss/javascript/langgraph/checkpointers) | [Stores](/oss/javascript/langgraph/stores) |
+|用于|对话连续性、人机交互、时间旅行和容错 |用户偏好、事实和共享知识 || Access pattern |在图形配置中传递 `thread_id` |从节点或应用程序代码读取和写入项目 |
+| Full guide     | [Checkpointers](/oss/javascript/langgraph/checkpointers) | [Stores](/oss/javascript/langgraph/stores)          |
 
 ## 常见问题疑难解答
 
@@ -73,7 +61,7 @@ const result = await graph.invoke(
 **修复：** 使用持久检查点进行生产：
 
 * `PostgresSaver`：具有异步支持的 PostgreSQL
-* `SqliteSaver`：用于开发的基于本地文件的存储
+* `SqliteSaver`: Local file-based storage for development
 
 ### 检查点无限增长
 
@@ -94,7 +82,7 @@ const result = await graph.invoke(
 
 <div>
   <Callout icon="terminal-2">
-    通过 MCP 向 Claude、VSCode 等发送[Connect these docs](/use-these-docs) 以获得实时答案。
+    [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
   </Callout>
 
   <Callout icon="edit">

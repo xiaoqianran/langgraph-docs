@@ -39,8 +39,6 @@ Pass one or more of the following stream modes as a list to the [`stream`](https
 | [tools](#tool-progress) | Tool-call lifecycle events (`on_tool_start`, `on_tool_event`, `on_tool_end`, `on_tool_error`). |
 | [debug](#debug)         | All available info throughout graph execution.                                                 |
 
-<a />
-
 ### Graph state
 
 Use the stream modes `updates` and `values` to stream the state of the graph as it executes.
@@ -323,6 +321,10 @@ const stream = await graph.streamEvents(
   { version: "v3" },
 );
 ```
+
+<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/c687f067-9c14-4e17-9ebe-0333c2344f1c/r">
+  Open a public LangSmith run for this example.
+</Card>
 
 #### Filter by node
 
@@ -859,8 +861,6 @@ for await (const chunk of await graph.stream(
   **Note** that we are receiving not just the node updates, but we also the namespaces which tell us what graph (or subgraph) we are streaming from.
 </Accordion>
 
-<a />
-
 ### Debug
 
 Use the `debug` streaming mode to stream as much information as possible throughout the execution of the graph. The streamed outputs include the name of the node as well as the full state.
@@ -1075,7 +1075,7 @@ const model = new ChatOpenAI({
 
 <div>
   <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) to Claude, VSCode, and more via MCP for real-time answers.
+    [Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
   </Callout>
 
   <Callout icon="edit">

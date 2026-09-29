@@ -6,7 +6,7 @@
 
 使用 LangGraph 获得控制权，设计能够可靠处理复杂任务的代理
 
-受到塑造代理未来的公司（包括 Klarna、Uber、J.P. Morgan 等）的信赖，LangGraph 是一个低级编排框架和运行时，用于构建、管理和部署长期运行的有状态代理。 LangGraph 为您提供细粒度的控制，将确定性的手动编码步骤与 LLM 驱动的代理步骤混合在同一图表中，因此您可以构建完全按照应用程序所需的方式运行的定制代理。
+受到塑造代理未来的公司（包括 Klarna、Uber、J.P. Morgan 等）的信赖，LangGraph 是一个低级编排框架和运行时，用于构建、管理和部署长期运行的有状态代理。 LangGraph 为您提供细粒度的控制，将确定性的手动编码步骤与 LLM 驱动的代理步骤混合在同一个图中，因此您可以构建完全按照应用程序所需的方式运行的定制代理。
 
 LangGraph 级别非常低，完全专注于代理**编排**。在使用LangGraph之前，我们建议您先熟悉一些用于构建代理的组件，从[models](/oss/javascript/langchain/models)和[tools](/oss/javascript/langchain/tools)开始。
 
@@ -90,19 +90,19 @@ LangGraph 为*任何*长期运行、有状态的工作流程或代理提供低�
   </Card>
 
   <Card title="LangChain" icon="https://mintcdn.com/langchain-5e9cc07a/nQm-sjd_MByLhgeW/images/brand/langchain-icon.png?fit=max&auto=format&n=nQm-sjd_MByLhgeW&q=85&s=663b30f85baf99ad708b97e05da2a5a4" href="/oss/javascript/langchain/overview">
-    提供集成和可组合组件以简化 LLM 应用程序开发。包含构建在 LangGraph 之上的代理抽象。
+    提供集成和可组合组件以简化法学硕士应用程序开发。包含构建在 LangGraph 之上的代理抽象。
   </Card>
 </Columns>
 
 ## 致谢
 
-LangGraph的灵感来自于[Pregel](https://research.google/pubs/pub37252/)和[Apache Beam](https://beam.apache.org/)。公共界面的灵感来自于[NetworkX](https://networkx.org/documentation/latest/)。 LangGraph 由 LangChain 的创建者 LangChain Inc 构建，但可以在没有 LangChain 的情况下使用。
+LangGraph is inspired by [Pregel](https://research.google/pubs/pub37252/) and [Apache Beam](https://beam.apache.org/). The public interface draws inspiration from [NetworkX](https://networkx.org/documentation/latest/). LangGraph 由 LangChain 的创建者 LangChain Inc 构建，但可以在没有 LangChain 的情况下使用。
 
 ***
 
 <div>
   <Callout icon="terminal-2">
-    通过 MCP 向 Claude、VSCode 等发送[Connect these docs](/use-these-docs) 以获得实时答案。
+    [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
   </Callout><Callout icon="edit">
     [Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/overview.mdx) 或 [file an issue](https://github.com/langchain-ai/docs/issues/new/choose)。
   </Callout>

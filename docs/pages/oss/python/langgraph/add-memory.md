@@ -152,7 +152,7 @@ with PostgresSaver.from_conn_string(DB_URI) as checkpointer:  # [!code highlight
 
   <Tip>
     **Setup**
-    To use the [MongoDB checkpointer](https://pypi.org/project/langgraph-checkpoint-mongodb/), you will need a MongoDB cluster. Follow [this guide](https://www.mongodb.com/docs/guides/atlas/cluster/) to create a cluster if you don't already have one.
+    To use the [MongoDB checkpointer](https://pypi.org/project/langgraph-checkpoint-mongodb/), you will need a MongoDB cluster. Follow [this guide](https://www.mongodb.com/docs/guides/atlas/cluster/) to create a cluster if you don't already have one. For an agent-focused walkthrough, see [short-term memory with MongoDB Atlas](/oss/python/integrations/memory/mongodb-short-term-memory).
   </Tip>
 
   <Tabs>
@@ -1330,6 +1330,7 @@ def delete_messages(state):
 
   checkpointer = InMemorySaver()
   app = builder.compile(checkpointer=checkpointer)
+  config = {"configurable": {"thread_id": "1"}}
 
   stream = app.stream_events(
       {"messages": [{"role": "user", "content": "hi! I'm bob"}]},
@@ -1475,8 +1476,6 @@ def summarize_conversation(state: State):
 
 You can view and delete the information stored by the checkpointer.
 
-<a />
-
 #### View thread state
 
 <Tabs>
@@ -1550,8 +1549,6 @@ You can view and delete the information stored by the checkpointer.
     ```
   </Tab>
 </Tabs>
-
-<a />
 
 #### View the history of the thread
 
@@ -1752,7 +1749,7 @@ We recommend running migrations as a dedicated deployment step, or you can ensur
 
 <div>
   <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) to Claude, VSCode, and more via MCP for real-time answers.
+    [Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
   </Callout>
 
   <Callout icon="edit">

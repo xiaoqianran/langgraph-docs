@@ -12,28 +12,28 @@
 
 * [LangSmith](https://smith.langchain.com/settings) 的 API 密钥 - 免费注册
 
-## 1. 安装 LangGraph CLI
+## 1.安装LangGraph CLI
 
 ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 npm install --save-dev @langchain/langgraph-cli
 ```
 
-## 2. 创建 LangGraph 应用程序
+## 2. 创建一个LangGraph应用程序
 
-从 [⟦T14⟧ template](https://github.com/langchain-ai/new-langgraphjs-project) 创建一个新应用程序。该模板演示了您可以使用自己的逻辑进行扩展的单节点应用程序。
+从 [⟦T14⟧ template](https://github.com/langchain-ai/new-langgraphjs-project) 创建一个新应用程序。此模板演示了您可以使用自己的逻辑进行扩展的单节点应用程序。
 
 ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 npm create langgraph
 ```
 
 <Accordion title="Adding LangGraph to an existing project">
-  如果您有一个带有 LangGraph 代理的现有项目，您可以使用 `config` 命令自动生成 `langgraph.json` 配置文件：
+  如果您已有包含LangGraph代理的项目，则可以使用`config`命令自动生成`langgraph.json`配置文件：
 
   ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
   npm create langgraph config
   ```
 
-  此命令扫描您的项目中的 LangGraph 代理（例如 `createAgent()`、`StateGraph.compile()` 或 `workflow.compile()` 模式），并生成包含所有导出代理的配置文件。
+  此命令扫描项目中的 LangGraph 代理（例如 `createAgent()`、`StateGraph.compile()` 或 `workflow.compile()` 模式），并生成包含所有导出代理的配置文件。
 
   输出示例：
 
@@ -55,14 +55,14 @@ npm create langgraph
 
 ## 3.安装依赖项
 
-在新 LangGraph 应用程序的根目录中，以 `edit` 模式安装依赖项，以便服务器使用本地更改：
+在新的 LangGraph 应用程序的根目录中，以 `edit` 模式安装依赖项，以便服务器使用您的本地更改：
 
 ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 cd path/to/your/app
 npm install
 ```
 
-## 4. 创建`.env`文件您将在新 LangGraph 应用程序的根目录中找到一个 `.env.example`。在新 LangGraph 应用程序的根目录中创建一个 `.env` 文件，并将 `.env.example` 文件的内容复制到其中，填写必要的 API 密钥：
+## 4. 创建`.env`文件您将在新的 LangGraph 应用程序的根目录中找到 `.env.example`。在新的LangGraph应用程序的根目录中创建一个`.env`文件，并将`.env.example`文件的内容复制到其中，填写必要的API密钥：
 
 ```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 LANGSMITH_API_KEY=lsv2...
@@ -121,7 +121,7 @@ https://smith.langchain.com/studio/?baseUrl=http://myhost:3000
 
 ## 7. 测试 API<Tabs>
   <Tab title="Javascript SDK">
-    1.安装LangGraph JS SDK：
+    1.安装LangGraphJS SDK：
        ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
        npm install @langchain/langgraph-sdk
        ```
@@ -177,11 +177,11 @@ https://smith.langchain.com/studio/?baseUrl=http://myhost:3000
 
 ## 后续步骤
 
-现在您已经在本地运行了 LangGraph 应用程序，可以通过探索部署和高级功能来进一步推进您的旅程：
+现在您已经在本地运行了 LangGraph 应用程序，通过探索部署和高级功能来进一步推进您的旅程：
 
-* [Deployment quickstart](/langsmith/deployment-quickstart)：使用 LangSmith 部署 LangGraph 应用程序。
+* [Deployment quickstart](/langsmith/deployment-quickstart)：使用LangSmith部署您的LangGraph应用程序。
 
-* [LangSmith](/langsmith/observability)：了解 LangSmith 的基本概念。
+* [LangSmith](/langsmith/observability)：了解基本的LangSmith概念。
 
 * [SDK Reference](https://reference.langchain.com/javascript/modules/_langchain_langgraph-sdk.html)：探索 SDK API 参考。
 
@@ -189,7 +189,7 @@ https://smith.langchain.com/studio/?baseUrl=http://myhost:3000
 
 <div>
   <Callout icon="terminal-2">
-    通过 MCP 向 Claude、VSCode 等发送[Connect these docs](/use-these-docs) 以获得实时答案。
+    [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
   </Callout>
 
   <Callout icon="edit">

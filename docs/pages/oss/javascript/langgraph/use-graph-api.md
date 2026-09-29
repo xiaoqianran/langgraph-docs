@@ -226,6 +226,69 @@ const State = new StateSchema({
 });
 ```
 
+### Bypass reducers with `Overwrite`
+
+In some cases, you may want to bypass a reducer and directly overwrite a state value. LangGraph provides the `Overwrite` type for this purpose. When a node returns a value wrapped with `Overwrite`, the reducer is bypassed and the channel is set directly to that value.
+
+This is useful when you want to reset or replace accumulated state rather than merge it with existing values.
+
+```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import {
+  END,
+  Overwrite,
+  ReducedValue,
+  START,
+  StateGraph,
+  StateSchema,
+} from "@langchain/langgraph";
+import { z } from "zod/v4";
+
+const State = new StateSchema({
+  messages: new ReducedValue(
+    z.array(z.string()).default(() => []),
+    {
+      reducer: (current: string[], update: string[]) => current.concat(update),
+    },
+  ),
+});
+
+const addMessage = () => {
+  return { messages: ["first message"] };
+};
+
+const replaceMessages = () => {
+  // Bypass the reducer and replace the entire messages list
+  return { messages: new Overwrite(["replacement message"]) };
+};
+
+const graph = new StateGraph(State)
+  .addNode("add_message", addMessage)
+  .addNode("replace_messages", replaceMessages)
+  .addEdge(START, "add_message")
+  .addEdge("add_message", "replace_messages")
+  .addEdge("replace_messages", END)
+  .compile();
+
+const result = await graph.invoke({ messages: ["initial"] });
+console.log(result.messages);
+```
+
+```
+["replacement message"]
+```
+
+You can also use JSON format with the special key `"__overwrite__"`:
+
+```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+const replaceMessages = () => {
+  return { messages: { __overwrite__: ["replacement message"] } };
+};
+```
+
+<Warning>
+  When nodes execute in parallel, only one node can use `Overwrite` on the same state key in a given super-step. If multiple nodes attempt to overwrite the same key in the same super-step, an `InvalidUpdateError` is raised.
+</Warning>
+
 ### Define input and output schemas
 
 By default, `StateGraph` operates with a single schema, and all nodes are expected to communicate using that schema. However, it's also possible to define distinct input and output schemas for a graph.
@@ -1106,17 +1169,17 @@ Adding "D" to ['A', 'B', 'C']
   If you have error-prone (perhaps want to handle flakey API calls), LangGraph provides two ways to address this:
 
   1. You can write regular python code within your node to catch and handle exceptions.
-  2. You can set a **[retry\_policy](https://langchain-ai.github.io/langgraph/reference/types/#langgraph.types.RetryPolicy)** to direct the graph to retry nodes that raise certain types of exceptions. Only failing branches are retried, so you needn't worry about performing redundant work.
+  2. You can set a **[`RetryPolicy`](https://reference.langchain.com/python/langgraph/types/#langgraph.types.RetryPolicy)** to direct the graph to retry nodes that raise certain types of exceptions. Only failing branches are retried, so you needn't worry about performing redundant work.
 
   Together, these let you perform parallel execution and fully control exception handling.
 </Accordion>
 
 <Tip>
   **Set max concurrency**
-  You can control the maximum number of concurrent tasks by setting `max_concurrency` in the [configuration](https://reference.langchain.com/javascript/interfaces/_langchain_langgraph.index.LangGraphRunnableConfig.html) when invoking the graph.
+  You can control the maximum number of concurrent tasks by setting `maxConcurrency` in the [configuration](https://reference.langchain.com/javascript/interfaces/_langchain_langgraph.index.LangGraphRunnableConfig.html) when invoking the graph. `maxConcurrency` is a standalone config key, so set it at the top level of the config rather than inside `configurable`.
 
   ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  const result = await graph.invoke({ value1: "c" }, {configurable: {max_concurrency: 10}});
+  const result = await graph.invoke({ value1: "c" }, { maxConcurrency: 10 });
   ```
 </Tip>
 
@@ -1651,7 +1714,7 @@ If you are using tools that update state via [`Command`](https://reference.langc
 
 Here we demonstrate how to visualize the graphs you create.
 
-You can visualize any arbitrary [Graph](https://langchain-ai.github.io/langgraph/reference/graphs/), including [StateGraph](https://langchain-ai.github.io/langgraph/reference/graphs/#langgraph.graph.state.StateGraph).
+You can visualize any arbitrary [Graph](https://reference.langchain.com/python/langgraph/graphs/), including [`StateGraph`](https://reference.langchain.com/javascript/langchain-langgraph/index/StateGraph).
 
 Let's create a simple example graph to demonstrate visualization.
 
@@ -1734,7 +1797,7 @@ await fs.writeFile("graph.png", imageBuffer);
 
 <div>
   <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) to Claude, VSCode, and more via MCP for real-time answers.
+    [Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
   </Callout>
 
   <Callout icon="edit">

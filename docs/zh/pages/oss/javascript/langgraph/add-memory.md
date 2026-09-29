@@ -124,7 +124,7 @@ await graph.invoke(
 
   <Tip>
     **设置**
-    要使用`MongoDBSaver`，您需要一个 MongoDB 集群。如果您还没有集群，请按照 [this guide](https://www.mongodb.com/docs/guides/atlas/cluster/) 创建集群。
+    要使用`MongoDBSaver`，您需要一个 MongoDB 集群。如果您还没有集群，请按照 [this guide](https://www.mongodb.com/docs/guides/atlas/cluster/) 创建集群。有关以代理为中心的演练，请参阅 [short-term memory with MongoDB Atlas](/oss/javascript/integrations/memory/mongodb-short-term-memory)。
   </Tip>
 
   ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
@@ -370,6 +370,10 @@ await graph.invoke(
   npm install @langchain/langgraph-checkpoint-mongodb
   ```
 
+  <Tip>
+    有关以代理为中心的演练，请参阅 [long-term memory with MongoDB Atlas](/oss/javascript/integrations/memory/mongodb-long-term-memory)。
+  </Tip>
+
   ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
   import { ChatAnthropic } from "@langchain/anthropic";
   import { MemorySaver, StateGraph, StateSchema, MessagesValue, GraphNode, START } from "@langchain/langgraph";
@@ -463,9 +467,7 @@ const items = await store.search(["user_123", "memories"], {
 
 <Tip>
   `InMemoryStore`适合开发。对于生产，请使用持久存储，例如 `PostgresStore`、`MongoDBStore` 或 `RedisStore`。
-</Tip>
-
-<Accordion title="Long-term memory with semantic search">
+</Tip><Accordion title="Long-term memory with semantic search">
   <Tabs>
     <Tab title="InMemoryStore">
       ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
@@ -584,7 +586,9 @@ const items = await store.search(["user_123", "memories"], {
         }
       }
       ```
-    </Tab><Tab title="MongoDB (auto embedding)">
+    </Tab>
+
+    <Tab title="MongoDB (auto embedding)">
       <Note>
         自动嵌入需要 MongoDB Atlas。 MongoDB 通过 Voyage AI 在服务器端生成嵌入。请参阅[Automated Embedding documentation](https://www.mongodb.com/docs/atlas/atlas-vector-search/automated-embedding/)了解更多信息。
       </Note>
@@ -665,9 +669,9 @@ const items = await store.search(["user_123", "memories"], {
 
 这允许代理在不超出 LLM 上下文窗口的情况下跟踪对话。
 
-### 修剪消息
+### 修剪消息大多数法学硕士都有最大支持的上下文窗口（以令牌计价）。决定何时截断消息的一种方法是计算消息历史记录中的标记，并在接近该限制时进行截断。如果您使用 LangChain，则可以使用修剪消息实用程序并指定要从列表中保留的标记数量，以及用于处理边界的 `strategy`（例如，保留最后一个 `maxTokens`）。
 
-大多数法学硕士都有最大支持的上下文窗口（以令牌计价）。决定何时截断消息的一种方法是计算消息历史记录中的标记，并在接近该限制时进行截断。如果您使用LangChain，则可以使用修剪消息实用程序并指定要从列表中保留的标记数量，以及用于处理边界的`strategy`（例如，保留最后一个`maxTokens`）。要修剪消息历史记录，请使用 [⟦T44⟧](https://js.langchain.com/docs/how_to/trim_messages/) 函数：
+要修剪消息历史记录，请使用 [⟦T44⟧](https://js.langchain.com/docs/how_to/trim_messages/) 函数：
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { trimMessages } from "@langchain/core/messages";
@@ -762,9 +766,7 @@ const deleteMessages = (state) => {
 ```
 
 <Warning>
-  删除消息时，**确保**生成的消息历史记录有效。检查您正在使用的 LLM 提供商的限制。例如：
-
-  * 一些提供商希望消息历史记录以 `user` 消息开始
+  删除消息时，**确保**生成的消息历史记录有效。检查您正在使用的 LLM 提供商的限制。例如：* 一些提供商希望消息历史记录以 `user` 消息开始
   * 大多数提供商要求带有工具调用的 `assistant` 消息后跟相应的 `tool` 结果消息。
 </Warning>
 
@@ -835,7 +837,9 @@ const deleteMessages = (state) => {
 
 如上所示，修剪或删除消息的问题是您可能会因消息队列的剔除而丢失信息。因此，一些应用程序受益于使用聊天模型总结消息历史记录的更复杂的方法。
 
-<img alt="Summary" />提示和编排逻辑可用于总结消息历史记录。例如，在 LangGraph 中，您可以在状态中包含 `summary` 键和 `messages` 键：
+<img alt="Summary" />
+
+提示和编排逻辑可用于总结消息历史记录。例如，在 LangGraph 中，您可以在状态中包含 `summary` 键和 `messages` 键：
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { StateSchema, MessagesValue, GraphNode } from "@langchain/langgraph";
@@ -1007,8 +1011,6 @@ const summarizeConversation: GraphNode<typeof State> = async (state) => {
 
 您可以查看和删除检查点存储的信息。
 
-<a />
-
 #### 查看线程状态
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
@@ -1042,8 +1044,6 @@ await graph.getState(config);
 }
 ```
 
-<a />
-
 #### 查看线程的历史记录
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
@@ -1066,17 +1066,17 @@ const threadId = "1";
 await checkpointer.deleteThread(threadId);
 ```
 
-## 数据库管理
+## 数据库管理如果您使用任何数据库支持的持久性实现（例如 Postgres、Redis 或 Oracle）来存储短期和/或长期内存，则需要运行迁移来设置所需的架构，然后才能将其与数据库一起使用。
 
-如果您使用任何数据库支持的持久性实现（例如 Postgres、Redis 或 Oracle）来存储短期和/或长期内存，则需要运行迁移来设置所需的架构，然后才能将其与数据库一起使用。
+按照惯例，大多数特定于数据库的库在运行所需迁移的检查点或存储实例上定义了一个 `setup()` 方法。但是，您应该检查[⟦T57⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/BaseCheckpointSaver)或[⟦T58⟧](https://reference.langchain.com/javascript/langchain-core/stores/BaseStore)的具体实现，以确认确切的方法名称和用法。
 
-按照惯例，大多数特定于数据库的库在运行所需迁移的检查点或存储实例上定义了一个 `setup()` 方法。但是，您应该检查[⟦T57⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/BaseCheckpointSaver)或[⟦T58⟧](https://reference.langchain.com/javascript/langchain-core/stores/BaseStore)的具体实现，以确认确切的方法名称和用法。我们建议将迁移作为专用部署步骤运行，或者您可以确保它们作为服务器启动的一部分运行。
+我们建议将迁移作为专用部署步骤运行，或者您可以确保它们作为服务器启动的一部分运行。
 
 ***
 
 <div>
   <Callout icon="terminal-2">
-    通过 MCP 向 Claude、VSCode 等发送[Connect these docs](/use-these-docs) 以获得实时答案。
+    [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
   </Callout>
 
   <Callout icon="edit">

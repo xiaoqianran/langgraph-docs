@@ -76,7 +76,7 @@ final_state = stream.output
 
 ## 事件流提供什么
 
-运行流公开一个底层事件流上的类型化投影：|投影|使用 |
+运行流公开了一个底层事件流上的类型化投影：|投影|使用|
 | -------------------- | -------------------------------------------------- |
 | `stream` |迭代每个协议事件。                      |
 | `stream.messages` |流式传输聊天模型消息和令牌增量。       |
@@ -141,7 +141,7 @@ final_state = stream.output
 
 ## 流式传输多个投影
 
-对于异步代码中的并发消费，请使用 `astream_events` 和 `asyncio.gather`：
+对于异步代码中的并发消耗，请使用 `astream_events` 和 `asyncio.gather`：
 
 ```py theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import asyncio
@@ -224,7 +224,7 @@ class ProtocolEventParams(TypedDict):
     data: Any                   # channel-specific payload; shape depends on `method`
 ```
 
-`namespace` 是从根图到发出事件的范围的路径。根是空数组`[]`。每个子执行都会添加一个 `"name:runtime_id"` 段，因此子图中的嵌套工具调用看起来像 `["researcher:6f4d", "tools:91ac"]`。 `:`之前的名称是稳定图或节点名称；后缀是每次调用的运行时 ID。当您只关心特定子树时，您可以自己按命名空间过滤原始事件 - `stream.subgraphs` 已经对嵌套图执行执行了此操作。
+`namespace` 是从根图到发出事件的范围的路径。根是空数组`[]`。每个子执行都会添加一个 `"name:runtime_id"` 段，因此子图中的嵌套工具调用看起来像 `["researcher:6f4d", "tools:91ac"]`。 `:`之前的名称是稳定图或节点名称；后缀是每次调用的运行时 ID。当您只关心特定子树时，您可以自己按命名空间过滤原始事件 - `stream.subgraphs` 已经为嵌套图执行执行了此操作。
 
 ## 通道和事件生命周期
 
@@ -296,9 +296,9 @@ for event in stream:
 
 ## 构建你自己的投影
 
-流转换器是事件流中的投影层。他们观察协议事件，保持自己的状态，并公开运行的派生视图 - 例如工具活动、令牌总数、进度事件、工件或另一个协议的消息。 `StreamChannel` 是用于发布这些视图的投影基元转换器。
+流转换器是事件流中的投影层。他们观察协议事件，保持自己的状态，并公开运行的派生视图——例如工具活动、令牌总数、进度事件、工件或另一个协议的消息。 `StreamChannel` 是用于发布这些视图的投影基元转换器。
 
-内置投影（`stream.messages`、`stream.values`、`stream.subgraphs`、`stream.output`）和特定于产品的投影（LangChain 的`stream.tool_calls`、Deep Agents 的`stream.subagents`）本身就是使用相同合约的变压器。用户转换器通过编译时或调用时注册堆叠在顶部，它们的投影出现在 `stream.extensions` 下。
+内置投影（`stream.messages`、`stream.values`、`stream.subgraphs`、`stream.output`）和产品特定投影（LangChain的`stream.tool_calls`、Deep Agents'`stream.subagents`）本身就是使用相同合约的变压器。用户转换器通过编译时或调用时注册堆叠在顶部，它们的投影出现在 `stream.extensions` 下。
 
 当现有投影与应用程序所需的形状不匹配时，编写一个。
 
@@ -348,7 +348,7 @@ class MyTransformer(StreamTransformer):
 * `finalize()` 在成功流后关闭或解析非通道投影。
 * `fail()` 将误差传播到非通道投影。
 
-### 声明所需的流模式`required_stream_modes` 控制底层图在流期间发出的 Pregel 流模式。运行时获取每个已注册变压器的 `required_stream_modes` 的并集，并将该并集作为 `stream_mode` 参数传递给图的 `.stream()` 调用。 **永远不会发出任何变压器请求的模式** - 声明 `("custom",)` 是导致 `custom` 事件在运行中流动的原因。
+### 声明所需的流模式`required_stream_modes` 控制底层图在流期间发出的 Pregel 流模式。运行时采用每个已注册变压器的 `required_stream_modes` 的并集，并将该并集作为 `stream_mode` 参数传递给图的 `.stream()` 调用。 **永远不会发出任何变压器请求的模式** - 声明 `("custom",)` 是导致 `custom` 事件在运行中流动的原因。
 
 ```py theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 class CustomTransformer(StreamTransformer):
@@ -409,7 +409,7 @@ class ToolActivityTransformer(StreamTransformer):
         return True
 ```
 
-### 示例：未命名频道如果没有名称，该通道只是一个侧通道投影 - 可在 `stream.extensions` 上访问，但对于迭代原始事件的消费者不可见。对于保存无法序列化到主事件流的进程内句柄（承诺、异步迭代、类实例）的投影来说，这是正确的选择。
+### 示例：未命名频道如果没有名称，该通道只是一个侧通道投影 - 可在 `stream.extensions` 上访问，但对迭代原始事件的消费者不可见。对于保存无法序列化到主事件流的进程内句柄（承诺、异步迭代、类实例）的投影来说，这是正确的选择。
 
 下面的示例将未命名通道与 `get_stream_writer` 配对，这让图形节点发出 `custom` 通道事件，然后转换器将其排入投影：
 
@@ -499,7 +499,7 @@ graph = builder.compile(
 
 ### 内置：`ToolCallTransformer`
 
-LangGraph 将 `ToolCallTransformer` 作为内置组件提供。注册它以在普通的 `StateGraph` 上公开 `stream.tool_calls`：
+LangGraph `ToolCallTransformer` 作为内置组件提供。注册它以在普通的 `StateGraph` 上公开 `stream.tool_calls`：
 
 ```py theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from langgraph.prebuilt import ToolCallTransformer
@@ -512,7 +512,7 @@ for tool_call in stream.tool_calls:
 
 ## 相关
 
-LangGraph 定义了流原语。要使用 LangChain 或 Deep Agents 进行流式传输，请查看相关产品文档：* [LangChain agent streaming](/oss/python/langchain/event-streaming) 涵盖 ReAct 风格的代理消息、工具调用和中间件更新。
+LangGraph 定义流原语。要使用 LangChain 或 Deep Agents 进行流式传输，请查看相关产品文档：* [LangChain agent streaming](/oss/python/langchain/event-streaming) 涵盖 ReAct 风格的代理消息、工具调用和中间件更新。
 * [Deep Agents streaming](/oss/python/deepagents/event-streaming) 涵盖子代理、嵌套消息和子代理工具调用。
 * [LangChain frontend patterns](/oss/python/langchain/frontend/overview) 和 [LangGraph frontend patterns](/oss/python/langgraph/frontend/overview) 显示构建在流状态之上的 UI 用例。
 * [LangSmith Streaming API](/langsmith/streaming) 涵盖针对部署在代理服务器后面的图表的流式传输。
@@ -523,7 +523,7 @@ LangGraph 定义了流原语。要使用 LangChain 或 Deep Agents 进行流式�
 
 <div>
   <Callout icon="terminal-2">
-    通过 MCP 向 Claude、VSCode 等发送[Connect these docs](/use-these-docs) 以获得实时答案。
+    [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
   </Callout>
 
   <Callout icon="edit">

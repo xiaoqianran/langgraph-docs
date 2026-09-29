@@ -2,19 +2,19 @@
 
 <!-- langgraph-docs: Trace LangGraph applications | https://docs.langchain.com/langsmith/trace-with-langgraph -->
 
-# 跟踪 LangGraph 应用程序
+# 跟踪LangGraph应用程序
 
-LangSmith 与 LangGraph（Python 和 JS）顺利集成，以帮助您跟踪代理，无论您使用的是 LangChain 模块还是其他 SDK。
+LangSmith 与 LangGraph（Python 和 JS）顺利集成，以帮助您跟踪代理，无论您使用 LangChain 模块还是其他 SDK。
 
-## 与浪链一起
+## 与 LangChain
 
-如果您在 LangGraph 中使用 LangChain 模块，则只需设置一些环境变量即可启用跟踪。
+如果您在LangGraph中使用LangChain模块，则只需设置一些环境变量即可启用跟踪。
 
 本指南将介绍一个基本示例。有关配置的更多详细信息，请参阅[Trace With LangChain](/langsmith/trace-with-langchain)指南。
 
 ### 1.安装
 
-安装 LangGraph 库以及适用于 Python 和 JS 的 OpenAI 集成（我们在下面的代码片段中使用 OpenAI 集成）。
+安装LangGraph库以及Python和JS的OpenAI集成（我们在下面的代码片段中使用OpenAI集成）。
 
 有关可用软件包的完整列表，请参阅 [LangChain Python docs](https://docs.langchain.com/oss/python/integrations/providers/overview) 和 [LangChain JS docs](https://docs.langchain.com/oss/javascript/integrations/providers/overview)。
 
@@ -91,7 +91,7 @@ export LANGSMITH_WORKSPACE_ID=<your-workspace-id>
 
 ### 3. 记录跟踪
 
-设置好环境后，您就可以像平常一样调用 LangChain runnables。 LangSmith 将推断正确的跟踪配置：
+设置环境后，您可以像平常一样调用 LangChain runnables。 LangSmith 将推断正确的跟踪配置：
 
 <CodeGroup>
   ```python Python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
@@ -225,19 +225,19 @@ export LANGSMITH_WORKSPACE_ID=<your-workspace-id>
 
 **详情查看**
 
-单击跟踪，然后切换到右上角的 **详细信息** 视图。您在 LangSmith 中的跟踪应该是 [look like this](https://smith.langchain.com/public/79061a0f-c602-4012-b022-03fd46bce89e/r)。
+单击跟踪，然后切换到右上角的 **详细信息** 视图。您在 LangSmith 中的踪迹应该是 [look like this](https://smith.langchain.com/public/79061a0f-c602-4012-b022-03fd46bce89e/r)。
 
-**消息查看**
+**轨迹视图**
 
-LangSmith UI 中的 **消息** 视图显示用户和代理之间的简化对话历史记录。该视图从顶级跟踪中提取消息（包括用户的初始请求、工具调用和代理的最终响应），并以类似聊天的格式表示它们。## 没有浪链
+LangSmith UI 中的 **Trajectory** 视图显示用户和代理之间的简化对话历史记录。该视图从顶级跟踪中提取消息（包括用户的初始请求、工具调用和代理的最终响应），并以类似聊天的格式表示它们。
 
-如果您在 LangGraph 中使用其他 SDK 或自定义函数，则需要 [wrap or decorate them appropriately](/langsmith/annotate-code#use-%40traceable-%2F-traceable) （使用 Python 中的 `@traceable` 装饰器或 JS 中的 `traceable` 函数，或者类似 SDK 的 `wrap_openai` ）。如果这样做，LangSmith 将自动从这些包装的方法中嵌套跟踪。
+## 没有LangChain如果您在 LangGraph 中使用其他 SDK 或自定义函数，则需要 [wrap or decorate them appropriately](/langsmith/annotate-code#use-%40traceable-%2F-traceable) （使用 Python 中的 `@traceable` 装饰器或 JS 中的 `traceable` 函数，或者类似 SDK 的 `wrap_openai` ）。如果这样做，LangSmith将自动从这些包装的方法中嵌套跟踪。
 
 这是一个例子。您还可以查看此页面以获取更多信息。
 
 ### 1.安装
 
-安装 LangGraph 库以及适用于 Python 和 JS 的 OpenAI SDK（我们在下面的代码片段中使用 OpenAI 集成）。
+安装适用于 Python 和 JS 的 LangGraph 库和 OpenAI SDK（我们在下面的代码片段中使用 OpenAI 集成）。
 
 <CodeGroup>
   ```bash pip theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
@@ -310,7 +310,7 @@ export OPENAI_API_KEY=<your-openai-api-key>
 
 ### 3. 记录跟踪
 
-设置好环境后，您想要跟踪 [wrap or decorate the custom functions/SDKs](/langsmith/annotate-code#use-%40traceable-%2F-traceable)。然后 LangSmith 将推断出正确的跟踪配置：
+设置好环境后，您想要跟踪[wrap or decorate the custom functions/SDKs](/langsmith/annotate-code#use-%40traceable-%2F-traceable)。然后LangSmith将推断出正确的跟踪配置：
 
 <CodeGroup>
   ```python Python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
@@ -526,18 +526,18 @@ export OPENAI_API_KEY=<your-openai-api-key>
 
 **详情查看**
 
-单击跟踪，然后切换到右上角的 **详细信息** 视图。您在 LangSmith 中的跟踪应该是 [look like this](https://smith.langchain.com/public/c3d128fa-c618-4b0e-b9d0-ccbb619440d8/r)。
+单击跟踪，然后切换到右上角的 **详细信息** 视图。您在 LangSmith 中的踪迹应该是 [look like this](https://smith.langchain.com/public/c3d128fa-c618-4b0e-b9d0-ccbb619440d8/r)。
 
-**消息查看**
+**轨迹视图**
 
-LangSmith UI 中的 **消息** 视图显示用户和代理之间的简化对话历史记录。该视图从顶级跟踪中提取消息（包括用户的初始请求、工具调用和代理的最终响应），并以类似聊天的格式表示它们。
+LangSmith UI 中的 **Trajectory** 视图显示用户和代理之间的简化对话历史记录。该视图从顶级跟踪中提取消息（包括用户的初始请求、工具调用和代理的最终响应），并以类似聊天的格式表示它们。
 
-***<div>
+***
+
+<div>
   <Callout icon="terminal-2">
-    通过 MCP 向 Claude、VSCode 等发送[Connect these docs](/use-these-docs) 以获得实时答案。
-  </Callout>
-
-  <Callout icon="edit">
+    [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
+  </Callout><Callout icon="edit">
     [Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/langsmith/trace-with-langgraph.mdx) 或 [file an issue](https://github.com/langchain-ai/docs/issues/new/choose)。
   </Callout>
 </div>

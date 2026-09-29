@@ -84,8 +84,8 @@ Node generate_joke updated: {'joke': 'Why did the ice cream go to school? To get
 ### 流输出格式 (v2)
 
 <Note>
-  需要 LangGraph >= 1.1。本页上的所有示例均使用`version="v2"`。
-</Note>将`version="v2"`传递给`stream()`或`astream()`以获得统一的输出格式。每个块都是一个具有一致形状的`StreamPart`字典——无论流模式、模式数量或子图设置如何：
+  需要 LangGraph 1.1 或更高版本。本页上的所有示例均使用`version="v2"`。
+</Note>将`version="v2"`传递给`stream()`或`astream()`以获得统一的输出格式。每个块都是一个具有一致形状的 `StreamPart` 字典 - 无论流模式、模式数量或子图设置如何：
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 {
@@ -95,7 +95,7 @@ Node generate_joke updated: {'joke': 'Why did the ice cream go to school? To get
 }
 ```
 
-每个流模式都有一个对应的`TypedDict`，其中包含[⟦T58⟧](https://reference.langchain.com/python/langgraph/types/ValuesStreamPart)、[⟦T59⟧](https://reference.langchain.com/python/langgraph/types/UpdatesStreamPart)、[⟦T60⟧](https://reference.langchain.com/python/langgraph/types/MessagesStreamPart)、[⟦T61⟧](https://reference.langchain.com/python/langgraph/types/CustomStreamPart)、[⟦T62⟧](https://reference.langchain.com/python/langgraph/types/CheckpointStreamPart)、[⟦T63⟧](https://reference.langchain.com/python/langgraph/types/TasksStreamPart)、[⟦T64⟧](https://reference.langchain.com/python/langgraph/types/DebugStreamPart)。您可以从 `langgraph.types` 导入这些类型。联合类型 [⟦T66⟧](https://reference.langchain.com/python/langgraph/types/StreamPart) 是 `part["type"]` 上的不相交联合，可在编辑器和类型检查器中实现完全类型缩小。
+每个流模式都有一个对应的`TypedDict`，其中包含[⟦T58⟧](https://reference.langchain.com/python/langgraph/types/ValuesStreamPart)、[⟦T59⟧](https://reference.langchain.com/python/langgraph/types/UpdatesStreamPart)、[⟦T60⟧](https://reference.langchain.com/python/langgraph/types/MessagesStreamPart)、[⟦T61⟧](https://reference.langchain.com/python/langgraph/types/CustomStreamPart)、[⟦T62⟧](https://reference.langchain.com/python/langgraph/types/CheckpointStreamPart)、[⟦T63⟧](https://reference.langchain.com/python/langgraph/types/TasksStreamPart)、[⟦T64⟧](https://reference.langchain.com/python/langgraph/types/DebugStreamPart)。您可以从 `langgraph.types` 导入这些类型。联合类型 [⟦T66⟧](https://reference.langchain.com/python/langgraph/types/StreamPart) 是 `part["type"]` 上的不相交联合，可以在编辑器和类型检查器中实现完全类型缩小。
 
 使用 v1（默认），输出格式根据您的流选项而变化（单模式返回原始数据，多模式返回 `(mode, data)` 元组，子图返回 `(namespace, data)` 元组）。对于 v2，格式始终相同：
 
@@ -140,15 +140,13 @@ for part in graph.stream(
 ## 流模式
 
 将以下一种或多种流模式作为列表传递给 [⟦T72⟧](https://reference.langchain.com/python/langgraph/graphs/#langgraph.graph.state.CompiledStateGraph.stream) 或 [⟦T73⟧](https://reference.langchain.com/python/langgraph/graphs/#langgraph.graph.state.CompiledStateGraph.astream) 方法：|模式|类型 |描述 |
-| :-------------------------- | :-------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------ |
+| :-------------------------- | :---------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------ |
 | [values](#graph-state) | [⟦T74⟧](https://reference.langchain.com/python/langgraph/types/ValuesStreamPart) |每一步后的完整状态。                                                                                                          |
 | [updates](#graph-state) | [⟦T75⟧](https://reference.langchain.com/python/langgraph/types/UpdatesStreamPart) |每个步骤后状态都会更新。同一步骤中的多个更新分别进行流式传输。                                            |
 | [messages](#llm-tokens) | [⟦T76⟧](https://reference.langchain.com/python/langgraph/types/MessagesStreamPart) |来自 LLM 调用的 2 元组（LLM 令牌、元数据）。                                                                                    |
 | [custom](#custom-data) | [⟦T77⟧](https://reference.langchain.com/python/langgraph/types/CustomStreamPart) |通过 [⟦T78⟧](https://reference.langchain.com/python/langgraph/config/get_stream_writer) 从节点发出的自定义数据。 || [checkpoints](#checkpoints) | [⟦T79⟧](https://reference.langchain.com/python/langgraph/types/CheckpointStreamPart) |检查点事件（与`get_state()`格式相同）。需要一个检查点。                                                           |
 | [tasks](#tasks) | [⟦T81⟧](https://reference.langchain.com/python/langgraph/types/TasksStreamPart) |任务开始/结束事件以及结果和错误。需要一个检查点。                                                           |
-| [debug](#debug) | [⟦T82⟧](https://reference.langchain.com/python/langgraph/types/DebugStreamPart) |所有可用信息 — 将 `checkpoints` 和 `tasks` 与额外元数据结合在一起。                                                         |
-
-<a />
+| [debug](#debug) | [⟦T82⟧](https://reference.langchain.com/python/langgraph/types/DebugStreamPart) |所有可用信息 — 将 `checkpoints` 和 `tasks` 与额外元数据结合起来。                                                         |
 
 ### 图状态
 
@@ -379,7 +377,7 @@ async for chunk in graph.astream(
 使用 `nostream` 标签从流中完全排除 LLM 输出。标有 `nostream` 的调用仍然运行并产生输出；他们的代币根本不会以 `messages` 模式发出。
 
 这在以下情况下很有用：* 您需要LLM输出进行内部处理（例如结构化输出），但不想将其流式传输到客户端
-* 您通过不同的通道传输相同的内容（例如自定义 UI 消息），并希望避免 `messages` 流中的重复输出
+* 您通过不同的通道传输相同的内容（例如自定义 UI 消息），并希望避免在 `messages` 流中重复输出
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from typing import Any, TypedDict
@@ -426,6 +424,10 @@ graph = (
 initial_state: State = {"topic": "AI", "answer": "", "notes": ""}
 stream = graph.stream_events(initial_state, version="v3")
 ```
+
+<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/e17f4132-e295-47d7-a61d-eb85ca98fbfa/r">
+  为此示例打开公共 LangSmith 运行。
+</Card>
 
 #### 按节点过滤
 
@@ -585,7 +587,7 @@ for chunk in graph.stream(
 要将 [subgraphs](/oss/python/langgraph/use-subgraphs) 的输出包含在流式输出中，您可以在父图的 `.stream()` 方法中设置 `subgraphs=True`。这将从父图和任何子图流输出。输出将作为元组`(namespace, data)`进行流式传输，其中`namespace`是一个元组，其中包含调用子图的节点的路径，例如`("parent_node:<task_id>", "child_node:<task_id>")`。
 
 <Tabs>
-  <Tab title="v2 (LangGraph >= 1.1)">
+  <Tab title="v2 (LangGraph 1.1 or later)">
     对于`version="v2"`，子图事件使用相同的`StreamPart`格式。 `ns` 字段标识源：
 
     ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
@@ -758,8 +760,6 @@ for chunk in graph.stream(
         print(chunk["data"])
 ```
 
-<a />
-
 ### 调试
 
 使用 `debug` 流模式在整个图表执行过程中流式传输尽可能多的信息。流式输出包括节点的名称以及完整状态。
@@ -804,7 +804,7 @@ for chunk in graph.stream(
 
 ### 与任何 LLM 一起使用
 
-您可以使用`stream_mode="custom"`从**任何LLM API**传输数据——即使该API**没有**实现LangChain聊天模型接口。
+您可以使用 `stream_mode="custom"` 从**任何 LLM API** 流式传输数据，即使该 API **未**实现 LangChain 聊天模型接口。
 
 这使您可以集成原始 LLM 客户端或提供自己的流接口的外部服务，使 LangGraph 对于自定义设置高度灵活。
 
@@ -994,9 +994,9 @@ for chunk in graph.stream(
 
 ### 迁移到 v2
 
-v2 流格式（本页中使用）提供了统一的输出格式。以下是主要差异以及如何迁移的摘要：|场景 | v1（默认）| v2 (`version="v2"`) |
-| ------------------------ | | ---------------------------------- | ------------------------------------------------- |
-|单流模式 |原始数据（字典）| `StreamPart` 字典与 `type`、`ns`、`data` |
+v2 流格式（本页中使用）提供了统一的输出格式。以下是主要差异以及如何迁移的摘要：|场景| v1（默认）| v2 (`version="v2"`) |
+| --------------------------------------- | ---------------------------------- | ------------------------------------------------- |
+|单流模式|原始数据（字典）| `StreamPart` 字典与 `type`、`ns`、`data` |
 |多种码流模式 | `(mode, data)` 元组 |相同的 `StreamPart` 字典，在 `chunk["type"]` 上过滤 |
 |子图流 | `(namespace, data)` 元组 |相同的 `StreamPart` 字典，检查 `chunk["ns"]` |
 |多种模式+子图| `(namespace, mode, data)` 三倍|相同的 `StreamPart` 字典 |
@@ -1020,7 +1020,7 @@ result.interrupts  # tuple[Interrupt, ...], empty if none occurred
 ```对于除默认 `"values"` 之外的任何流模式，`invoke(..., stream_mode="updates", version="v2")` 返回 `list[StreamPart]` 而不是 `list[tuple]`。
 
 <Warning>
-  `GraphOutput`（`result["key"]`、`"key" in result`、`result["__interrupt__"]`）上的字典式访问仍然适用于向后兼容性，但 **已弃用** 并将在未来版本中删除。迁移到`result.value`和`result.interrupts`。
+  `GraphOutput`（`result["key"]`、`"key" in result`、`result["__interrupt__"]`）上的字典式访问仍然适用于向后兼容，但 **已弃用** 并将在未来版本中删除。迁移到`result.value`和`result.interrupts`。
 </Warning>
 
 这将状态与中断元数据分开。对于 v1，中断被嵌入到`__interrupt__`下返回的字典中：
@@ -1064,8 +1064,6 @@ for chunk in graph.stream(
 ):
     print(type(chunk["data"]))  # <class 'MyState'>
 ```
-
-<a />
 
 ### 与 Python 异步 \< 3.11
 
@@ -1155,7 +1153,7 @@ This limits LangGraph ability to automatically propagate context, and affects La
 
 <div>
   <Callout icon="terminal-2">
-    通过 MCP 向 Claude、VSCode 等发送[Connect these docs](/use-these-docs) 以获得实时答案。
+    [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
   </Callout>
 
   <Callout icon="edit">
