@@ -41,12 +41,16 @@
   * 当指南未涵盖呼叫站点或模式时，询问而不是猜测。
 </Prompt>
 
-## 变更摘要| langgraph-supervisor | langgraph-supervisor推荐更换|
-| ------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+## 变更摘要
+
+| langgraph-supervisor | langgraph-supervisor推荐更换 |
+| - | - |
 | `create_supervisor` 以工作代理作为图节点 | [⟦T40⟧](https://reference.langchain.com/python/langchain/agents/factory/create_agent) 与包装为 [⟦T41⟧](https://reference.langchain.com/python/langchain-core/tools/convert/tool) 函数的子代理 |
 | `output_mode` 用于消息历史记录 |在工具包装器中格式化子代理输出（请参阅[subagent outputs](/oss/python/langchain/multi-agent/subagents#subagent-outputs)）|
 | `create_handoff_tool` 用于自定义路由 |自定义 [⟦T44⟧](https://reference.langchain.com/python/langchain-core/tools/convert/tool) 调用 `subagent.invoke(...)` |
-|嵌套主管（主管的`create_supervisor`）|包装为 [⟦T47⟧](https://reference.langchain.com/python/langchain-core/tools/convert/tool) 的子代理，调用其他子代理 |## 基本迁移
+|嵌套主管（主管的`create_supervisor`）|包装为 [⟦T47⟧](https://reference.langchain.com/python/langchain-core/tools/convert/tool) 的子代理，调用其他子代理 |
+
+## 基本迁移
 
 在`langgraph-supervisor`中，工作代理是图节点，并且监督者使用切换工具在它们之间路由：
 
@@ -76,9 +80,7 @@ workflow = create_supervisor(
 app = workflow.compile(checkpointer=checkpointer)
 ```
 
-通过将每个工作人员包装为主代理上的工具来迁移到子代理模式：
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+通过将每个工作人员包装为主代理上的工具来迁移到子代理模式：```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from langchain.agents import create_agent
 from langchain.tools import tool
 from langgraph.checkpoint.memory import InMemorySaver
@@ -192,7 +194,9 @@ supervisor.invoke(Command(resume=external_result), config=config)
 要使 [⟦T54⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 通过嵌套的 [⟦T55⟧](https://reference.langchain.com/python/langchain/agents/factory/create_agent) 层向上冒泡，请遵循以下规则：
 
 1. **仅编译带有检查点的最外层图。** 让子代理不带 `checkpointer=...`，以便它们使用 [per-invocation persistence](/oss/python/langgraph/use-subgraphs#per-invocation-default) 并在运行时继承父级的检查点。
-2. **在`configurable`中传递`thread_id`。** 外部`invoke()`或`stream_events()`调用必须包含`thread_id`，以便图表可以检查点并恢复。这些规则适用于任意嵌套的设置。例如，自定义 [⟦T62⟧](https://reference.langchain.com/python/langgraph/graph/state/StateGraph) 外层、中间 [⟦T63⟧](https://reference.langchain.com/python/langchain/agents/factory/create_agent) 主管和内部 [⟦T64⟧](https://reference.langchain.com/python/langchain/agents/factory/create_agent) 子代理都遵循相同的机制：
+2. **在`configurable`中传递`thread_id`。** 外部`invoke()`或`stream_events()`调用必须包含`thread_id`，以便图表可以检查点并恢复。
+
+这些规则适用于任意嵌套的设置。例如，自定义 [⟦T62⟧](https://reference.langchain.com/python/langgraph/graph/state/StateGraph) 外层、中间 [⟦T63⟧](https://reference.langchain.com/python/langchain/agents/factory/create_agent) 主管和内部 [⟦T64⟧](https://reference.langchain.com/python/langchain/agents/factory/create_agent) 子代理都遵循相同的机制：
 
 ```txt theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 Custom StateGraph (outer, with checkpointer)
@@ -202,9 +206,7 @@ Custom StateGraph (outer, with checkpointer)
                     └── preview_tool → interrupt(...)
 ```
 
-当`preview_tool`调用[⟦T66⟧](https://reference.langchain.com/python/langgraph/types/interrupt)时，异常会通过[⟦T67⟧](https://reference.langchain.com/python/langchain/agents/factory/create_agent)层和表面冒泡，就像外部[⟦T69⟧](https://reference.langchain.com/python/langgraph/graph/state/StateGraph)调用结果上的`__interrupt__`一样。您现有的 `Command(resume=result)` 回调路径仍然有效。
-
-有关中断如何通过子图传播的更多信息，请参阅[Subgraph persistence: Interrupts](/oss/python/langgraph/use-subgraphs#per-invocation-default)和[Checkpointing and state inspection](/oss/python/langchain/multi-agent/subagents#checkpointing-and-state-inspection)。
+当`preview_tool`调用[⟦T66⟧](https://reference.langchain.com/python/langgraph/types/interrupt)时，异常会通过[⟦T67⟧](https://reference.langchain.com/python/langchain/agents/factory/create_agent)层和表面冒泡，就像外部[⟦T69⟧](https://reference.langchain.com/python/langgraph/graph/state/StateGraph)调用结果上的`__interrupt__`一样。您现有的 `Command(resume=result)` 回调路径仍然有效。有关中断如何通过子图传播的更多信息，请参阅[Subgraph persistence: Interrupts](/oss/python/langgraph/use-subgraphs#per-invocation-default)和[Checkpointing and state inspection](/oss/python/langchain/multi-agent/subagents#checkpointing-and-state-inspection)。
 
 ## 何时使用自定义 StateGraph
 
@@ -241,16 +243,16 @@ top_supervisor = create_agent(
     system_prompt="Route billing to billing_team and general support to support_agent.",
     checkpointer=InMemorySaver(),
 )
-```如果您需要静态子图发现、每层的检查点命名空间或级别之间的共享状态键，请改用自定义 [⟦T76⟧](https://reference.langchain.com/python/langgraph/graph/state/StateGraph) 和 [subgraph nodes](/oss/python/langgraph/use-subgraphs#add-a-subgraph-as-a-node)。
+```
+
+如果您需要静态子图发现、每层的检查点命名空间或级别之间的共享状态键，请改用自定义 [⟦T76⟧](https://reference.langchain.com/python/langgraph/graph/state/StateGraph) 和 [subgraph nodes](/oss/python/langgraph/use-subgraphs#add-a-subgraph-as-a-node)。
 
 ## 迁移消息历史记录选项
 
 `create_supervisor` 公开 `output_mode` 来控制工作人员消息在对话历史记录中的显示方式：
 
 * `full_history`：包括来自工作代理的所有消息。
-* `last_message`：仅包含工作人员的最终响应。
-
-使用子代理模式，可以在工具包装器中控制它。仅返回 `last_message` 行为的最终消息，或返回 `full_history` 行为的完整对话的格式化摘要。有关将附加状态传递回主管的模式，请参阅[Subagent outputs](/oss/python/langchain/multi-agent/subagents#subagent-outputs)。
+* `last_message`：仅包含工作人员的最终响应。使用子代理模式，可以在工具包装器中控制它。仅返回 `last_message` 行为的最终消息，或返回 `full_history` 行为的完整对话的格式化摘要。有关将附加状态传递回主管的模式，请参阅[Subagent outputs](/oss/python/langchain/multi-agent/subagents#subagent-outputs)。
 
 ## 另请参阅
 
@@ -264,7 +266,7 @@ top_supervisor = create_agent(
 
 <div>
   <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
+    [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时答案。
   </Callout>
 
   <Callout icon="edit">

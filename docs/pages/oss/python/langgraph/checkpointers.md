@@ -153,15 +153,15 @@ StateSnapshot(
 
 #### StateSnapshot fields
 
-| Field           | Type                     | Description                                                                                                                                                |
-| --------------- | ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `values`        | `dict`                   | State channel values at this checkpoint.                                                                                                                   |
-| `next`          | `tuple[str, ...]`        | Node names to execute next. Empty `()` means the graph is complete.                                                                                        |
-| `config`        | `dict`                   | Contains `thread_id`, `checkpoint_ns`, and `checkpoint_id`.                                                                                                |
-| `metadata`      | `dict`                   | Execution metadata. Contains `source` (`"input"`, `"loop"`, or `"update"`), `writes` (node outputs), and `step` (super-step counter).                      |
-| `created_at`    | `str`                    | ISO 8601 timestamp of when this checkpoint was created.                                                                                                    |
-| `parent_config` | `dict \| None`           | Config of the previous checkpoint. `None` for the first checkpoint.                                                                                        |
-| `tasks`         | `tuple[PregelTask, ...]` | Tasks to execute at this step. Each task has `id`, `name`, `error`, `interrupts`, and optionally `state` (subgraph snapshot, when using `subgraphs=True`). |
+| Field | Type | Description |
+| - | - | - |
+| `values` | `dict` | State channel values at this checkpoint. |
+| `next` | `tuple[str, ...]` | Node names to execute next. Empty `()` means the graph is complete. |
+| `config` | `dict` | Contains `thread_id`, `checkpoint_ns`, and `checkpoint_id`. |
+| `metadata` | `dict` | Execution metadata. Contains `source` (`"input"`, `"loop"`, or `"update"`), `writes` (node outputs), and `step` (super-step counter). |
+| `created_at` | `str` | ISO 8601 timestamp of when this checkpoint was created. |
+| `parent_config` | `dict \| None` | Config of the previous checkpoint. `None` for the first checkpoint. |
+| `tasks` | `tuple[PregelTask, ...]` | Tasks to execute at this step. Each task has `id`, `name`, `error`, `interrupts`, and optionally `state` (subgraph snapshot, when using `subgraphs=True`). |
 
 ### Get state history
 
@@ -620,11 +620,11 @@ If you write a custom serializer, make sure it can round-trip `_DeltaSnapshot` f
 
 These methods are optional but unlock additional Agent Server features. Implement them if your storage backend can support them efficiently.
 
-| Method                       | What it enables                                          |
-| ---------------------------- | -------------------------------------------------------- |
-| `adelete_for_runs`           | Rollback multitask strategy                              |
-| `acopy_thread`               | Efficient thread forking                                 |
-| `aprune`                     | Thread history pruning                                   |
+| Method | What it enables |
+| - | - |
+| `adelete_for_runs` | Rollback multitask strategy |
+| `acopy_thread` | Efficient thread forking |
+| `aprune` | Thread history pruning |
 | `aget_delta_channel_history` | Efficient delta channel state reconstruction (see below) |
 
 Agent Server auto-detects which capabilities your checkpointer implements at startup and activates the corresponding features.

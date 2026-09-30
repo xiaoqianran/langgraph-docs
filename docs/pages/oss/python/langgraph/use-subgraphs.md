@@ -31,10 +31,10 @@ Subgraphs are useful for:
 
 When adding subgraphs, you need to define how the parent graph and the subgraph communicate:
 
-| Pattern                                                         | When to use                                                                                                        | State schemas                                                                                                  |
-| --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------- |
+| Pattern | When to use | State schemas |
+| - | - | - |
 | [Call a subgraph inside a node](#call-a-subgraph-inside-a-node) | Parent and subgraph have **different state schemas** (no shared keys), or you need to transform state between them | You write a wrapper function that maps parent state to subgraph input and subgraph output back to parent state |
-| [Add a subgraph as a node](#add-a-subgraph-as-a-node)           | Parent and subgraph **share state keys**—the subgraph reads from and writes to the same channels as the parent     | You pass the compiled subgraph directly to `add_node`—no wrapper function needed                               |
+| [Add a subgraph as a node](#add-a-subgraph-as-a-node) | Parent and subgraph **share state keys**—the subgraph reads from and writes to the same channels as the parent | You pass the compiled subgraph directly to `add_node`—no wrapper function needed |
 
 ### Call a subgraph inside a node
 
@@ -316,11 +316,11 @@ When you use a subgraph, you need to decide what happens to its internal data be
 
 The `checkpointer` parameter on `.compile()` controls subgraph persistence:
 
-| Mode                                      | `checkpointer=`  | Behavior                                                                                                                                                                                                 |
-| ----------------------------------------- | ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Mode | `checkpointer=` | Behavior |
+| - | - | - |
 | [Per-invocation](#per-invocation-default) | `None` (default) | Each call starts fresh and inherits the parent's checkpointer to support [interrupts](/oss/python/langgraph/interrupts) and [durable execution](/oss/python/langgraph/persistence) within a single call. |
-| [Per-thread](#per-thread)                 | `True`           | State accumulates across calls on the same thread. Each call picks up where the last one left off.                                                                                                       |
-| [Stateless](#stateless)                   | `False`          | No checkpointing at all—runs like a plain function call. No interrupts or durable execution.                                                                                                             |
+| [Per-thread](#per-thread) | `True` | State accumulates across calls on the same thread. Each call picks up where the last one left off. |
+| [Stateless](#stateless) | `False` | No checkpointing at all—runs like a plain function call. No interrupts or durable execution. |
 
 Per-invocation is the right choice for most applications, including [multi-agent](/oss/python/langchain/multi-agent) systems where subagents handle independent requests. Use per-thread when a subagent needs multi-turn conversation memory (for example, a research assistant that builds context over several exchanges).
 
@@ -667,14 +667,14 @@ Control subgraph persistence with the `checkpointer` parameter on `.compile()`:
 subgraph = builder.compile(checkpointer=False)  # or True / None
 ```
 
-| Feature                              | Per-invocation (default) | Per-thread            | Stateless |
-| ------------------------------------ | ------------------------ | --------------------- | --------- |
-| `checkpointer=`                      | `None`                   | `True`                | `False`   |
-| Interrupts (HITL)                    | ✅                        | ✅                     | ❌         |
-| Multi-turn memory                    | ❌                        | ✅                     | ❌         |
-| Multiple calls (different subgraphs) | ✅                        | <Tooltip>⚠️</Tooltip> | ✅         |
-| Multiple calls (same subgraph)       | ✅                        | ❌                     | ✅         |
-| State inspection                     | <Tooltip>⚠️</Tooltip>    | ✅                     | ❌         |
+| Feature | Per-invocation (default) | Per-thread | Stateless |
+| - | - | - | - |
+| `checkpointer=` | `None` | `True` | `False` |
+| Interrupts (HITL) | ✅ | ✅ | ❌ |
+| Multi-turn memory | ❌ | ✅ | ❌ |
+| Multiple calls (different subgraphs) | ✅ | <Tooltip>⚠️</Tooltip> | ✅ |
+| Multiple calls (same subgraph) | ✅ | ❌ | ✅ |
+| State inspection | <Tooltip>⚠️</Tooltip> | ✅ | ❌ |
 
 * **Interrupts (HITL)**: The subgraph can use [interrupt()](/oss/python/langgraph/interrupts) to pause execution and wait for user input, then resume where it left off.
 * **Multi-turn memory**: The subgraph retains its state across multiple invocations within the same [thread](/oss/python/langgraph/checkpointers#threads). Each call picks up where the last one left off rather than starting fresh.

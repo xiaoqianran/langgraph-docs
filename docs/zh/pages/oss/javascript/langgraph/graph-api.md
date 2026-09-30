@@ -340,11 +340,11 @@ const State = new StateSchema({
 
 <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/65abf4d1-0932-4229-9d3f-c21e52d6008c/r">
   为此示例打开公共 LangSmith 运行。
-</Card>在此示例中，我们使用 `ReducedValue` 为第二个键 (`bar`) 指定减速器函数。请注意，第一个键保持不变。我们假设图的输入是`{ foo: 1, bar: ["hi"] }`。然后我们假设第一个 `Node` 返回 `{ foo: 2 }`。这被视为对状态的更新。请注意，`Node` 不需要返回整个 `State` 模式 - 只需要更新即可。应用此更新后，`State` 将变为 `{ foo: 2, bar: ["hi"] }`。如果第二个节点返回`{ bar: ["bye"] }`，则`State`将是`{ foo: 2, bar: ["hi", "bye"] }`。请注意，`bar` 键是通过将两个数组连接在一起来更新的。
+</Card>在此示例中，我们使用 `ReducedValue` 为第二个键 (`bar`) 指定减速器函数。请注意，第一个键保持不变。我们假设图的输入是`{ foo: 1, bar: ["hi"] }`。然后我们假设第一个 `Node` 返回 `{ foo: 2 }`。这被视为对状态的更新。请注意，`Node` 不需要返回整个 `State` 模式 - 只需要更新即可。应用此更新后，`State` 将变为 `{ foo: 2, bar: ["hi"] }`。如果第二个节点返回`{ bar: ["bye"] }`，则`State`将是`{ foo: 2, bar: ["hi", "bye"] }`。请注意，此处 `bar` 键是通过将两个数组连接在一起来更新的。
 
 #### 重置reducer字段
 
-减速器常见的混淆来源：使用合并减速器时，返回空值不会**不**清除字段。因为reducer将右边的参数合并到左边的参数中，所以合并了一个空的更新，并且保留了之前累积的值。
+减速器常见的混淆来源：使用合并减速器时，返回空值并不会清除字段。因为reducer将右边的参数合并到左边的参数中，所以合并了一个空的更新，并且保留了之前累积的值。
 
 此模式对于必须在重试尝试之间清除的错误缓冲区或重试计数器很重要：
 
@@ -559,7 +559,7 @@ type MyUpdate = typeof MyStateSchema.Update;
 
 大多数现代法学硕士提供商都有一个聊天模型界面，接受消息列表作为输入。 LangChain 的 [chat model interface](/oss/javascript/langchain/models) 特别接受消息对象列表作为输入。这些消息有多种形式，例如[⟦T149⟧](https://reference.langchain.com/javascript/langchain-core/messages/HumanMessage)（用户输入）或[⟦T150⟧](https://reference.langchain.com/javascript/langchain-core/messages/AIMessage)（LLM 响应）。
 
-要了解有关消息对象是什么的更多信息，请参阅[Messages conceptual guide](/oss/javascript/langchain/messages)。
+要了解有关消息对象的更多信息，请参阅[Messages conceptual guide](/oss/javascript/langchain/messages)。
 
 #### 在图表中使用消息在许多情况下，将先前的对话历史记录存储为图形状态中的消息列表会很有帮助。为此，您可以使用预构建的 `MessagesValue`，它提供了一个消息感知减速器，可以自动处理消息 ID、更新和删除。
 
@@ -766,7 +766,7 @@ import { START } from "@langchain/langgraph";
 graph.addEdge(START, "nodeA");
 ```
 
-### `END` 节点`END`节点是一个特殊的节点，代表终端节点。当您想要指示哪些边完成后没有任何操作时，将引用此节点。
+### `END` 节点`END`节点是一个特殊的节点，代表终端节点。当您想要指示哪些边完成后没有任何操作时，将引用该节点。
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { END } from "@langchain/langgraph";
@@ -1018,19 +1018,19 @@ const resumed = await graph.invoke(new Command({ resume: "yes" }), config);
 ### 从工具返回
 
 您可以从工具返回[⟦T257⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/Command)来更新图状态和控制流。使用 `update` 修改状态（例如，保存在对话期间查找的客户信息），并使用 `goto` 在工具完成后路由到特定节点。<Warning>
-  When used inside tools, `goto` adds a dynamic edge—any static edges already defined on the node that called the tool will still execute.对于每个节点，使用工具驱动的动态路由或静态边来路由到下一个节点，而不是同时使用两者。
+  当在工具内部使用时，`goto` 添加动态边 - 调用该工具的节点上已定义的任何静态边仍将执行。对于每个节点，使用工具驱动的动态路由或静态边来路由到下一个节点，而不是同时使用两者。
 </Warning>
 
 详情请参阅[Use inside tools](/oss/javascript/langgraph/use-graph-api#use-inside-tools)。
 
-## Graph migrations
+## 图迁移
 
 即使使用检查指针来跟踪状态，LangGraph也可以轻松处理图定义（节点、边和状态）的迁移。
 
 * 对于图末尾的线程（即未中断），您可以更改图的整个拓扑（即所有节点和边、删除、添加、重命名等）
 * 对于当前中断的线程，我们支持除重命名/删除节点之外的所有拓扑更改（因为该线程现在可能即将进入不再存在的节点）——如果这是一个阻止者，请与我们联系，我们可以优先考虑解决方案。
 * 对于修改状态，我们对添加和删除键具有完全的向后和向前兼容性
-* 重命名的状态键会丢失其在现有线程中保存的状态* 类型以不兼容方式更改的状态键目前可能会导致更改前线程状态出现问题——如果这是一个阻碍，请与我们联系，我们可以优先考虑解决方案。
+* 重命名的状态键会丢失其在现有线程中保存的状态* 类型以不兼容方式更改的状态键目前可能会导致更改前线程状态出现问题 - 如果这是一个阻碍，请与我们联系，我们可以优先考虑解决方案。
 
 <Tip>
   对于技术上兼容但改变业务逻辑的更改，例如重写工具集或重组对话流程，请参阅[Business compatibility](/oss/javascript/langgraph/backward-compatibility#business-compatibility)。该页面介绍了将行为版本固定在状态中，以便现有线程保留旧路径，而新线程则选择最新版本。
@@ -1120,7 +1120,7 @@ const myNode: GraphNode<typeof State> = async (state, config) => {
 }
 ```
 
-设计具有显式终止条件的图表，并捕获 `GraphRecursionError` 作为安全网：
+使用显式终止条件设计您的图，并捕获 `GraphRecursionError` 作为安全网：
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import {
@@ -1229,7 +1229,7 @@ try {
 反应式方法在超出限制后捕获`GraphRecursionError`。使用明确的终止条件设计图表，以避免首先达到限制。
 
 |方法|检测|处理|控制流程|
-| -------------------------------------------------- | -------------------- | -------------------------- | -------------------------- |
+| - | - | - | - |
 |反应式（捕捉`GraphRecursionError`）|超出限制后 | try/catch 中的外部图 |图形执行终止 |
 
 **反应式优势：**
@@ -1264,7 +1264,9 @@ const inspectMetadata: GraphNode<typeof State> = async (state, config) => {
 
 要跟踪、调试和评估您的代理，请使用[LangSmith](/langsmith/observability)。
 
-＃＃ 了解更多* [How to use the Graph API](/oss/javascript/langgraph/use-graph-api)
+## 了解更多
+
+* [How to use the Graph API](/oss/javascript/langgraph/use-graph-api)
 * [Functional API conceptual overview](/oss/javascript/langgraph/functional-api)
 * [Choosing between Graph API and Functional API](/oss/javascript/langgraph/choosing-apis)
 

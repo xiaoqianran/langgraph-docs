@@ -195,7 +195,7 @@ for update in graph.stream(
     context=Context(user_id="1"),
 ):
     print(update)
-```您可以使用 `Runtime` 对象从*任何节点*访问存储和 `user_id`。当您将 `Runtime` 作为参数添加到节点函数时，LangGraph 会自动注入它。您可以用它来保存记忆：
+```您可以使用 `Runtime` 对象从*任何节点*访问存储和 `user_id`。当您将`Runtime`作为参数添加到节点函数时，LangGraph会自动注入它。您可以用它来保存记忆：
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from langgraph.runtime import Runtime
@@ -302,7 +302,7 @@ for update in graph.stream(
 ### 基础合约所有五个异步方法都是必需的。同步对应项（`put`、`get`、`delete`、`search`、`list_namespaces`）是可选的，但建议与同步图执行兼容。
 
 |方法|描述 |
-| ------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------- |
+| - | - |
 | `aput(namespace, key, value, index=None)` |存储或覆盖单个项目 |
 | `aget(namespace, key)` |通过键检索单个项目；如果缺失则返回`None` |
 | `adelete(namespace, key)` |删除单个项目 |
@@ -317,7 +317,9 @@ from langgraph.store.base import BaseStore
 print(inspect.getsource(BaseStore))
 ```
 
-### 命名空间设计命名空间是字符串的元组，例如`("user_id", "memories")`。商店实施必须支持：
+### 命名空间设计
+
+命名空间是字符串的元组，例如`("user_id", "memories")`。商店实施必须支持：
 
 * **前缀匹配**： `asearch(("alice",))` 返回 `("alice",)`、`("alice", "memories")` 和任何其他子命名空间下的项目。
 * **精确键查找**：`aget(("alice", "memories"), "some-key")` 必须是 O(1) 或接近它。
@@ -343,9 +345,7 @@ CREATE INDEX ON store_items USING gin(namespace);
 
 ### 语义搜索支持
 
-如果您的后端支持矢量搜索，请在 `asearch` 上实现 `query` 参数：
-
-* 接受`query: str | None` 参数。
+如果您的后端支持矢量搜索，请在 `asearch` 上实现 `query` 参数：* 接受`query: str | None` 参数。
 * 当`query`不是`None`时，将其嵌入并按余弦相似度对结果进行排序。
 * 当提供 `query` 时，结果应在每个 `Item` 上包含 `score` 字段。
 
@@ -401,7 +401,9 @@ async def test_search_prefix(store, reference):
 <div>
   <Callout icon="terminal-2">
     [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
-  </Callout><Callout icon="edit">
+  </Callout>
+
+  <Callout icon="edit">
     [Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/stores.mdx) 或[file an issue](https://github.com/langchain-ai/docs/issues/new/choose)。
   </Callout>
 </div>

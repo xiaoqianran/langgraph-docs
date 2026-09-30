@@ -81,16 +81,16 @@ The event router is the bridge between the two layers. It receives normalized Pr
 
 The run stream exposes typed projections over one underlying event flow:
 
-| Projection           | Use                                                |
-| -------------------- | -------------------------------------------------- |
-| `stream`             | Iterate every protocol event.                      |
-| `stream.messages`    | Stream chat model messages and token deltas.       |
-| `stream.values`      | Iterate state snapshots and await the final value. |
-| `stream.output`      | Await the final output.                            |
-| `stream.subgraphs`   | Discover and observe nested graph executions.      |
-| `stream.interrupts`  | Inspect human-in-the-loop interrupt payloads.      |
-| `stream.interrupted` | Check whether the run paused for human input.      |
-| `stream.extensions`  | Consume custom stream transformer projections.     |
+| Projection | Use |
+| - | - |
+| `stream` | Iterate every protocol event. |
+| `stream.messages` | Stream chat model messages and token deltas. |
+| `stream.values` | Iterate state snapshots and await the final value. |
+| `stream.output` | Await the final output. |
+| `stream.subgraphs` | Discover and observe nested graph executions. |
+| `stream.interrupts` | Inspect human-in-the-loop interrupt payloads. |
+| `stream.interrupted` | Check whether the run paused for human input. |
+| `stream.extensions` | Consume custom stream transformer projections. |
 
 Multiple consumers can read these projections concurrently. Reading `stream.messages` does not consume events needed by `stream.values`, `stream.subgraphs`, or `stream.output`.
 
@@ -230,18 +230,18 @@ The `namespace` is a path from the root graph to the scope that emitted the even
 
 Raw events flow on channels. The channel name appears as the event's `method`; each channel emits a specific event shape.
 
-| Channel         | Purpose                                                         |
-| --------------- | --------------------------------------------------------------- |
-| `values`        | Full graph state snapshots.                                     |
-| `updates`       | Per-node state deltas.                                          |
-| `messages`      | Content-block-centric chat model output.                        |
-| `tools`         | Tool call start, streamed output, finish, and error events.     |
-| `lifecycle`     | Run, subgraph, and subagent status changes.                     |
-| `checkpoints`   | Lightweight checkpoint envelopes for branching and time travel. |
-| `input`         | Human-in-the-loop input requests and responses.                 |
-| `tasks`         | Pregel task creation and result events.                         |
-| `custom`        | User-defined payloads from graph code.                          |
-| `custom:<name>` | Application-defined stream transformer output.                  |
+| Channel | Purpose |
+| - | - |
+| `values` | Full graph state snapshots. |
+| `updates` | Per-node state deltas. |
+| `messages` | Content-block-centric chat model output. |
+| `tools` | Tool call start, streamed output, finish, and error events. |
+| `lifecycle` | Run, subgraph, and subagent status changes. |
+| `checkpoints` | Lightweight checkpoint envelopes for branching and time travel. |
+| `input` | Human-in-the-loop input requests and responses. |
+| `tasks` | Pregel task creation and result events. |
+| `custom` | User-defined payloads from graph code. |
+| `custom:<name>` | Application-defined stream transformer output. |
 
 The typed projections (`stream.messages`, `stream.values`, etc.) are built from these channels. The channel name appears as the `method` field on raw events when you iterate the run object directly.
 
@@ -355,9 +355,9 @@ interface StreamTransformer<TProjection = unknown> {
 
 `StreamChannel` is the projection primitive a transformer uses for streaming values. It always exposes an iterable stream on `stream.extensions.<name>`. The constructor argument decides whether each `push()` also flows into the run's main event stream as a `custom:<name>` event—that is, whether the projection's values show up when iterating raw protocol events.
 
-| Need                                           | Use                          |
-| ---------------------------------------------- | ---------------------------- |
-| Side-channel projection only                   | `new StreamChannel<T>()`     |
+| Need | Use |
+| - | - |
+| Side-channel projection only | `new StreamChannel<T>()` |
 | Also flow each push into the main event stream | `new StreamChannel<T>(name)` |
 
 Named channel payloads must be serializable, because each pushed value also becomes a `custom:<name>` protocol event in the main stream. Keep promises, async iterables, class instances, and other in-process handles in unnamed channels.

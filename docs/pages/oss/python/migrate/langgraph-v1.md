@@ -40,18 +40,18 @@ LangGraph v1 is largely backwards compatible with previous versions. The main ch
 
 The following table lists all items deprecated in LangGraph v1:
 
-| Deprecated item                            | Alternative                                                                                                                                                                                                                 |
-| ------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `create_react_agent`                       | [`langchain.agents.create_agent`](https://reference.langchain.com/python/langchain/agents/factory/create_agent)                                                                                                             |
-| `AgentState`                               | [`langchain.agents.AgentState`](https://reference.langchain.com/python/langchain/agents/middleware/types/AgentState)                                                                                                        |
-| `AgentStatePydantic`                       | `langchain.agents.AgentState` (no more pydantic state)                                                                                                                                                                      |
-| `AgentStateWithStructuredResponse`         | `langchain.agents.AgentState`                                                                                                                                                                                               |
-| `AgentStateWithStructuredResponsePydantic` | `langchain.agents.AgentState` (no more pydantic state)                                                                                                                                                                      |
-| `HumanInterruptConfig`                     | `langchain.agents.middleware.human_in_the_loop.InterruptOnConfig`                                                                                                                                                           |
-| `ActionRequest`                            | `langchain.agents.middleware.human_in_the_loop.InterruptOnConfig`                                                                                                                                                           |
-| `HumanInterrupt`                           | `langchain.agents.middleware.human_in_the_loop.HITLRequest`                                                                                                                                                                 |
-| `ValidationNode`                           | Tools automatically validate input with [`create_agent`](https://reference.langchain.com/python/langchain/agents/factory/create_agent)                                                                                      |
-| `MessageGraph`                             | [`StateGraph`](https://reference.langchain.com/python/langgraph/graph/state/StateGraph) with a `messages` key, like [`create_agent`](https://reference.langchain.com/python/langchain/agents/factory/create_agent) provides |
+| Deprecated item | Alternative |
+| - | - |
+| `create_react_agent` | [`langchain.agents.create_agent`](https://reference.langchain.com/python/langchain/agents/factory/create_agent) |
+| `AgentState` | [`langchain.agents.AgentState`](https://reference.langchain.com/python/langchain/agents/middleware/types/AgentState) |
+| `AgentStatePydantic` | `langchain.agents.AgentState` (no more pydantic state) |
+| `AgentStateWithStructuredResponse` | `langchain.agents.AgentState` |
+| `AgentStateWithStructuredResponsePydantic` | `langchain.agents.AgentState` (no more pydantic state) |
+| `HumanInterruptConfig` | `langchain.agents.middleware.human_in_the_loop.InterruptOnConfig` |
+| `ActionRequest` | `langchain.agents.middleware.human_in_the_loop.InterruptOnConfig` |
+| `HumanInterrupt` | `langchain.agents.middleware.human_in_the_loop.HITLRequest` |
+| `ValidationNode` | Tools automatically validate input with [`create_agent`](https://reference.langchain.com/python/langchain/agents/factory/create_agent) |
+| `MessageGraph` | [`StateGraph`](https://reference.langchain.com/python/langgraph/graph/state/StateGraph) with a `messages` key, like [`create_agent`](https://reference.langchain.com/python/langchain/agents/factory/create_agent) provides |
 
 ## `create_react_agent` → `create_agent`
 

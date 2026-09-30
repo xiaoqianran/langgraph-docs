@@ -41,13 +41,15 @@
 下表列出了 LangGraph v1 中已弃用的所有项目：
 
 |已弃用的项目 |另类|
-| ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| - | - |
 | `create_react_agent` | [⟦T51⟧](https://reference.langchain.com/python/langchain/agents/factory/create_agent) |
-| `AgentState` | [⟦T53⟧](https://reference.langchain.com/python/langchain/agents/middleware/types/AgentState) || `AgentStatePydantic` | `langchain.agents.AgentState`（不再有卑鄙状态）|
+| `AgentState` | [⟦T53⟧](https://reference.langchain.com/python/langchain/agents/middleware/types/AgentState) |
+| `AgentStatePydantic` | `langchain.agents.AgentState`（不再有卑鄙状态）|
 | `AgentStateWithStructuredResponse` | `langchain.agents.AgentState` |
 | `AgentStateWithStructuredResponsePydantic` | `langchain.agents.AgentState`（不再有卑鄙状态）|
 | `HumanInterruptConfig` | `langchain.agents.middleware.human_in_the_loop.InterruptOnConfig` |
-| `ActionRequest` | `langchain.agents.middleware.human_in_the_loop.InterruptOnConfig` || `HumanInterrupt` | `langchain.agents.middleware.human_in_the_loop.HITLRequest` |
+| `ActionRequest` | `langchain.agents.middleware.human_in_the_loop.InterruptOnConfig` |
+| `HumanInterrupt` | `langchain.agents.middleware.human_in_the_loop.HITLRequest` |
 | `ValidationNode` |工具自动使用 [⟦T67⟧](https://reference.langchain.com/python/langchain/agents/factory/create_agent) 验证输入 |
 | `MessageGraph` | [⟦T69⟧](https://reference.langchain.com/python/langgraph/graph/state/StateGraph) 带有 `messages` 键，如 [⟦T71⟧](https://reference.langchain.com/python/langchain/agents/factory/create_agent) 提供 |
 

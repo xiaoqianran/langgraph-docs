@@ -420,8 +420,10 @@ Output of graph invocation: {"a":"set by node3"}
 
 #### 通道 API
 
-通道 API 提供对状态管理的低级控制。 LangGraph提供了多种内置通道类型：|渠道类型|行为 |使用案例|
-| ---------------------------------- | ---------------------------------------------------------------- | -------------------------------------------------- |
+通道 API 提供对状态管理的低级控制。 LangGraph提供了多种内置通道类型：
+
+|渠道类型|行为 |使用案例|
+| - | - | - |
 | `LastValue` |存储最新值 |被覆盖的简单字段 |
 | `BinaryOperatorAggregate` |使用减速函数组合值 |累积值（计数器、列表）|
 | `Topic` |将所有值收集到一个序列中 |事件流、审核日志 |
@@ -455,9 +457,7 @@ const workflow = new StateGraph<WorkflowState>({
 });
 ```
 
-**直接使用通道类：**
-
-为了获得更多控制，您可以直接实例化通道类：
+**直接使用通道类：**为了获得更多控制，您可以直接实例化通道类：
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { BaseMessage } from "@langchain/core/messages";
@@ -505,7 +505,9 @@ const State = Annotation.Root({
 const graph = new StateGraph(State);
 ```
 
-#### Zod v3 的 Zod 对象使用 Zod v3 时，您可以使用普通的 `z.object()` 模式定义状态。 LangGraph 使用 `.langgraph` 插件扩展了 Zod v3，该插件提供了 `.reducer()` 和 `.metadata()` 方法：
+#### Zod v3 的 Zod 对象
+
+使用 Zod v3 时，您可以使用普通的 `z.object()` 模式定义状态。 LangGraph 使用 `.langgraph` 插件扩展了 Zod v3，该插件提供了 `.reducer()` 和 `.metadata()` 方法：
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { z } from "zod/v3";
@@ -563,16 +565,16 @@ const graph = new StateGraph(State);
 #### 比较表
 
 |方法|减速机|类型安全 |佐德版本 |推荐|
-| -------------------- | -------------- | ----------- | ----------- | ------------------ |
+| - | - | - | - | - |
 | `StateSchema` | ✅ 内置 | ✅ 满 | v3 或 v4 | ✅ 是的 |
 |渠道 API | ✅ 手册 | ⚠️部分|不适用 |对于高级病例 |
 | `Annotation.Root` | ✅ 内置 | ✅ 满 |不适用 |遗产|
 | Zod v3 + `.langgraph` | ✅ 通过插件 | ✅ 满 |仅限 v3 |遗产|
 | Zod v4 + 注册表 | ✅ 通过注册表 | ✅ 满 |仅限 v4 |遗产|
 
-## 添加运行时配置
+## 添加运行时配置有时您希望能够在调用图表时对其进行配置。例如，您可能希望能够指定在运行时使用什么 LLM 或系统提示，*不会用这些参数污染图形状态*。
 
-有时您希望能够在调用图表时对其进行配置。例如，您可能希望能够指定在运行时使用什么 LLM 或系统提示，*不会用这些参数污染图形状态*。添加运行时配置：
+添加运行时配置：
 
 1. 指定配置的架构
 2. 将配置添加到节点或条件边的函数签名中
@@ -745,9 +747,7 @@ console.log(await graph.invoke({}, { context: { myRuntimeValue: "b" } }));  // [
 
 ## 添加重试策略
 
-在许多用例中，您可能希望节点具有自定义重试策略，例如，如果您正在调用 API、查询数据库或调用 LLM 等。LangGraph 允许您向节点添加重试策略。
-
-要配置重试策略，请将`retryPolicy`参数传递给[⟦T125⟧](https://reference.langchain.com/javascript/classes/_langchain_langgraph.index.Graph.html#addnode)。 `retryPolicy` 参数接受一个 `RetryPolicy` 对象。下面我们用默认参数实例化一个`RetryPolicy`对象并将其与一个节点关联起来：
+在许多用例中，您可能希望节点具有自定义重试策略，例如，如果您正在调用 API、查询数据库或调用 LLM 等。LangGraph 允许您向节点添加重试策略。要配置重试策略，请将`retryPolicy`参数传递给[⟦T125⟧](https://reference.langchain.com/javascript/classes/_langchain_langgraph.index.Graph.html#addnode)。 `retryPolicy` 参数接受一个 `RetryPolicy` 对象。下面我们用默认参数实例化一个`RetryPolicy`对象并将其与一个节点关联起来：
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { RetryPolicy } from "@langchain/langgraph";
@@ -761,7 +761,9 @@ const graph = new StateGraph(State)
 
 * `TypeError`
 * `SyntaxError`
-* `ReferenceError`<Accordion title="Extended example: customizing retry policies">
+* `ReferenceError`
+
+<Accordion title="Extended example: customizing retry policies">
   考虑一个我们正在从 SQL 数据库读取数据的示例。下面我们向节点传递两种不同的重试策略：
 
   ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
@@ -816,15 +818,14 @@ const graph = new StateGraph(State)
 
 ### 访问节点内的执行信息
 
-您可以通过`runtime.executionInfo`访问执行身份和重试信息。这会显示线程、运行和检查点标识符以及重试状态，而无需直接从 `config` 读取。
-
-|属性 |类型 |描述 |
-| ---------------------------------- | -------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| `threadId` | `string \| undefined` |当前执行的线程 ID。                                                       |
-| `runId` | `string \| undefined` |当前执行的运行 ID。                                                          |
-| `checkpointId` | `string` |当前执行的检查点 ID。                                                   |
-| `checkpointNs` | `string` |当前执行的检查点命名空间。                                            || `taskId` | `string` |当前执行的任务 ID。                                                         |
-| `nodeAttempt` | `number` |当前执行尝试次数（1 索引）。                                              |
+您可以通过`runtime.executionInfo`访问执行身份和重试信息。这会显示线程、运行和检查点标识符以及重试状态，而无需直接从 `config` 读取。|属性 |类型 |描述 |
+| - | - | - |
+| `threadId` | `string \| undefined` |当前执行的线程 ID。 |
+| `runId` | `string \| undefined` |当前执行的运行 ID。 |
+| `checkpointId` | `string` |当前执行的检查点 ID。 |
+| `checkpointNs` | `string` |当前执行的检查点命名空间。 |
+| `taskId` | `string` |当前执行的任务 ID。 |
+| `nodeAttempt` | `number` |当前执行尝试次数（1 索引）。 |
 | `nodeFirstAttemptTime` | `number \| undefined` |第一次尝试开始时的 Unix 时间戳（秒）。重试后保持不变。 |
 
 #### 访问线程和运行 ID
@@ -885,9 +886,9 @@ const graph = new StateGraph(State)
 ### 访问节点内的服务器信息
 
 当您的图表在LangGraph服务器上运行时，您可以通过`runtime.serverInfo`访问特定于服务器的元数据。|属性 |类型 |描述 |
-| ------------- | ------------------ | --------------------------------------------------------------------------------------------------- |
-| `assistantId` | `string` |当前部署的助手 ID。                                    |
-| `graphId` | `string` |当前部署的图形 ID。                                        |
+| - | - | - |
+| `assistantId` | `string` |当前部署的助手 ID。 |
+| `graphId` | `string` |当前部署的图形 ID。 |
 | `user` | `BaseUser \| null` |经过身份验证的用户（如果配置了[custom auth](/langsmith/custom-auth)）。 |
 
 ```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
@@ -933,15 +934,15 @@ const builder = new StateGraph(State)
   .addEdge(START, "step1")
   .addEdge("step1", "step2")
   .addEdge("step2", "step3");
-```<Accordion title="Why split application steps into a sequence with LangGraph?">
+```
+
+<Accordion title="Why split application steps into a sequence with LangGraph?">
   LangGraph 可以轻松地向您的应用程序添加底层持久层。
   这允许在节点执行之间设置状态检查点，因此您的 LangGraph 节点可以管理：
 
   * 状态更新是怎样的[checkpointed](/oss/javascript/langgraph/persistence)
   * 如何在[human-in-the-loop](/oss/javascript/langgraph/interrupts)工作流程中恢复中断
-  * 我们如何使用 LangGraph 的 [time travel](/oss/javascript/langgraph/use-time-travel) 功能“倒带”和分支执行
-
-  它们还确定执行步骤如何[streamed](/oss/javascript/langgraph/streaming)，以及如何使用[Studio](/langsmith/studio)可视化和调试应用程序。
+  * 我们如何使用 LangGraph 的 [time travel](/oss/javascript/langgraph/use-time-travel) 功能“倒带”和分支执行它们还确定执行步骤如何[streamed](/oss/javascript/langgraph/streaming)，以及如何使用[Studio](/langsmith/studio)可视化和调试应用程序。
 
   让我们演示一个端到端的示例。我们将创建一个包含三个步骤的序列：
 
@@ -981,12 +982,12 @@ const builder = new StateGraph(State)
   ```
 
   <Note>
-    请注意，当向状态发出更新时，每个节点只能指定它希望更新的键的值。默认情况下，这将**覆盖**相应键的值。您还可以使用 [reducers](/oss/javascript/langgraph/graph-api#reducers) 来控制更新的处理方式，例如，您可以将连续的更新附加到某个键。有关更多详细信息，请参阅[Process state updates with reducers](#process-state-updates-with-reducers)。
+    请注意，当向状态发出更新时，每个节点只能指定它希望更新的键的值。
+
+    默认情况下，这将**覆盖**相应键的值。您还可以使用 [reducers](/oss/javascript/langgraph/graph-api#reducers) 来控制更新的处理方式，例如，您可以将连续的更新附加到某个键。有关更多详细信息，请参阅[Process state updates with reducers](#process-state-updates-with-reducers)。
   </Note>
 
-  最后，我们定义图表。我们使用[StateGraph](/oss/javascript/langgraph/graph-api#stategraph)来定义一个在这个状态上运行的图。
-
-  然后，我们将使用 [addNode](/oss/javascript/langgraph/graph-api#nodes) 和 [addEdge](/oss/javascript/langgraph/graph-api#edges) 来填充我们的图表并定义其控制流。
+  最后，我们定义图表。我们使用[StateGraph](/oss/javascript/langgraph/graph-api#stategraph)来定义一个在这个状态上运行的图。然后，我们将使用 [addNode](/oss/javascript/langgraph/graph-api#nodes) 和 [addEdge](/oss/javascript/langgraph/graph-api#edges) 来填充我们的图表并定义其控制流。
 
   ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
   import { START, StateGraph } from "@langchain/langgraph";
@@ -1030,7 +1031,9 @@ const builder = new StateGraph(State)
   const imageBuffer = new Uint8Array(await image.arrayBuffer());
 
   await fs.writeFile("graph.png", imageBuffer);
-  ```让我们继续进行一个简单的调用：
+  ```
+
+  让我们继续进行一个简单的调用：
 
   ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
   const result = await graph.invoke({ value1: "c" });
@@ -1047,13 +1050,13 @@ const builder = new StateGraph(State)
   * 我们传入的值被第一个节点覆盖了。
   * 第二个节点更新了值。
   * 第三个节点填充了不同的值。
-</Accordion>
-
-## 创建分支
+</Accordion>## 创建分支
 
 节点的并行执行对于加速整体图操作至关重要。 LangGraph 提供对节点并行执行的原生支持，这可以显着增强基于图的工作流程的性能。这种并行化是通过扇出和扇入机制实现的，同时利用标准边缘和[conditional\_edges](https://reference.langchain.com/javascript/classes/_langchain_langgraph.index.StateGraph.html#addConditionalEdges)。下面是一些示例，展示了如何添加创建适合您的分支数据流。
 
-### 并行运行图节点在此示例中，我们从 `Node A` 扇出到 `B and C`，然后扇入到 `D`。对于我们的州，[we specify the reducer add operation](/oss/javascript/langgraph/graph-api#reducers)。这将组合或累积 State 中特定键的值，而不是简单地覆盖现有值。对于列表，这意味着将新列表与现有列表连接起来。有关使用减速器更新状态的更多详细信息，请参阅上面关于 [state reducers](#process-state-updates-with-reducers) 的部分。
+### 并行运行图节点
+
+在此示例中，我们从 `Node A` 扇出到 `B and C`，然后扇入到 `D`。对于我们的州，[we specify the reducer add operation](/oss/javascript/langgraph/graph-api#reducers)。这将组合或累积 State 中特定键的值，而不是简单地覆盖现有值。对于列表，这意味着将新列表与现有列表连接起来。有关使用减速器更新状态的更多详细信息，请参阅上面关于 [state reducers](#process-state-updates-with-reducers) 的部分。
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { StateGraph, StateSchema, ReducedValue, GraphNode, START, END } from "@langchain/langgraph";
@@ -1129,23 +1132,21 @@ Adding "D" to ['A', 'B', 'C']
 ```
 
 <Note>
-  在上面的例子中，节点`"b"`和`"c"`在同一个[superstep](/oss/javascript/langgraph/graph-api#graphs)中并发执行。由于它们处于同一步骤，因此节点 `"d"` 在 `"b"` 和 `"c"` 都完成后执行。
+  在上面的例子中，节点`"b"`和`"c"`在同一个[superstep](/oss/javascript/langgraph/graph-api#graphs)中并发执行。由于它们处于同一步骤，因此节点 `"d"` 在 `"b"` 和 `"c"` 都完成后执行。重要的是，来自并行超级步的更新的顺序可能不一致。如果您需要从并行超级步中对更新进行一致的、预定的排序，则应将输出连同用于排序的值一起写入状态中的单独字段。
+</Note>
 
-  重要的是，来自并行超级步的更新的顺序可能不一致。如果您需要从并行超级步中对更新进行一致的、预定的排序，则应将输出连同用于排序的值一起写入状态中的单独字段。
-</Note><Accordion title="Exception handling?">
-  LangGraph执行[supersteps](/oss/javascript/langgraph/graph-api#graphs)内的节点，这意味着虽然并行分支是并行执行的，但整个超级步骤是**事务性的**。如果这些分支中的任何一个引发异常，则不会将任何更新应用于状态（整个超级步错误）。
+<Accordion title="Exception handling?">
+  LangGraph执行[supersteps](/oss/javascript/langgraph/graph-api#graphs)内的节点，这意味着虽然并行分支是并行执行的，但整个超级步骤是**事务性的**。如果这些分支中的任何一个引发异常，则**不会**任何更新应用于状态（整个超级步错误）。
 
   重要的是，当使用[checkpointer](/oss/javascript/langgraph/persistence)时，超级步内成功节点的结果将被保存，并且在恢复时不会重复。
 
   如果您容易出错（也许想要处理不稳定的 API 调用），LangGraph 提供了两种方法来解决这个问题：
 
   1. 您可以在节点内编写常规Python代码来捕获和处理异常。
-  2. 您可以设置 **[⟦T181⟧](https://reference.langchain.com/python/langgraph/types/#langgraph.types.RetryPolicy)** 来指示图形重试引发某些类型异常的节点。仅重试失败的分支，因此您不必担心执行多余的工作。
+  2. 您可以设置 **[⟦T181⟧](https://reference.langchain.com/python/langgraph/types/#langgraph.types.RetryPolicy)** 来指示图形重试引发某些类型异常的节点。仅重试失败的分支，因此您不必担心执行冗余工作。
 
   这些共同使您可以执行并行执行并完全控制异常处理。
-</Accordion>
-
-<Tip>
+</Accordion><Tip>
   **设置最大并发数**
   您可以在调用图表时通过设置[configuration](https://reference.langchain.com/javascript/interfaces/_langchain_langgraph.index.LangGraphRunnableConfig.html)中的`maxConcurrency`来控制最大并发任务数。 `maxConcurrency` 是一个独立的配置键，因此将其设置在配置的顶层，而不是在 `configurable` 内。
 
@@ -1154,7 +1155,9 @@ Adding "D" to ['A', 'B', 'C']
   ```
 </Tip>
 
-### 条件分支如果您的扇出在运行时应根据状态而变化，您可以使用 [⟦T185⟧](https://reference.langchain.com/javascript/classes/_langchain_langgraph.index.StateGraph.html#addconditionaledges) 使用图形状态选择一个或多个路径。请参阅下面的示例，其中节点 `a` 生成确定后续节点的状态更新。
+### 条件分支
+
+如果您的扇出在运行时应根据状态而变化，您可以使用 [⟦T185⟧](https://reference.langchain.com/javascript/classes/_langchain_langgraph.index.StateGraph.html#addconditionaledges) 使用图形状态选择一个或多个路径。请参阅下面的示例，其中节点 `a` 生成确定后续节点的状态更新。
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { StateGraph, StateSchema, ReducedValue, GraphNode, ConditionalEdgeRouter, START, END } from "@langchain/langgraph";
@@ -1316,11 +1319,11 @@ for await (const message of stream.messages) {
 
 ## 创建和控制循环
 
-当创建带有循环的图时，我们需要一种终止执行的机制。最常见的方法是添加一个 [conditional edge](/oss/javascript/langgraph/graph-api#conditional-edges) ，一旦达到某些终止条件，该[END](/oss/javascript/langgraph/graph-api#end-node) 节点就会路由到 [END](/oss/javascript/langgraph/graph-api#end-node) 节点。
+当创建带有循环的图时，我们需要一种终止执行的机制。最常见的方法是添加一个 [conditional edge](/oss/javascript/langgraph/graph-api#conditional-edges) ，一旦达到某些终止条件，该[END](/oss/javascript/langgraph/graph-api#end-node) 节点就会路由到 [END](/oss/javascript/langgraph/graph-api#end-node) 节点。您还可以在调用或流式传输图形时设置图形递归限制。递归限制设置了图表在引发错误之前允许执行的[super-steps](/oss/javascript/langgraph/graph-api#graphs)的数量。了解有关 [recursion limit concept](/oss/javascript/langgraph/graph-api#recursion-limit) 的更多信息。
 
-您还可以在调用或流式传输图形时设置图形递归限制。递归限制设置了图表在引发错误之前允许执行的 [super-steps](/oss/javascript/langgraph/graph-api#graphs) 数量。了解有关 [recursion limit concept](/oss/javascript/langgraph/graph-api#recursion-limit) 的更多信息。
+让我们考虑一个带有循环的简单图，以更好地理解这些机制是如何工作的。
 
-让我们考虑一个带有循环的简单图，以更好地理解这些机制是如何工作的。<Tip>
+<Tip>
   要返回状态的最后一个值而不是收到递归限制错误，请参阅 [next section](#impose-a-recursion-limit)。
 </Tip>
 
@@ -1430,9 +1433,7 @@ Node A sees ['A', 'B', 'A', 'B']
 Node B sees ['A', 'B', 'A', 'B', 'A']
 Node A sees ['A', 'B', 'A', 'B', 'A', 'B']
 { aggregate: ['A', 'B', 'A', 'B', 'A', 'B', 'A'] }
-```
-
-### 施加递归限制
+```### 施加递归限制
 
 在某些应用中，我们可能无法保证会达到给定的终止条件。在这些情况下，我们可以设置图形的[recursion limit](/oss/javascript/langgraph/graph-api#recursion-limit)。这将在给定数量的 [supersteps](/oss/javascript/langgraph/graph-api#graphs) 之后引发 `GraphRecursionError`。然后我们可以捕获并处理这个异常：
 
@@ -1455,7 +1456,9 @@ Node A sees ['A', 'B']
 Node B sees ['A', 'B', 'A']
 Node A sees ['A', 'B', 'A', 'B']
 Recursion Error
-```## 将控制流和状态更新与`Command`结合起来
+```
+
+## 将控制流和状态更新与`Command`结合起来
 
 将控制流（边）和状态更新（节点）结合起来非常有用。例如，您可能希望既执行状态更新又决定在同一节点中下一个转到哪个节点。 LangGraph 提供了一种方法，通过从节点函数返回 [Command](https://reference.langchain.com/javascript/langchain-langgraph/index/Command) 对象来实现此目的：
 
@@ -1522,9 +1525,7 @@ const graph = new StateGraph(State)
   .addNode("nodeC", nodeC)
   .addEdge(START, "nodeA")
   .compile();
-```
-
-<Warning>
+```<Warning>
   您可能已经注意到，我们使用 `ends` 来指定 `nodeA` 可以导航到哪些节点。这对于图形渲染是必要的，并告诉LangGraph`nodeA`可以导航到`nodeB`和`nodeC`。
 </Warning>
 
@@ -1551,7 +1552,9 @@ Called C
 { foo: 'cc' }
 ```
 
-### 导航到父图中的节点如果您使用[subgraphs](/oss/javascript/langgraph/use-subgraphs)，您可能希望从子图中的节点导航到不同的子图（即父图中的不同节点）。为此，您可以在 `Command` 中指定 `graph=Command.PARENT`：
+### 导航到父图中的节点
+
+如果您使用[subgraphs](/oss/javascript/langgraph/use-subgraphs)，您可能希望从子图中的节点导航到不同的子图（即父图中的不同节点）。为此，您可以在 `Command` 中指定 `graph=Command.PARENT`：
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 const myNode = (state: State): Command => {
@@ -1633,9 +1636,7 @@ Called C
 { foo: 'ac' }
 ```
 
-### 使用内部工具
-
-一个常见的用例是从工具内部更新图形状态。例如，在客户支持应用程序中，您可能希望根据对话开始时的帐号或 ID 查找客户信息。要从工具更新图形状态，您可以从工具返回 `Command(update={"my_custom_key": "foo", "messages": [...]})`：
+### 使用内部工具一个常见的用例是从工具内部更新图形状态。例如，在客户支持应用程序中，您可能希望根据对话开始时的帐号或 ID 查找客户信息。要从工具更新图形状态，您可以从工具返回 `Command(update={"my_custom_key": "foo", "messages": [...]})`：
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { tool } from "@langchain/core/tools";
@@ -1665,7 +1666,9 @@ const lookupUserInfo = tool(
     schema: z.object({}),
   }
 );
-```<Warning>
+```
+
+<Warning>
   当从工具返回[⟦T212⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/Command)时，您必须在`Command.update`中包含`messages`（或用于消息历史记录的任何状态键），并且`messages`中的消息列表必须包含`ToolMessage`。这对于生成的消息历史记录有效是必要的（LLM 提供商要求带有工具调用的 AI 消息后跟工具结果消息）。
 </Warning>
 
@@ -1675,9 +1678,7 @@ const lookupUserInfo = tool(
 
 在这里，我们演示如何可视化您创建的图表。
 
-您可以可视化任意任意[Graph](https://reference.langchain.com/python/langgraph/graphs/)，包括[⟦T219⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/StateGraph)。
-
-让我们创建一个简单的示例图来演示可视化。
+您可以可视化任意任意[Graph](https://reference.langchain.com/python/langgraph/graphs/)，包括[⟦T219⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/StateGraph)。让我们创建一个简单的示例图来演示可视化。
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { StateGraph, StateSchema, MessagesValue, ReducedValue, GraphNode, ConditionalEdgeRouter, START, END } from "@langchain/langgraph";
@@ -1754,7 +1755,9 @@ const imageBuffer = new Uint8Array(await image.arrayBuffer());
 await fs.writeFile("graph.png", imageBuffer);
 ```
 
-***<div>
+***
+
+<div>
   <Callout icon="terminal-2">
     [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
   </Callout>

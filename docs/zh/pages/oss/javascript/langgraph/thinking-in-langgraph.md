@@ -180,7 +180,7 @@ flowchart TD
 
 * 原始电子邮件和发件人信息（以后无法重建）
 * 分类结果（多个后期/下游节点需要）
-* 搜索结果和客户数据（重新获取的成本很高）
+* 搜索结果和客户数据（重新获取的费用昂贵）
 * 回复草稿（需继续审核）
 * 执行元数据（用于调试和恢复）
 
@@ -239,12 +239,13 @@ type EmailClassificationType = z.infer<typeof EmailClassificationSchema>;
 
 不同的错误需要不同的处理策略：
 
-|错误类型|谁来解决这个问题？战略|何时使用 |
-| --------------------------------------------------------------------------- | ------------------------ | ---------------------------------- | ------------------------------------------------------------------ |
+|错误类型 |谁来解决这个问题？战略|何时使用 |
+| - | - | - | - |
 |瞬时错误（网络问题、速率限制）|系统（自动）|重试政策 |通常重试即可解决的临时故障 |
 | LLM 可恢复错误（工具故障、解析问题）|法学硕士 |将错误存储在状态中并循环返回 | LLM可以看到错误并调整其方法|
-|用户可修复的错误（信息缺失、说明不明确）|人类 |按 `interrupt()` 暂停 |需要用户输入才能继续 ||重试后可恢复的故障 |开发人员（声明性）| `error_handler` |重试耗尽后运行补偿/恢复分支 |
-|意外错误 |开发商 |让它们冒泡|需要调试的未知问题 |
+|用户可修复的错误（信息缺失、说明不明确）|人类 |按 `interrupt()` 暂停 |需要用户输入才能继续 |
+|重试后可恢复的故障 |开发人员（声明性）| `error_handler` |重试耗尽后运行补偿/恢复分支 |
+|意外错误 |开发商|让它们冒泡|需要调试的未知问题 |
 
 <Tabs>
   <Tab title="Transient errors" icon="rotate">
@@ -285,9 +286,7 @@ type EmailClassificationType = z.infer<typeof EmailClassificationSchema>;
       }
     }
     ```
-  </Tab>
-
-  <Tab title="User-fixable" icon="user">
+  </Tab><Tab title="User-fixable" icon="user">
     需要时暂停并收集用户信息（例如帐户 ID、订单号或说明）：
 
     ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
@@ -440,7 +439,9 @@ type EmailClassificationType = z.infer<typeof EmailClassificationSchema>;
       });
     }
     ```
-  </Accordion><Accordion title="Response nodes" icon="edit">
+  </Accordion>
+
+  <Accordion title="Response nodes" icon="edit">
     ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
     import { Command, interrupt } from "@langchain/langgraph";
 
@@ -589,9 +590,7 @@ type EmailClassificationType = z.infer<typeof EmailClassificationSchema>;
   const result = await app.invoke(initialState, config);
   // The graph will pause at human_review
   console.log(`Draft ready for review: ${result.responseText?.substring(0, 100)}...`);
-  ```
-
-  ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+  ``````typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
   import { Command } from "@langchain/langgraph";
 
   // When ready, provide human input to resume
@@ -619,7 +618,9 @@ type EmailClassificationType = z.infer<typeof EmailClassificationSchema>;
 <CardGroup>
   <Card title="Break into discrete steps" icon="sitemap" href="#step-1-map-out-your-workflow-as-discrete-steps">
     每个节点只做好一件事。这种分解可以实现流式进度更新、可以暂停和恢复的持久执行以及清晰的调试，因为您可以检查步骤之间的状态。
-  </Card><Card title="State is shared memory" icon="database" href="#step-3-design-your-state">
+  </Card>
+
+  <Card title="State is shared memory" icon="database" href="#step-3-design-your-state">
     存储原始数据，而不是格式化文本。这使得不同的节点以不同的方式使用相同的信息。
   </Card>
 
@@ -629,9 +630,7 @@ type EmailClassificationType = z.infer<typeof EmailClassificationSchema>;
 
   <Card title="Errors are part of the flow" icon="alert-triangle" href="#handle-errors-appropriately">
     瞬时故障会重试，LLM 可恢复错误会与上下文一起循环，用户可修复的问题会暂停以进行输入，意外错误会冒泡以进行调试。
-  </Card>
-
-  <Card title="Human input is first-class" icon="user" href="/oss/javascript/langgraph/interrupts">
+  </Card><Card title="Human input is first-class" icon="user" href="/oss/javascript/langgraph/interrupts">
     `interrupt()` 函数无限期地暂停执行，保存所有状态，并在您提供输入时从中断处准确恢复。当与节点中的其他操作结合时，它必须先出现。
   </Card>
 
@@ -645,30 +644,30 @@ type EmailClassificationType = z.infer<typeof EmailClassificationSchema>;
 <Accordion title="Node granularity trade-offs" icon="adjustments">
   <Info>
     本节探讨节点粒度设计中的权衡。大多数应用程序可以跳过此步骤并使用上面显示的模式。
-  </Info>你可能会想：为什么不将 `Read Email` 和 `Classify Intent` 组合成一个节点呢？
+  </Info>
+
+  你可能会想：为什么不将 `Read Email` 和 `Classify Intent` 组合成一个节点呢？
 
   或者为什么要将文档搜索与草稿回复分开？
 
-  答案涉及弹性和可观察性之间的权衡。
-
-  **弹性考虑：** LangGraph的[persistence layer](/oss/javascript/langgraph/persistence)在节点边界创建检查点。当工作流在中断或失败后恢复时，它将从执行停止的节点的开头开始。较小的节点意味着更频繁的检查点，这意味着出现问题时需要重复的工作更少。如果将多个操作合并到一个大节点中，则临近结束时发生故障意味着从该节点开始处重新执行所有操作。
+  答案涉及弹性和可观察性之间的权衡。**弹性考虑：** LangGraph的[persistence layer](/oss/javascript/langgraph/persistence)在节点边界创建检查点。当工作流在中断或失败后恢复时，它将从执行停止的节点的开头开始。较小的节点意味着更频繁的检查点，这意味着出现问题时需要重复的工作更少。如果将多个操作合并到一个大节点中，则临近结束时发生故障意味着从该节点开始处重新执行所有操作。
 
   为什么我们为电子邮件代理选择此细分：
 
-  * **外部服务的隔离：** Doc Search 和 Bug Track 是单独的节点，因为它们调用外部 API。如果搜索服务缓慢或失败，我们希望将其与 LLM 调用隔离。我们可以为这些特定节点添加重试策略，而不影响其他节点。* **中等可见性：** 将 `Classify Intent` 作为自己的节点，让我们可以在采取行动之前检查 LLM 的决定。这对于调试和监控非常有价值 - 您可以准确地了解代理何时以及为何路由至人工审核。
+  * **外部服务的隔离：** Doc Search 和 Bug Track 是单独的节点，因为它们调用外部 API。如果搜索服务缓慢或失败，我们希望将其与 LLM 调用隔离。我们可以为这些特定节点添加重试策略，而不影响其他节点。
 
-  * **不同的失败模式：** LLM调用、数据库查找和电子邮件发送有不同的重试策略。单独的节点允许您独立配置它们。
+  * **中等可见性：** 将 `Classify Intent` 作为自己的节点，让我们可以在采取行动之前检查 LLM 的决定。这对于调试和监控非常有价值 - 您可以准确地了解代理何时以及为何路由至人工审核。
 
-  * **可重用性和测试：** 较小的节点更容易单独测试并在其他工作流程中重用。
+  * **不同的失败模式：** LLM调用、数据库查找和电子邮件发送有不同的重试策略。单独的节点允许您独立配置它们。* **可重用性和测试：** 较小的节点更容易单独测试并在其他工作流程中重用。
 
   一种不同的有效方法：您可以将 `Read Email` 和 `Classify Intent` 组合到单个节点中。您将无法在分类之前检查原始电子邮件，并且会在该节点出现任何故障时重复这两个操作。对于大多数应用程序来说，单独节点的可观察性和调试优势值得权衡。
 
-  应用程序级问题：第 2 步中的缓存讨论（是否缓存搜索结果）是应用程序级决策，而不是LangGraph 框架功能。您可以根据您的具体要求在节点功能中实现缓存 - LangGraph 没有规定这一点。性能注意事项：更多节点并不意味着执行速度更慢。 LangGraph 默认在后台写入检查点 ([async durability mode](/oss/javascript/langgraph/checkpointers#durability-modes))，因此您的图表会继续运行，而无需等待检查点完成。这意味着您可以获得频繁的检查点，同时对性能的影响最小。如果需要，您可以调整此行为 - 使用 `"exit"` 模式仅在完成时检查点，或使用 `"sync"` 模式阻止执行，直到写入每个检查点。
+  应用程序级问题：第 2 步中的缓存讨论（是否缓存搜索结果）是应用程序级决策，而不是LangGraph 框架功能。您可以根据您的具体要求在节点功能中实现缓存 - LangGraph 没有规定这一点。
+
+  性能注意事项：更多节点并不意味着执行速度更慢。 LangGraph 默认在后台写入检查点 ([async durability mode](/oss/javascript/langgraph/checkpointers#durability-modes))，因此您的图表会继续运行，而无需等待检查点完成。这意味着您可以获得频繁的检查点，同时对性能的影响最小。如果需要，您可以调整此行为 - 使用 `"exit"` 模式仅在完成时检查点，或使用 `"sync"` 模式阻止执行，直到写入每个检查点。
 </Accordion>
 
-### 从这里到哪里去
-
-这是关于如何使用 LangGraph 构建代理的介绍。您可以通过以下方式扩展此基础：
+### 从这里到哪里去这是关于如何使用 LangGraph 构建代理的介绍。您可以通过以下方式扩展此基础：
 
 <CardGroup>
   <Card title="Human-in-the-loop patterns" icon="user-check" href="/oss/javascript/langgraph/interrupts">
@@ -680,7 +679,7 @@ type EmailClassificationType = z.infer<typeof EmailClassificationSchema>;
   </Card>
 
   <Card title="Streaming" icon="broadcast" href="/oss/javascript/langgraph/streaming">
-    添加流式传输以向用户显示实时进度
+    添加流媒体以向用户显示实时进度
   </Card>
 
   <Card title="Observability" icon="chart-line" href="/oss/javascript/langgraph/observability">
@@ -696,7 +695,9 @@ type EmailClassificationType = z.infer<typeof EmailClassificationSchema>;
   </Card>
 </CardGroup>
 
-***<div>
+***
+
+<div>
   <Callout icon="terminal-2">
     [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
   </Callout>

@@ -181,17 +181,17 @@ def workflow(topic: str) -> dict:
 
 <Warning>
   **序列化**
-  入口点的 **输入** 和 **输出** 必须是 JSON 可序列化的才能支持检查点。更多详情请参阅[serialization](#serialization)部分。
+  入口点的 **输入** 和 **输出** 必须是 JSON 可序列化的才能支持检查点。请参阅[serialization](#serialization)部分了解更多详情。
 </Warning>
 
 ### 可注入参数声明 `entrypoint` 时，您可以请求访问将在运行时自动注入的其他参数。这些参数包括：
 
 |参数|描述 |
-| ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **上一页** |访问与给定线程的前一个`checkpoint`关联的状态。参见[short-term-memory](#short-term-memory)。                                               |
-| **商店** | \[BaseStore]\[langgraph.store.base.BaseStore] 的实例。对[long-term memory](/oss/python/langgraph/use-functional-api#long-term-memory)有用。                     |
+| - | - |
+| **上一页** |访问与给定线程的前一个`checkpoint`关联的状态。参见[short-term-memory](#short-term-memory)。 |
+| **商店** | \[BaseStore]\[langgraph.store.base.BaseStore] 的实例。对[long-term memory](/oss/python/langgraph/use-functional-api#long-term-memory)有用。 |
 | **作家** |使用异步 Python 时用于访问 StreamWriter \< 3.11. See ⟦T82⟧. |
-| **config**   | For accessing run time configuration. See ⟦T83⟧ for information.                           |
+| **config** | For accessing run time configuration. See ⟦T83⟧ for information. |
 
 <Warning>
   使用适当的名称和类型注释来声明参数。
@@ -249,7 +249,9 @@ def workflow(topic: str) -> dict:
     }
     await my_workflow.ainvoke(some_input, config)  # Await result asynchronously
     ```
-  </Tab><Tab title="Stream">
+  </Tab>
+
+  <Tab title="Stream">
     ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
     config = {
         "configurable": {
@@ -350,9 +352,7 @@ def workflow(topic: str) -> dict:
 
 **发生错误后恢复**
 
-要在错误后恢复，请使用 `None` 和相同的 **线程 id** （配置）运行 `entrypoint`。
-
-这假设底层的**错误**已得到解决并且执行可以成功进行。
+要在错误后恢复，请使用 `None` 和相同的 **线程 id** （配置）运行 `entrypoint`。这假设底层的**错误**已得到解决并且执行可以成功进行。
 
 <Tabs>
   <Tab title="Invoke">
@@ -440,7 +440,9 @@ my_workflow.invoke(2, config)  # 3 (previous was 1 from the previous invocation)
 
 #### `entrypoint.final`
 
-[⟦T55⟧](https://reference.langchain.com/python/langgraph/func/entrypoint/final) 是一个特殊的原语，可以从入口点返回，并允许将检查点中保存的值与入口点的返回值**解耦**。第一个值是入口点的返回值，第二个值是将保存在检查点中的值。类型注释是`entrypoint.final[return_type, save_type]`。
+[⟦T55⟧](https://reference.langchain.com/python/langgraph/func/entrypoint/final) 是一个特殊的原语，可以从入口点返回，并允许将检查点中保存的值与入口点的返回值**解耦**。
+
+第一个值是入口点的返回值，第二个值是将保存在检查点中的值。类型注释是`entrypoint.final[return_type, save_type]`。
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 @entrypoint(checkpointer=checkpointer)
@@ -463,9 +465,7 @@ my_workflow.invoke(1, config)  # 6 (previous was 3 * 2 from the previous invocat
 
 ## 任务
 
-**任务**代表一个离散的工作单元，例如 API 调用或数据处理步骤。它有两个关键特征：
-
-* **异步执行**：任务被设计为异步执行，允许多个操作同时运行而不会阻塞。
+**任务**代表一个离散的工作单元，例如 API 调用或数据处理步骤。它有两个关键特征：* **异步执行**：任务被设计为异步执行，允许多个操作同时运行而不会阻塞。
 * **检查点**：任务结果保存到检查点，从而可以从上次保存的状态恢复工作流程。 （更多详情请参见[persistence](/oss/python/langgraph/persistence)）。
 
 ### 定义
@@ -493,7 +493,9 @@ def slow_computation(input_value):
 
 任务*不能*直接从主应用程序代码调用。
 
-当您调用 **任务** 时，它会“立即”返回一个 future 对象。未来是稍后可用的结果的占位符。要获取**任务**的结果，您可以同步等待（使用`result()`）或异步等待（使用`await`）。
+当您调用 **任务** 时，它会“立即”返回一个 future 对象。未来是稍后可用的结果的占位符。
+
+要获取**任务**的结果，您可以同步等待（使用`result()`）或异步等待（使用`await`）。
 
 <Tabs>
   <Tab title="Synchronous Invocation">
@@ -516,21 +518,18 @@ def slow_computation(input_value):
 
 ## 何时使用任务
 
-**任务**在以下场景中很有用：
-
-* **检查点**：当您需要将长时间运行的操作的结果保存到检查点时，以便在恢复工作流程时不需要重新计算它。
+**任务**在以下场景中很有用：* **检查点**：当您需要将长时间运行的操作的结果保存到检查点时，以便在恢复工作流程时不需要重新计算它。
 * **人机交互**：如果您正在构建需要人工干预的工作流程，则必须使用 **任务** 来封装任何随机性（例如 API 调用），以确保工作流程可以正确恢复。有关更多详细信息，请参阅[determinism](#determinism)部分。
 * **并行执行**：对于 I/O 密集型任务，**任务** 启用并行执行，允许多个操作同时运行而不会阻塞（例如，调用多个 API）。
-* **可观察性**：将操作包装在**任务**中提供了一种跟踪工作流程进度并使用[LangSmith](/langsmith/observability)监控各个操作执行情况的方法。* **可重试工作**：当工作需要重试来处理失败或不一致时，**任务**提供了一种封装和管理重试逻辑的方法。
+* **可观察性**：将操作包装在**任务**中提供了一种跟踪工作流程进度并使用[LangSmith](/langsmith/observability)监控各个操作执行情况的方法。
+* **可重试工作**：当工作需要重试来处理失败或不一致时，**任务**提供了一种封装和管理重试逻辑的方法。
 
 ## 序列化
 
 LangGraph 中的序列化有两个关键方面：
 
 1. `entrypoint` 输入和输出必须是 JSON 可序列化的。
-2. `task` 输出必须是 JSON 可序列化的。
-
-这些要求对于启用检查点和工作流程恢复是必要的。使用字典、列表、字符串、数字和布尔值等 Python 基元来确保输入和输出可序列化。
+2. `task` 输出必须是 JSON 可序列化的。这些要求对于启用检查点和工作流程恢复是必要的。使用字典、列表、字符串、数字和布尔值等 Python 基元来确保输入和输出可序列化。
 
 序列化可确保工作流状态（例如任务结果和中间值）能够可靠地保存和恢复。这对于实现人机交互、容错和并行执行至关重要。
 
@@ -538,13 +537,15 @@ LangGraph 中的序列化有两个关键方面：
 
 ## 决定论
 
-当您恢复工作流运行时，代码**不会**从执行停止的**同一行代码**恢复。执行返回到检查点边界，并且工作流向前**重播**，直到再次达到暂停为止。对于功能 API，重播从 **入口点** 的开头开始，而 LangGraph 则从检查点恢复已完成的 [**task**](/oss/python/langgraph/functional-api#task) 和 [**subgraph**](/oss/python/langgraph/use-subgraphs) 结果，而不是重新计算它们。这保留了暂停期间记录的步骤顺序，包括长时间运行或不确定的**任务**输出。
+当您恢复工作流运行时，代码**不会**从执行停止的**同一行代码**恢复。执行返回到检查点边界，并且工作流向前**重播**，直到再次达到暂停为止。
 
-要使用 **人机交互** 等功能，您必须将非确定性工作（例如随机值）和副作用（例如文件写入或 API 调用）放入 [**tasks**](/oss/python/langgraph/functional-api#task) 中。
+对于功能 API，重播从 **入口点** 的开头开始，而 LangGraph 则从检查点恢复已完成的 [**task**](/oss/python/langgraph/functional-api#task) 和 [**subgraph**](/oss/python/langgraph/use-subgraphs) 结果，而不是重新计算它们。这保留了暂停期间记录的步骤顺序，包括长时间运行或不确定的**任务**输出。要使用 **人机交互** 等功能，您必须将非确定性工作（例如随机值）和副作用（例如文件写入或 API 调用）放入 [**tasks**](/oss/python/langgraph/functional-api#task) 中。
 
 工作流的不同运行可能会产生不同的结果，但恢复**特定**线程应该重播相同的持久**任务**和**子图**结果。
 
-为了确保您的工作流程具有确定性并且可以一致地重播，请遵循以下准则：* **避免重复工作**：在**入口点**中，如果您链​​接多个副作用（例如，日志记录、文件写入或网络调用），请为每个副作用提供自己的**任务**，以便恢复从检查点恢复其输出，而不是再次运行它们。
+为了确保您的工作流程具有确定性并且可以一致地重播，请遵循以下准则：
+
+* **避免重复工作**：在**入口点**中，如果您链接多个副作用（例如，日志记录、文件写入或网络调用），请为每个副作用提供自己的**任务**，以便恢复从检查点恢复其输出，而不是再次运行它们。
 * **封装非确定性操作**：将可能在尝试之间发生变化的值（例如，随机数或挂钟读取）保留在**任务**内，以便重播与检查点的内容保持一致。
 * **使用幂等操作**：部分任务失败和重试请参见[Idempotency](#idempotency)。
 
@@ -560,7 +561,7 @@ LangGraph 中的序列化有两个关键方面：
 
 <Tabs>
   <Tab title="Incorrect">
-    在本例中，副作用（写入文件）直接包含在工作流中，因此在恢复工作流时将第二次执行。
+    在本例中，副作用（写入文件）直接包含在工作流中，因此在恢复工作流时将再次执行。
 
     ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
     @entrypoint(checkpointer=checkpointer)

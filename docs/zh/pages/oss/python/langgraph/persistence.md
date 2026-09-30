@@ -39,12 +39,13 @@ result = graph.invoke(
 
 ## 检查点与存储
 
-|                |检查点|商店 |
-| -------------- | -------------------------------------------------------------------------------------------------- | --------------------------------------------------- |
+| |检查点|商店 |
+| - | - | - |
 |坚持 |图状态快照 |应用程序定义的键值数据 |
-|范围 |单线程|跨线程 |
+|范围 |单线程|跨线程|
 |内存类型|短期、线程范围内存 |长期、跨线程内存|
-|用于|对话连续性、人机交互、时间旅行和容错 |用户偏好、事实和共享知识 ||访问模式|在图形配置中传递 `thread_id` |从节点或应用程序代码读取和写入项目 |
+|用于 |对话连续性、人机交互、时间旅行和容错 |用户偏好、事实和共享知识 |
+|访问模式|在图形配置中传递 `thread_id` |从节点或应用程序代码读取和写入项目 |
 |完整指南 | [Checkpointers](/oss/python/langgraph/checkpointers) | [Stores](/oss/python/langgraph/stores) |
 
 ## 常见问题疑难解答
@@ -61,9 +62,7 @@ import uuid
 config = {"configurable": {"thread_id": str(uuid.uuid4())[:255]}}
 ```
 
-### `MemorySaver` 在重新启动之间不会持续存在
-
-`MemorySaver`和`InMemorySaver`将检查点存储在RAM中。当进程重新启动时，所有检查点都会丢失。
+### `MemorySaver` 在重新启动之间不会持续存在`MemorySaver`和`InMemorySaver`将检查点存储在RAM中。当进程重新启动时，所有检查点都会丢失。
 
 **修复：** 使用持久检查点进行生产：
 
@@ -84,7 +83,9 @@ checkpointer.setup()  # Creates tables with indexes
 # Consider adding a cron job to delete checkpoints older than N days
 ```
 
-### 从父图到子图的状态访问当子图更新状态时，父图可能不会立即看到更改。这是因为每个子图管理自己的检查点名称空间。
+### 从父图到子图的状态访问
+
+当子图更新状态时，父图可能不会立即看到更改。这是因为每个子图管理自己的检查点名称空间。
 
 **修复：** 对于需要跨越图边界的数据使用[shared state via Store](/oss/python/langgraph/stores)，或者配置子图以写入父检查点。
 

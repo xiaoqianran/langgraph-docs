@@ -430,12 +430,12 @@ While `StateSchema` is the recommended approach for defining state, LangGraph su
 
 The channels API provides low-level control over state management. LangGraph provides several built-in channel types:
 
-| Channel Type              | Behavior                                 | Use Case                              |
-| ------------------------- | ---------------------------------------- | ------------------------------------- |
-| `LastValue`               | Stores the most recent value             | Simple fields that get overwritten    |
+| Channel Type | Behavior | Use Case |
+| - | - | - |
+| `LastValue` | Stores the most recent value | Simple fields that get overwritten |
 | `BinaryOperatorAggregate` | Combines values using a reducer function | Accumulating values (counters, lists) |
-| `Topic`                   | Collects all values into a sequence      | Event streams, audit logs             |
-| `EphemeralValue`          | Value that resets between supersteps     | Temporary computation state           |
+| `Topic` | Collects all values into a sequence | Event streams, audit logs |
+| `EphemeralValue` | Value that resets between supersteps | Temporary computation state |
 
 **Using the object shorthand:**
 
@@ -574,13 +574,13 @@ const graph = new StateGraph(State);
 
 #### Comparison table
 
-| Approach              | Reducers       | Type Safety | Zod Version | Recommended        |
-| --------------------- | -------------- | ----------- | ----------- | ------------------ |
-| `StateSchema`         | ✅ Built-in     | ✅ Full      | v3 or v4    | ✅ Yes              |
-| Channels API          | ✅ Manual       | ⚠️ Partial  | N/A         | For advanced cases |
-| `Annotation.Root`     | ✅ Built-in     | ✅ Full      | N/A         | Legacy             |
-| Zod v3 + `.langgraph` | ✅ Via plugin   | ✅ Full      | v3 only     | Legacy             |
-| Zod v4 + registry     | ✅ Via registry | ✅ Full      | v4 only     | Legacy             |
+| Approach | Reducers | Type Safety | Zod Version | Recommended |
+| - | - | - | - | - |
+| `StateSchema` | ✅ Built-in | ✅ Full | v3 or v4 | ✅ Yes |
+| Channels API | ✅ Manual | ⚠️ Partial | N/A | For advanced cases |
+| `Annotation.Root` | ✅ Built-in | ✅ Full | N/A | Legacy |
+| Zod v3 + `.langgraph` | ✅ Via plugin | ✅ Full | v3 only | Legacy |
+| Zod v4 + registry | ✅ Via registry | ✅ Full | v4 only | Legacy |
 
 ## Add runtime configuration
 
@@ -834,14 +834,14 @@ By default, the retry policy retries on any exception except for the following:
 
 You can access execution identity and retry information via `runtime.executionInfo`. This surfaces thread, run, and checkpoint identifiers as well as retry state, without needing to read from `config` directly.
 
-| Attribute              | Type                  | Description                                                                                |
-| ---------------------- | --------------------- | ------------------------------------------------------------------------------------------ |
-| `threadId`             | `string \| undefined` | Thread ID for the current execution.                                                       |
-| `runId`                | `string \| undefined` | Run ID for the current execution.                                                          |
-| `checkpointId`         | `string`              | Checkpoint ID for the current execution.                                                   |
-| `checkpointNs`         | `string`              | Checkpoint namespace for the current execution.                                            |
-| `taskId`               | `string`              | Task ID for the current execution.                                                         |
-| `nodeAttempt`          | `number`              | Current execution attempt number (1-indexed).                                              |
+| Attribute | Type | Description |
+| - | - | - |
+| `threadId` | `string \| undefined` | Thread ID for the current execution. |
+| `runId` | `string \| undefined` | Run ID for the current execution. |
+| `checkpointId` | `string` | Checkpoint ID for the current execution. |
+| `checkpointNs` | `string` | Checkpoint namespace for the current execution. |
+| `taskId` | `string` | Task ID for the current execution. |
+| `nodeAttempt` | `number` | Current execution attempt number (1-indexed). |
 | `nodeFirstAttemptTime` | `number \| undefined` | Unix timestamp (seconds) of when the first attempt started. Stays the same across retries. |
 
 #### Access thread and run IDs
@@ -903,11 +903,11 @@ const graph = new StateGraph(State)
 
 When your graph runs on LangGraph Server, you can access server-specific metadata via `runtime.serverInfo`.
 
-| Attribute     | Type               | Description                                                                     |
-| ------------- | ------------------ | ------------------------------------------------------------------------------- |
-| `assistantId` | `string`           | The assistant ID for the current deployment.                                    |
-| `graphId`     | `string`           | The graph ID for the current deployment.                                        |
-| `user`        | `BaseUser \| null` | The authenticated user, if [custom auth](/langsmith/custom-auth) is configured. |
+| Attribute | Type | Description |
+| - | - | - |
+| `assistantId` | `string` | The assistant ID for the current deployment. |
+| `graphId` | `string` | The graph ID for the current deployment. |
+| `user` | `BaseUser \| null` | The authenticated user, if [custom auth](/langsmith/custom-auth) is configured. |
 
 ```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 const myNode: GraphNode<typeof State> = async (state, runtime) => {

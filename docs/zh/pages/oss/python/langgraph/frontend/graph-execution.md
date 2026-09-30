@@ -15,7 +15,7 @@ LangGraph 特工不是黑匣子。每个图都由**命名节点**组成
 
 这种模式对于生产代理特别有用，因为它可以将图形转变为图形
 结构到产品用户体验中。而不是把跑步当作一个单独的助手
-响应，您可以公开相同的检查点、节点名称、状态键和
+响应，您可以公开相同的检查点、节点名称、状态密钥和
 LangGraph内部使用的流元数据。
 
 <PatternEmbed />
@@ -309,7 +309,7 @@ function NodeCard({
 节点卡读取流媒体和最终内容的范围消息。这个
 避免假设图节点名称与其写入的状态键匹配（例如
 例如，`do_research`写入游乐场图中的`research`）：|来源 |何时使用 |
-| --------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| - | - |
 | `useMessages(stream, node)` |渲染节点范围的流和最终消息 |
 | `stream.values` |使用实际状态键读取整个图状态，例如最终的 `synthesis` 字段 |
 
@@ -339,7 +339,9 @@ function NodeContent({ stream, node }: { stream: AnyStream; node: SubgraphDiscov
 ## 将它们放在一起
 
 这是完整的卡列表，结合了路由、状态检测和卡
-渲染：```tsx theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+渲染：
+
+```tsx theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 function NodeCardList({
   nodes,
   stream,
@@ -368,9 +370,7 @@ function NodeCardList({
 ## 用例
 
 图形执行卡适用于可见性的任何多步骤管道
-事项：
-
-* **研究管道**：分类→收集来源→分析→综合
+事项：* **研究管道**：分类→收集来源→分析→综合
   报告
 * **内容生成**：大纲→草稿→事实检查→编辑→发布
 * **数据处理**：摄取→验证→转换→聚合→导出

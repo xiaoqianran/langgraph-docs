@@ -179,15 +179,15 @@ StateSnapshot {
 
 #### StateSnapshot fields
 
-| Field          | Type             | Description                                                                                                                                                 |
-| -------------- | ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `values`       | `object`         | State channel values at this checkpoint.                                                                                                                    |
-| `next`         | `string[]`       | Node names to execute next. Empty `[]` means the graph is complete.                                                                                         |
-| `config`       | `object`         | Contains `thread_id`, `checkpoint_ns`, and `checkpoint_id`.                                                                                                 |
-| `metadata`     | `object`         | Execution metadata. Contains `source` (`"input"`, `"loop"`, or `"update"`), `writes` (node outputs), and `step` (super-step counter).                       |
-| `createdAt`    | `string`         | ISO 8601 timestamp of when this checkpoint was created.                                                                                                     |
-| `parentConfig` | `object \| null` | Config of the previous checkpoint. `null` for the first checkpoint.                                                                                         |
-| `tasks`        | `PregelTask[]`   | Tasks to execute at this step. Each task has `id`, `name`, `error`, `interrupts`, and optionally `state` (subgraph snapshot, when using `subgraphs: true`). |
+| Field | Type | Description |
+| - | - | - |
+| `values` | `object` | State channel values at this checkpoint. |
+| `next` | `string[]` | Node names to execute next. Empty `[]` means the graph is complete. |
+| `config` | `object` | Contains `thread_id`, `checkpoint_ns`, and `checkpoint_id`. |
+| `metadata` | `object` | Execution metadata. Contains `source` (`"input"`, `"loop"`, or `"update"`), `writes` (node outputs), and `step` (super-step counter). |
+| `createdAt` | `string` | ISO 8601 timestamp of when this checkpoint was created. |
+| `parentConfig` | `object \| null` | Config of the previous checkpoint. `null` for the first checkpoint. |
+| `tasks` | `PregelTask[]` | Tasks to execute at this step. Each task has `id`, `name`, `error`, `interrupts`, and optionally `state` (subgraph snapshot, when using `subgraphs: true`). |
 
 ### Get state history
 

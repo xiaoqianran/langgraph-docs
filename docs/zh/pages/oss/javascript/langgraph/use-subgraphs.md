@@ -25,12 +25,14 @@ npm install @langchain/langgraph
 
 ## 定义子图通信
 
-添加子图时，需要定义父图和子图如何通信：|图案|何时使用 |状态模式 |
-| --------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------- |
+添加子图时，需要定义父图和子图如何通信：|图案|何时使用 |状态模式|
+| - | - | - |
 | [Call a subgraph inside a node](#call-a-subgraph-inside-a-node) |父图和子图具有**不同的状态模式**（没有共享密钥），或者您需要在它们之间转换状态 |您编写一个包装函数，将父状态映射到子图输入，并将子图输出映射回父状态 |
 | [Add a subgraph as a node](#add-a-subgraph-as-a-node) |父图和子图 **共享状态键** - 子图与父图读取和写入相同的通道 |您将编译后的子图直接传递给`add_node`——无需包装函数 |
 
-### 调用节点内的子图当父图和子图具有**不同的状态模式**（无共享键）时，在节点函数内调用子图。当您想要为 [multi-agent](/oss/javascript/langchain/multi-agent) 系统中的每个代理保留私人消息历史记录时，这种情况很常见。
+### 调用节点内的子图
+
+当父图和子图具有**不同的状态模式**（无共享键）时，在节点函数内调用子图。当您想要为 [multi-agent](/oss/javascript/langchain/multi-agent) 系统中的每个代理保留私人消息历史记录时，这种情况很常见。
 
 节点函数在调用子图之前将父状态转换为子图状态，并在返回之前将结果转换回父状态。
 
@@ -227,7 +229,7 @@ const graph = builder.compile();
 <img alt="SQL agent graph" />
 
 如果您的子图与父图共享状态键，您可以按照以下步骤将其添加到您的图中：1.定义子图工作流程（下例中的`subgraphBuilder`）并编译
-2.定义父图工作流程时将编译后的子图传递给`.addNode`方法
+2.定义父图工作流程时，将编译后的子图传递给`.addNode`方法
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { StateGraph, StateSchema, START } from "@langchain/langgraph";
@@ -315,11 +317,13 @@ const graph = builder.compile();
 
 当您使用子图时，您需要决定调用之间其内部数据会发生什么。考虑一个委托给专业子代理的客户支持机器人：“计费专家”子代理是否应该记住客户之前的问题，还是在每次被呼叫时重新开始？
 
-`.compile()`上的`checkpointer`参数控制子图持久化：|模式| `checkpointer=` |行为 |
-| -------------------------------------------------- | ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+`.compile()`上的`checkpointer`参数控制子图持久化：
+
+|模式| `checkpointer=` |行为 |
+| - | - | - |
 | [Per-invocation](#per-invocation-default) | `None`（默认）|每个调用都会重新开始，并继承父级的检查指针，以在单个调用中支持 [interrupts](/oss/javascript/langgraph/interrupts) 和 [durable execution](/oss/javascript/langgraph/persistence)。 |
-| [Per-thread](#per-thread) | `True` |状态在同一线程上的调用之间累积。每个呼叫都会从上一个呼叫中断的地方接续。                                                                                                               |
-| [Stateless](#stateless) | `False` |根本没有检查点——像普通函数调用一样运行。无中断或持久执行。                                                                                                                     |对于大多数应用程序来说，每次调用是正确的选择，包括子代理处理独立请求的[multi-agent](/oss/javascript/langchain/multi-agent)系统。当子代理需要多轮对话记忆时（例如，通过多次交换构建上下文的研究助理），请使用每线程。
+| [Per-thread](#per-thread) | `True` |状态在同一线程上的调用之间累积。每个呼叫都会从上一个呼叫中断的地方接续。 |
+| [Stateless](#stateless) | `False` |根本没有检查点——像普通函数调用一样运行。无中断或持久执行。 |对于大多数应用程序来说，每次调用是正确的选择，包括子代理处理独立请求的[multi-agent](/oss/javascript/langchain/multi-agent)系统。当子代理需要多轮对话记忆时（例如，通过多次交换构建上下文的研究助理），请使用每线程。
 
 <Note>
   父图必须使用检查指针进行编译，子图持久性功能（中断、状态检查、每线程内存）才能正常工作。参见[persistence](/oss/javascript/langgraph/persistence)。
@@ -612,7 +616,7 @@ const agent = createAgent({
   <Tab title="Multiple subgraph calls">
     当您有多个**不同的**每线程子图（例如，水果专家和蔬菜专家）时，每个子图都需要自己的存储空间，以便它们的检查点不会相互覆盖。这称为**命名空间隔离**。
 
-    如果您[call subgraphs inside a node](#call-a-subgraph-inside-a-node)，LangGraph会根据调用顺序（第一次调用、第二次调用等）分配命名空间。这意味着重新排序您的调用可能会混淆哪个子图加载哪个状态。为了避免这种情况，请使用唯一的节点名称将每个子代理包装在自己的 `StateGraph` 中 - 这为每个子图提供了稳定、唯一的命名空间：
+    如果您[call subgraphs inside a node](#call-a-subgraph-inside-a-node)，LangGraph会根据调用顺序（第一次调用、第二次调用等）分配命名空间。这意味着重新排序您的调用可能会混淆哪个子图加载哪个状态。为了避免这种情况，请将每个子代理包装在其自己的 `StateGraph` 中，并使用唯一的节点名称 - 这为每个子图提供了一个稳定、唯一的命名空间：
 
     ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
     import { StateGraph, StateSchema, MessagesValue, START } from "@langchain/langgraph";
@@ -674,14 +678,14 @@ const subgraph = builder.compile({ checkpointer: false });  // or true, or null
 ```
 
 |特色|每次调用（默认）|每线程 |无国籍|
-| ------------------------------------------------ | ------------------------ | -------------------- | --------- |
+| - | - | - | - |
 | `checkpointer=` | `None` | `True` | `False` |
 |中断（HITL）| ✅ | ✅ | ❌ |
 |多圈记忆| ❌ | ✅ | ❌ |
 |多次调用（不同子图）| ✅ | <Tooltip>⚠️</Tooltip> | ✅ |
 |多次调用（同一子图）| ✅ | ❌ | ✅ |
 |国家检验| <Tooltip>⚠️</Tooltip> | ✅ | ❌ |* **中断（HITL）**：子图可以使用[interrupt()](/oss/javascript/langgraph/interrupts)暂停执行并等待用户输入，然后从中断处恢复。
-* **多轮记忆**：子图在同一[thread](/oss/javascript/langgraph/checkpointers#threads)内的多次调用中保留其状态。每次调用都会从上一个调用的地方继续，而不是重新开始。
+* **多轮内存**：子图在同一[thread](/oss/javascript/langgraph/checkpointers#threads)内的多次调用中保留其状态。每次调用都会从上一个调用的地方继续，而不是重新开始。
 * **多次调用（不同的子图）**：可以在单个节点内调用多个不同的子图实例，而不会发生检查点命名空间冲突。
 * **多次调用（同一子图）**：同一子图实例可以在单个节点内多次调用。通过有状态持久性，这些调用会写入相同的检查点命名空间并发生冲突 - 请改用每次调用持久性。
 * **状态检查**：子图的状态可通过`get_state(config, subgraphs=True)`进行调试和监控。

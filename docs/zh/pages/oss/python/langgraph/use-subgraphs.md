@@ -31,12 +31,14 @@
 
 ## 定义子图通信
 
-添加子图时，需要定义父图和子图如何通信：|图案|何时使用 |状态模式 |
-| --------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------- |
+添加子图时，需要定义父图和子图如何通信：|图案|何时使用 |状态模式|
+| - | - | - |
 | [Call a subgraph inside a node](#call-a-subgraph-inside-a-node) |父图和子图具有**不同的状态模式**（没有共享密钥），或者您需要在它们之间转换状态 |您编写一个包装函数，将父状态映射到子图输入，并将子图输出映射回父状态 |
 | [Add a subgraph as a node](#add-a-subgraph-as-a-node) |父图和子图 **共享状态键** - 子图与父图读取和写入相同的通道 |您将编译后的子图直接传递给`add_node`——无需包装函数 |
 
-### 调用节点内的子图当父图和子图具有**不同的状态模式**（无共享键）时，在节点函数内调用子图。当您想要为 [multi-agent](/oss/python/langchain/multi-agent) 系统中的每个代理保留私人消息历史记录时，这种情况很常见。
+### 调用节点内的子图
+
+当父图和子图具有**不同的状态模式**（无共享键）时，在节点函数内调用子图。当您想要为 [multi-agent](/oss/python/langchain/multi-agent) 系统中的每个代理保留私人消息历史记录时，这种情况很常见。
 
 节点函数在调用子图之前将父状态转换为子图状态，并在返回之前将结果转换回父状态。
 
@@ -220,16 +222,14 @@ graph = builder.compile()
   ```
 </Accordion>
 
-### 添加子图作为节点
-
-当父图和子图**共享状态键**时，您可以将编译后的子图直接传递给`add_node`。不需要包装函数——子图自动读取和写入父级的状态通道。例如，在[multi-agent](/oss/python/langchain/multi-agent)系统中，代理通常通过共享的[messages](/oss/python/langgraph/graph-api#why-use-messages)密钥进行通信。
+### 添加子图作为节点当父图和子图**共享状态键**时，您可以将编译后的子图直接传递给`add_node`。不需要包装函数——子图自动读取和写入父级的状态通道。例如，在[multi-agent](/oss/python/langchain/multi-agent)系统中，代理通常通过共享的[messages](/oss/python/langgraph/graph-api#why-use-messages)密钥进行通信。
 
 <img alt="SQL agent graph" />
 
 如果您的子图与父图共享状态键，您可以按照以下步骤将其添加到您的图中：
 
 1.定义子图工作流程（下例中的`subgraph_builder`）并编译
-2.定义父图工作流程时，将编译后的子图传递给[⟦T31⟧](https://reference.langchain.com/python/langgraph/graph/state/StateGraph/add_node)方法
+2.定义父图工作流程时将编译后的子图传递给[⟦T31⟧](https://reference.langchain.com/python/langgraph/graph/state/StateGraph/add_node)方法
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from typing_extensions import TypedDict
@@ -306,28 +306,29 @@ graph = builder.compile()
   {'node_1': {'foo': 'hi! foo'}}
   {'node_2': {'foo': 'hi! foobar'}}
   ```
-</Accordion>## 子图持久化
+</Accordion>
+
+## 子图持久化
 
 当您使用子图时，您需要决定调用之间其内部数据会发生什么。考虑一个委托给专业子代理的客户支持机器人：“计费专家”子代理是否应该记住客户之前的问题，还是在每次被呼叫时重新开始？
 
-`.compile()`上的`checkpointer`参数控制子图持久化：
-
-|模式| `checkpointer=` |行为 |
-| -------------------------------------------------- | ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [Per-invocation](#per-invocation-default) | `None`（默认）|每个调用都会重新开始并继承父级的检查指针以在单个调用中支持[interrupts](/oss/python/langgraph/interrupts)和[durable execution](/oss/python/langgraph/persistence)。 || [Per-thread](#per-thread) | `True` |状态在同一线程上的调用之间累积。每个呼叫都会从上一个呼叫中断的地方接续。                                                                                                       |
-| [Stateless](#stateless) | `False` |根本没有检查点——像普通函数调用一样运行。无中断或持久执行。                                                                                                             |
+`.compile()`上的`checkpointer`参数控制子图持久化：|模式| `checkpointer=` |行为 |
+| - | - | - |
+| [Per-invocation](#per-invocation-default) | `None`（默认）|每个调用都会重新开始并继承父级的检查指针以在单个调用中支持[interrupts](/oss/python/langgraph/interrupts)和[durable execution](/oss/python/langgraph/persistence)。 |
+| [Per-thread](#per-thread) | `True` |状态在同一线程上的调用之间累积。每个呼叫都会从上一个呼叫中断的地方接续。 |
+| [Stateless](#stateless) | `False` |根本没有检查点——像普通函数调用一样运行。无中断或持久执行。 |
 
 对于大多数应用程序来说，每次调用是正确的选择，包括子代理处理独立请求的[multi-agent](/oss/python/langchain/multi-agent)系统。当子代理需要多轮对话记忆时（例如，通过多次交换构建上下文的研究助理），请使用每线程。
 
 <Note>
   父图必须使用检查指针进行编译，子图持久性功能（中断、状态检查、每线程内存）才能正常工作。参见[persistence](/oss/python/langgraph/persistence)。
-</Note><Info>
+</Note>
+
+<Info>
   下面的示例使用LangChain的[⟦T38⟧](https://reference.langchain.com/python/langchain/agents/factory/create_agent)，这是构建代理的常用方法。 `create_agent` 在底层生成 [LangGraph graph](/oss/python/langgraph/graph-api)，因此所有子图持久性概念都直接适用。如果您使用原始 LangGraph `StateGraph` 进行构建，则适用相同的模式和配置选项 - 有关详细信息，请参阅 [Graph API](/oss/python/langgraph/graph-api)。
 </Info>
 
-### 有状态
-
-有状态子图继承父图的检查指针，从而启用 [interrupts](/oss/python/langgraph/interrupts)、[persistence](/oss/python/langgraph/persistence) 和状态检查。这两种有状态模式的不同之处在于状态保留的时间。
+### 有状态有状态子图继承父图的检查指针，从而启用 [interrupts](/oss/python/langgraph/interrupts)、[persistence](/oss/python/langgraph/persistence) 和状态检查。这两种有状态模式的不同之处在于状态保留的时间。
 
 #### 每次调用（默认）
 
@@ -335,7 +336,9 @@ graph = builder.compile()
   这是大多数应用程序的推荐模式，包括将子代理作为工具调用的[multi-agent](/oss/python/langchain/multi-agent)系统。它支持[interrupts](/oss/python/langgraph/interrupts)、[persistence](/oss/python/langgraph/persistence)和并行调用，同时保持每个调用的隔离。
 </Tip>
 
-当对子图的每次调用都是独立的并且子代理不需要记住之前调用的任何内容时，请使用每次调用持久性。这是最常见的模式，特别是对于 [multi-agent](/oss/python/langchain/multi-agent) 系统，其中子代理处理一次性请求，例如“查找该客户的订单”或“总结此文档”。省略 `checkpointer` 或将其设置为 `None`。每个调用都是全新开始的，但在单个调用中，子图继承父级的检查点，并且可以使用 `interrupt()` 暂停和恢复。
+当对子图的每次调用都是独立的并且子代理不需要记住之前调用的任何内容时，请使用每次调用持久性。这是最常见的模式，特别是对于 [multi-agent](/oss/python/langchain/multi-agent) 系统，其中子代理处理一次性请求，例如“查找该客户的订单”或“总结此文档”。
+
+省略 `checkpointer` 或将其设置为 `None`。每个调用都是全新开始的，但在单个调用中，子图继承父级的检查点，并且可以使用 `interrupt()` 暂停和恢复。
 
 以下示例使用两个子代理（水果专家、蔬菜专家）作为外部代理的工具进行包装：
 
@@ -426,9 +429,7 @@ agent = create_agent(
     # Resume - approve the interrupt
     resumed = agent.stream_events(Command(resume=True), config=config, version="v3")
     final = resumed.output
-    ```
-
-    <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/b9877a82-7701-4a9b-9430-bf5cb8740be0/r">
+    ```<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/b9877a82-7701-4a9b-9430-bf5cb8740be0/r">
       为此示例打开公共 LangSmith 运行。
     </Card>
   </Tab>
@@ -472,14 +473,14 @@ agent = create_agent(
   </Tab>
 </Tabs>
 
-#### 每线程当子代理需要记住以前的交互时，请使用每线程持久性。例如，研究助理通过多次交换建立上下文，或者编码助理跟踪其已编辑的文件。子代理的对话历史记录和数据在同一线程上的调用之间累积。每个呼叫都会从上一个呼叫中断的地方接续。
+#### 每线程
+
+当子代理需要记住以前的交互时，请使用每线程持久性。例如，研究助理通过多次交换建立上下文，或者编码助理跟踪其已编辑的文件。子代理的对话历史记录和数据在同一线程上的调用之间累积。每个呼叫都会从上一个呼叫中断的地方接续。
 
 使用 `checkpointer=True` 编译以启用此行为。
 
 <Warning>
-  每线程子图不支持并行工具调用。当 LLM 可以访问每线程子代理作为工具时，它可能会尝试并行多次调用该工具（例如，同时向水果专家询问有关苹果和香蕉的信息）。这会导致检查点冲突，因为两个调用都写入同一名称空间。
-
-  下面的示例使用 LangChain 的 `ToolCallLimitMiddleware` 来防止这种情况。如果您使用纯 LangGraph `StateGraph` 进行构建，则需要自行防止并行工具调用，例如，通过配置模型以禁用并行工具调用或添加逻辑以确保不会多次并行调用同一子图。
+  每线程子图不支持并行工具调用。当 LLM 可以访问每线程子代理作为工具时，它可能会尝试并行多次调用该工具（例如，同时向水果专家询问有关苹果和香蕉的信息）。这会导致检查点冲突，因为两个调用都写入同一名称空间。下面的示例使用 LangChain 的 `ToolCallLimitMiddleware` 来防止这种情况。如果您使用纯 LangGraph `StateGraph` 进行构建，则需要自行防止并行工具调用，例如，通过配置模型以禁用并行工具调用或添加逻辑以确保不会多次并行调用同一子图。
 </Warning>
 
 以下示例使用使用`checkpointer=True`编译的水果专家子代理：
@@ -525,7 +526,9 @@ agent = create_agent(
     ],  # [!code highlight]
     checkpointer=MemorySaver(),
 )
-```<Tabs>
+```
+
+<Tabs>
   <Tab title="Interrupts">
     每线程子代理支持 `interrupt()` 就像每次调用一样。将`interrupt()`添加到工具功能中以要求用户批准：
 
@@ -584,9 +587,7 @@ agent = create_agent(
   </Tab>
 
   <Tab title="Multiple subgraph calls">
-    当您有多个**不同的**每线程子图（例如，水果专家和蔬菜专家）时，每个子图都需要自己的存储空间，以便它们的检查点不会相互覆盖。这称为**命名空间隔离**。
-
-    如果您[call subgraphs inside a node](#call-a-subgraph-inside-a-node)，LangGraph会根据调用顺序（第一次调用、第二次调用等）分配命名空间。这意味着重新排序您的调用可能会混淆哪个子图加载哪个状态。为了避免这种情况，请使用唯一的节点名称将每个子代理包装在自己的 `StateGraph` 中 - 这为每个子图提供了稳定、唯一的命名空间：
+    当您有多个**不同的**每线程子图（例如，水果专家和蔬菜专家）时，每个子图都需要自己的存储空间，以便它们的检查点不会相互覆盖。这称为**命名空间隔离**。如果您[call subgraphs inside a node](#call-a-subgraph-inside-a-node)，LangGraph 根据调用顺序（第一次调用、第二次调用等）分配命名空间。这意味着重新排序您的调用可能会混淆哪个子图加载哪个状态。为了避免这种情况，请将每个子代理包装在其自己的 `StateGraph` 中，并使用唯一的节点名称 - 这为每个子图提供了稳定、唯一的命名空间：
 
     ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
     from langgraph.graph import MessagesState, StateGraph
@@ -633,7 +634,9 @@ agent = create_agent(
   </Tab>
 </Tabs>
 
-### 无状态当您想要像普通函数调用一样运行子代理而没有检查点开销时，请使用此选项。子图无法暂停/恢复，并且无法从 [durable execution](/oss/python/langgraph/persistence) 中受益。使用`checkpointer=False`编译。
+### 无状态
+
+当您想要像普通函数调用一样运行子代理而没有检查点开销时，请使用此选项。子图无法暂停/恢复，并且无法从 [durable execution](/oss/python/langgraph/persistence) 中受益。使用`checkpointer=False`编译。
 
 <Warning>
   如果没有检查点，子图就没有持久执行。如果进程在运行中崩溃，则子图无法恢复，必须从头开始重新运行。
@@ -650,15 +653,14 @@ subgraph = subgraph_builder.compile(checkpointer=False)  # [!code highlight]
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 subgraph = builder.compile(checkpointer=False)  # or True / None
-```
-
-|特色|每次调用（默认）|每线程 |无国籍|
-| ------------------------------------------------ | ------------------------ | -------------------- | --------- |
+```|特色|每次调用（默认）|每线程 |无国籍|
+| - | - | - | - |
 | `checkpointer=` | `None` | `True` | `False` |
 |中断（HITL）| ✅ | ✅ | ❌ |
 |多圈记忆| ❌ | ✅ | ❌ |
 |多次调用（不同子图）| ✅ | <Tooltip>⚠️</Tooltip> | ✅ |
-|多次调用（同一子图）| ✅ | ❌ | ✅ ||国家检验| <Tooltip>⚠️</Tooltip> | ✅ | ❌ |
+|多次调用（同一子图）| ✅ | ❌ | ✅ |
+|国家检验| <Tooltip>⚠️</Tooltip> | ✅ | ❌ |
 
 * **中断（HITL）**：子图可以使用[interrupt()](/oss/python/langgraph/interrupts)暂停执行并等待用户输入，然后从中断处恢复。
 * **多轮记忆**：子图在同一[thread](/oss/python/langgraph/checkpointers#threads)内的多次调用中保留其状态。每次调用都会从上一个调用的地方继续，而不是重新开始。
@@ -666,9 +668,9 @@ subgraph = builder.compile(checkpointer=False)  # or True / None
 * **多次调用（同一子图）**：同一子图实例可以在单个节点内多次调用。通过有状态持久性，这些调用会写入相同的检查点命名空间并发生冲突 - 请改用每次调用持久性。
 * **状态检查**：子图的状态可通过`get_state(config, subgraphs=True)`进行调试和监控。
 
-## 查看子图状态
+## 查看子图状态当您启用[persistence](/oss/python/langgraph/persistence)时，您可以使用子图选项检查子图状态。使用[stateless](#stateless)检查点（`checkpointer=False`），不会保存子图检查点，因此子图状态不可用。
 
-当您启用[persistence](/oss/python/langgraph/persistence)时，您可以使用子图选项检查子图状态。使用[stateless](#stateless)检查点（`checkpointer=False`），不会保存子图检查点，因此子图状态不可用。<Note>
+<Note>
   查看子图状态需要LangGraph可以**静态地发现**子图，即它是[added as a node](#add-a-subgraph-as-a-node)或[called inside a node](#call-a-subgraph-inside-a-node)。当在 [tool](/oss/python/langchain/tools) 函数或其他间接（例如 [subagents](/oss/python/langchain/multi-agent/subagents) 模式）内调用子图时，它不起作用。无论嵌套如何，中断仍然会传播到顶层图。
 </Note>
 
@@ -825,9 +827,7 @@ for event in stream:
   ```
 </Accordion>
 
-***
-
-<div>
+***<div>
   <Callout icon="terminal-2">
     [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
   </Callout>

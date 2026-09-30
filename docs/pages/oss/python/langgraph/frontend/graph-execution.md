@@ -312,10 +312,10 @@ The node card reads scoped messages for both streaming and final content. This
 avoids assuming that a graph node name matches the state key it writes to (for
 example, `do_research` writes to `research` in the playground graph):
 
-| Source                      | When to use                                                                            |
-| --------------------------- | -------------------------------------------------------------------------------------- |
-| `useMessages(stream, node)` | Render node-scoped streaming and final messages                                        |
-| `stream.values`             | Read whole-graph state such as the final `synthesis` field, using the actual state key |
+| Source | When to use |
+| - | - |
+| `useMessages(stream, node)` | Render node-scoped streaming and final messages |
+| `stream.values` | Read whole-graph state such as the final `synthesis` field, using the actual state key |
 
 The pattern is: show the most recent scoped AI message in the node card, and
 use `stream.values` only when you intentionally need a graph state field.

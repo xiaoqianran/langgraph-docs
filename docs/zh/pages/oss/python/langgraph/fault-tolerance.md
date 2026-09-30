@@ -80,12 +80,13 @@ builder.add_node(
 
 ### 参数
 
-|参数|类型 |默认|描述 |
-| ------------------ | -------------------------------------------------------------------------------------------------- | ------------------ | -------------------------------------------------------------------------------- |
-| `max_attempts` | `int` | `3` |最大尝试次数，包括第一次。                                 |
-| `initial_interval` | `float` | `0.5` |第一次重试前的秒数。                                                  || `backoff_factor` | `float` | `2.0` |乘数应用于每次重试后的间隔。                             |
-| `max_interval` | `float` | `128.0` |重试之间的最大秒数。                                                 |
-| `jitter` | `bool` | `True` |将随机抖动添加到间隔中。                                               |
+|参数|类型 |默认 |描述 |
+| - | - | - | - |
+| `max_attempts` | `int` | `3` |最大尝试次数，包括第一次。 |
+| `initial_interval` | `float` | `0.5` |第一次重试前的秒数。 |
+| `backoff_factor` | `float` | `2.0` |乘数应用于每次重试后的间隔。 |
+| `max_interval` | `float` | `128.0` |重试之间的最大秒数。 |
+| `jitter` | `bool` | `True` |将随机抖动添加到间隔中。 |
 | `retry_on` | `type[Exception] \| Sequence[type[Exception]] \| Callable[[Exception], bool]` | `default_retry_on` |要重试的异常，或者可调用的返回 `True` 的可重试异常。 |
 
 ### 自定义重试逻辑
@@ -129,16 +130,16 @@ builder = StateGraph(State)
 builder.add_node("my_node", my_node, retry_policy=RetryPolicy(max_attempts=3))
 builder.add_edge(START, "my_node")
 builder.add_edge("my_node", END)
-```
+````execution_info`公开以下字段：
 
-`execution_info`公开以下字段：|属性 |类型 |描述 |
-| ---------------------------------- | ---------------- | -------------------------------------------------------------------------------------------------- |
+|属性 |类型 |描述 |
+| - | - | - |
 | `node_attempt` | `int` |当前尝试次数（1-索引）。第一次尝试时`1`，第一次重试时`2`，等等 |
-| `node_first_attempt_time` | `float \| None` |第一次尝试开始时的 Unix 时间戳。重试后保持不变。             |
-| `thread_id` | `str \| None` |当前执行的线程 ID。 `None` 没有检查点。                    |
-| `run_id` | `str \| None` |当前执行的运行 ID。 `None` 当配置中未提供时。                  |
-| `checkpoint_id` | `str` |当前执行的检查点 ID。                                               |
-| `task_id` | `str` |当前执行的任务 ID。                                                     |
+| `node_first_attempt_time` | `float \| None` |第一次尝试开始时的 Unix 时间戳。重试后保持不变。 |
+| `thread_id` | `str \| None` |当前执行的线程 ID。 `None` 没有检查点。 |
+| `run_id` | `str \| None` |当前执行的运行 ID。 `None` 当配置中未提供时。 |
+| `checkpoint_id` | `str` |当前执行的检查点 ID。 |
+| `task_id` | `str` |当前执行的任务 ID。 |
 
 即使没有重试策略，`execution_info` 也可用 — `node_attempt` 默认为 `1`。
 
@@ -146,7 +147,9 @@ builder.add_edge("my_node", END)
 
 <Note>
   需要`langgraph>=1.2`。
-</Note>[⟦T89⟧](https://reference.langchain.com/python/langgraph/graph/state/StateGraph/add_node) 上的 `timeout=` 参数限制了单个节点尝试可以运行的时间。传递一个数字（秒）、`timedelta`或[⟦T91⟧](https://reference.langchain.com/python/langgraph/types/TimeoutPolicy)以实现单独的运行和空闲限制：
+</Note>
+
+[⟦T89⟧](https://reference.langchain.com/python/langgraph/graph/state/StateGraph/add_node) 上的 `timeout=` 参数限制了单个节点尝试可以运行的时间。传递一个数字（秒）、`timedelta`或[⟦T91⟧](https://reference.langchain.com/python/langgraph/types/TimeoutPolicy)以实现单独的运行和空闲限制：
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from datetime import timedelta
@@ -180,9 +183,7 @@ builder.add_node(
     call_model,
     timeout=TimeoutPolicy(run_timeout=120),
 )
-```
-
-当超过限制时，LangGraph提高[⟦T95⟧](https://reference.langchain.com/python/langgraph/errors/NodeTimeoutError)，清除失败尝试中的所有写入，并让重试策略决定是否重试。
+```当超过限制时，LangGraph提高[⟦T95⟧](https://reference.langchain.com/python/langgraph/errors/NodeTimeoutError)，清除失败尝试中的所有写入，并让重试策略决定是否重试。
 
 ### 空闲超时
 
@@ -200,7 +201,9 @@ builder.add_node(
 
 #### 进度信号
 
-在默认`refresh_on="auto"`下，空闲时钟会在以下任何情况下重置：* 状态通过`CONFIG_KEY_SEND`写入
+在默认`refresh_on="auto"`下，空闲时钟会在以下任何情况下重置：
+
+* 状态通过`CONFIG_KEY_SEND`写入
 * 流输出（产生异步流块）
 * 子任务调度
 * 运行时流写入器调用
@@ -245,19 +248,19 @@ builder.add_node(
 )
 builder.add_edge(START, "long_running_node")
 builder.add_edge("long_running_node", END)
-```
-
-`runtime.heartbeat()` 是空闲时间尝试之外的无操作，因此您可以无条件调用它。
+````runtime.heartbeat()` 是空闲时间尝试之外的无操作，因此您可以无条件调用它。
 
 ### 节点超时错误
 
-当超时触发时，LangGraph会引发[⟦T106⟧](https://reference.langchain.com/python/langgraph/errors/NodeTimeoutError)，并带有关于哪个限制被击中的结构化上下文：|属性 |类型 |描述 |
-| -------------- | ------------------------ | ---------------------------------------------------------- |
-| `node` | `str` |执行超时的节点名称。    |
-| `elapsed` | `float` |超时触发前已过了几秒。      |
-| `kind` | `Literal["idle", "run"]` |哪个超时被触发。                           |
+当超时触发时，LangGraph会引发[⟦T106⟧](https://reference.langchain.com/python/langgraph/errors/NodeTimeoutError)，并带有关于哪个限制被击中的结构化上下文：
+
+|属性 |类型 |描述 |
+| - | - | - |
+| `node` | `str` |执行超时的节点名称。 |
+| `elapsed` | `float` |超时触发前已过了几秒。 |
+| `kind` | `Literal["idle", "run"]` |哪个超时被触发。 |
 | `idle_timeout` | `float \| None` |配置的空闲超时（秒）（如果有）。 |
-| `run_timeout` | `float \| None` |配置的运行超时（秒）（如果有）。  |
+| `run_timeout` | `float \| None` |配置的运行超时（秒）（如果有）。 |
 
 `NodeTimeoutError` 默认情况下可重试。将 `timeout` 与重试策略相结合，可以开箱即用 - 每次新尝试时超时时钟都会重置，并且在下一次重试之前清除超时尝试的写入：
 
@@ -345,12 +348,12 @@ def my_handler(state: State, error: NodeError) -> Command:
     return Command(update={"status": "recovered"}, goto="next_step")
 ```
 
-[⟦T129⟧](https://reference.langchain.com/python/langgraph/errors/NodeError) 是一个具有两个字段的冻结数据类：|属性 |类型 |描述 |
-| --------- | ---------------- | ---------------------------------------------------------------- |
-| `node` | `str` |执行失败的节点名称。 |
-| `error` | `BaseException` |故障节点引发的异常。 |
+[⟦T129⟧](https://reference.langchain.com/python/langgraph/errors/NodeError) 是一个具有两个字段的冻结数据类：
 
-`error: NodeError` 参数是可选的。不需要失败上下文的处理程序可以使用更简单的签名，例如 `(state)` 或 `(state, runtime)`。
+|属性 |类型 |描述 |
+| - | - | - |
+| `node` | `str` |执行失败的节点名称。 |
+| `error` | `BaseException` |故障节点引发的异常。 |`error: NodeError` 参数是可选的。不需要失败上下文的处理程序可以使用更简单的签名，例如 `(state)` 或 `(state, runtime)`。
 
 ### 使用命令进行路由
 
@@ -404,13 +407,13 @@ graph = (
   故障来源有检查点。如果在节点失败之后但处理程序完成之前图被中断或进程崩溃，则当图从其检查点恢复时，处理程序会看到相同的`NodeError`上下文。
 </Note>
 
-### `interrupt()` 的行为<Warning>
+### `interrupt()` 的行为
+
+<Warning>
   在节点内部引发的`interrupt()`**不会**路由到错误处理程序。中断使用 `GraphBubbleUp` 机制来暂停人机循环工作流程的图形执行，绕过重试策略和错误处理程序。图表照常暂停。
 </Warning>
 
-### 子图失败
-
-如果节点包装子图并且子图引发未处理的异常，则该异常会显示到父节点。如果父节点有错误处理程序，则该处理程序会在 `error.error` 中触发子图的异常。
+### 子图失败如果节点包装子图并且子图引发未处理的异常，则该异常会显示到父节点。如果父节点有错误处理程序，则该处理程序会在 `error.error` 中触发子图的异常。
 
 ## 图表默认值
 
@@ -463,7 +466,9 @@ graph = (
 )
 ```
 
-### 默认错误处理程序当每个图形运行映射到外部进程（例如后台作业行）并且任何未处理的节点故障都应将该进程标记为失败，而不是在每个 `add_node` 上重复 `error_handler=` 时，`error_handler` 默认值特别有价值。当步骤需要自己的逻辑时，每节点处理程序仍然优先：
+### 默认错误处理程序
+
+当每个图形运行映射到外部进程（例如后台作业行）并且任何未处理的节点故障都应将该进程标记为失败，而不是在每个 `add_node` 上重复 `error_handler=` 时，`error_handler` 默认值特别有价值。当步骤需要自己的逻辑时，每节点处理程序仍然优先：
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from langgraph.errors import NodeError
@@ -511,9 +516,7 @@ graph = (
     .add_edge("fetch_data", "charge_payment")
     .compile()
 )
-```
-
-如果重试后`fetch_data`失败，则`mark_process_failed`运行。如果 `charge_payment` 在重试后失败，则 `refund_payment` 会运行，因为每个节点处理程序会覆盖默认值。
+```如果重试后`fetch_data`失败，则`mark_process_failed`运行。如果 `charge_payment` 在重试后失败，则 `refund_payment` 会运行，因为每个节点处理程序会覆盖默认值。
 
 该处理程序接受与 [Error handling](#error-handling) 中描述的相同的 `(state, error: NodeError)` 签名。如果您需要访问诸如 `thread_id` 之类的配置值，它还接受 `RunnableConfig` 作为可选的第三个参数：
 
@@ -529,8 +532,10 @@ def mark_process_failed(
 
 ### 适用性矩阵
 
-并非所有默认值都适用于所有节点类型。错误处理程序节点（通过`add_node(error_handler=...)`注册的节点）被排除在某些默认值之外，以防止不安全行为：| `set_node_defaults`参数|适用于常规节点|适用于错误处理程序节点 |原因 |
-| -------------------------------------- | ------------------------ | ------------------------------ | ----------------------------------------------------------------------- |
+并非所有默认值都适用于所有节点类型。错误处理程序节点（通过`add_node(error_handler=...)`注册的节点）被排除在某些默认值之外，以防止不安全行为：
+
+| `set_node_defaults`参数|适用于常规节点 |适用于错误处理程序节点 |原因 |
+| - | - | - | - |
 | `retry_policy` | ✅ | ✅ |应对暂时性故障重试处理程序 |
 | `timeout` | ✅ | ✅ |卡住的处理程序应该像卡住的常规节点一样被取消 |
 | `error_handler` | ✅ | ❌ |处理者绝不能抓住自己|
@@ -592,12 +597,12 @@ except GraphDrained as e:
 ### 语义
 
 Drain 是协作式的，在超级步骤之间运行，不会抢占已经在运行的工作：|场景 |行为 |
-| -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-|节点执行中期 |运行至完成。 Drain 在下一个超级步骤中生效。                                 |
-|具有重试策略的节点当前正在重试 |重试循环运行至耗尽或成功。排水后生效。                           |
-|图形在与耗尽相同的刻度上自然完成 |正常返回。检查`control.drain_requested`以区别于正常运行。         |
-|仍有更多超级步骤|加薪`GraphDrained(reason)`。检查点已保存并可恢复。                             |
-|子图请求耗尽 | `GraphDrained` 在父级中冒泡，并在其自己的下一个超步边界处停止。 |
+| - | - |
+|节点执行中期|运行至完成。 Drain 在下一个超级步骤中生效。 |
+|具有重试策略的节点当前正在重试 |重试循环运行至耗尽或成功。排水后生效。 |
+|图形在与耗尽相同的刻度上自然完成 |正常返回。检查`control.drain_requested`以区别于正常运行。 |
+|仍有更多超级步骤|加薪`GraphDrained(reason)`。检查点已保存并可恢复。 |
+|子图请求耗尽 | `GraphDrained` 通过父级向上冒泡，并在其自己的下一个超步边界处停止。 |
 
 ### 排水后恢复
 
@@ -607,7 +612,9 @@ Drain 是协作式的，在超级步骤之间运行，不会抢占已经在运�
 result = graph.invoke(None, config)
 ```
 
-### 读取节点内的耗尽状态通过`runtime`参数访问drain状态，以在达到超步边界之前调整节点行为：
+### 读取节点内的耗尽状态
+
+通过`runtime`参数访问drain状态，以在达到超步边界之前调整节点行为：
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from langgraph.runtime import Runtime
@@ -642,9 +649,7 @@ except GraphDrained as e:
   `request_drain()` 不会取消正在运行的异步任务或终止线程。对于硬上限，将排出与优雅的超时和任务取消配对。
 </Note>
 
-## 限制
-
-* **超时仅是异步的**：具有 `timeout` 的同步节点在编译时被拒绝。
+## 限制* **超时仅是异步的**：具有 `timeout` 的同步节点在编译时被拒绝。
 * **每个节点一个处理程序**：每个节点最多可以有一个`error_handler`。
 * **处理程序失败冒泡**：如果错误处理程序本身引发，则该异常会传播，就像节点没有处理程序一样。
 * **`set_node_defaults` 不被子图继承**：每个图独立管理自己的默认值。

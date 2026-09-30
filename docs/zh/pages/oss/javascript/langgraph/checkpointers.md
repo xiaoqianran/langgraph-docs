@@ -170,12 +170,13 @@ StateSnapshot {
 #### 状态快照字段
 
 |领域 |类型 |描述 |
-| -------------- | ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `values` | `object` |该检查点的状态通道值。                                                                                                                    || `next` | `string[]` |接下来要执行的节点名称。空`[]`表示图是完整的。                                                                                         |
-| `config` | `object` |包含 `thread_id`、`checkpoint_ns` 和 `checkpoint_id`。                                                                                                 |
-| `metadata` | `object` |执行元数据。包含`source`（`"input"`、`"loop"`或`"update"`）、`writes`（节点输出）和`step`（超级计步器）。                       |
-| `createdAt` | `string` |创建此检查点时的 ISO 8601 时间戳。                                                                                                     |
-| `parentConfig` | `object \| null` |前一个检查点的配置。 `null`为第一个检查站。                                                                                         |
+| - | - | - |
+| `values` | `object` |该检查点的状态通道值。 |
+| `next` | `string[]` |接下来要执行的节点名称。空`[]`表示图是完整的。 |
+| `config` | `object` |包含 `thread_id`、`checkpoint_ns` 和 `checkpoint_id`。 |
+| `metadata` | `object` |执行元数据。包含`source`（`"input"`、`"loop"`或`"update"`）、`writes`（节点输出）和`step`（超级计步器）。 |
+| `createdAt` | `string` |创建此检查点时的 ISO 8601 时间戳。 |
+| `parentConfig` | `object \| null` |前一个检查点的配置。 `null`为第一个检查站。 |
 | `tasks` | `PregelTask[]` |此步骤要执行的任务。每个任务都有`id`、`name`、`error`、`interrupts`，以及可选的`state`（子图快照，当使用`subgraphs: true`时）。 |
 
 ### 获取状态历史记录您可以通过调用 `graph.getStateHistory(config)` 获取给定线程的图形执行的完整历史记录。这将返回与配置中提供的线程 ID 关联的 `StateSnapshot` 对象列表。重要的是，检查点将按时间顺序排序，最近的检查点/`StateSnapshot`是列表中的第一个。
@@ -352,7 +353,7 @@ const interrupted = history.find(
 
 ## 耐久性模式
 
-LangGraph 支持三种持久模式，让您平衡性能和数据一致性。您可以在调用任何图形执行方法时指定持久性模式：
+LangGraph 支持三种持久性模式，让您平衡性能和数据一致性。您可以在调用任何图形执行方法时指定持久性模式：
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 await graph.stream(
@@ -372,7 +373,7 @@ await graph.stream(
 在底层，检查点由符合 [⟦T77⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/BaseCheckpointSaver) 接口的检查点对象提供支持。 LangGraph 提供了多种检查点实现，全部通过独立的可安装库实现。* `@langchain/langgraph-checkpoint`：检查点保存器（[⟦T79⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/BaseCheckpointSaver)）和序列化/反序列化接口（[⟦T80⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/SerializerProtocol)）的基本接口。包括用于实验的内存检查指针实现 ([⟦T81⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/MemorySaver))。 LangGraph 附带`@langchain/langgraph-checkpoint`。
 * `@langchain/langgraph-checkpoint-sqlite`：使用 SQLite 数据库 ([⟦T84⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint-sqlite/SqliteSaver)) 的 LangGraph 检查点实现。非常适合实验和本地工作流程。需要单独安装。
 * `@langchain/langgraph-checkpoint-postgres`：使用Postgres数据库（[⟦T86⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint-postgres/index/PostgresSaver)）的高级检查点，在LangSmith中使用。非常适合在生产中使用。需要单独安装。
-* `@langchain/langgraph-checkpoint-mongodb`：由 MongoDB 支持的高级检查点 (`MongoDBSaver`) 和长期内存存储 (`MongoDBStore`)。该商店支持跨线程持久性以及可选的集成向量搜索。非常适合生产使用。需要单独安装。
+* `@langchain/langgraph-checkpoint-mongodb`：由 MongoDB 支持的高级检查点 (`MongoDBSaver`) 和长期内存存储 (`MongoDBStore`)。该商店支持跨线程持久性以及可选的集成矢量搜索。非常适合生产使用。需要单独安装。
 * `@langchain/langgraph-checkpoint-redis`：使用Redis数据库的高级检查点（`RedisSaver`）。非常适合在生产中使用。需要单独安装。
 
 ### 检查点接口

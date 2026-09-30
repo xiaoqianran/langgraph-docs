@@ -30,14 +30,14 @@ for await (const chunk of await graph.stream(inputs, {
 
 Pass one or more of the following stream modes as a list to the [`stream`](https://reference.langchain.com/javascript/classes/_langchain_langgraph.index.CompiledStateGraph.html#stream) method:
 
-| Mode                    | Description                                                                                    |
-| :---------------------- | :--------------------------------------------------------------------------------------------- |
-| [values](#graph-state)  | Full state after each step.                                                                    |
-| [updates](#graph-state) | State updates after each step. Multiple updates in the same step are streamed separately.      |
-| [messages](#llm-tokens) | 2-tuples of (LLM token, metadata) from LLM calls.                                              |
-| [custom](#custom-data)  | Custom data emitted from nodes via the `writer` config parameter.                              |
+| Mode | Description |
+| :- | :- |
+| [values](#graph-state) | Full state after each step. |
+| [updates](#graph-state) | State updates after each step. Multiple updates in the same step are streamed separately. |
+| [messages](#llm-tokens) | 2-tuples of (LLM token, metadata) from LLM calls. |
+| [custom](#custom-data) | Custom data emitted from nodes via the `writer` config parameter. |
 | [tools](#tool-progress) | Tool-call lifecycle events (`on_tool_start`, `on_tool_event`, `on_tool_end`, `on_tool_error`). |
-| [debug](#debug)         | All available info throughout graph execution.                                                 |
+| [debug](#debug) | All available info throughout graph execution. |
 
 ### Graph state
 
@@ -478,12 +478,12 @@ Use the `tools` stream mode to receive real-time lifecycle events for tool execu
 
 The `tools` stream mode emits four event types:
 
-| Event           | When                          | Payload                        |
-| --------------- | ----------------------------- | ------------------------------ |
-| `on_tool_start` | Tool invocation begins        | `name`, `input`, `toolCallId`  |
-| `on_tool_event` | Tool yields intermediate data | `name`, `data`, `toolCallId`   |
-| `on_tool_end`   | Tool returns its final result | `name`, `output`, `toolCallId` |
-| `on_tool_error` | Tool throws an error          | `name`, `error`, `toolCallId`  |
+| Event | When | Payload |
+| - | - | - |
+| `on_tool_start` | Tool invocation begins | `name`, `input`, `toolCallId` |
+| `on_tool_event` | Tool yields intermediate data | `name`, `data`, `toolCallId` |
+| `on_tool_end` | Tool returns its final result | `name`, `output`, `toolCallId` |
+| `on_tool_error` | Tool throws an error | `name`, `error`, `toolCallId` |
 
 #### Define tools that stream progress
 
@@ -565,15 +565,15 @@ for await (const [mode, chunk] of await graph.stream(
 
 The [`useStream`](https://reference.langchain.com/javascript/langchain-react/index/useStream) hook from `@langchain/langgraph-sdk/react` exposes a `toolProgress` array when you include `"tools"` in your stream modes. Each entry is a `ToolProgress` object that tracks the current state of a running tool:
 
-| Field        | Description                                                                     |
-| ------------ | ------------------------------------------------------------------------------- |
-| `name`       | The tool name                                                                   |
-| `state`      | Current lifecycle state: `"starting"`, `"running"`, `"completed"`, or `"error"` |
-| `toolCallId` | The tool call ID from the LLM                                                   |
-| `input`      | The tool's input arguments                                                      |
-| `data`       | The most recent yielded data from `on_tool_event`                               |
-| `result`     | The final result, set on `on_tool_end`                                          |
-| `error`      | The error, set on `on_tool_error`                                               |
+| Field | Description |
+| - | - |
+| `name` | The tool name |
+| `state` | Current lifecycle state: `"starting"`, `"running"`, `"completed"`, or `"error"` |
+| `toolCallId` | The tool call ID from the LLM |
+| `input` | The tool's input arguments |
+| `data` | The most recent yielded data from `on_tool_event` |
+| `result` | The final result, set on `on_tool_end` |
+| `error` | The error, set on `on_tool_error` |
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { useStream } from "@langchain/langgraph-sdk/react";

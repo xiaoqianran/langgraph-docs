@@ -1156,10 +1156,10 @@ except GraphRecursionError as e:
 
 The key differences between these approaches are:
 
-| Approach                                  | Detection            | Handling                             | Control Flow                       |
-| ----------------------------------------- | -------------------- | ------------------------------------ | ---------------------------------- |
-| Proactive (using `RemainingSteps`)        | Before limit reached | Inside graph via conditional routing | Graph continues to completion node |
-| Reactive (catching `GraphRecursionError`) | After limit exceeded | Outside graph in try/catch           | Graph execution terminated         |
+| Approach | Detection | Handling | Control Flow |
+| - | - | - | - |
+| Proactive (using `RemainingSteps`) | Before limit reached | Inside graph via conditional routing | Graph continues to completion node |
+| Reactive (catching `GraphRecursionError`) | After limit exceeded | Outside graph in try/catch | Graph execution terminated |
 
 **Proactive advantages:**
 

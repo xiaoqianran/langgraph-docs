@@ -39,14 +39,14 @@ result = graph.invoke(
 
 ## Checkpointer vs. store
 
-|                | Checkpointer                                                                 | Store                                               |
-| -------------- | ---------------------------------------------------------------------------- | --------------------------------------------------- |
-| Persists       | Graph state snapshots                                                        | Application-defined key-value data                  |
-| Scope          | A single thread                                                              | Across threads                                      |
-| Memory type    | Short-term, thread-scoped memory                                             | Long-term, cross-thread memory                      |
-| Use for        | Conversation continuity, human-in-the-loop, time travel, and fault tolerance | User preferences, facts, and shared knowledge       |
-| Access pattern | Pass a `thread_id` in graph config                                           | Read and write items from nodes or application code |
-| Full guide     | [Checkpointers](/oss/python/langgraph/checkpointers)                         | [Stores](/oss/python/langgraph/stores)              |
+| | Checkpointer | Store |
+| - | - | - |
+| Persists | Graph state snapshots | Application-defined key-value data |
+| Scope | A single thread | Across threads |
+| Memory type | Short-term, thread-scoped memory | Long-term, cross-thread memory |
+| Use for | Conversation continuity, human-in-the-loop, time travel, and fault tolerance | User preferences, facts, and shared knowledge |
+| Access pattern | Pass a `thread_id` in graph config | Read and write items from nodes or application code |
+| Full guide | [Checkpointers](/oss/python/langgraph/checkpointers) | [Stores](/oss/python/langgraph/stores) |
 
 ## Troubleshooting common issues
 

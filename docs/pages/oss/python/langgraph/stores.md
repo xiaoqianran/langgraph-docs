@@ -309,13 +309,13 @@ To use a storage backend other than the built-in implementations, subclass [Base
 
 All five async methods are required. Sync counterparts (`put`, `get`, `delete`, `search`, `list_namespaces`) are optional but recommended for compatibility with sync graph execution.
 
-| Method                                                                               | Description                                                         |
-| ------------------------------------------------------------------------------------ | ------------------------------------------------------------------- |
-| `aput(namespace, key, value, index=None)`                                            | Store or overwrite a single item                                    |
-| `aget(namespace, key)`                                                               | Retrieve a single item by key; return `None` if missing             |
-| `adelete(namespace, key)`                                                            | Delete a single item                                                |
-| `asearch(namespace_prefix, *, query=None, filter=None, limit=10, offset=0)`          | Search items under a namespace prefix; optionally by semantic query |
-| `alist_namespaces(*, prefix=None, suffix=None, max_depth=None, limit=100, offset=0)` | List namespaces matching a prefix/suffix pattern                    |
+| Method | Description |
+| - | - |
+| `aput(namespace, key, value, index=None)` | Store or overwrite a single item |
+| `aget(namespace, key)` | Retrieve a single item by key; return `None` if missing |
+| `adelete(namespace, key)` | Delete a single item |
+| `asearch(namespace_prefix, *, query=None, filter=None, limit=10, offset=0)` | Search items under a namespace prefix; optionally by semantic query |
+| `alist_namespaces(*, prefix=None, suffix=None, max_depth=None, limit=100, offset=0)` | List namespaces matching a prefix/suffix pattern |
 
 Look up exact signatures before implementing:
 

@@ -1275,8 +1275,8 @@ try {
 
 The reactive approach catches `GraphRecursionError` after the limit is exceeded. Design your graph with explicit termination conditions to avoid hitting the limit in the first place.
 
-| Approach                                  | Detection            | Handling                   | Control Flow               |
-| ----------------------------------------- | -------------------- | -------------------------- | -------------------------- |
+| Approach | Detection | Handling | Control Flow |
+| - | - | - | - |
 | Reactive (catching `GraphRecursionError`) | After limit exceeded | Outside graph in try/catch | Graph execution terminated |
 
 **Reactive advantages:**

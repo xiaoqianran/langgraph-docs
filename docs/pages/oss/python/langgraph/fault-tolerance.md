@@ -80,14 +80,14 @@ For exceptions from popular HTTP libraries such as `requests` and `httpx`, it on
 
 ### Parameters
 
-| Parameter          | Type                                                                          | Default            | Description                                                                      |
-| ------------------ | ----------------------------------------------------------------------------- | ------------------ | -------------------------------------------------------------------------------- |
-| `max_attempts`     | `int`                                                                         | `3`                | Maximum number of attempts, including the first.                                 |
-| `initial_interval` | `float`                                                                       | `0.5`              | Seconds before the first retry.                                                  |
-| `backoff_factor`   | `float`                                                                       | `2.0`              | Multiplier applied to the interval after each retry.                             |
-| `max_interval`     | `float`                                                                       | `128.0`            | Maximum seconds between retries.                                                 |
-| `jitter`           | `bool`                                                                        | `True`             | Add random jitter to the interval.                                               |
-| `retry_on`         | `type[Exception] \| Sequence[type[Exception]] \| Callable[[Exception], bool]` | `default_retry_on` | Exceptions to retry on, or a callable returning `True` for retryable exceptions. |
+| Parameter | Type | Default | Description |
+| - | - | - | - |
+| `max_attempts` | `int` | `3` | Maximum number of attempts, including the first. |
+| `initial_interval` | `float` | `0.5` | Seconds before the first retry. |
+| `backoff_factor` | `float` | `2.0` | Multiplier applied to the interval after each retry. |
+| `max_interval` | `float` | `128.0` | Maximum seconds between retries. |
+| `jitter` | `bool` | `True` | Add random jitter to the interval. |
+| `retry_on` | `type[Exception] \| Sequence[type[Exception]] \| Callable[[Exception], bool]` | `default_retry_on` | Exceptions to retry on, or a callable returning `True` for retryable exceptions. |
 
 ### Custom retry logic
 
@@ -134,14 +134,14 @@ builder.add_edge("my_node", END)
 
 `execution_info` exposes the following fields:
 
-| Attribute                 | Type            | Description                                                                            |
-| ------------------------- | --------------- | -------------------------------------------------------------------------------------- |
-| `node_attempt`            | `int`           | Current attempt number (1-indexed). `1` on the first try, `2` on the first retry, etc. |
-| `node_first_attempt_time` | `float \| None` | Unix timestamp of when the first attempt started. Constant across retries.             |
-| `thread_id`               | `str \| None`   | Thread ID for the current execution. `None` without a checkpointer.                    |
-| `run_id`                  | `str \| None`   | Run ID for the current execution. `None` when not provided in config.                  |
-| `checkpoint_id`           | `str`           | Checkpoint ID for the current execution.                                               |
-| `task_id`                 | `str`           | Task ID for the current execution.                                                     |
+| Attribute | Type | Description |
+| - | - | - |
+| `node_attempt` | `int` | Current attempt number (1-indexed). `1` on the first try, `2` on the first retry, etc. |
+| `node_first_attempt_time` | `float \| None` | Unix timestamp of when the first attempt started. Constant across retries. |
+| `thread_id` | `str \| None` | Thread ID for the current execution. `None` without a checkpointer. |
+| `run_id` | `str \| None` | Run ID for the current execution. `None` when not provided in config. |
+| `checkpoint_id` | `str` | Checkpoint ID for the current execution. |
+| `task_id` | `str` | Task ID for the current execution. |
 
 `execution_info` is available even without a retry policy—`node_attempt` defaults to `1`.
 
@@ -260,13 +260,13 @@ builder.add_edge("long_running_node", END)
 
 When a timeout fires, LangGraph raises [`NodeTimeoutError`](https://reference.langchain.com/python/langgraph/errors/NodeTimeoutError) with structured context about which limit was hit:
 
-| Attribute      | Type                     | Description                                    |
-| -------------- | ------------------------ | ---------------------------------------------- |
-| `node`         | `str`                    | Name of the node whose execution timed out.    |
-| `elapsed`      | `float`                  | Seconds elapsed before the timeout fired.      |
-| `kind`         | `Literal["idle", "run"]` | Which timeout fired.                           |
-| `idle_timeout` | `float \| None`          | The configured idle timeout (seconds), if any. |
-| `run_timeout`  | `float \| None`          | The configured run timeout (seconds), if any.  |
+| Attribute | Type | Description |
+| - | - | - |
+| `node` | `str` | Name of the node whose execution timed out. |
+| `elapsed` | `float` | Seconds elapsed before the timeout fired. |
+| `kind` | `Literal["idle", "run"]` | Which timeout fired. |
+| `idle_timeout` | `float \| None` | The configured idle timeout (seconds), if any. |
+| `run_timeout` | `float \| None` | The configured run timeout (seconds), if any. |
 
 `NodeTimeoutError` is retryable by default. Combining `timeout` with a retry policy works out of the box—the timeout clock resets on each new attempt, and writes from a timed-out attempt are cleared before the next retry:
 
@@ -358,10 +358,10 @@ def my_handler(state: State, error: NodeError) -> Command:
 
 [`NodeError`](https://reference.langchain.com/python/langgraph/errors/NodeError) is a frozen dataclass with two fields:
 
-| Attribute | Type            | Description                              |
-| --------- | --------------- | ---------------------------------------- |
-| `node`    | `str`           | Name of the node whose execution failed. |
-| `error`   | `BaseException` | The exception raised by the failed node. |
+| Attribute | Type | Description |
+| - | - | - |
+| `node` | `str` | Name of the node whose execution failed. |
+| `error` | `BaseException` | The exception raised by the failed node. |
 
 The `error: NodeError` parameter is opt-in. Handlers that don't need failure context can use simpler signatures like `(state)` or `(state, runtime)`.
 
@@ -548,12 +548,12 @@ def mark_process_failed(
 
 Not all defaults apply to all node types. Error-handler nodes (those registered via `add_node(error_handler=...)`) are excluded from certain defaults to prevent unsafe behavior:
 
-| `set_node_defaults` parameter | Applies to regular nodes | Applies to error-handler nodes | Reason                                                      |
-| ----------------------------- | ------------------------ | ------------------------------ | ----------------------------------------------------------- |
-| `retry_policy`                | ✅                        | ✅                              | Handlers should be retried on transient failures            |
-| `timeout`                     | ✅                        | ✅                              | Stuck handlers should be cancelled like stuck regular nodes |
-| `error_handler`               | ✅                        | ❌                              | Handlers must never catch themselves                        |
-| `cache_policy`                | ✅                        | ❌                              | Caching handler results is unsafe                           |
+| `set_node_defaults` parameter | Applies to regular nodes | Applies to error-handler nodes | Reason |
+| - | - | - | - |
+| `retry_policy` | ✅ | ✅ | Handlers should be retried on transient failures |
+| `timeout` | ✅ | ✅ | Stuck handlers should be cancelled like stuck regular nodes |
+| `error_handler` | ✅ | ❌ | Handlers must never catch themselves |
+| `cache_policy` | ✅ | ❌ | Caching handler results is unsafe |
 
 ### Scope
 
@@ -614,13 +614,13 @@ except GraphDrained as e:
 
 Drain is cooperative and operates between supersteps, never preempting work that is already running:
 
-| Scenario                                           | Behavior                                                                                      |
-| -------------------------------------------------- | --------------------------------------------------------------------------------------------- |
-| Node mid-execution                                 | Runs to completion. Drain takes effect on the next superstep.                                 |
-| Node with a retry policy currently retrying        | Retry loop runs to exhaustion or success. Drain takes effect after.                           |
-| Graph finishes naturally on the same tick as drain | Returns normally. Inspect `control.drain_requested` to distinguish from a normal run.         |
-| More supersteps remain                             | Raises `GraphDrained(reason)`. Checkpoint is saved and resumable.                             |
-| Subgraph requests drain                            | `GraphDrained` bubbles up through the parent and stops it at its own next superstep boundary. |
+| Scenario | Behavior |
+| - | - |
+| Node mid-execution | Runs to completion. Drain takes effect on the next superstep. |
+| Node with a retry policy currently retrying | Retry loop runs to exhaustion or success. Drain takes effect after. |
+| Graph finishes naturally on the same tick as drain | Returns normally. Inspect `control.drain_requested` to distinguish from a normal run. |
+| More supersteps remain | Raises `GraphDrained(reason)`. Checkpoint is saved and resumable. |
+| Subgraph requests drain | `GraphDrained` bubbles up through the parent and stops it at its own next superstep boundary. |
 
 ### Resume after drain
 

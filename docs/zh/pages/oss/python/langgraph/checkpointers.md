@@ -23,7 +23,7 @@ LangGraph 检查点将图状态保存为每一步的检查点，从而实现持�
 
 以下功能需要检查点：* **人机交互**：检查点通过允许人类检查、中断和批准图形步骤来促进[human-in-the-loop workflows](/oss/python/langgraph/interrupts)。这些工作流程需要检查点，因为人员必须能够在任何时间点查看图形的状态，并且图形必须能够在人员对状态进行任何更新后恢复执行。有关示例，请参阅[Interrupts](/oss/python/langgraph/interrupts)。
 * **内存**：检查点允许交互之间存在["memory"](/oss/python/concepts/memory)。在重复的人际交互（如对话）的情况下，任何后续消息都可以发送到该线程，该线程将保留先前消息的记忆。有关如何使用检查点添加和管理对话内存的信息，请参阅[Add memory](/oss/python/langgraph/add-memory)。
-* **时间旅行**：检查点允许["time travel"](/oss/python/langgraph/use-time-travel)，允许用户重播之前的图形执行以查看和/或调试特定的图形步骤。此外，检查点使得可以在任意检查点分叉图状态以探索替代轨迹。
+* **时间旅行**：检查点允许["time travel"](/oss/python/langgraph/use-time-travel)，允许用户重放之前的图形执行以查看和/或调试特定的图形步骤。此外，检查点使得可以在任意检查点分叉图状态以探索替代轨迹。
 * **容错**：检查点提供容错和错误恢复：如果一个或多个节点在给定的超级步骤中失败，您可以从上一个成功的步骤重新启动图形。- **挂起写入**：当图形节点在给定的 [super-step](#super-steps) 执行过程中失败时，LangGraph 存储来自在该超级步骤成功完成的任何其他节点的挂起检查点写入。当您从该超级步骤恢复图形执行时，您不会重新运行成功的节点。
 
 ## 核心概念
@@ -144,12 +144,13 @@ StateSnapshot(
 #### 状态快照字段
 
 |领域 |类型 |描述 |
-| ---------------- | ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `values` | `dict` |该检查点的状态通道值。                                                                                                                   || `next` | `tuple[str, ...]` |接下来要执行的节点名称。空`()`表示图是完整的。                                                                                        |
-| `config` | `dict` |包含 `thread_id`、`checkpoint_ns` 和 `checkpoint_id`。                                                                                                |
-| `metadata` | `dict` |执行元数据。包含`source`（`"input"`、`"loop"`或`"update"`）、`writes`（节点输出）和`step`（超级计步器）。                      |
-| `created_at` | `str` |创建此检查点时的 ISO 8601 时间戳。                                                                                                    |
-| `parent_config` | `dict \| None` |前一个检查点的配置。 `None`为第一个检查站。                                                                                        |
+| - | - | - |
+| `values` | `dict` |该检查点的状态通道值。 |
+| `next` | `tuple[str, ...]` |接下来要执行的节点名称。空`()`表示图是完整的。 |
+| `config` | `dict` |包含 `thread_id`、`checkpoint_ns` 和 `checkpoint_id`。 |
+| `metadata` | `dict` |执行元数据。包含`source`（`"input"`、`"loop"`或`"update"`）、`writes`（节点输出）和`step`（超级计步器）。 |
+| `created_at` | `str` |创建此检查点时的 ISO 8601 时间戳。 |
+| `parent_config` | `dict \| None` |前一个检查点的配置。 `None`为第一个检查站。 |
 | `tasks` | `tuple[PregelTask, ...]` |此步骤要执行的任务。每个任务都有`id`、`name`、`error`、`interrupts`，以及可选的`state`（子图快照，当使用`subgraphs=True`时）。 |
 
 ### 获取状态历史记录您可以通过调用 [⟦T78⟧](https://reference.langchain.com/python/langgraph/graphs/#langgraph.graph.state.CompiledStateGraph.get_state_history) 获取给定线程的图形执行的完整历史记录。这将返回与配置中提供的线程 ID 关联的 `StateSnapshot` 对象列表。重要的是，检查点将按时间顺序排序，最近的检查点/`StateSnapshot`是列表中的第一个。
@@ -462,7 +463,7 @@ async def aput_writes(self, config, writes, task_id, task_path=""):
 检索检查点。配置可能包含：
 
 * **否 `checkpoint_id`** — 返回线程+命名空间的最新检查点。
-* **特定的 `checkpoint_id`** — 返回确切的检查点。
+* **特定的 `checkpoint_id`** — 返回该确切的检查点。
 
 **两条路径都必须正确工作。** Specific-id 路径用于时间旅行，并且至关重要的是，用于每次图调用时的增量通道状态重建（请参阅[Delta channel support](#delta-channel-support)）。损坏的特定 ​​ID 查找会默默地破坏增量通道状态。
 
@@ -585,8 +586,10 @@ CREATE TABLE writes (
 
 ### 扩展功能
 
-这些方法是可选的，但可以解锁其他代理服务器功能。如果您的存储后端可以有效地支持它们，请实施它们。|方法|它能实现什么 |
-| ---------------------------- | -------------------------------------------------------------------------------- |
+这些方法是可选的，但可以解锁其他代理服务器功能。如果您的存储后端可以有效地支持它们，请实施它们。
+
+|方法|它能实现什么 |
+| - | - |
 | `adelete_for_runs` |回滚多任务策略|
 | `acopy_thread` |高效的线程分叉 |
 | `aprune` |线程历史修剪|
@@ -594,15 +597,15 @@ CREATE TABLE writes (
 
 代理服务器会自动检测您的检查点在启动时实现的功能并激活相应的功能。
 
-### 达美渠道支持
-
-<Info>
+### 达美频道支持<Info>
   **DeltaChannel 处于测试阶段。** 当设计稳定时，API 和磁盘上的表示可能会发生变化。
 </Info>
 
 `DeltaChannel` 是一个减速器通道，仅在检查点 blob 中存储哨兵 (`MISSING`)，而不是完整的通道值。状态是通过减速器重放祖先写入来重建的。对于像 `messages` 这样随时间累积的通道，这使得检查点 blob 每步的复杂度为 O(1)，而不是 O(N)。
 
-#### 运行时需要什么当加载`channel_values`中不存在增量通道的检查点时，LangGraph调用`saver.get_delta_channel_history(config=config, channels=[...])`。对于每个通道，这将返回：
+#### 运行时需要什么
+
+当加载`channel_values`中不存在增量通道的检查点时，LangGraph调用`saver.get_delta_channel_history(config=config, channels=[...])`。对于每个通道，这将返回：
 
 * **`writes`** — 所有写入到祖先链中的该通道，最旧的在前，直到最近的快照。
 * **`seed`** (可选) — 在最近的祖先处存储的 `_DeltaSnapshot` blob；如果步行到达根部而没有找到快照，则不存在。
@@ -639,9 +642,7 @@ def get_delta_channel_history(self, *, config, channels):
         ch: {"writes": list(reversed(collected[ch])), **({"seed": seed[ch]} if ch in seed else {})}
         for ch in channels
     }
-```
-
-**关键依赖项：** `get_tuple(cursor)` 始终使用特定的 `checkpoint_id` （父级 ID）进行调用。如果该查找返回 `None`，则步行会立即停止，并且每个增量通道都会重新构建为空 — 静默地、没有错误。这就是为什么`get_tuple`中的特定ID路径必须是正确的。
+```**关键依赖项：** `get_tuple(cursor)` 始终使用特定的 `checkpoint_id` （父级 ID）进行调用。如果该查找返回 `None`，则步行会立即停止，并且每个增量通道都会重新构建为空 — 静默地、没有错误。这就是为什么`get_tuple`中的特定ID路径必须是正确的。
 
 #### 性能覆盖
 
@@ -720,11 +721,11 @@ async def aget_delta_channel_history(self, *, config, channels):
     return result
 ```
 
-#### 使用 Delta 通道进行修剪`DeltaChannel` 状态不是独立于单个检查点的——它依赖于返回最近的 `_DeltaSnapshot` 的祖先写链。如果您实现`prune`或`delete_for_runs`，则不得删除尚存检查点的增量通道所依赖的写入行。
+#### 使用 Delta 通道进行修剪
 
-安全选项：
+`DeltaChannel` 状态不是独立于单个检查点的——它依赖于返回最近的 `_DeltaSnapshot` 的祖先写链。如果您实现`prune`或`delete_for_runs`，则不得删除尚存检查点的增量通道所依赖的写入行。
 
-1. **修剪前遍历** - 对于您打算保留的每个检查点，遍历其祖先链并将所有写入行标记为最近的 `_DeltaSnapshot` 为不可删除。
+安全选项：1. **修剪前遍历** - 对于您打算保留的每个检查点，遍历其祖先链并将所有写入行标记为最近的 `_DeltaSnapshot` 为不可删除。
 2. **在修剪之前强制创建快照** — 在您保留的检查点上重写`channel_values[ch] = _DeltaSnapshot(reconstructed_value)`，然后自由删除祖先。
 3. **跳过增量通道线程的修剪** - 如果您还不需要修剪，这是最安全的短期选项。
 
@@ -757,7 +758,9 @@ async def main():
         raise RuntimeError("Checkpointer failed conformance suite")
 
 asyncio.run(main())
-```该套件自动检测您的检查点实现了哪些扩展功能（包括`aget_delta_channel_history`）并为每个功能运行相关测试。在发货前将其作为 CI 的一部分运行。
+```
+
+该套件自动检测您的检查点实现了哪些扩展功能（包括`aget_delta_channel_history`）并为每个功能运行相关测试。在发货前将其作为 CI 的一部分运行。
 
 ***
 

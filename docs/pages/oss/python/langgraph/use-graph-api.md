@@ -915,15 +915,15 @@ See [Fault tolerance](/oss/python/langgraph/fault-tolerance#graph-defaults) for 
 
 You can access execution identity and retry information via `runtime.execution_info`. This surfaces thread, run, and checkpoint identifiers as well as retry state, without needing to read from `config` directly.
 
-| Attribute                 | Type            | Description                                                                                      |
-| ------------------------- | --------------- | ------------------------------------------------------------------------------------------------ |
-| `thread_id`               | `str \| None`   | Thread ID for the current execution. `None` without a checkpointer.                              |
-| `run_id`                  | `str \| None`   | Run ID for the current execution. `None` when not provided in config.                            |
-| `checkpoint_id`           | `str`           | Checkpoint ID for the current execution.                                                         |
-| `checkpoint_ns`           | `str`           | Checkpoint namespace for the current execution.                                                  |
-| `task_id`                 | `str`           | Task ID for the current execution.                                                               |
-| `node_attempt`            | `int`           | Current execution attempt number (1-indexed). `1` on the first try, `2` on the first retry, etc. |
-| `node_first_attempt_time` | `float \| None` | Unix timestamp (seconds) of when the first attempt started. Stays the same across retries.       |
+| Attribute | Type | Description |
+| - | - | - |
+| `thread_id` | `str \| None` | Thread ID for the current execution. `None` without a checkpointer. |
+| `run_id` | `str \| None` | Run ID for the current execution. `None` when not provided in config. |
+| `checkpoint_id` | `str` | Checkpoint ID for the current execution. |
+| `checkpoint_ns` | `str` | Checkpoint namespace for the current execution. |
+| `task_id` | `str` | Task ID for the current execution. |
+| `node_attempt` | `int` | Current execution attempt number (1-indexed). `1` on the first try, `2` on the first retry, etc. |
+| `node_first_attempt_time` | `float \| None` | Unix timestamp (seconds) of when the first attempt started. Stays the same across retries. |
 
 #### Access thread and run IDs
 
@@ -982,11 +982,11 @@ graph = builder.compile()
 
 When your graph runs on LangGraph Server, you can access server-specific metadata via `runtime.server_info`. This surfaces the assistant ID, graph ID, and authenticated user without needing to read from config metadata or configurable keys directly.
 
-| Attribute      | Type               | Description                                                                     |
-| -------------- | ------------------ | ------------------------------------------------------------------------------- |
-| `assistant_id` | `str`              | The assistant ID for the current deployment.                                    |
-| `graph_id`     | `str`              | The graph ID for the current deployment.                                        |
-| `user`         | `BaseUser \| None` | The authenticated user, if [custom auth](/langsmith/custom-auth) is configured. |
+| Attribute | Type | Description |
+| - | - | - |
+| `assistant_id` | `str` | The assistant ID for the current deployment. |
+| `graph_id` | `str` | The graph ID for the current deployment. |
+| `user` | `BaseUser \| None` | The authenticated user, if [custom auth](/langsmith/custom-auth) is configured. |
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from langgraph.graph import StateGraph, START, END
@@ -1030,10 +1030,10 @@ def my_node(state: State, runtime: Runtime) -> State:
     return {"status": do_work()}
 ```
 
-| Property          | Type          | Description                                                                          |
-| ----------------- | ------------- | ------------------------------------------------------------------------------------ |
-| `drain_requested` | `bool`        | `True` if `RunControl.request_drain()` has been called for this run.                 |
-| `drain_reason`    | `str \| None` | The reason string passed to `request_drain()`, or `None` if drain was not requested. |
+| Property | Type | Description |
+| - | - | - |
+| `drain_requested` | `bool` | `True` if `RunControl.request_drain()` has been called for this run. |
+| `drain_reason` | `str \| None` | The reason string passed to `request_drain()`, or `None` if drain was not requested. |
 
 <Note>
   Requires `langgraph>=1.2`. See [Graceful shutdown](/oss/python/langgraph/fault-tolerance#graceful-shutdown) for the full `RunControl` API.

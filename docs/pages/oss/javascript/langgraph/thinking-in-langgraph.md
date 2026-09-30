@@ -247,13 +247,13 @@ Now we implement each step as a function. A node in LangGraph is just a JavaScri
 
 Different errors need different handling strategies:
 
-| Error Type                                                      | Who Fixes It            | Strategy                           | When to Use                                               |
-| --------------------------------------------------------------- | ----------------------- | ---------------------------------- | --------------------------------------------------------- |
-| Transient errors (network issues, rate limits)                  | System (automatic)      | Retry policy                       | Temporary failures that usually resolve on retry          |
-| LLM-recoverable errors (tool failures, parsing issues)          | LLM                     | Store error in state and loop back | LLM can see the error and adjust its approach             |
-| User-fixable errors (missing information, unclear instructions) | Human                   | Pause with `interrupt()`           | Need user input to proceed                                |
-| Recoverable failure after retries                               | Developer (declarative) | `error_handler`                    | Run a compensation/recovery branch after retry exhaustion |
-| Unexpected errors                                               | Developer               | Let them bubble up                 | Unknown issues that need debugging                        |
+| Error Type | Who Fixes It | Strategy | When to Use |
+| - | - | - | - |
+| Transient errors (network issues, rate limits) | System (automatic) | Retry policy | Temporary failures that usually resolve on retry |
+| LLM-recoverable errors (tool failures, parsing issues) | LLM | Store error in state and loop back | LLM can see the error and adjust its approach |
+| User-fixable errors (missing information, unclear instructions) | Human | Pause with `interrupt()` | Need user input to proceed |
+| Recoverable failure after retries | Developer (declarative) | `error_handler` | Run a compensation/recovery branch after retry exhaustion |
+| Unexpected errors | Developer | Let them bubble up | Unknown issues that need debugging |
 
 <Tabs>
   <Tab title="Transient errors" icon="rotate">

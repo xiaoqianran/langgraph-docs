@@ -42,7 +42,7 @@
 </CodeGroup>
 
 ## 变更摘要|面积 |发生了什么变化|
-| -------------------------------- | ---------------------------------------------------------------------------------- |
+| - | - |
 |反应预建 | `createReactAgent` 已弃用；使用 LangChain `createAgent` |
 |中断|通过 `interrupts` 配置支持类型化中断 |
 | `toLangGraphEventStream` 已删除 |将 `graph.stream` 与所需的 `encoding` 格式结合使用 |
@@ -150,15 +150,15 @@ LangGraph v1 弃用了预构建的 `createReactAgent`。使用LangChain的`creat
   ```
 </CodeGroup>
 
-***## 重大变更
+***
+
+## 重大变更
 
 ### 删除了 Node 18 支持
 
 所有 LangGraph 包现在都需要 **Node.js 22 或更高版本**。 Node.js 18 于 2025 年 3 月达到 [end of life](https://nodejs.org/en/about/releases/)。
 
-### 新构建输出
-
-所有 langgraph 包的构建现在使用基于捆绑器的方法，而不是使用原始打字稿输出。如果您从 `dist/` 目录导入文件（不推荐），则需要更新导入以使用新的模块系统。
+### 新构建输出所有 langgraph 包的构建现在使用基于捆绑器的方法，而不是使用原始打字稿输出。如果您从 `dist/` 目录导入文件（不推荐），则需要更新导入以使用新的模块系统。
 
 ***
 

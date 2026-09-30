@@ -6,7 +6,7 @@
 
 LangGraph 的持久层通过检查点为代理提供短期记忆，并通过存储为代理提供长期记忆。
 
-持久性让 LangGraph 应用程序能够在单个图形运行之外保留有用的信息。当代理需要继续对话、中断后恢复、从故障中恢复或记住交互过程中的信息时，这一点很重要。
+持久性让 LangGraph 应用程序在单个图形运行之外保留有用的信息。当代理需要继续对话、中断后恢复、从故障中恢复或记住交互过程中的信息时，这一点很重要。
 
 LangGraph提供了两个互补的持久化系统：
 
@@ -38,13 +38,14 @@ const result = await graph.invoke(
 
 ## 检查点与存储
 
-|                |检查点|商店 |
-| -------------- | -------------------------------------------------------------------------------------------------- | --------------------------------------------------- |
+| |检查点|商店 |
+| - | - | - |
 |坚持 |图状态快照 |应用程序定义的键值数据 |
-|范围 |单线程|跨线程 |
+|范围 |单线程|跨线程|
 |内存类型|短期、线程范围内存 |长期、跨线程内存|
-|用于|对话连续性、人机交互、时间旅行和容错 |用户偏好、事实和共享知识 || Access pattern |在图形配置中传递 `thread_id` |从节点或应用程序代码读取和写入项目 |
-| Full guide     | [Checkpointers](/oss/javascript/langgraph/checkpointers) | [Stores](/oss/javascript/langgraph/stores)          |
+|用于 |对话连续性、人机交互、时间旅行和容错 |用户偏好、事实和共享知识 |
+|访问模式|在图形配置中传递 `thread_id` |从节点或应用程序代码读取和写入项目 |
+|完整指南 | [Checkpointers](/oss/javascript/langgraph/checkpointers) | [Stores](/oss/javascript/langgraph/stores) |
 
 ## 常见问题疑难解答
 
@@ -54,14 +55,12 @@ const result = await graph.invoke(
 
 **修复：** 将 `thread_id` 值保持在 255 个字符以下。如果需要确定性 ID，请使用 UUID 或哈希：
 
-### `MemorySaver` 在重新启动之间不会持续存在
-
-`MemorySaver`和`InMemorySaver`将检查点存储在RAM中。当进程重新启动时，所有检查点都会丢失。
+### `MemorySaver` 在重新启动之间不会持续存在`MemorySaver`和`InMemorySaver`将检查点存储在RAM中。当进程重新启动时，所有检查点都会丢失。
 
 **修复：** 使用持久检查点进行生产：
 
 * `PostgresSaver`：具有异步支持的 PostgreSQL
-* `SqliteSaver`: Local file-based storage for development
+* `SqliteSaver`：用于开发的基于本地文件的存储
 
 ### 检查点无限增长
 
@@ -69,7 +68,9 @@ const result = await graph.invoke(
 
 **修复：** 定期修剪旧检查点或设置保留策略：
 
-### 从父图到子图的状态访问当子图更新状态时，父图可能不会立即看到更改。这是因为每个子图管理自己的检查点名称空间。
+### 从父图到子图的状态访问
+
+当子图更新状态时，父图可能不会立即看到更改。这是因为每个子图管理自己的检查点名称空间。
 
 **修复：** 对于需要跨越图边界的数据使用[shared state via Store](/oss/javascript/langgraph/stores)，或者配置子图以写入父检查点。
 

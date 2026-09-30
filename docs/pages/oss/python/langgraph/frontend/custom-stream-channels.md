@@ -288,10 +288,10 @@ const rawEvents = useChannel(
 );
 ```
 
-| Option       | Default     | Effect                                                                                           |
-| ------------ | ----------- | ------------------------------------------------------------------------------------------------ |
-| `bufferSize` | `"default"` | Maximum number of buffered events. Older events drop once the cap is reached.                    |
-| `replay`     | `true`      | Replay events already seen on the channel when the selector mounts, instead of only live events. |
+| Option | Default | Effect |
+| - | - | - |
+| `bufferSize` | `"default"` | Maximum number of buffered events. Older events drop once the cap is reached. |
+| `replay` | `true` | Replay events already seen on the channel when the selector mounts, instead of only live events. |
 
 <Note>
   Prefer the higher-level selectors (`useExtension`, `useMessages`,
@@ -304,13 +304,13 @@ const rawEvents = useChannel(
 
 Both read the same custom channel but differ in what they return:
 
-|                  | `useExtension`                     | `useChannel`                                             |
-| ---------------- | ---------------------------------- | -------------------------------------------------------- |
-| **Returns**      | Latest payload (`T \| undefined`)  | Bounded buffer of raw events (`Event[]`)                 |
-| **Shape**        | Unwrapped, typed payload           | Raw protocol events; unwrap `event.params.data` yourself |
-| **Subscribe by** | Channel name (`"redaction-stats"`) | Full channel id (`["custom:redaction-stats"]`)           |
-| **Use when**     | You need the current value         | You need history, a log, or multiple channels            |
-| **Options**      | —                                  | `bufferSize`, `replay`                                   |
+| | `useExtension` | `useChannel` |
+| - | - | - |
+| **Returns** | Latest payload (`T \| undefined`) | Bounded buffer of raw events (`Event[]`) |
+| **Shape** | Unwrapped, typed payload | Raw protocol events; unwrap `event.params.data` yourself |
+| **Subscribe by** | Channel name (`"redaction-stats"`) | Full channel id (`["custom:redaction-stats"]`) |
+| **Use when** | You need the current value | You need history, a log, or multiple channels |
+| **Options** | — | `bufferSize`, `replay` |
 
 A common pattern is to use both on the same channel: `useExtension` drives a
 live summary (current totals), while `useChannel` backs a scrolling event log of

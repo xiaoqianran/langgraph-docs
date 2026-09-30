@@ -141,15 +141,15 @@ for part in graph.stream(
 
 Pass one or more of the following stream modes as a list to the [`stream`](https://reference.langchain.com/python/langgraph/graphs/#langgraph.graph.state.CompiledStateGraph.stream) or [`astream`](https://reference.langchain.com/python/langgraph/graphs/#langgraph.graph.state.CompiledStateGraph.astream) methods:
 
-| Mode                        | Type                                                                                                  | Description                                                                                                                          |
-| :-------------------------- | :---------------------------------------------------------------------------------------------------- | :----------------------------------------------------------------------------------------------------------------------------------- |
-| [values](#graph-state)      | [`ValuesStreamPart`](https://reference.langchain.com/python/langgraph/types/ValuesStreamPart)         | Full state after each step.                                                                                                          |
-| [updates](#graph-state)     | [`UpdatesStreamPart`](https://reference.langchain.com/python/langgraph/types/UpdatesStreamPart)       | State updates after each step. Multiple updates in the same step are streamed separately.                                            |
-| [messages](#llm-tokens)     | [`MessagesStreamPart`](https://reference.langchain.com/python/langgraph/types/MessagesStreamPart)     | 2-tuples of (LLM token, metadata) from LLM calls.                                                                                    |
-| [custom](#custom-data)      | [`CustomStreamPart`](https://reference.langchain.com/python/langgraph/types/CustomStreamPart)         | Custom data emitted from nodes via [`get_stream_writer`](https://reference.langchain.com/python/langgraph/config/get_stream_writer). |
-| [checkpoints](#checkpoints) | [`CheckpointStreamPart`](https://reference.langchain.com/python/langgraph/types/CheckpointStreamPart) | Checkpoint events (same format as `get_state()`). Requires a checkpointer.                                                           |
-| [tasks](#tasks)             | [`TasksStreamPart`](https://reference.langchain.com/python/langgraph/types/TasksStreamPart)           | Task start/finish events with results and errors. Requires a checkpointer.                                                           |
-| [debug](#debug)             | [`DebugStreamPart`](https://reference.langchain.com/python/langgraph/types/DebugStreamPart)           | All available info — combines `checkpoints` and `tasks` with extra metadata.                                                         |
+| Mode | Type | Description |
+| :- | :- | :- |
+| [values](#graph-state) | [`ValuesStreamPart`](https://reference.langchain.com/python/langgraph/types/ValuesStreamPart) | Full state after each step. |
+| [updates](#graph-state) | [`UpdatesStreamPart`](https://reference.langchain.com/python/langgraph/types/UpdatesStreamPart) | State updates after each step. Multiple updates in the same step are streamed separately. |
+| [messages](#llm-tokens) | [`MessagesStreamPart`](https://reference.langchain.com/python/langgraph/types/MessagesStreamPart) | 2-tuples of (LLM token, metadata) from LLM calls. |
+| [custom](#custom-data) | [`CustomStreamPart`](https://reference.langchain.com/python/langgraph/types/CustomStreamPart) | Custom data emitted from nodes via [`get_stream_writer`](https://reference.langchain.com/python/langgraph/config/get_stream_writer). |
+| [checkpoints](#checkpoints) | [`CheckpointStreamPart`](https://reference.langchain.com/python/langgraph/types/CheckpointStreamPart) | Checkpoint events (same format as `get_state()`). Requires a checkpointer. |
+| [tasks](#tasks) | [`TasksStreamPart`](https://reference.langchain.com/python/langgraph/types/TasksStreamPart) | Task start/finish events with results and errors. Requires a checkpointer. |
+| [debug](#debug) | [`DebugStreamPart`](https://reference.langchain.com/python/langgraph/types/DebugStreamPart) | All available info — combines `checkpoints` and `tasks` with extra metadata. |
 
 ### Graph state
 
@@ -1009,16 +1009,16 @@ Set `streaming=False` when initializing the model.
 
 The v2 streaming format (used throughout this page) provides a unified output format. Here's a summary of the key differences and how to migrate:
 
-| Scenario                    | v1 (default)                       | v2 (`version="v2"`)                               |
-| --------------------------- | ---------------------------------- | ------------------------------------------------- |
-| Single stream mode          | Raw data (dict)                    | `StreamPart` dict with `type`, `ns`, `data`       |
-| Multiple stream modes       | `(mode, data)` tuples              | Same `StreamPart` dict, filter on `chunk["type"]` |
-| Subgraph streaming          | `(namespace, data)` tuples         | Same `StreamPart` dict, check `chunk["ns"]`       |
-| Multiple modes + subgraphs  | `(namespace, mode, data)` triples  | Same `StreamPart` dict                            |
-| `invoke()` return type      | Plain dict (state)                 | `GraphOutput` with `.value` and `.interrupts`     |
-| Interrupt location (stream) | `__interrupt__` key in state dict  | `interrupts` field on `values` stream parts       |
-| Interrupt location (invoke) | `__interrupt__` key in result dict | `.interrupts` attribute on `GraphOutput`          |
-| Pydantic/dataclass output   | Returns plain dict                 | Coerces to model/dataclass instance               |
+| Scenario | v1 (default) | v2 (`version="v2"`) |
+| - | - | - |
+| Single stream mode | Raw data (dict) | `StreamPart` dict with `type`, `ns`, `data` |
+| Multiple stream modes | `(mode, data)` tuples | Same `StreamPart` dict, filter on `chunk["type"]` |
+| Subgraph streaming | `(namespace, data)` tuples | Same `StreamPart` dict, check `chunk["ns"]` |
+| Multiple modes + subgraphs | `(namespace, mode, data)` triples | Same `StreamPart` dict |
+| `invoke()` return type | Plain dict (state) | `GraphOutput` with `.value` and `.interrupts` |
+| Interrupt location (stream) | `__interrupt__` key in state dict | `interrupts` field on `values` stream parts |
+| Interrupt location (invoke) | `__interrupt__` key in result dict | `.interrupts` attribute on `GraphOutput` |
+| Pydantic/dataclass output | Returns plain dict | Coerces to model/dataclass instance |
 
 #### v2 invoke format
 

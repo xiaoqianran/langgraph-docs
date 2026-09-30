@@ -104,14 +104,14 @@ Custom graphs often power product workflows: research pipelines, approval flows,
 data pipelines, data enrichment, code review, planning, and multi-step analysis. The
 frontend SDK lets you render these workflows using graph-native signals:
 
-| Runtime concept        | Frontend UX                                                                                            |
-| ---------------------- | ------------------------------------------------------------------------------------------------------ |
-| **Named nodes**        | One card, timeline step, or status badge per graph node.                                               |
-| **State keys**         | Dedicated UI regions for typed outputs such as classification, sources, analysis, and final synthesis. |
-| **Streaming metadata** | Route partial messages to the node that produced them.                                                 |
-| **Checkpoints**        | Inspect or resume from prior graph states for debugging and auditability.                              |
-| **Interrupts**         | Pause a node for human input, approval, or correction, then continue.                                  |
-| **Subgraphs**          | Reveal nested execution only when the user needs more detail.                                          |
+| Runtime concept | Frontend UX |
+| - | - |
+| **Named nodes** | One card, timeline step, or status badge per graph node. |
+| **State keys** | Dedicated UI regions for typed outputs such as classification, sources, analysis, and final synthesis. |
+| **Streaming metadata** | Route partial messages to the node that produced them. |
+| **Checkpoints** | Inspect or resume from prior graph states for debugging and auditability. |
+| **Interrupts** | Pause a node for human input, approval, or correction, then continue. |
+| **Subgraphs** | Reveal nested execution only when the user needs more detail. |
 
 Because the SDK exposes these concepts directly, you can scale from a simple
 chat panel to a full workflow debugger without changing the backend protocol.

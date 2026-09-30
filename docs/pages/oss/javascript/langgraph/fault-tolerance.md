@@ -75,15 +75,15 @@ Some failures bypass `retryOn`. Graph control-flow errors, such as `GraphInterru
 
 ### Parameters
 
-| Parameter         | Type                          | Default                               | Description                                                                                     |
-| ----------------- | ----------------------------- | ------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| `maxAttempts`     | `number`                      | `3`                                   | Maximum number of attempts, including the first.                                                |
-| `initialInterval` | `number`                      | `500`                                 | Milliseconds before the first retry.                                                            |
-| `backoffFactor`   | `number`                      | `2.0`                                 | Multiplier applied to the interval after each retry.                                            |
-| `maxInterval`     | `number`                      | `128000`                              | Maximum milliseconds between retries.                                                           |
-| `jitter`          | `boolean`                     | `true`                                | Add random jitter to the interval.                                                              |
-| `retryOn`         | `(error: unknown) => boolean` | built-in handler (when policy is set) | Callable returning `true` for retryable exceptions. Only used when `retryPolicy` is configured. |
-| `logWarning`      | `boolean`                     | `true`                                | Whether to log a warning when a retry is attempted.                                             |
+| Parameter | Type | Default | Description |
+| - | - | - | - |
+| `maxAttempts` | `number` | `3` | Maximum number of attempts, including the first. |
+| `initialInterval` | `number` | `500` | Milliseconds before the first retry. |
+| `backoffFactor` | `number` | `2.0` | Multiplier applied to the interval after each retry. |
+| `maxInterval` | `number` | `128000` | Maximum milliseconds between retries. |
+| `jitter` | `boolean` | `true` | Add random jitter to the interval. |
+| `retryOn` | `(error: unknown) => boolean` | built-in handler (when policy is set) | Callable returning `true` for retryable exceptions. Only used when `retryPolicy` is configured. |
+| `logWarning` | `boolean` | `true` | Whether to log a warning when a retry is attempted. |
 
 ### Custom retry logic
 
@@ -136,15 +136,15 @@ const graph = new StateGraph(State)
 
 `executionInfo` exposes the following fields:
 
-| Attribute              | Type                  | Description                                                                            |
-| ---------------------- | --------------------- | -------------------------------------------------------------------------------------- |
-| `nodeAttempt`          | `number`              | Current attempt number (1-indexed). `1` on the first try, `2` on the first retry, etc. |
-| `nodeFirstAttemptTime` | `number \| undefined` | Unix timestamp (ms) of when the first attempt started. Constant across retries.        |
-| `threadId`             | `string \| undefined` | Thread ID for the current execution. `undefined` without a checkpointer.               |
-| `runId`                | `string \| undefined` | Run ID for the current execution. `undefined` when not provided in config.             |
-| `checkpointId`         | `string`              | Checkpoint ID for the current execution.                                               |
-| `checkpointNs`         | `string`              | Checkpoint namespace for the current execution.                                        |
-| `taskId`               | `string`              | Task ID for the current execution.                                                     |
+| Attribute | Type | Description |
+| - | - | - |
+| `nodeAttempt` | `number` | Current attempt number (1-indexed). `1` on the first try, `2` on the first retry, etc. |
+| `nodeFirstAttemptTime` | `number \| undefined` | Unix timestamp (ms) of when the first attempt started. Constant across retries. |
+| `threadId` | `string \| undefined` | Thread ID for the current execution. `undefined` without a checkpointer. |
+| `runId` | `string \| undefined` | Run ID for the current execution. `undefined` when not provided in config. |
+| `checkpointId` | `string` | Checkpoint ID for the current execution. |
+| `checkpointNs` | `string` | Checkpoint namespace for the current execution. |
+| `taskId` | `string` | Task ID for the current execution. |
 
 `executionInfo` is available even without a retry policy—`nodeAttempt` defaults to `1`.
 
@@ -261,14 +261,14 @@ const graph = new StateGraph(State)
 
 When a timeout fires, LangGraph raises [`NodeTimeoutError`](https://reference.langchain.com/javascript/langchain-langgraph/index/NodeTimeoutError) with structured context about which limit was hit:
 
-| Attribute     | Type                  | Description                                         |
-| ------------- | --------------------- | --------------------------------------------------- |
-| `node`        | `string`              | Name of the node whose execution timed out.         |
-| `elapsed`     | `number`              | Milliseconds elapsed before the timeout fired.      |
-| `kind`        | `"idle" \| "run"`     | Which timeout fired.                                |
-| `timeout`     | `number`              | The value (ms) of the timeout that fired.           |
+| Attribute | Type | Description |
+| - | - | - |
+| `node` | `string` | Name of the node whose execution timed out. |
+| `elapsed` | `number` | Milliseconds elapsed before the timeout fired. |
+| `kind` | `"idle" \| "run"` | Which timeout fired. |
+| `timeout` | `number` | The value (ms) of the timeout that fired. |
 | `idleTimeout` | `number \| undefined` | The configured idle timeout (milliseconds), if any. |
-| `runTimeout`  | `number \| undefined` | The configured run timeout (milliseconds), if any.  |
+| `runTimeout` | `number \| undefined` | The configured run timeout (milliseconds), if any. |
 
 Use `isNodeTimeoutError(error)` to narrow caught errors in TypeScript.
 
@@ -373,10 +373,10 @@ const myHandler = (state: typeof State.State, error: NodeError) => {
 
 [`NodeError`](https://reference.langchain.com/javascript/langchain-langgraph/index/NodeError) is a class with two fields:
 
-| Attribute | Type     | Description                              |
-| --------- | -------- | ---------------------------------------- |
-| `node`    | `string` | Name of the node whose execution failed. |
-| `error`   | `Error`  | The exception thrown by the failed node. |
+| Attribute | Type | Description |
+| - | - | - |
+| `node` | `string` | Name of the node whose execution failed. |
+| `error` | `Error` | The exception thrown by the failed node. |
 
 The `error: NodeError` parameter is opt-in. Handlers that don't need failure context can omit the second argument and accept only `state`.
 
@@ -540,12 +540,12 @@ If `fetchData` fails after retries, `markProcessFailed` runs. If `chargePayment`
 
 Not all defaults apply to all node types. Error-handler nodes (those registered via `addNode(..., { errorHandler })`) are excluded from certain defaults to prevent unsafe behavior:
 
-| `setNodeDefaults` parameter | Applies to regular nodes | Applies to error-handler nodes | Reason                                                      |
-| --------------------------- | ------------------------ | ------------------------------ | ----------------------------------------------------------- |
-| `retryPolicy`               | ✅                        | ✅                              | Handlers should be retried on transient failures            |
-| `timeout`                   | ✅                        | ✅                              | Stuck handlers should be cancelled like stuck regular nodes |
-| `errorHandler`              | ✅                        | ❌                              | Handlers must never catch themselves                        |
-| `cachePolicy`               | ✅                        | ❌                              | Caching handler results is unsafe                           |
+| `setNodeDefaults` parameter | Applies to regular nodes | Applies to error-handler nodes | Reason |
+| - | - | - | - |
+| `retryPolicy` | ✅ | ✅ | Handlers should be retried on transient failures |
+| `timeout` | ✅ | ✅ | Stuck handlers should be cancelled like stuck regular nodes |
+| `errorHandler` | ✅ | ❌ | Handlers must never catch themselves |
+| `cachePolicy` | ✅ | ❌ | Caching handler results is unsafe |
 
 ### Scope
 
@@ -615,13 +615,13 @@ try {
 
 Drain is cooperative and operates between supersteps, never preempting work that is already running:
 
-| Scenario                                           | Behavior                                                                                      |
-| -------------------------------------------------- | --------------------------------------------------------------------------------------------- |
-| Node mid-execution                                 | Runs to completion. Drain takes effect on the next superstep.                                 |
-| Node with a retry policy currently retrying        | Retry loop runs to exhaustion or success. Drain takes effect after.                           |
-| Graph finishes naturally on the same tick as drain | Returns normally. Inspect `control.drainRequested` to distinguish from a normal run.          |
-| More supersteps remain                             | Raises `GraphDrained(reason)`. Checkpoint is saved and resumable.                             |
-| Subgraph requests drain                            | `GraphDrained` bubbles up through the parent and stops it at its own next superstep boundary. |
+| Scenario | Behavior |
+| - | - |
+| Node mid-execution | Runs to completion. Drain takes effect on the next superstep. |
+| Node with a retry policy currently retrying | Retry loop runs to exhaustion or success. Drain takes effect after. |
+| Graph finishes naturally on the same tick as drain | Returns normally. Inspect `control.drainRequested` to distinguish from a normal run. |
+| More supersteps remain | Raises `GraphDrained(reason)`. Checkpoint is saved and resumable. |
+| Subgraph requests drain | `GraphDrained` bubbles up through the parent and stops it at its own next superstep boundary. |
 
 ### Resume after drain
 

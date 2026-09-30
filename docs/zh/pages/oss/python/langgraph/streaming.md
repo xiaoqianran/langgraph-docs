@@ -140,13 +140,14 @@ for part in graph.stream(
 ## 流模式
 
 将以下一种或多种流模式作为列表传递给 [⟦T72⟧](https://reference.langchain.com/python/langgraph/graphs/#langgraph.graph.state.CompiledStateGraph.stream) 或 [⟦T73⟧](https://reference.langchain.com/python/langgraph/graphs/#langgraph.graph.state.CompiledStateGraph.astream) 方法：|模式|类型 |描述 |
-| :-------------------------- | :---------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------ |
-| [values](#graph-state) | [⟦T74⟧](https://reference.langchain.com/python/langgraph/types/ValuesStreamPart) |每一步后的完整状态。                                                                                                          |
-| [updates](#graph-state) | [⟦T75⟧](https://reference.langchain.com/python/langgraph/types/UpdatesStreamPart) |每个步骤后状态都会更新。同一步骤中的多个更新分别进行流式传输。                                            |
-| [messages](#llm-tokens) | [⟦T76⟧](https://reference.langchain.com/python/langgraph/types/MessagesStreamPart) |来自 LLM 调用的 2 元组（LLM 令牌、元数据）。                                                                                    |
-| [custom](#custom-data) | [⟦T77⟧](https://reference.langchain.com/python/langgraph/types/CustomStreamPart) |通过 [⟦T78⟧](https://reference.langchain.com/python/langgraph/config/get_stream_writer) 从节点发出的自定义数据。 || [checkpoints](#checkpoints) | [⟦T79⟧](https://reference.langchain.com/python/langgraph/types/CheckpointStreamPart) |检查点事件（与`get_state()`格式相同）。需要一个检查点。                                                           |
-| [tasks](#tasks) | [⟦T81⟧](https://reference.langchain.com/python/langgraph/types/TasksStreamPart) |任务开始/结束事件以及结果和错误。需要一个检查点。                                                           |
-| [debug](#debug) | [⟦T82⟧](https://reference.langchain.com/python/langgraph/types/DebugStreamPart) |所有可用信息 — 将 `checkpoints` 和 `tasks` 与额外元数据结合起来。                                                         |
+| :- | :- | :- |
+| [values](#graph-state) | [⟦T74⟧](https://reference.langchain.com/python/langgraph/types/ValuesStreamPart) |每一步后的完整状态。 |
+| [updates](#graph-state) | [⟦T75⟧](https://reference.langchain.com/python/langgraph/types/UpdatesStreamPart) |每个步骤后状态都会更新。同一步骤中的多个更新分别进行流式传输。 |
+| [messages](#llm-tokens) | [⟦T76⟧](https://reference.langchain.com/python/langgraph/types/MessagesStreamPart) |来自 LLM 调用的 2 元组（LLM 令牌、元数据）。 |
+| [custom](#custom-data) | [⟦T77⟧](https://reference.langchain.com/python/langgraph/types/CustomStreamPart) |通过 [⟦T78⟧](https://reference.langchain.com/python/langgraph/config/get_stream_writer) 从节点发出的自定义数据。 |
+| [checkpoints](#checkpoints) | [⟦T79⟧](https://reference.langchain.com/python/langgraph/types/CheckpointStreamPart) |检查点事件（与`get_state()`格式相同）。需要一个检查点。 |
+| [tasks](#tasks) | [⟦T81⟧](https://reference.langchain.com/python/langgraph/types/TasksStreamPart) |任务开始/结束事件以及结果和错误。需要一个检查点。 |
+| [debug](#debug) | [⟦T82⟧](https://reference.langchain.com/python/langgraph/types/DebugStreamPart) |所有可用信息 — 将 `checkpoints` 和 `tasks` 与额外元数据结合起来。 |
 
 ### 图状态
 
@@ -215,9 +216,7 @@ graph = (
     ):
         if chunk["type"] == "values":
             print(f"topic: {chunk['data']['topic']}, joke: {chunk['data']['joke']}")
-    ```
-
-    ```shell title="Output" theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+    ``````shell title="Output" theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
     topic: ice cream, joke:
     topic: ice cream and cats, joke:
     topic: ice cream and cats, joke: This is a joke about ice cream and cats
@@ -225,7 +224,9 @@ graph = (
   </Tab>
 </Tabs>
 
-### LLM 代币使用 `messages` 流模式从图形的任何部分（包括节点、工具、子图或任务）**逐个令牌**流式传输大型语言模型 (LLM) 输出。
+### LLM 代币
+
+使用 `messages` 流模式从图形的任何部分（包括节点、工具、子图或任务）**逐个令牌**流式传输大型语言模型 (LLM) 输出。
 
 [⟦T90⟧ mode](#stream-modes) 的流式输出是一个元组 `(message_chunk, metadata)`，其中：
 
@@ -994,8 +995,8 @@ for chunk in graph.stream(
 
 ### 迁移到 v2
 
-v2 流格式（本页中使用）提供了统一的输出格式。以下是主要差异以及如何迁移的摘要：|场景| v1（默认）| v2 (`version="v2"`) |
-| --------------------------------------- | ---------------------------------- | ------------------------------------------------- |
+v2 流格式（本页中使用）提供了统一的输出格式。以下是主要差异以及如何迁移的摘要：|场景 | v1（默认）| v2 (`version="v2"`) |
+| - | - | - |
 |单流模式|原始数据（字典）| `StreamPart` 字典与 `type`、`ns`、`data` |
 |多种码流模式 | `(mode, data)` 元组 |相同的 `StreamPart` 字典，在 `chunk["type"]` 上过滤 |
 |子图流 | `(namespace, data)` 元组 |相同的 `StreamPart` 字典，检查 `chunk["ns"]` |
@@ -1017,13 +1018,13 @@ result = graph.invoke(inputs, version="v2")
 assert isinstance(result, GraphOutput)
 result.value       # your output — dict, Pydantic model, or dataclass
 result.interrupts  # tuple[Interrupt, ...], empty if none occurred
-```对于除默认 `"values"` 之外的任何流模式，`invoke(..., stream_mode="updates", version="v2")` 返回 `list[StreamPart]` 而不是 `list[tuple]`。
+```
+
+对于除默认 `"values"` 之外的任何流模式，`invoke(..., stream_mode="updates", version="v2")` 返回 `list[StreamPart]` 而不是 `list[tuple]`。
 
 <Warning>
-  `GraphOutput`（`result["key"]`、`"key" in result`、`result["__interrupt__"]`）上的字典式访问仍然适用于向后兼容，但 **已弃用** 并将在未来版本中删除。迁移到`result.value`和`result.interrupts`。
-</Warning>
-
-这将状态与中断元数据分开。对于 v1，中断被嵌入到`__interrupt__`下返回的字典中：
+  `GraphOutput`（`result["key"]`、`"key" in result`、`result["__interrupt__"]`）上的字典式访问仍然适用于向后兼容性，但 **已弃用** 并将在未来版本中删除。迁移到`result.value`和`result.interrupts`。
+</Warning>这将状态与中断元数据分开。对于 v1，中断被嵌入到`__interrupt__`下返回的字典中：
 
 <CodeGroup>
   ```python v2 (new) theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}

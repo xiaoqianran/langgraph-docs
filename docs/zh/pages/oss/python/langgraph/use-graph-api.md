@@ -126,7 +126,7 @@ Hello!
 
 状态中的每个键都可以有自己独立的[reducer](/oss/python/langgraph/graph-api#reducers)函数，该函数控制如何应用节点的更新。如果没有显式指定减速器函数，则假定对键的所有更新都应覆盖它。
 
-对于`TypedDict`状态模式，我们可以通过用reducer函数注释状态的相应字段来定义reducer。
+对于`TypedDict`状态模式，我们可以通过用reducer函数注释状态的相应字段来定义reducers。
 
 在前面的示例中，我们的节点通过向其附加消息来更新状态中的 `"messages"` 键。下面，我们向该键添加一个减速器，以便自动附加更新：
 
@@ -820,7 +820,7 @@ except NodeTimeoutError:
 
 超时尝试不会提交其缓冲写入。这可以防止状态更新或子任务调度在超时边界后泄漏。## 配置节点超时
 
-[⟦T198⟧](https://reference.langchain.com/python/langgraph/graph/state/StateGraph/add_node) 上的 `timeout=` 参数限制了单个异步节点尝试可以运行的时间。传递数字（秒）、`timedelta`或[⟦T200⟧](https://reference.langchain.com/python/langgraph/types/TimeoutPolicy)以更好地控制运行和空闲超时。当超过限制时，LangGraph提高[⟦T201⟧](https://reference.langchain.com/python/langgraph/errors/NodeTimeoutError)，并让重试策略决定是否重试。
+[⟦T198⟧](https://reference.langchain.com/python/langgraph/graph/state/StateGraph/add_node) 上的 `timeout=` 参数限制了单个异步节点尝试可以运行的时间。传递数字（秒）、`timedelta`或[⟦T200⟧](https://reference.langchain.com/python/langgraph/types/TimeoutPolicy)以更好地控制运行和空闲超时。当超过限制时，LangGraph提高[⟦T201⟧](https://reference.langchain.com/python/langgraph/errors/NodeTimeoutError)并让重试策略决定是否重试。
 
 <Note>
   每个节点超时需要`langgraph>=1.2`。
@@ -840,7 +840,7 @@ builder.add_node(
 
 ## 处理节点错误
 
-[⟦T205⟧](https://reference.langchain.com/python/langgraph/graph/state/StateGraph/add_node)上的`error_handler=`参数注册一个在节点失败且所有重试都用完后运行的函数。处理程序接收当前状态和带有失败上下文的类型化[⟦T206⟧](https://reference.langchain.com/python/langgraph/errors/NodeError)，并且可以通过[⟦T207⟧](https://reference.langchain.com/python/langgraph/types/Command)路由到恢复分支：
+[⟦T205⟧](https://reference.langchain.com/python/langgraph/graph/state/StateGraph/add_node) 上的 `error_handler=` 参数注册一个在节点失败且所有重试都用完后运行的函数。处理程序接收当前状态和带有失败上下文的类型化[⟦T206⟧](https://reference.langchain.com/python/langgraph/errors/NodeError)，并且可以通过[⟦T207⟧](https://reference.langchain.com/python/langgraph/types/Command)路由到恢复分支：
 
 <Note>
   节点级错误处理程序需要`langgraph>=1.2`。
@@ -896,13 +896,14 @@ graph = (
 ### 访问节点内的执行信息
 
 您可以通过`runtime.execution_info`访问执行身份和重试信息。这会显示线程、运行和检查点标识符以及重试状态，而无需直接从 `config` 读取。|属性 |类型 |描述 |
-| ---------------------------------- | ---------------- | ------------------------------------------------------------------------------------------------ |
-| `thread_id` | `str \| None` |当前执行的线程 ID。 `None` 没有检查点。                              |
-| `run_id` | `str \| None` |当前执行的运行 ID。 `None` 当配置中未提供时。                            |
-| `checkpoint_id` | `str` |当前执行的检查点 ID。                                                         |
-| `checkpoint_ns` | `str` |当前执行的检查点命名空间。                                                  |
-| `task_id` | `str` |当前执行的任务 ID。                                                               |
-| `node_attempt` | `int` |当前执行尝试次数（1 索引）。第一次尝试时为`1`，第一次重试时为`2`，等等 || `node_first_attempt_time` | `float \| None` |第一次尝试开始时的 Unix 时间戳（秒）。重试后保持不变。       |
+| - | - | - |
+| `thread_id` | `str \| None` |当前执行的线程 ID。 `None` 没有检查点。 |
+| `run_id` | `str \| None` |当前执行的运行 ID。 `None` 当配置中未提供时。 |
+| `checkpoint_id` | `str` |当前执行的检查点 ID。 |
+| `checkpoint_ns` | `str` |当前执行的检查点命名空间。 |
+| `task_id` | `str` |当前执行的任务 ID。 |
+| `node_attempt` | `int` |当前执行尝试次数（1 索引）。第一次尝试时为`1`，第一次重试时为`2`，等等 |
+| `node_first_attempt_time` | `float \| None` |第一次尝试开始时的 Unix 时间戳（秒）。重试后保持不变。 |
 
 #### 访问线程和运行 ID
 
@@ -957,12 +958,12 @@ graph = builder.compile()
 
 即使没有重试策略，`execution_info` 也可在 `Runtime` 对象上使用 — `node_attempt` 默认为 `1`，`node_first_attempt_time` 设置为节点开始执行的时间。
 
-### 访问节点内的服务器信息
+### 访问节点内的服务器信息当您的图表在LangGraph服务器上运行时，您可以通过`runtime.server_info`访问特定于服务器的元数据。这会显示助手 ID、图形 ID 和经过身份验证的用户，而无需直接读取配置元数据或可配置密钥。
 
-当您的图表在LangGraph服务器上运行时，您可以通过`runtime.server_info`访问特定于服务器的元数据。这会显示助手 ID、图形 ID 和经过身份验证的用户，而无需直接读取配置元数据或可配置密钥。|属性 |类型 |描述 |
-| -------------- | ------------------ | --------------------------------------------------------------------------------------------------- |
-| `assistant_id` | `str` |当前部署的助手 ID。                                    |
-| `graph_id` | `str` |当前部署的图形 ID。                                        |
+|属性 |类型 |描述 |
+| - | - | - |
+| `assistant_id` | `str` |当前部署的助手 ID。 |
+| `graph_id` | `str` |当前部署的图形 ID。 |
 | `user` | `BaseUser \| None` |经过身份验证的用户（如果配置了 [custom auth](/langsmith/custom-auth)）。 |
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
@@ -1005,18 +1006,18 @@ def my_node(state: State, runtime: Runtime) -> State:
     if runtime.drain_requested:  # [!code highlight]
         return {"status": "skipped", "reason": runtime.drain_reason}
     return {"status": do_work()}
-```|物业 |类型 |描述 |
-| ----------------- | ------------- | ------------------------------------------------------------------------------------------------ |
-| `drain_requested` | `bool` | `True` 如果本次运行已调用 `RunControl.request_drain()`。                 |
+```
+
+|物业 |类型 |描述 |
+| - | - | - |
+| `drain_requested` | `bool` | `True` 如果本次运行已调用 `RunControl.request_drain()`。 |
 | `drain_reason` | `str \| None` |原因字符串传递给`request_drain()`，或者如果未请求排水则传递给`None`。 |
 
 <Note>
   需要`langgraph>=1.2`。请参阅 [Graceful shutdown](/oss/python/langgraph/fault-tolerance#graceful-shutdown) 了解完整的 `RunControl` API。
 </Note>
 
-## 添加节点缓存
-
-当您想要避免重复操作时，例如在执行昂贵的操作（无论是时间还是成本）时，节点缓存非常有用。 LangGraph 允许您向图中的节点添加个性化的缓存策略。
+## 添加节点缓存当您想要避免重复操作时，例如在执行昂贵的操作（无论是时间还是成本）时，节点缓存非常有用。 LangGraph 允许您向图中的节点添加个性化的缓存策略。
 
 要配置缓存策略，请将 `cache_policy` 参数传递给 [⟦T275⟧](https://reference.langchain.com/python/langgraph/graph/state/StateGraph/add_node) 函数。在以下示例中，实例化了一个 [⟦T276⟧](https://reference.langchain.com/python/langgraph/types/CachePolicy) 对象，其生存时间为 120 秒，并使用默认的 `key_func` 生成器。然后它与一个节点关联：
 
@@ -1028,7 +1029,9 @@ builder.add_node(
     node_function,
     cache_policy=CachePolicy(ttl=120),
 )
-```然后，要为图启用节点级缓存，请在编译图时设置 `cache` 参数。下面的示例使用 `InMemoryCache` 设置具有内存缓存的图，但 `SqliteCache` 也可用。
+```
+
+然后，要为图启用节点级缓存，请在编译图时设置 `cache` 参数。下面的示例使用 `InMemoryCache` 设置具有内存缓存的图，但 `SqliteCache` 也可用。
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from langgraph.cache.memory import InMemoryCache
@@ -1071,9 +1074,7 @@ builder.add_edge("step_2", "step_3")
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 builder = StateGraph(State).add_sequence([step_1, step_2, step_3])
 builder.add_edge(START, "step_1")
-```
-
-<Accordion title="Why split application steps into a sequence with LangGraph?">
+```<Accordion title="Why split application steps into a sequence with LangGraph?">
   LangGraph 可以轻松地向您的应用程序添加底层持久层。
   这允许在节点执行之间设置状态检查点，因此您的 LangGraph 节点可以管理：
 
@@ -1081,7 +1082,9 @@ builder.add_edge(START, "step_1")
   * 如何在[human-in-the-loop](/oss/python/langgraph/interrupts)工作流程中恢复中断
   * 我们如何使用 LangGraph 的 [time travel](/oss/python/langgraph/use-time-travel) 功能“倒带”和分支执行
 
-  它们还确定执行步骤如何[streamed](/oss/python/langgraph/streaming)，以及如何使用[Studio](/langsmith/studio)可视化和调试应用程序。让我们演示一个端到端的示例。我们将创建一个包含三个步骤的序列：
+  它们还确定执行步骤如何[streamed](/oss/python/langgraph/streaming)，以及如何使用[Studio](/langsmith/studio)可视化和调试应用程序。
+
+  让我们演示一个端到端的示例。我们将创建一个包含三个步骤的序列：
 
   1.在state的key中填充一个值
   2.更新相同的值
@@ -1114,9 +1117,7 @@ builder.add_edge(START, "step_1")
   ```
 
   <Note>
-    请注意，当向状态发出更新时，每个节点只能指定它希望更新的键的值。
-
-    默认情况下，这将**覆盖**相应键的值。您还可以使用 [reducers](/oss/python/langgraph/graph-api#reducers) 来控制更新的处理方式，例如，您可以将连续的更新附加到某个键。有关更多详细信息，请参阅[Process state updates with reducers](#process-state-updates-with-reducers)。
+    请注意，当向状态发出更新时，每个节点只能指定它希望更新的键的值。默认情况下，这将**覆盖**相应键的值。您还可以使用 [reducers](/oss/python/langgraph/graph-api#reducers) 来控制更新的处理方式，例如，您可以将连续的更新附加到某个键。有关更多详细信息，请参阅[Process state updates with reducers](#process-state-updates-with-reducers)。
   </Note>
 
   最后，我们定义图表。我们使用 [StateGraph](/oss/python/langgraph/graph-api#stategraph) 来定义一个在此状态上运行的图。
@@ -1137,7 +1138,9 @@ builder.add_edge(START, "step_1")
   builder.add_edge(START, "step_1")
   builder.add_edge("step_1", "step_2")
   builder.add_edge("step_2", "step_3")
-  ```<Tip>
+  ```
+
+  <Tip>
     **指定自定义名称**
     您可以使用 [⟦T286⟧](https://reference.langchain.com/python/langgraph/graph/state/StateGraph/add_node) 为节点指定自定义名称：
 
@@ -1166,9 +1169,7 @@ builder.add_edge(START, "step_1")
   display(Image(graph.get_graph().draw_mermaid_png()))
   ```
 
-  <img alt="Sequence of steps graph" />
-
-  让我们继续进行一个简单的调用：
+  <img alt="Sequence of steps graph" />让我们继续进行一个简单的调用：
 
   ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
   graph.invoke({"value_1": "c"})
@@ -1183,7 +1184,9 @@ builder.add_edge(START, "step_1")
   * 我们通过为单个状态键提供一个值来启动调用。我们必须始终为至少一个键提供一个值。
   * 我们传入的值被第一个节点覆盖了。
   * 第二个节点更新了值。
-  * 第三个节点填充了不同的值。<Tip>
+  * 第三个节点填充了不同的值。
+
+  <Tip>
     **内置速记**
     `langgraph>=0.2.46` 包含用于添加节点序列的内置速记法 `add_sequence`。您可以按如下方式编译相同的图表：
 
@@ -1202,9 +1205,7 @@ builder.add_edge(START, "step_1")
 
 节点的并行执行对于加速整体图操作至关重要。 LangGraph 提供对节点并行执行的原生支持，这可以显着增强基于图的工作流程的性能。这种并行化是通过扇出和扇入机制实现的，同时利用标准边缘和[conditional\_edges](https://reference.langchain.com/python/langgraph/graph/state/StateGraph/add_conditional_edges)。下面是一些示例，展示了如何添加创建适合您的分支数据流。
 
-### 并行运行图节点
-
-在此示例中，我们从 `Node A` 扇出到 `B and C`，然后扇入到 `D`。对于我们的州，[we specify the reducer add operation](/oss/python/langgraph/graph-api#reducers)。这将组合或累积 State 中特定键的值，而不是简单地覆盖现有值。对于列表，这意味着将新列表与现有列表连接起来。有关使用减速器更新状态的更多详细信息，请参阅上面关于 [state reducers](#process-state-updates-with-reducers) 的部分。
+### 并行运行图节点在此示例中，我们从 `Node A` 扇出到 `B and C`，然后扇入到 `D`。对于我们的州，[we specify the reducer add operation](/oss/python/langgraph/graph-api#reducers)。这将组合或累积 State 中特定键的值，而不是简单地覆盖现有值。对于列表，这意味着将新列表与现有列表连接起来。有关使用减速器更新状态的更多详细信息，请参阅上面关于 [state reducers](#process-state-updates-with-reducers) 的部分。
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import operator
@@ -1265,19 +1266,21 @@ Adding "A" to []
 Adding "B" to ['A']
 Adding "C" to ['A']
 Adding "D" to ['A', 'B', 'C']
-```<Note>
+```
+
+<Note>
   在上面的例子中，节点`"b"`和`"c"`在同一个[superstep](/oss/python/langgraph/graph-api#graphs)中并发执行。由于它们处于同一步骤，因此节点 `"d"` 在 `"b"` 和 `"c"` 都完成后执行。
 
   重要的是，来自并行超级步的更新的顺序可能不一致。如果您需要从并行超级步中对更新进行一致的、预定的排序，则应将输出连同用于排序的值一起写入状态中的单独字段。
-</Note>
-
-<Accordion title="Exception handling?">
-  LangGraph执行[supersteps](/oss/python/langgraph/graph-api#graphs)内的节点，这意味着虽然并行分支是并行执行的，但整个超级步骤是**事务性的**。如果这些分支中的任何一个引发异常，则不会将任何更新应用于状态（整个超级步错误）。
+</Note><Accordion title="Exception handling?">
+  LangGraph执行[supersteps](/oss/python/langgraph/graph-api#graphs)内的节点，这意味着虽然并行分支是并行执行的，但整个超级步骤是**事务性的**。如果这些分支中的任何一个引发异常，则**不会**任何更新应用于状态（整个超级步错误）。
 
   重要的是，当使用[checkpointer](/oss/python/langgraph/persistence)时，超级步内成功节点的结果将被保存，并且在恢复时不会重复。
 
-  如果您容易出错（也许想要处理不稳定的 API 调用），LangGraph 提供了两种方法来解决这个问题：1. 您可以在节点内编写常规Python代码来捕获和处理异常。
-  2. 您可以设置 **[⟦T299⟧](https://reference.langchain.com/python/langgraph/types/#langgraph.types.RetryPolicy)** 来指示图形重试引发某些类型异常的节点。仅重试失败的分支，因此您不必担心执行多余的工作。
+  如果您容易出错（也许想要处理不稳定的 API 调用），LangGraph 提供了两种方法来解决这个问题：
+
+  1. 您可以在节点内编写常规Python代码来捕获和处理异常。
+  2. 您可以设置 **[⟦T299⟧](https://reference.langchain.com/python/langgraph/types/#langgraph.types.RetryPolicy)** 来指示图形重试引发某些类型异常的节点。仅重试失败的分支，因此您不必担心执行冗余工作。
 
   这些共同使您可以执行并行执行并完全控制异常处理。
 </Accordion>
@@ -1291,11 +1294,9 @@ Adding "D" to ['A', 'B', 'C']
   ```
 </Tip>
 
-### 推迟节点执行
+### 推迟节点执行当您想要延迟节点的执行直到所有其他待处理任务完成时，延迟节点执行非常有用。当分支具有不同长度时，这一点尤其重要，这在映射缩减流等工作流程中很常见。
 
-当您想要延迟节点的执行直到所有其他待处理任务完成时，延迟节点执行非常有用。当分支具有不同长度时，这一点尤其重要，这在映射缩减流等工作流程中很常见。
-
-上面的示例展示了当每条路径只有一步时如何进行扇出和扇入。但如果一个分支有多个步骤怎么办？让我们在 `"b"` 分支中添加一个节点 `"b_2"` ：
+上面的示例展示了当每条路径只有一步时如何进行扇出和扇入。但如果一个分支有多个步骤怎么办？让我们在`"b"`分支中添加一个节点`"b_2"`：
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import operator
@@ -1361,7 +1362,9 @@ Adding "B" to ['A']
 Adding "C" to ['A']
 Adding "B_2" to ['A', 'B', 'C']
 Adding "D" to ['A', 'B', 'C', 'B_2']
-```在上面的示例中，节点`"b"`和`"c"`在同一超级步中同时执行。我们在节点 `d` 上设置 `defer=True`，以便在所有挂起的任务完成之前它不会执行。在这种情况下，这意味着 `"d"` 等待执行，直到整个 `"b"` 分支完成。
+```
+
+在上面的示例中，节点`"b"`和`"c"`在同一超级步中同时执行。我们在节点 `d` 上设置 `defer=True`，以便在所有挂起的任务完成之前它不会执行。在这种情况下，这意味着 `"d"` 等待执行，直到整个 `"b"` 分支完成。
 
 当每个分支始终运行时，您可以使用列表形式的边缘而不是`defer=True`等待。 `add_edge` 还接受起始节点列表。这不是单独的 `add_edge` 调用的简写；这两种形式的行为不同：
 
@@ -1994,7 +1997,7 @@ Recursion Error
   </Tab>
 
   <Tab title="HuggingFace">
-    👉阅读[HuggingFace chat model integration docs](/oss/python/integrations/chat/huggingface/)
+    👉 阅读[HuggingFace chat model integration docs](/oss/python/integrations/chat/huggingface/)
 
     <CodeGroup>
       ```bash pip theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}

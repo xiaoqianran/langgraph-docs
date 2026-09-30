@@ -38,14 +38,14 @@ const result = await graph.invoke(
 
 ## Checkpointer vs. store
 
-|                | Checkpointer                                                                 | Store                                               |
-| -------------- | ---------------------------------------------------------------------------- | --------------------------------------------------- |
-| Persists       | Graph state snapshots                                                        | Application-defined key-value data                  |
-| Scope          | A single thread                                                              | Across threads                                      |
-| Memory type    | Short-term, thread-scoped memory                                             | Long-term, cross-thread memory                      |
-| Use for        | Conversation continuity, human-in-the-loop, time travel, and fault tolerance | User preferences, facts, and shared knowledge       |
-| Access pattern | Pass a `thread_id` in graph config                                           | Read and write items from nodes or application code |
-| Full guide     | [Checkpointers](/oss/javascript/langgraph/checkpointers)                     | [Stores](/oss/javascript/langgraph/stores)          |
+| | Checkpointer | Store |
+| - | - | - |
+| Persists | Graph state snapshots | Application-defined key-value data |
+| Scope | A single thread | Across threads |
+| Memory type | Short-term, thread-scoped memory | Long-term, cross-thread memory |
+| Use for | Conversation continuity, human-in-the-loop, time travel, and fault tolerance | User preferences, facts, and shared knowledge |
+| Access pattern | Pass a `thread_id` in graph config | Read and write items from nodes or application code |
+| Full guide | [Checkpointers](/oss/javascript/langgraph/checkpointers) | [Stores](/oss/javascript/langgraph/stores) |
 
 ## Troubleshooting common issues
 
