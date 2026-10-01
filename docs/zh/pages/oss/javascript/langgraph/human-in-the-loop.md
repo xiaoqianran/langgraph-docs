@@ -16,9 +16,9 @@
 
 ## 使用 `interrupt` 暂停
 
-[⟦T43⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 函数暂停图形执行并向调用者返回一个值。当您在节点内调用 [⟦T44⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 时，LangGraph 会保存当前图形状态并等待您通过输入恢复执行。
+[⟦T44⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 函数暂停图形执行并向调用者返回一个值。当您在节点内调用 [⟦T45⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 时，LangGraph 会保存当前图形状态并等待您通过输入恢复执行。
 
-要使用[⟦T45⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt)，您需要：
+要使用[⟦T46⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt)，您需要：
 
 1. 用于持久化图形状态的**检查点**（在生产中使用持久检查点）
 2. 配置中的 **线程 ID**，以便运行时知道从哪个状态恢复
@@ -36,11 +36,11 @@ async function approvalNode(state: State) {
 }
 ```
 
-当您拨打 [⟦T47⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 时，会发生以下情况：1. **图形执行在调用 [⟦T48⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 的确切位置暂停**
+当您拨打 [⟦T48⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 时，会发生以下情况：1. **图形执行在调用 [⟦T49⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 的确切位置暂停**
 
 2. **使用检查指针保存状态**，以便稍后可以恢复执行，在生产中，这应该是一个持久的检查指针（例如由数据库支持）
 
-3. **值在`__interrupt__`下返回**给调用者；它可以是任何 JSON 可序列化的值（字符串、对象、数组等）
+3. **在`__interrupt__`下将值返回**给调用者；它可以是任何 JSON 可序列化的值（字符串、对象、数组等）
 
 4. **Graph 无限期地等待**，直到您通过响应恢复执行
 
@@ -69,25 +69,82 @@ await graph.invoke(new Command({ resume: true }), config);
 ```
 
 **恢复要点：*** 恢复时必须使用与中断发生时使用的**相同的线程 ID**
-* 传递给`new Command({ resume: ... })`的值成为[⟦T54⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt)调用的返回值
-* 节点从恢复时调用[⟦T55⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt)的节点开始重新启动，因此[⟦T56⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt)之前的任何代码都会再次运行
-* 您可以传递任何 JSON 可序列化值作为恢复值
+* 传递给`new Command({ resume: ... })`的值成为[⟦T55⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt)调用的返回值
+* 节点从恢复时调用[⟦T56⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt)的节点开始重新启动，因此[⟦T57⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt)之前的任何代码都会再次运行
+* 您可以传递任何 JSON 可序列化值作为恢复值，当您指定 Zod `responseSchema` 时需要进行验证
 
 <Warning>
   `new Command({ resume: ... })` 是**唯一** `Command` 模式，旨在作为 `invoke()`/`stream()`/`stream_events()` 的输入。其他`Command`参数（`update`、`goto`、`graph`）是为[returning from node functions](/oss/javascript/langgraph/graph-api#command)设计的。不要传递 `new Command({ update: ... })` 作为输入来继续多轮对话，而是传递一个普通的输入对象。
 </Warning>
 
+## 定义中断响应模式
+
+[⟦T70⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 的 `responseSchema` 选项描述了恢复图表时预期的输入。客户端可以使用该架构来呈现键入的输入表单。
+
+<Note>
+  中断响应模式需要 `@langchain/langgraph` 版本 1.4.16 或更高版本。
+</Note>
+
+传递 Zod 架构来验证简历值。 LangGraph 将其转换为 JSON 架构，并将其包含在 `Interrupt.response_schema` 中，与中断的 `value` 负载分开。该模式可用于返回调用者的中断和检查点任务中断。此示例使用 LangGraph 中断测试的批准模式：
+
+```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import {
+  Annotation,
+  Command,
+  MemorySaver,
+  START,
+  StateGraph,
+  interrupt,
+} from "@langchain/langgraph";
+import { z } from "zod/v4";
+
+const Decision = z.object({
+  approved: z.boolean(),
+  note: z.string().default(""),
+});
+
+const State = Annotation.Root({
+  answer: Annotation<unknown>(),
+});
+
+const graph = new StateGraph(State)
+  .addNode("node", () => ({
+    answer: interrupt({ question: "approve?" }, { responseSchema: Decision }),
+  }))
+  .addEdge(START, "node")
+  .compile({ checkpointer: new MemorySaver() });
+
+const config = { configurable: { thread_id: "1" } };
+
+const result = await graph.invoke({ answer: null }, config);
+console.log(result.__interrupt__?.[0].response_schema);
+
+const resumed = await graph.invoke(
+  new Command({ resume: { approved: true } }),
+  config
+);
+console.log(resumed.answer);
+```
+
+使用 Zod 模式，`interrupt()` 返回解析后的值。在此示例中，结果为 `{ approved: true, note: "" }`，包括默认的 `note`。无效输入引发 `ZodError`；您可以使用相同的线程 ID 使用更正后的 `new Command({ resume: ... })` 重试。
+
+您还可以将 JSON Schema 对象作为 `responseSchema` 传递。 LangGraph 暴露该对象不变，但**不**针对它验证简历值。当您省略 `responseSchema` 时，中断没有 `response_schema` 字段，并且恢复值无需架构验证即可通过。
+
+Studio 将中断响应架构呈现为键入的输入字段而不是 JSON 编辑器。 Studio 组件的此预览使用带有批准、注释和数字金额字段的示例数据。
+
+<img src="https://mintcdn.com/langchain-5e9cc07a/u62GP5wl5NeQqwjE/images/langgraph-interrupt-response-schema.png?fit=max&auto=format&n=u62GP5wl5NeQqwjE&q=85&s=b10304786d356849862616a60b74aa3d" alt="Studio interrupt form with an approval toggle, a note field, and a numeric amount set to 125.50" width="900" height="800" data-path="images/langgraph-interrupt-response-schema.png" />
+
 ## 常见模式
 
 中断解锁的关键是能够暂停执行并等待外部输入。这对于各种用例都很有用，包括：* <Icon icon="circle-check" /> [Approval workflows](#approve-or-reject)：在执行关键操作（API 调用、数据库更改、金融交易）之前暂停
-* <Icon icon="link" /> [Handling multiple interrupts](#handling-multiple-interrupts)：在单次调用中恢复多个中断时将中断 ID 与恢复值配对
+* <Icon icon="link" /> [Handling multiple interrupts](#handling-multiple-interrupts)：在单次调用中恢复多个中断时，将中断 ID 与恢复值配对
 * <Icon icon="pencil" /> [Review and edit](#review-and-edit-state)：让人们在继续之前检查和修改LLM输出或工具调用
-* <Icon icon="tool" /> [Interrupting tool calls](#interrupts-in-tools)：执行工具调用前暂停，以便在执行前查看和编辑工具调用
+* <Icon icon="tool" /> [Interrupting tool calls](#interrupts-in-tools)：执行工具调用前暂停，以在执行前查看和编辑工具调用
 * <Icon icon="shield-check" /> [Validating human input](#validating-human-input)：在继续下一步验证人工输入之前暂停
 
 ### 具有人机交互 (HITL) 中断的流
 
-当使用人机交互工作流程构建交互式代理时，您可以使用[event streaming](/oss/javascript/langgraph/event-streaming)在处理中断的同时同时使用消息块和状态快照。
+当使用人机交互工作流程构建交互式代理时，您可以使用[event streaming](/oss/javascript/langgraph/event-streaming)在处理中断时同时使用消息块和状态快照。
 
 循环使用 `graph.stream_events(..., version="v3")` 返回的类型化投影，直到运行完成：
 
@@ -135,7 +192,7 @@ while (true) {
 
 ### 处理多个中断
 
-当并行分支同时中断时（例如，扇出到每个调用`interrupt()`的多个节点），您可能需要在单次调用中恢复多个中断。
+当并行分支同时中断时（例如，扇出到多个节点，每个节点都调用`interrupt()`），您可能需要在单次调用中恢复多个中断。
 当通过一次调用恢复多个中断时，将每个中断 ID 映射到其恢复值。
 这可确保每个响应在运行时与正确的中断配对。
 
@@ -373,7 +430,7 @@ await graph.invoke(
 
 您还可以将中断直接放置在工具函数中。这使得工具本身在调用时暂停以等待批准，并允许在执行工具调用之前进行人工审查和编辑。
 
-首先，定义一个使用[⟦T87⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt)的工具：
+首先，定义一个使用[⟦T102⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt)的工具：
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { tool } from "@langchain/core/tools";
@@ -539,7 +596,7 @@ const getAgeNode: typeof State.Node = (state) => {
 
 <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/04c9112c-edbf-497d-92b8-7263fb485ff5/r" arrow horizontal>
   为此示例打开公共 LangSmith 运行。
-</Card>每个恢复都会调用 `getAgeNode` 一次，运行 `interrupt()` 调用一次，然后退出。当答案无效时，条件边沿循环返回，并且下一个中断会重新提示更新的问题。
+</Card>每个恢复调用 `getAgeNode` 一次，运行 `interrupt()` 调用一次，然后退出。当答案无效时，条件边沿循环返回，并且下一个中断会重新提示更新的问题。
 
 <Accordion title="Full example">
   ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
@@ -593,13 +650,13 @@ const getAgeNode: typeof State.Node = (state) => {
 
 ## 中断规则
 
-当您在节点内调用 [⟦T98⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 时，LangGraph 会引发异常，指示运行时暂停，从而暂停执行。该异常通过调用堆栈向上传播并被运行时捕获，通知图保存当前状态并等待外部输入。
+当您在节点内调用 [⟦T113⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 时，LangGraph 会引发异常，指示运行时暂停，从而暂停执行。该异常通过调用堆栈向上传播并被运行时捕获，通知图保存当前状态并等待外部输入。
 
-当执行恢复时（在您提供请求的输入之后），运行时会从头开始重新启动整个节点 - 它不会从调用 [⟦T99⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 的确切行恢复。这意味着在 [⟦T100⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 之前运行的任何代码都将再次执行。因此，在处理中断时需要遵循一些重要规则，以确保它们按预期运行。
+当执行恢复时（在您提供请求的输入之后），运行时会从头开始重新启动整个节点 - 它不会从调用 [⟦T114⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 的确切行恢复。这意味着在 [⟦T115⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 之前运行的任何代码都将再次执行。因此，在处理中断时需要遵循一些重要规则，以确保它们按预期运行。
 
 ### 不要将 `interrupt` 调用包装在 try/catch 中
 
-[⟦T102⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 在调用点暂停执行的方法是抛出一个特殊的异常。如果将 [⟦T103⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 调用包装在 try/catch 块中，您将捕获此异常，并且中断将不会传递回图表。* ✅ 将 [⟦T104⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 调用与容易出错的代码分开
+[⟦T117⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 在调用点暂停执行的方法是抛出一个特殊的异常。如果将 [⟦T118⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 调用包装在 try/catch 块中，您将捕获此异常，并且中断将不会传递回图表。* ✅ 将 [⟦T119⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 调用与容易出错的代码分开
 * ✅ 如果需要有条件地捕获错误
 
 <CodeGroup>
@@ -635,7 +692,7 @@ const getAgeNode: typeof State.Node = (state) => {
   ```
 </CodeGroup>
 
-* 🔴 不要将 [⟦T105⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 调用包装在裸露的 try/catch 块中
+* 🔴 不要将 [⟦T120⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 调用包装在裸露的 try/catch 块中
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 async function nodeA(state: State) {
@@ -655,7 +712,7 @@ async function nodeA(state: State) {
 
 当节点包含多个中断调用时，LangGraph 保留特定于执行该节点的任务的恢复值列表。每当执行恢复时，它都会从节点的开头开始。对于遇到的每个中断，LangGraph 检查任务的恢复列表中是否存在匹配的值。匹配**严格基于索引**，因此节点内中断调用的顺序很重要。
 
-* ✅ 保持 [⟦T107⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 调用在节点执行之间保持一致
+* ✅ 保持 [⟦T122⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 调用在节点执行之间保持一致
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 async function nodeA(state: State) {
@@ -672,8 +729,8 @@ async function nodeA(state: State) {
 }
 ```
 
-* 🔴 不要有条件地跳过节点内的 [⟦T108⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 调用
-* 🔴 不要使用在执行过程中不确定的逻辑来循环 [⟦T109⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 调用，包括 `while True` 验证循环。使用条件边（参见[Validating human input](#validating-human-input)）
+* 🔴 不要有条件地跳过节点内的 [⟦T123⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 调用
+* 🔴 不要使用跨执行不确定的逻辑来循环 [⟦T124⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 调用，包括 `while True` 验证循环。使用条件边代替（参见 [Validating human input](#validating-human-input)）
 
 <CodeGroup>
   ```typescript Skipping interrupts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
@@ -710,7 +767,7 @@ async function nodeA(state: State) {
 
 ### 不要在 `interrupt` 调用中返回复数值根据使用的检查指针，复杂值可能无法序列化（例如，您无法序列化函数）。为了使您的图表适应任何部署，最佳实践是仅使用可以合理序列化的值。
 
-* ✅ 将简单的 JSON 可序列化类型传递给 [⟦T112⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt)
+* ✅ 将简单的 JSON 可序列化类型传递给 [⟦T127⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt)
 * ✅ 传递具有简单值的字典/对象
 
 <CodeGroup>
@@ -739,7 +796,7 @@ async function nodeA(state: State) {
   ```
 </CodeGroup>
 
-* 🔴不要将函数、类实例或其他复杂对象传递给[⟦T113⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt)
+* 🔴不要将函数、类实例或其他复杂对象传递给[⟦T128⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt)
 
 <CodeGroup>
   ```typescript Functions theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
@@ -779,11 +836,11 @@ async function nodeA(state: State) {
 
 ### 在`interrupt`之前调用的副作用必须是幂等的
 
-因为中断是通过重新运行调用它们的节点来工作的，所以在 [⟦T115⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 之前调用的副作用应该（理想情况下）是幂等的。对于上下文来说，幂等性意味着可以多次应用相同的操作，而不会改变初始执行之外的结果。
+因为中断是通过重新运行调用它们的节点来工作的，所以在 [⟦T130⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 之前调用的副作用应该（理想情况下）是幂等的。对于上下文来说，幂等性意味着可以多次应用相同的操作，而不会改变初始执行之外的结果。
 
-例如，您可能有一个 API 调用来更新节点内的记录。如果在调用之后调用[⟦T116⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt)，则当节点恢复时它将重新运行多次，可能会覆盖初始更新或创建重复记录。* ✅ 在[⟦T117⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt)之前使用幂等操作
-* ✅ 在 [⟦T118⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 调用之后放置副作用
-* ✅尽可能将副作用分离到单独的节点中
+例如，您可能有一个 API 调用来更新节点内的记录。如果在调用之后调用[⟦T131⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt)，则当节点恢复时它将重新运行多次，可能会覆盖初始更新或创建重复记录。* ✅ 在[⟦T132⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt)之前使用幂等操作
+* ✅ 在 [⟦T133⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 调用之后放置副作用
+* ✅ 如果可能，将副作用分离到单独的节点中
 
 <CodeGroup>
   ```typescript Idempotent operations theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
@@ -841,7 +898,7 @@ async function nodeA(state: State) {
   ```
 </CodeGroup>
 
-* 🔴[⟦T119⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt)之前不要进行非幂等操作
+* 🔴[⟦T134⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt)之前不要进行非幂等操作
 * 🔴 在未检查记录是否存在的情况下不要创建新记录
 
 <CodeGroup>
@@ -876,7 +933,7 @@ async function nodeA(state: State) {
 
 ## 与称为函数的子图一起使用
 
-当调用节点内的子图时，父图将从调用子图并触发[⟦T120⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt)的节点**开始处恢复执行。同样，**子图**也会从调用 [⟦T121⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 的节点的开头开始恢复。
+当调用节点内的子图时，父图将从调用子图并触发[⟦T135⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt)的**节点**开始处恢复执行。同样，**子图**也会从调用 [⟦T136⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 的节点的开头开始恢复。
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 async function nodeInParentGraph(state: State) {
@@ -899,7 +956,7 @@ async function nodeInSubgraph(state: State) {
 要调试和测试图形，您可以使用静态中断作为断点，一次单步执行一个节点的图形执行。静态中断在节点执行之前或之后的定义点触发。您可以在编译图表时通过指定 `interruptBefore` 和 `interruptAfter` 来设置这些。
 
 <Note>
-  **不**建议将静态中断用于人机交互工作流程。请改用 [⟦T124⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 函数。
+  **不**建议将静态中断用于人机交互工作流程。请改用 [⟦T139⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 函数。
 </Note>
 
 <Tabs>

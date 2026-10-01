@@ -249,16 +249,16 @@
           "rel": "oss/javascript/langgraph/workflows-agents.md"
         }
       ],
-      "common-errors": [
-        {
-          "title": "Errors",
-          "rel": "oss/javascript/langgraph/common-errors.md"
-        }
-      ],
       "human-in-the-loop": [
         {
           "title": "Interrupts",
           "rel": "oss/javascript/langgraph/human-in-the-loop.md"
+        }
+      ],
+      "common-errors": [
+        {
+          "title": "Errors",
+          "rel": "oss/javascript/langgraph/common-errors.md"
         }
       ]
     }
@@ -557,12 +557,12 @@
       ],
       "python": [
         {
-          "title": "langgraph.checkpoint",
-          "rel": "reference/python/langgraph.checkpoint.md"
-        },
-        {
           "title": "langgraph.store",
           "rel": "reference/python/langgraph.store.md"
+        },
+        {
+          "title": "langgraph.checkpoint",
+          "rel": "reference/python/langgraph.checkpoint.md"
         },
         {
           "title": "langgraph.store.postgres",
@@ -581,20 +581,20 @@
           "rel": "reference/python/langgraph-cli.md"
         },
         {
-          "title": "langgraph.prebuilt",
-          "rel": "reference/python/langgraph.prebuilt.md"
+          "title": "langgraph_supervisor",
+          "rel": "reference/python/langgraph-supervisor.md"
         },
         {
           "title": "langgraph_sdk",
           "rel": "reference/python/langgraph-sdk.md"
         },
         {
-          "title": "langgraph_swarm",
-          "rel": "reference/python/langgraph-swarm.md"
+          "title": "langgraph.prebuilt",
+          "rel": "reference/python/langgraph.prebuilt.md"
         },
         {
-          "title": "langgraph_supervisor",
-          "rel": "reference/python/langgraph-supervisor.md"
+          "title": "langgraph_swarm",
+          "rel": "reference/python/langgraph-swarm.md"
         }
       ]
     }
@@ -605,10 +605,6 @@
     "groups": {
       "javascript": [
         {
-          "title": "@langchain/langgraph",
-          "rel": "reference/javascript/langchain-langgraph.md"
-        },
-        {
           "title": "@langchain/langgraph-sdk",
           "rel": "reference/javascript/langchain-langgraph-sdk.md"
         },
@@ -617,20 +613,24 @@
           "rel": "reference/javascript/langchain-langgraph-checkpoint.md"
         },
         {
-          "title": "@langchain/langgraph-checkpoint-mongodb",
-          "rel": "reference/javascript/langchain-langgraph-checkpoint-mongodb.md"
-        },
-        {
           "title": "@langchain/langgraph-checkpoint-redis",
           "rel": "reference/javascript/langchain-langgraph-checkpoint-redis.md"
         },
         {
-          "title": "@langchain/langgraph-checkpoint-sqlite",
-          "rel": "reference/javascript/langchain-langgraph-checkpoint-sqlite.md"
+          "title": "@langchain/langgraph",
+          "rel": "reference/javascript/langchain-langgraph.md"
         },
         {
           "title": "@langchain/langgraph-checkpoint-postgres",
           "rel": "reference/javascript/langchain-langgraph-checkpoint-postgres.md"
+        },
+        {
+          "title": "@langchain/langgraph-checkpoint-mongodb",
+          "rel": "reference/javascript/langchain-langgraph-checkpoint-mongodb.md"
+        },
+        {
+          "title": "@langchain/langgraph-checkpoint-sqlite",
+          "rel": "reference/javascript/langchain-langgraph-checkpoint-sqlite.md"
         },
         {
           "title": "@langchain/langgraph-checkpoint-validation",
@@ -649,12 +649,12 @@
           "rel": "reference/javascript/langchain-langgraph-cua.md"
         },
         {
-          "title": "@langchain/langgraph-supervisor",
-          "rel": "reference/javascript/langchain-langgraph-supervisor.md"
-        },
-        {
           "title": "@langchain/langgraph-swarm",
           "rel": "reference/javascript/langchain-langgraph-swarm.md"
+        },
+        {
+          "title": "@langchain/langgraph-supervisor",
+          "rel": "reference/javascript/langchain-langgraph-supervisor.md"
         }
       ]
     }

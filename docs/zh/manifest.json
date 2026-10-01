@@ -85,12 +85,12 @@
       "translatedAt": "2026-09-29T16:05:40.564Z"
     },
     "oss/javascript/langgraph/human-in-the-loop.md": {
-      "hash": "7707d834ea5ba716bf6e9495153ccc5d78b34089",
-      "translatedAt": "2026-09-29T16:05:45.643Z"
+      "hash": "8a06ea18e51756d1376c3770c23ba559084c2dd7",
+      "translatedAt": "2026-10-01T16:39:20.748Z"
     },
     "oss/javascript/langgraph/interrupts.md": {
-      "hash": "3633a9ad9906031713b30e33719377368902c324",
-      "translatedAt": "2026-09-29T16:05:45.645Z"
+      "hash": "fee9e28a6655dac95a3f15f4161e690262fae9af",
+      "translatedAt": "2026-10-01T16:39:20.986Z"
     },
     "oss/javascript/langgraph/observability.md": {
       "hash": "fc61c7a1c6a374107491dcf4a43851be749e1d18",
@@ -241,12 +241,12 @@
       "translatedAt": "2026-09-29T16:07:08.323Z"
     },
     "oss/python/langgraph/human-in-the-loop.md": {
-      "hash": "bdda41b213f29cde203c7950a21eaf7ef537db34",
-      "translatedAt": "2026-09-29T16:07:06.268Z"
+      "hash": "afbf9a99d279c851b0807cbf8f050d23ad713adb",
+      "translatedAt": "2026-10-01T16:39:21.952Z"
     },
     "oss/python/langgraph/interrupts.md": {
-      "hash": "c118a47f93b2b5df54b8c5b579da25af6582577a",
-      "translatedAt": "2026-09-29T16:07:05.929Z"
+      "hash": "b4dd2a103471af7ddf67bab1955b33d48c654a08",
+      "translatedAt": "2026-10-01T16:39:22.052Z"
     },
     "oss/python/langgraph/persistence.md": {
       "hash": "8259c9ec7ead56229b1d803dbb7ec5ebac810fe8",
@@ -461,10 +461,10 @@
       "translatedAt": "2026-09-29T16:07:47.480Z"
     }
   },
-  "updatedAt": "2026-09-30T16:03:59.168Z",
+  "updatedAt": "2026-10-01T16:39:22.052Z",
   "stats": {
-    "translated": 32,
-    "skipped": 83,
+    "translated": 4,
+    "skipped": 111,
     "failed": 0,
     "total": 115
   }

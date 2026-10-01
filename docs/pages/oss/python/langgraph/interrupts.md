@@ -53,7 +53,7 @@ After an interrupt pauses execution, you resume the graph by invoking it again w
 
 The recommended way to drive a graph that may interrupt is [event streaming](/oss/python/langgraph/event-streaming) — it surfaces interrupts via `stream.interrupts` and `stream.interrupted`, and exposes the final state through `stream.output`.
 
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}} theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}} theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from langgraph.types import Command
 
 # Initial run - hits the interrupt and pauses
@@ -89,11 +89,72 @@ final = resumed.output
 * You must use the **same thread ID** when resuming that was used when the interrupt occurred
 * The value passed to `Command(resume=...)` becomes the return value of the [`interrupt`](https://reference.langchain.com/python/langgraph/types/interrupt) call
 * The node restarts from the beginning of the node where the [`interrupt`](https://reference.langchain.com/python/langgraph/types/interrupt) was called when resumed, so any code before the [`interrupt`](https://reference.langchain.com/python/langgraph/types/interrupt) runs again
-* You can pass any JSON-serializable value as the resume value
+* You can pass any JSON-serializable value as the resume value, subject to validation when you specify a typed `response_schema`
 
 <Warning>
   `Command(resume=...)` is the **only** `Command` pattern intended as input to `invoke()`/`stream()`/`stream_events()`. The other `Command` parameters (`update`, `goto`, `graph`) are designed for [returning from node functions](/oss/python/langgraph/graph-api#command). Do not pass `Command(update=...)` as input to continue multi-turn conversations—pass a plain input dict instead.
 </Warning>
+
+## Define an interrupt response schema
+
+The `response_schema` argument to [`interrupt`](https://reference.langchain.com/python/langgraph/types/interrupt) describes the input expected when you resume the graph. Clients can use the schema to render typed input forms.
+
+<Note>
+  Interrupt response schemas require `langgraph>=1.2.12`.
+</Note>
+
+Pass a Pydantic model class, a `TypedDict` from `typing_extensions`, or a dataclass to validate resume values. LangGraph converts the type to JSON Schema and includes it in `Interrupt.response_schema`, separately from the interrupt's `value` payload. The schema is available on interrupts returned to the caller and in checkpoint task interrupts.
+
+This example uses the approval schema from LangGraph's interrupt tests:
+
+```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+from typing import Any
+
+from pydantic import BaseModel
+from typing_extensions import TypedDict
+
+from langgraph.checkpoint.memory import InMemorySaver
+from langgraph.graph import START, StateGraph
+from langgraph.types import Command, interrupt
+
+
+class Decision(BaseModel):
+    approved: bool
+    note: str | None = None
+
+
+class State(TypedDict):
+    answer: Any
+
+
+def node(state: State) -> State:
+    answer = interrupt({"question": "approve?"}, response_schema=Decision)
+    return {"answer": answer}
+
+
+graph = (
+    StateGraph(State)
+    .add_node("node", node)
+    .add_edge(START, "node")
+    .compile(checkpointer=InMemorySaver())
+)
+config = {"configurable": {"thread_id": "1"}}
+
+result = graph.invoke({"answer": None}, config)
+pending = result["__interrupt__"][0]
+assert pending.response_schema == Decision.model_json_schema()
+
+result = graph.invoke(Command(resume={"approved": True}), config)
+assert result["answer"] == Decision(approved=True)
+```
+
+With a typed schema, `interrupt()` returns the validated object: a Pydantic model instance, a dictionary for a `TypedDict`, or a dataclass instance. Pydantic's validation and coercion rules apply. Invalid input raises `pydantic.ValidationError`; you can retry with a corrected `Command(resume=...)` using the same thread ID.
+
+You can also pass a JSON Schema dictionary as `response_schema`. LangGraph exposes that dictionary unchanged but does **not** validate resume values against it. When you omit `response_schema`, its value is `None`, and resume values pass through without schema validation.
+
+Studio renders interrupt response schemas as typed input fields instead of a JSON editor. This preview of the Studio component uses example data with approval, note, and numeric amount fields.
+
+<img alt="Studio interrupt form with an approval toggle, a note field, and a numeric amount set to 125.50" />
 
 ## Common patterns
 
@@ -116,7 +177,7 @@ Use the typed projections returned by `graph.stream_events(..., version="v3")` i
 * Detect interrupts via `stream.interrupted` and read their payloads from `stream.interrupts`
 * Resume execution by calling `stream_events` again with `Command(resume=...)` and repeat until `stream.interrupted` is false
 
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}} theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}} theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from langgraph.types import Command
 
 stream_input: dict | Command = initial_input
@@ -154,7 +215,7 @@ When parallel branches interrupt simultaneously (for example, fan-out to multipl
 When resuming multiple interrupts with a single invocation, map each interrupt ID to its resume value.
 This ensures each response is paired with the correct interrupt at runtime.
 
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}} theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}} theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from typing import Annotated, TypedDict
 import operator
 
@@ -244,7 +305,7 @@ graph.stream_events(Command(resume=False), config=config, version="v3").output
 ```
 
 <Accordion title="Full example">
-  ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+  ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}} theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}} theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
   from typing import Literal, Optional, TypedDict
 
   from langgraph.checkpoint.memory import InMemorySaver
@@ -338,7 +399,7 @@ graph.stream_events(
 ```
 
 <Accordion title="Full example">
-  ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+  ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}} theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}} theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
   from typing import TypedDict
 
   from langgraph.checkpoint.memory import MemorySaver
@@ -544,7 +605,7 @@ The correct pattern:
 3. If the answer is invalid, return the updated `pending_question` so the next invocation re-prompts.
 4. Use `add_conditional_edges` to route back to the node until a valid value is collected.
 
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}} theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}} theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from typing import TypedDict
 
 from langgraph.graph import END, START, StateGraph
@@ -577,7 +638,7 @@ builder.add_conditional_edges("collect_age", route)
 Each resume invokes `get_age_node` exactly once, runs the `interrupt()` call once, and exits. When the answer is invalid, the conditional edge loops back and the next interrupt re-prompts with the updated question. No code runs more than once per resume.
 
 <Accordion title="Full example">
-  ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+  ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}} theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}} theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
   from typing import TypedDict
 
   from langgraph.checkpoint.memory import InMemorySaver
