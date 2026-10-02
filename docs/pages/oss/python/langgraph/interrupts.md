@@ -53,7 +53,7 @@ After an interrupt pauses execution, you resume the graph by invoking it again w
 
 The recommended way to drive a graph that may interrupt is [event streaming](/oss/python/langgraph/event-streaming) — it surfaces interrupts via `stream.interrupts` and `stream.interrupted`, and exposes the final state through `stream.output`.
 
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}} theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}} theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from langgraph.types import Command
 
 # Initial run - hits the interrupt and pauses
@@ -177,7 +177,7 @@ Use the typed projections returned by `graph.stream_events(..., version="v3")` i
 * Detect interrupts via `stream.interrupted` and read their payloads from `stream.interrupts`
 * Resume execution by calling `stream_events` again with `Command(resume=...)` and repeat until `stream.interrupted` is false
 
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}} theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}} theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from langgraph.types import Command
 
 stream_input: dict | Command = initial_input
@@ -215,7 +215,7 @@ When parallel branches interrupt simultaneously (for example, fan-out to multipl
 When resuming multiple interrupts with a single invocation, map each interrupt ID to its resume value.
 This ensures each response is paired with the correct interrupt at runtime.
 
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}} theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}} theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from typing import Annotated, TypedDict
 import operator
 
@@ -305,7 +305,7 @@ graph.stream_events(Command(resume=False), config=config, version="v3").output
 ```
 
 <Accordion title="Full example">
-  ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}} theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}} theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+  ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
   from typing import Literal, Optional, TypedDict
 
   from langgraph.checkpoint.memory import InMemorySaver
@@ -399,7 +399,7 @@ graph.stream_events(
 ```
 
 <Accordion title="Full example">
-  ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}} theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}} theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+  ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
   from typing import TypedDict
 
   from langgraph.checkpoint.memory import MemorySaver
@@ -605,7 +605,7 @@ The correct pattern:
 3. If the answer is invalid, return the updated `pending_question` so the next invocation re-prompts.
 4. Use `add_conditional_edges` to route back to the node until a valid value is collected.
 
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}} theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}} theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from typing import TypedDict
 
 from langgraph.graph import END, START, StateGraph
@@ -638,7 +638,7 @@ builder.add_conditional_edges("collect_age", route)
 Each resume invokes `get_age_node` exactly once, runs the `interrupt()` call once, and exits. When the answer is invalid, the conditional edge loops back and the next interrupt re-prompts with the updated question. No code runs more than once per resume.
 
 <Accordion title="Full example">
-  ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}} theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}} theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+  ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
   from typing import TypedDict
 
   from langgraph.checkpoint.memory import InMemorySaver

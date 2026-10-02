@@ -28,7 +28,7 @@
 
 ## 2. 创建一个LangGraph应用程序
 
-从 [⟦T16⟧ template](https://github.com/langchain-ai/new-langgraph-project) 创建一个新应用程序。此模板演示了您可以使用自己的逻辑进行扩展的单节点应用程序。
+从 [⟦T16⟧ template](https://github.com/langchain-ai/new-langgraph-project) 创建一个新应用程序。该模板演示了您可以使用自己的逻辑进行扩展的单节点应用程序。
 
 ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 langgraph new path/to/your/app --template new-langgraph-project-python
@@ -201,7 +201,7 @@ https://smith.langchain.com/studio/?baseUrl=http://myhost:3000
 
 * [LangSmith](/langsmith/observability)：了解基本的LangSmith概念。
 
-* [SDK Reference](https://reference.langchain.com/python/langsmith/deployment/sdk/)：探索 SDK API 参考。
+* [SDK Reference](https://reference.langchain.com/python/langsmith/deployment-sdk)：探索 SDK API 参考。
 
 ***
 

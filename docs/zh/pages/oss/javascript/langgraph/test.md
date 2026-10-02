@@ -103,7 +103,7 @@ test('individual node execution', async () => {
 
 但是，如果您不想更改代理图的整体结构，您可以使用LangGraph的持久化机制来模拟代理在所需部分开始之前暂停的状态，并在所需部分结束时再次暂停。步骤如下：
 
-1. 使用检查点编译您的代理（内存中检查点[⟦T10⟧](https://reference.langchain.com/javascript/classes/_langchain_langgraph-checkpoint.MemorySaver.html)足以进行测试）。
+1. 使用检查点编译您的代理（内存中检查点[⟦T10⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/MemorySaver)足以进行测试）。
 2. 调用代理的 [⟦T11⟧](/oss/javascript/langgraph/use-time-travel) 方法，并将 [⟦T12⟧](/oss/javascript/langgraph/use-time-travel#from-a-specific-node) 参数设置为要开始测试的节点*之前*的节点名称。
 3. 使用用于更新状态的相同 `thread_id` 和设置为要停止的节点名称的 `interruptBefore` 参数来调用代理。
 

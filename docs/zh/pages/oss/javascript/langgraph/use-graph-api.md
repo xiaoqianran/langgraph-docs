@@ -66,7 +66,7 @@ const node: GraphNode<typeof State> = (state) => {
   节点应该直接返回状态更新，而不是改变状态。
 </Warning>
 
-接下来让我们定义一个包含该节点的简单图。我们使用[⟦T90⟧](/oss/javascript/langgraph/graph-api#stategraph)来定义一个在这个状态上运行的图。然后我们使用 [⟦T91⟧](/oss/javascript/langgraph/graph-api#nodes) 填充我们的图表。
+接下来让我们定义一个包含该节点的简单图。我们使用[⟦T90⟧](/oss/javascript/langgraph/graph-api#stategraph)来定义一个在此状态上运行的图。然后我们使用 [⟦T91⟧](/oss/javascript/langgraph/graph-api#nodes) 填充我们的图表。
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { StateGraph } from "@langchain/langgraph";
@@ -427,7 +427,7 @@ Output of graph invocation: {"a":"set by node3"}
 | `LastValue` |存储最新值 |被覆盖的简单字段 |
 | `BinaryOperatorAggregate` |使用减速函数组合值 |累积值（计数器、列表）|
 | `Topic` |将所有值收集到一个序列中 |事件流、审核日志 |
-| `EphemeralValue` |在超级步之间重置的值 |临时计算状态 |
+| `EphemeralValue` |在超级步之间重置的值 |临时计算状态|
 
 **使用对象简写：**
 
@@ -747,7 +747,7 @@ console.log(await graph.invoke({}, { context: { myRuntimeValue: "b" } }));  // [
 
 ## 添加重试策略
 
-在许多用例中，您可能希望节点具有自定义重试策略，例如，如果您正在调用 API、查询数据库或调用 LLM 等。LangGraph 允许您向节点添加重试策略。要配置重试策略，请将`retryPolicy`参数传递给[⟦T125⟧](https://reference.langchain.com/javascript/classes/_langchain_langgraph.index.Graph.html#addnode)。 `retryPolicy` 参数接受一个 `RetryPolicy` 对象。下面我们用默认参数实例化一个`RetryPolicy`对象并将其与一个节点关联起来：
+在许多用例中，您可能希望节点具有自定义重试策略，例如，如果您正在调用 API、查询数据库或调用 LLM 等。LangGraph 允许您向节点添加重试策略。要配置重试策略，请将`retryPolicy`参数传递给[⟦T125⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/Graph)。 `retryPolicy` 参数接受一个 `RetryPolicy` 对象。下面我们用默认参数实例化一个`RetryPolicy`对象并将其与一个节点关联起来：
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { RetryPolicy } from "@langchain/langgraph";
@@ -818,7 +818,7 @@ const graph = new StateGraph(State)
 
 ### 访问节点内的执行信息
 
-您可以通过`runtime.executionInfo`访问执行身份和重试信息。这会显示线程、运行和检查点标识符以及重试状态，而无需直接从 `config` 读取。|属性 |类型 |描述 |
+您可以通过`runtime.executionInfo`访问执行身份和重试信息。这会显示线程、运行和检查点标识符以及重试状态，而无需直接从 `config` 读取。|属性|类型 |描述 |
 | - | - | - |
 | `threadId` | `string \| undefined` |当前执行的线程 ID。 |
 | `runId` | `string \| undefined` |当前执行的运行 ID。 |
@@ -885,7 +885,7 @@ const graph = new StateGraph(State)
 
 ### 访问节点内的服务器信息
 
-当您的图表在LangGraph服务器上运行时，您可以通过`runtime.serverInfo`访问特定于服务器的元数据。|属性 |类型 |描述 |
+当您的图表在LangGraph服务器上运行时，您可以通过`runtime.serverInfo`访问特定于服务器的元数据。|属性|类型 |描述 |
 | - | - | - |
 | `assistantId` | `string` |当前部署的助手 ID。 |
 | `graphId` | `string` |当前部署的图形 ID。 |
@@ -1136,19 +1136,19 @@ Adding "D" to ['A', 'B', 'C']
 </Note>
 
 <Accordion title="Exception handling?">
-  LangGraph执行[supersteps](/oss/javascript/langgraph/graph-api#graphs)内的节点，这意味着虽然并行分支是并行执行的，但整个超级步骤是**事务性的**。如果这些分支中的任何一个引发异常，则**不会**任何更新应用于状态（整个超级步错误）。
+  LangGraph执行[supersteps](/oss/javascript/langgraph/graph-api#graphs)内的节点，这意味着虽然并行分支是并行执行的，但整个超级步骤是**事务性的**。如果这些分支中的任何一个引发异常，则不会将任何更新应用于状态（整个超级步错误）。
 
   重要的是，当使用[checkpointer](/oss/javascript/langgraph/persistence)时，超级步内成功节点的结果将被保存，并且在恢复时不会重复。
 
   如果您容易出错（也许想要处理不稳定的 API 调用），LangGraph 提供了两种方法来解决这个问题：
 
   1. 您可以在节点内编写常规Python代码来捕获和处理异常。
-  2. 您可以设置 **[⟦T181⟧](https://reference.langchain.com/python/langgraph/types/#langgraph.types.RetryPolicy)** 来指示图形重试引发某些类型异常的节点。仅重试失败的分支，因此您不必担心执行冗余工作。
+  2. 您可以设置 **[⟦T181⟧](https://reference.langchain.com/python/langgraph/types)** 来指示图形重试引发某些类型异常的节点。仅重试失败的分支，因此您不必担心执行冗余工作。
 
   这些共同使您可以执行并行执行并完全控制异常处理。
 </Accordion><Tip>
   **设置最大并发数**
-  您可以在调用图表时通过设置[configuration](https://reference.langchain.com/javascript/interfaces/_langchain_langgraph.index.LangGraphRunnableConfig.html)中的`maxConcurrency`来控制最大并发任务数。 `maxConcurrency` 是一个独立的配置键，因此将其设置在配置的顶层，而不是在 `configurable` 内。
+  您可以在调用图表时通过设置[configuration](https://reference.langchain.com/javascript/langchain-langgraph/index/LangGraphRunnableConfig)中的`maxConcurrency`来控制最大并发任务数。 `maxConcurrency` 是一个独立的配置键，因此将其设置在配置的顶层而不是内部`configurable`。
 
   ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
   const result = await graph.invoke({ value1: "c" }, { maxConcurrency: 10 });
@@ -1157,7 +1157,7 @@ Adding "D" to ['A', 'B', 'C']
 
 ### 条件分支
 
-如果您的扇出在运行时应根据状态而变化，您可以使用 [⟦T185⟧](https://reference.langchain.com/javascript/classes/_langchain_langgraph.index.StateGraph.html#addconditionaledges) 使用图形状态选择一个或多个路径。请参阅下面的示例，其中节点 `a` 生成确定后续节点的状态更新。
+如果您的扇出在运行时应根据状态而变化，您可以使用 [⟦T185⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/StateGraph) 使用图形状态选择一个或多个路径。请参阅下面的示例，其中节点 `a` 生成确定后续节点的状态更新。
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { StateGraph, StateSchema, ReducedValue, GraphNode, ConditionalEdgeRouter, START, END } from "@langchain/langgraph";
@@ -1319,7 +1319,7 @@ for await (const message of stream.messages) {
 
 ## 创建和控制循环
 
-当创建带有循环的图时，我们需要一种终止执行的机制。最常见的方法是添加一个 [conditional edge](/oss/javascript/langgraph/graph-api#conditional-edges) ，一旦达到某些终止条件，该[END](/oss/javascript/langgraph/graph-api#end-node) 节点就会路由到 [END](/oss/javascript/langgraph/graph-api#end-node) 节点。您还可以在调用或流式传输图形时设置图形递归限制。递归限制设置了图表在引发错误之前允许执行的[super-steps](/oss/javascript/langgraph/graph-api#graphs)的数量。了解有关 [recursion limit concept](/oss/javascript/langgraph/graph-api#recursion-limit) 的更多信息。
+当创建带有循环的图时，我们需要一种终止执行的机制。最常见的方法是添加一个 [conditional edge](/oss/javascript/langgraph/graph-api#conditional-edges)，一旦达到某些终止条件，该[END](/oss/javascript/langgraph/graph-api#end-node) 节点就会路由到该节点。您还可以在调用或流式传输图形时设置图形递归限制。递归限制设置了图表在引发错误之前允许执行的[super-steps](/oss/javascript/langgraph/graph-api#graphs)的数量。了解有关 [recursion limit concept](/oss/javascript/langgraph/graph-api#recursion-limit) 的更多信息。
 
 让我们考虑一个带有循环的简单图，以更好地理解这些机制是如何工作的。
 

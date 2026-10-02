@@ -75,7 +75,7 @@ memories[-1].dict()
 
 ## 列出命名空间中的项目
 
-在没有 `query` 和没有 `filter` 的情况下调用 [⟦T41⟧](https://reference.langchain.com/python/langgraph/store/#langgraph.store.base.BaseStore.search)（或异步 [⟦T42⟧](https://reference.langchain.com/python/langgraph/store/#langgraph.store.base.BaseStore.asearch)）会返回存储在 `namespace_prefix` 下的项目，最多为 `limit`。当您不需要语义排名时，可以使用它来枚举名称空间中的所有内容。
+在没有 `query` 和没有 `filter` 的情况下调用 [⟦T41⟧](https://reference.langchain.com/python/langgraph/store)（或异步 [⟦T42⟧](https://reference.langchain.com/python/langgraph/store)）会返回存储在 `namespace_prefix` 下的项目，最多为 `limit`。当您不需要语义排名时，可以使用它来枚举命名空间中的所有内容。
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 # Return up to 100 items stored under ("alice", "memories").
@@ -100,7 +100,7 @@ while True:
     offset += page_size
 ```
 
-要发现存在哪些命名空间（例如，在列出用户的记忆之前迭代每个用户），请使用 [⟦T60⟧](https://reference.langchain.com/python/langgraph/store/#langgraph.store.base.BaseStore.list_namespaces) 或 [⟦T61⟧](https://reference.langchain.com/python/langgraph/store/#langgraph.store.base.BaseStore.alist_namespaces)：
+要发现存在哪些命名空间（例如，在列出用户的记忆之前迭代每个用户），请使用 [⟦T60⟧](https://reference.langchain.com/python/langgraph/store) 或 [⟦T61⟧](https://reference.langchain.com/python/langgraph/store)：
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 # All namespaces that start with ("alice",), truncated to two levels deep.

@@ -77,7 +77,7 @@ The attributes it has are:
 
 ## Listing items in a namespace
 
-Calling [`store.search`](https://reference.langchain.com/python/langgraph/store/#langgraph.store.base.BaseStore.search) (or the async [`store.asearch`](https://reference.langchain.com/python/langgraph/store/#langgraph.store.base.BaseStore.asearch)) with no `query` and no `filter` returns the items stored under `namespace_prefix`, up to `limit`. Use this to enumerate everything in a namespace when you don't need semantic ranking.
+Calling [`store.search`](https://reference.langchain.com/python/langgraph/store) (or the async [`store.asearch`](https://reference.langchain.com/python/langgraph/store)) with no `query` and no `filter` returns the items stored under `namespace_prefix`, up to `limit`. Use this to enumerate everything in a namespace when you don't need semantic ranking.
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 # Return up to 100 items stored under ("alice", "memories").
@@ -104,7 +104,7 @@ while True:
     offset += page_size
 ```
 
-To discover which namespaces exist (for example, to iterate over every user before listing their memories), use [`store.list_namespaces`](https://reference.langchain.com/python/langgraph/store/#langgraph.store.base.BaseStore.list_namespaces) or [`store.alist_namespaces`](https://reference.langchain.com/python/langgraph/store/#langgraph.store.base.BaseStore.alist_namespaces):
+To discover which namespaces exist (for example, to iterate over every user before listing their memories), use [`store.list_namespaces`](https://reference.langchain.com/python/langgraph/store) or [`store.alist_namespaces`](https://reference.langchain.com/python/langgraph/store):
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 # All namespaces that start with ("alice",), truncated to two levels deep.

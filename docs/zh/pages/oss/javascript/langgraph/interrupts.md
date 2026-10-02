@@ -139,7 +139,7 @@ Studio 将中断响应架构呈现为键入的输入字段而不是 JSON 编辑�
 中断解锁的关键是能够暂停执行并等待外部输入。这对于各种用例都很有用，包括：* <Icon icon="circle-check" /> [Approval workflows](#approve-or-reject)：在执行关键操作（API 调用、数据库更改、金融交易）之前暂停
 * <Icon icon="link" /> [Handling multiple interrupts](#handling-multiple-interrupts)：在单次调用中恢复多个中断时，将中断 ID 与恢复值配对
 * <Icon icon="pencil" /> [Review and edit](#review-and-edit-state)：让人们在继续之前检查和修改LLM输出或工具调用
-* <Icon icon="tool" /> [Interrupting tool calls](#interrupts-in-tools)：执行工具调用前暂停，以便在执行前查看和编辑工具调用
+* <Icon icon="tool" /> [Interrupting tool calls](#interrupts-in-tools)：执行工具调用前暂停，以在执行前查看和编辑工具调用
 * <Icon icon="shield-check" /> [Validating human input](#validating-human-input)：在继续下一步验证人工输入之前暂停
 
 ### 具有人机交互 (HITL) 中断的流
@@ -153,7 +153,7 @@ Studio 将中断响应架构呈现为键入的输入字段而不是 JSON 编辑�
 * 通过`stream.interrupted`检测中断并从`stream.interrupts`读取中断负载
 * 通过使用`Command(resume=...)`再次调用`stream_events`来恢复执行，并重复直到`stream.interrupted`为假
 
-```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}} theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}} theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { Command } from "@langchain/langgraph";
 
 let streamInput: Record<string, unknown> | Command = initialInput;
@@ -574,7 +574,7 @@ const sendEmailTool = tool(
 3. 如果答案无效，则返回更新后的`pendingQuestion`，以便下次调用重新提示。
 4. 使用`addConditionalEdges`路由回节点，直到收集到有效值。
 
-```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}} theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}} theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { interrupt } from "@langchain/langgraph";
 
 const getAgeNode: typeof State.Node = (state) => {
@@ -796,7 +796,7 @@ async function nodeA(state: State) {
   ```
 </CodeGroup>
 
-* 🔴不要将函数、类实例或其他复杂对象传递给[⟦T128⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt)
+* 🔴 不要将函数、类实例或其他复杂对象传递给[⟦T128⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt)
 
 <CodeGroup>
   ```typescript Functions theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
@@ -840,7 +840,7 @@ async function nodeA(state: State) {
 
 例如，您可能有一个 API 调用来更新节点内的记录。如果在调用之后调用[⟦T131⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt)，则当节点恢复时它将重新运行多次，可能会覆盖初始更新或创建重复记录。* ✅ 在[⟦T132⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt)之前使用幂等操作
 * ✅ 在 [⟦T133⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 调用之后放置副作用
-* ✅尽可能将副作用分离到单独的节点中
+* ✅ 如果可能，将副作用分离到单独的节点中
 
 <CodeGroup>
   ```typescript Idempotent operations theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
@@ -1002,10 +1002,10 @@ async function nodeInSubgraph(state: State) {
     await graph.invoke(null, config);  // [!code highlight]
     ```
 
-    1. 使用`interruptBefore`和`interruptAfter`参数调用`graph.invoke`。这是一个运行时配置，可以在每次调用时更改。
+    1. 使用`interruptBefore`和`interruptAfter`参数调用`graph.invoke`。这是一个运行时配置，可以针对每次调用进行更改。
     2. `interruptBefore` 指定执行该节点之前应暂停执行的节点。
     3. `interruptAfter` 指定该节点执行完毕后应暂停执行的节点。
-    4. 运行图表直至遇到第一个断点。
+    4. 运行图表直到遇到第一个断点。
     5. 通过传入 `null` 作为输入来恢复图表。这将运行图表直到遇到下一个断点。
   </Tab>
 </Tabs>

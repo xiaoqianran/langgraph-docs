@@ -47,11 +47,11 @@ def approval_node(state: State):
 
 ## 恢复中断
 
-中断暂停执行后，您可以通过使用包含恢复值的 `Command` 再次调用它来恢复图表。恢复值被传回`interrupt`调用，允许节点继续使用外部输入执行。
+中断暂停执行后，您可以通过使用包含恢复值的 `Command` 再次调用它来恢复图表。恢复值被传递回`interrupt`调用，允许节点继续使用外部输入执行。
 
 驱动可能中断的图的推荐方法是[event streaming](/oss/python/langgraph/event-streaming)——它通过`stream.interrupts`和`stream.interrupted`表面中断，并通过`stream.output`公开最终状态。
 
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}} theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}} theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from langgraph.types import Command
 
 # Initial run - hits the interrupt and pauses
@@ -167,7 +167,7 @@ Studio 将中断响应架构呈现为键入的输入字段而不是 JSON 编辑�
 * 通过`stream.interrupted`检测中断并从`stream.interrupts`读取中断负载
 * 通过使用`Command(resume=...)`再次调用`stream_events`来恢复执行，并重复直到`stream.interrupted`为假
 
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}} theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}} theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from langgraph.types import Command
 
 stream_input: dict | Command = initial_input
@@ -205,7 +205,7 @@ while True:
 当通过一次调用恢复多个中断时，将每个中断 ID 映射到其恢复值。
 这可确保每个响应在运行时与正确的中断配对。
 
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}} theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}} theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from typing import Annotated, TypedDict
 import operator
 
@@ -293,7 +293,7 @@ graph.stream_events(Command(resume=False), config=config, version="v3").output
 ```
 
 <Accordion title="Full example">
-  ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}} theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}} theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+  ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
   from typing import Literal, Optional, TypedDict
 
   from langgraph.checkpoint.memory import InMemorySaver
@@ -387,7 +387,7 @@ graph.stream_events(
 ```
 
 <Accordion title="Full example">
-  ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}} theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}} theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+  ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
   from typing import TypedDict
 
   from langgraph.checkpoint.memory import MemorySaver
@@ -589,7 +589,7 @@ def send_email(to: str, subject: str, body: str):
 3. 如果答案无效，则返回更新后的`pending_question`，以便下次调用重新提示。
 4. 使用`add_conditional_edges`路由回节点，直到收集到有效值。
 
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}} theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}} theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from typing import TypedDict
 
 from langgraph.graph import END, START, StateGraph
@@ -622,7 +622,7 @@ builder.add_conditional_edges("collect_age", route)
 每个恢复调用 `get_age_node` 一次，运行 `interrupt()` 调用一次，然后退出。当答案无效时，条件边沿循环返回，并且下一个中断会重新提示更新的问题。每个简历中没有代码运行超过一次。
 
 <Accordion title="Full example">
-  ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}} theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}} theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+  ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
   from typing import TypedDict
 
   from langgraph.checkpoint.memory import InMemorySaver
@@ -847,7 +847,7 @@ def node_a(state: State):
 
 * ✅ 在[⟦T144⟧](https://reference.langchain.com/python/langgraph/types/interrupt)之前使用幂等操作
 * ✅ 在[⟦T145⟧](https://reference.langchain.com/python/langgraph/types/interrupt)调用后放置副作用
-* ✅尽可能将副作用分离到单独的节点中
+* ✅ 如果可能，将副作用分离到单独的节点中
 
 <CodeGroup>
   ```python Idempotent operations theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
@@ -1003,10 +1003,10 @@ def node_in_subgraph(state: State):
     graph.invoke(None, config=config)  # [!code highlight]
     ```
 
-    1. 使用`interrupt_before`和`interrupt_after`参数调用`graph.invoke`。这是一个运行时配置，可以在每次调用时更改。
+    1. 使用`interrupt_before`和`interrupt_after`参数调用`graph.invoke`。这是一个运行时配置，可以针对每次调用进行更改。
     2. `interrupt_before` 指定执行该节点之前应暂停执行的节点。
     3. `interrupt_after` 指定该节点执行完毕后应暂停执行的节点。
-    4. 运行图表直至遇到第一个断点。
+    4. 运行图表直到遇到第一个断点。
     5. 通过传入 `None` 作为输入来恢复图表。这将运行图表直到遇到下一个断点。
   </Tab>
 </Tabs>

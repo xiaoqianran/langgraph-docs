@@ -161,7 +161,7 @@ Use the typed projections returned by `graph.stream_events(..., version="v3")` i
 * Detect interrupts via `stream.interrupted` and read their payloads from `stream.interrupts`
 * Resume execution by calling `stream_events` again with `Command(resume=...)` and repeat until `stream.interrupted` is false
 
-```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}} theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}} theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { Command } from "@langchain/langgraph";
 
 let streamInput: Record<string, unknown> | Command = initialInput;
@@ -588,7 +588,7 @@ The correct pattern:
 3. If the answer is invalid, return the updated `pendingQuestion` so the next invocation re-prompts.
 4. Use `addConditionalEdges` to route back to the node until a valid value is collected.
 
-```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}} theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}} theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { interrupt } from "@langchain/langgraph";
 
 const getAgeNode: typeof State.Node = (state) => {

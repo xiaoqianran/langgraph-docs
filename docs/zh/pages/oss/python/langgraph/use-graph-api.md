@@ -69,7 +69,7 @@ def node(state: State):
   节点应该直接返回状态更新，而不是改变状态。
 </Warning>
 
-接下来让我们定义一个包含该节点的简单图。我们使用[⟦T145⟧](/oss/python/langgraph/graph-api#stategraph)来定义一个在这个状态上运行的图。然后我们使用 [⟦T146⟧](/oss/python/langgraph/graph-api#nodes) 填充我们的图表。
+接下来让我们定义一个包含该节点的简单图。我们使用[⟦T145⟧](/oss/python/langgraph/graph-api#stategraph)来定义一个在此状态上运行的图。然后我们使用 [⟦T146⟧](/oss/python/langgraph/graph-api#nodes) 填充我们的图表。
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from langgraph.graph import StateGraph
@@ -126,7 +126,7 @@ Hello!
 
 状态中的每个键都可以有自己独立的[reducer](/oss/python/langgraph/graph-api#reducers)函数，该函数控制如何应用节点的更新。如果没有显式指定减速器函数，则假定对键的所有更新都应覆盖它。
 
-对于`TypedDict`状态模式，我们可以通过用reducer函数注释状态的相应字段来定义reducers。
+对于`TypedDict`状态模式，我们可以通过用reducer函数注释状态的相应字段来定义reducer。
 
 在前面的示例中，我们的节点通过向其附加消息来更新状态中的 `"messages"` 键。下面，我们向该键添加一个减速器，以便自动附加更新：
 
@@ -715,7 +715,7 @@ print(graph.invoke({}, context={"my_runtime_value": "b"}))  # [!code highlight]
 
 在许多用例中，您可能希望节点具有自定义重试策略，例如，如果您正在调用 API、查询数据库或调用 LLM 等。LangGraph 允许您向节点添加重试策略。
 
-要配置重试策略，请将`retry_policy`参数传递给[⟦T168⟧](https://reference.langchain.com/python/langgraph/graph/state/StateGraph/add_node)。 `retry_policy` 参数接受一个 `RetryPolicy` 命名元组对象。下面我们用默认参数实例化一个`RetryPolicy`对象并将其与一个节点关联起来：
+要配置重试策略，请将`retry_policy`参数传递给[⟦T168⟧](https://reference.langchain.com/python/langgraph/graph/state/StateGraph/add_node)。 `retry_policy` 参数接受一个 `RetryPolicy` 命名元组对象。下面我们用默认参数实例化一个`RetryPolicy`对象，并将其与一个节点关联起来：
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from langgraph.types import RetryPolicy
@@ -727,7 +727,7 @@ builder.add_node(
 )
 ```
 
-默认情况下，`retry_on`参数使用`default_retry_on`函数，该函数会重试任何异常，但以下情况除外：* `ValueError`
+默认情况下，`retry_on`参数使用`default_retry_on`函数，该函数会重试除以下情况之外的任何异常：* `ValueError`
 * `TypeError`
 * `ArithmeticError`
 * `ImportError`
@@ -820,7 +820,7 @@ except NodeTimeoutError:
 
 超时尝试不会提交其缓冲写入。这可以防止状态更新或子任务调度在超时边界后泄漏。## 配置节点超时
 
-[⟦T198⟧](https://reference.langchain.com/python/langgraph/graph/state/StateGraph/add_node) 上的 `timeout=` 参数限制了单个异步节点尝试可以运行的时间。传递数字（秒）、`timedelta`或[⟦T200⟧](https://reference.langchain.com/python/langgraph/types/TimeoutPolicy)以更好地控制运行和空闲超时。当超过限制时，LangGraph提高[⟦T201⟧](https://reference.langchain.com/python/langgraph/errors/NodeTimeoutError)并让重试策略决定是否重试。
+[⟦T198⟧](https://reference.langchain.com/python/langgraph/graph/state/StateGraph/add_node) 上的 `timeout=` 参数限制了单个异步节点尝试可以运行的时间。传递数字（秒）、`timedelta`或[⟦T200⟧](https://reference.langchain.com/python/langgraph/types/TimeoutPolicy)以更好地控制运行和空闲超时。当超过限制时，LangGraph提高[⟦T201⟧](https://reference.langchain.com/python/langgraph/errors/NodeTimeoutError)，并让重试策略决定是否重试。
 
 <Note>
   每个节点超时需要`langgraph>=1.2`。
@@ -840,7 +840,7 @@ builder.add_node(
 
 ## 处理节点错误
 
-[⟦T205⟧](https://reference.langchain.com/python/langgraph/graph/state/StateGraph/add_node) 上的 `error_handler=` 参数注册一个在节点失败且所有重试都用完后运行的函数。处理程序接收当前状态和带有失败上下文的类型化[⟦T206⟧](https://reference.langchain.com/python/langgraph/errors/NodeError)，并且可以通过[⟦T207⟧](https://reference.langchain.com/python/langgraph/types/Command)路由到恢复分支：
+[⟦T205⟧](https://reference.langchain.com/python/langgraph/graph/state/StateGraph/add_node)上的`error_handler=`参数注册一个在节点失败且所有重试都用完后运行的函数。处理程序接收当前状态和带有失败上下文的类型化[⟦T206⟧](https://reference.langchain.com/python/langgraph/errors/NodeError)，并且可以通过[⟦T207⟧](https://reference.langchain.com/python/langgraph/types/Command)路由到恢复分支：
 
 <Note>
   节点级错误处理程序需要`langgraph>=1.2`。
@@ -895,7 +895,7 @@ graph = (
 
 ### 访问节点内的执行信息
 
-您可以通过`runtime.execution_info`访问执行身份和重试信息。这会显示线程、运行和检查点标识符以及重试状态，而无需直接从 `config` 读取。|属性 |类型 |描述 |
+您可以通过`runtime.execution_info`访问执行身份和重试信息。这会显示线程、运行和检查点标识符以及重试状态，而无需直接从 `config` 读取。|属性|类型 |描述 |
 | - | - | - |
 | `thread_id` | `str \| None` |当前执行的线程 ID。 `None` 没有检查点。 |
 | `run_id` | `str \| None` |当前执行的运行 ID。 `None` 当配置中未提供时。 |
@@ -960,7 +960,7 @@ graph = builder.compile()
 
 ### 访问节点内的服务器信息当您的图表在LangGraph服务器上运行时，您可以通过`runtime.server_info`访问特定于服务器的元数据。这会显示助手 ID、图形 ID 和经过身份验证的用户，而无需直接读取配置元数据或可配置密钥。
 
-|属性 |类型 |描述 |
+|属性|类型 |描述 |
 | - | - | - |
 | `assistant_id` | `str` |当前部署的助手 ID。 |
 | `graph_id` | `str` |当前部署的图形 ID。 |
@@ -1120,7 +1120,7 @@ builder.add_edge(START, "step_1")
     请注意，当向状态发出更新时，每个节点只能指定它希望更新的键的值。默认情况下，这将**覆盖**相应键的值。您还可以使用 [reducers](/oss/python/langgraph/graph-api#reducers) 来控制更新的处理方式，例如，您可以将连续的更新附加到某个键。有关更多详细信息，请参阅[Process state updates with reducers](#process-state-updates-with-reducers)。
   </Note>
 
-  最后，我们定义图表。我们使用 [StateGraph](/oss/python/langgraph/graph-api#stategraph) 来定义一个在此状态上运行的图。
+  最后，我们定义图表。我们使用[StateGraph](/oss/python/langgraph/graph-api#stategraph)来定义一个在此状态上运行的图。
 
   然后，我们将使用 [⟦T284⟧](/oss/python/langgraph/graph-api#messagesstate) 和 [⟦T285⟧](/oss/python/langgraph/graph-api#edges) 来填充我们的图表并定义其控制流。
 
@@ -1273,14 +1273,14 @@ Adding "D" to ['A', 'B', 'C']
 
   重要的是，来自并行超级步的更新的顺序可能不一致。如果您需要从并行超级步中对更新进行一致的、预定的排序，则应将输出连同用于排序的值一起写入状态中的单独字段。
 </Note><Accordion title="Exception handling?">
-  LangGraph执行[supersteps](/oss/python/langgraph/graph-api#graphs)内的节点，这意味着虽然并行分支是并行执行的，但整个超级步骤是**事务性的**。如果这些分支中的任何一个引发异常，则**不会**任何更新应用于状态（整个超级步错误）。
+  LangGraph执行[supersteps](/oss/python/langgraph/graph-api#graphs)内的节点，这意味着虽然并行分支是并行执行的，但整个超级步骤是**事务性的**。如果这些分支中的任何一个引发异常，则不会将任何更新应用于状态（整个超级步错误）。
 
   重要的是，当使用[checkpointer](/oss/python/langgraph/persistence)时，超级步内成功节点的结果将被保存，并且在恢复时不会重复。
 
   如果您容易出错（也许想要处理不稳定的 API 调用），LangGraph 提供了两种方法来解决这个问题：
 
   1. 您可以在节点内编写常规Python代码来捕获和处理异常。
-  2. 您可以设置 **[⟦T299⟧](https://reference.langchain.com/python/langgraph/types/#langgraph.types.RetryPolicy)** 来指示图形重试引发某些类型异常的节点。仅重试失败的分支，因此您不必担心执行冗余工作。
+  2. 您可以设置 **[⟦T299⟧](https://reference.langchain.com/python/langgraph/types)** 来指示图形重试引发某些类型异常的节点。仅重试失败的分支，因此您不必担心执行冗余工作。
 
   这些共同使您可以执行并行执行并完全控制异常处理。
 </Accordion>
@@ -1296,7 +1296,7 @@ Adding "D" to ['A', 'B', 'C']
 
 ### 推迟节点执行当您想要延迟节点的执行直到所有其他待处理任务完成时，延迟节点执行非常有用。当分支具有不同长度时，这一点尤其重要，这在映射缩减流等工作流程中很常见。
 
-上面的示例展示了当每条路径只有一步时如何进行扇出和扇入。但如果一个分支有多个步骤怎么办？让我们在`"b"`分支中添加一个节点`"b_2"`：
+上面的示例展示了当每条路径只有一步时如何进行扇出和扇入。但如果一个分支有多个步骤怎么办？让我们在 `"b"` 分支中添加一个节点 `"b_2"` ：
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import operator

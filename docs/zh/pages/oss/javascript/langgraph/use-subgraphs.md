@@ -20,12 +20,12 @@ npm install @langchain/langgraph
 
 <Tip>
   **设置LangSmith以进行LangGraph开发**
-  注册 [LangSmith](https://smith.langchain.com?utm_source=docs\&utm_medium=cta\&utm_campaign=langsmith-signup\&utm_content=oss-langgraph-use-subgraphs) 可以快速发现问题并提高 LangGraph 项目的性能。 LangSmith 可让您使用跟踪数据来调试、测试和监控使用 LangGraph 构建的 LLM 应用程序 — 了解有关 [how to get started with LangSmith](https://docs.smith.langchain.com) 的更多信息。
+  注册 [LangSmith](https://smith.langchain.com?utm_source=docs\&utm_medium=cta\&utm_campaign=langsmith-signup\&utm_content=oss-langgraph-use-subgraphs) 可以快速发现问题并提高 LangGraph 项目的性能。 LangSmith 可让您使用跟踪数据来调试、测试和监控使用 LangGraph 构建的 LLM 应用程序 — 了解有关 [how to get started with LangSmith](https://docs.langchain.com/langsmith/observability) 的更多信息。
 </Tip>
 
 ## 定义子图通信
 
-添加子图时，需要定义父图和子图如何通信：|图案|何时使用 |状态模式|
+添加子图时，需要定义父图和子图如何通信：|图案|何时使用 |状态模式 |
 | - | - | - |
 | [Call a subgraph inside a node](#call-a-subgraph-inside-a-node) |父图和子图具有**不同的状态模式**（没有共享密钥），或者您需要在它们之间转换状态 |您编写一个包装函数，将父状态映射到子图输入，并将子图输出映射回父状态 |
 | [Add a subgraph as a node](#add-a-subgraph-as-a-node) |父图和子图 **共享状态键** - 子图与父图读取和写入相同的通道 |您将编译后的子图直接传递给`add_node`——无需包装函数 |
@@ -616,7 +616,7 @@ const agent = createAgent({
   <Tab title="Multiple subgraph calls">
     当您有多个**不同的**每线程子图（例如，水果专家和蔬菜专家）时，每个子图都需要自己的存储空间，以便它们的检查点不会相互覆盖。这称为**命名空间隔离**。
 
-    如果您[call subgraphs inside a node](#call-a-subgraph-inside-a-node)，LangGraph会根据调用顺序（第一次调用、第二次调用等）分配命名空间。这意味着重新排序您的调用可能会混淆哪个子图加载哪个状态。为了避免这种情况，请将每个子代理包装在其自己的 `StateGraph` 中，并使用唯一的节点名称 - 这为每个子图提供了一个稳定、唯一的命名空间：
+    如果您[call subgraphs inside a node](#call-a-subgraph-inside-a-node)，LangGraph会根据调用顺序（第一次调用、第二次调用等）分配命名空间。这意味着重新排序您的调用可能会混淆哪个子图加载哪个状态。为了避免这种情况，请使用唯一的节点名称将每个子代理包装在自己的 `StateGraph` 中 - 这为每个子图提供了稳定、唯一的命名空间：
 
     ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
     import { StateGraph, StateSchema, MessagesValue, START } from "@langchain/langgraph";
@@ -677,7 +677,7 @@ const subgraph = subgraphBuilder.compile({ checkpointer: false });  // [!code hi
 const subgraph = builder.compile({ checkpointer: false });  // or true, or null
 ```
 
-|特色|每次调用（默认）|每线程 |无国籍|
+|特色 |每次调用（默认）|每线程 |无国籍|
 | - | - | - | - |
 | `checkpointer=` | `None` | `True` | `False` |
 |中断（HITL）| ✅ | ✅ | ❌ |
