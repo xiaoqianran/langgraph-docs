@@ -2,6 +2,10 @@
 
 <!-- langgraph-docs: Graph API overview | https://docs.langchain.com/oss/javascript/langgraph/graph-api -->
 
+# 图 API 概述
+
+LangGraph 将代理工作流程建模为图形：使用 StateGraph 定义状态、节点和边以构建循环、有状态的工作流程。
+
 ## 图表
 
 其核心是，LangGraph 将代理工作流程建模为图表。您可以使用三个关键组件来定义代理的行为：
@@ -12,7 +16,7 @@
 
 3. [⟦T52⟧](#edges)：根据当前状态决定接下来执行哪个`Node`的函数。它们可以是条件分支或固定转换。
 
-通过组合 `Nodes` 和 `Edges`，您可以创建复杂的循环工作流程，随着时间的推移不断演变状态。然而，真正的力量来自于 LangGraph 如何管理该状态。
+通过组合 `Nodes` 和 `Edges`，您可以创建复杂的循环工作流程，随着时间的推移不断演变状态。然而，真正的力量来自于LangGraph如何管理该状态。
 
 强调一下：`Nodes`和`Edges`只不过是函数——它们可以包含LLM或只是好的代码。
 
@@ -173,7 +177,7 @@ await graph.invoke({ userInput: "My" });
 
   输入、输出和私有模式限制每个节点*读取*的内容（其输入模式）以及`invoke`*返回*（输出模式）。他们**不会**隐藏`stream`的频道。
 
-  当您使用 `streamMode: "values"` 进行流式传输时，图表默认会发出其**所有**状态通道（包括私有通道），因为值流式传输默认为完整的状态通道集而不是输出模式。这就是为什么像 `bar` 这样的私人频道被 `invoke` 隐藏但在流式传输时可见：
+  当您使用 `streamMode: "values"` 进行流式传输时，图表默认会发出其**所有**状态通道（包括私有通道），因为值流式传输默认为完整的状态通道集而不是输出模式。这就是为什么像`bar`这样的私人频道被`invoke`隐藏但在流式传输时可见：
 
   ```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
   import { END, START, StateGraph, StateSchema } from "@langchain/langgraph";
@@ -235,7 +239,7 @@ await graph.invoke({ userInput: "My" });
     为此示例打开公共 LangSmith 运行。
   </Card>
 
-  要将流式传输的值限制为一组特定的通道（例如仅输出模式），请传递 `outputKeys`：
+  要将流式传输的值限制为一组特定的通道（例如，仅输出模式），请传递 `outputKeys`：
 
   ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
   const stream = await graph.streamEvents(
@@ -344,7 +348,7 @@ const State = new StateSchema({
 
 #### 重置reducer字段
 
-减速器常见的混淆来源：使用合并减速器时，返回空值并不会清除字段。因为reducer将右边的参数合并到左边的参数中，所以合并了一个空的更新，并且保留了之前累积的值。
+减速器常见的混淆来源：使用合并减速器时，返回空值不会**不**清除字段。因为reducer将右边的参数合并到左边的参数中，所以合并了一个空的更新，并且保留了之前累积的值。
 
 此模式对于必须在重试尝试之间清除的错误缓冲区或重试计数器很重要：
 
@@ -559,13 +563,13 @@ type MyUpdate = typeof MyStateSchema.Update;
 
 大多数现代法学硕士提供商都有一个聊天模型界面，接受消息列表作为输入。 LangChain 的 [chat model interface](/oss/javascript/langchain/models) 特别接受消息对象列表作为输入。这些消息有多种形式，例如[⟦T149⟧](https://reference.langchain.com/javascript/langchain-core/messages/HumanMessage)（用户输入）或[⟦T150⟧](https://reference.langchain.com/javascript/langchain-core/messages/AIMessage)（LLM 响应）。
 
-要了解有关消息对象的更多信息，请参阅[Messages conceptual guide](/oss/javascript/langchain/messages)。
+要了解有关消息对象是什么的更多信息，请参阅[Messages conceptual guide](/oss/javascript/langchain/messages)。
 
 #### 在图表中使用消息在许多情况下，将先前的对话历史记录存储为图形状态中的消息列表会很有帮助。为此，您可以使用预构建的 `MessagesValue`，它提供了一个消息感知减速器，可以自动处理消息 ID、更新和删除。
 
 `MessagesValue` 减速器对于告诉图如何在每次状态更新时更新状态中的 `Message` 对象列表至关重要。如果您不指定减速器，则每次状态更新都会用最近提供的值覆盖消息列表。 `MessagesValue` 正确处理此问题：对于全新消息，它会附加到现有列表，对于现有消息（通过 ID 匹配），它会就地更新它们。
 
-<Tip>`MessagesValue` 实际上是 `ReducedValue` 的特例，预先配置了内部 `messagesStateReducer` 来处理消息列表和更新。这为 LangGraph 图中的聊天消息历史记录提供了方便的消息感知状态管理。</Tip>
+<Tip>`MessagesValue` 实际上是 `ReducedValue` 的特例，预先配置了内部 `messagesStateReducer` 来处理消息列表和更新。这为LangGraph图中的聊天消息历史记录提供了方便的消息感知状态管理。</Tip>
 
 #### 序列化
 
@@ -652,7 +656,7 @@ builder.addNode(myNode);
 
 ### 重执行和幂等性当您使用 [checkpointer](/oss/javascript/langgraph/persistence) 进行编译时，LangGraph 将检查点保存在 [super-step](#graphs) 边界，而不是节点内的中间函数。如果执行停止并稍后恢复（例如在 [interrupt](/oss/javascript/langgraph/interrupts) 或重试之后），受影响的 **节点** 从其功能开始时再次运行。暂停之前的代码和副作用再次运行。
 
-**幂等性。**设计**节点**逻辑，以便重新执行不会破坏状态。如果节点插入数据库行，则运行两次不应创建重复行，除非是故意的。使用幂等性密钥、更新插入或先读后写检查。有关`interrupt()`周围的效果，请参阅[Side effects called before ⟦T178⟧ must be idempotent](/oss/javascript/langgraph/interrupts#side-effects-called-before-interrupt-must-be-idempotent)。
+**幂等性。**设计**节点**逻辑，以便重新执行不会破坏状态。如果节点插入数据库行，则运行两次不应创建重复行，除非是故意的。使用幂等键、更新插入或先读后写检查。有关`interrupt()`周围的效果，请参阅[Side effects called before ⟦T178⟧ must be idempotent](/oss/javascript/langgraph/interrupts#side-effects-called-before-interrupt-must-be-idempotent)。
 
 **图形更改。** [Determinism](/oss/javascript/langgraph/functional-api#determinism) 有关代码更改的规则不适用于图形结构。您可以添加或删除**节点**和边，而不会破坏现有线程的恢复。恢复的运行使用保存的状态并执行您现在编译的任何图形。**节点内部的任务和中断。** 如果 **节点** 调用 [**tasks**](/oss/javascript/langgraph/functional-api#task) 或 [⟦T179⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt)，则在恢复时应用更严格的确定性规则。 LangGraph 从检查点恢复已完成的 **任务** 结果，但在恢复点之前更改代码中的 **任务** 或 [⟦T180⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 顺序可能会与缓存的值不匹配。 [Functional API](/oss/javascript/langgraph/functional-api) **入口点** 编译为单个 **节点**，以这种方式运行整个入口点方法。请参阅 [Determinism](/oss/javascript/langgraph/functional-api#determinism)、[Idempotency](/oss/javascript/langgraph/functional-api#idempotency) 和 [Using tasks in nodes](#using-tasks-in-nodes)。
 
@@ -776,7 +780,7 @@ graph.addEdge("nodeA", END);
 
 ### 节点缓存
 
-LangGraph 支持根据节点的输入缓存任务/节点。使用缓存：
+LangGraph 支持根据节点的输入来缓存任务/节点。使用缓存：
 
 * 编译图时指定缓存（或指定入口点）
 * 指定节点的缓存策略。每个缓存策略支持：
@@ -815,9 +819,9 @@ await graph.invoke({ x: 5 }, { streamMode: "updates" });   // [!code highlight]
 边定义逻辑如何路由以及图形如何决定停止。这是代理如何工作以及不同节点如何相互通信的重要组成部分。有几种关键的边类型：
 
 * 普通边：直接从一个节点到下一个节点。
-* 条件边：调用函数来确定下一个要转到哪个节点。
+* 条件边：调用函数来确定下一个要转到哪个或哪些节点。
 * 入口点：当用户输入到达时首先调用哪个节点。
-* 条件入口点：调用函数来确定当用户输入到达时首先调用哪个节点。一个节点可以有多个出边。如果一个节点有多个传出边缘，则所有这些目标节点将作为下一个超级步骤的一部分并行执行。
+* 条件入口点：调用函数来确定当用户输入到达时首先调用哪个节点。一个节点可以有多个出边。如果一个节点有多个传出边，则这些目标节点的**所有**将作为下一个超级步骤的一部分并行执行。
 
 <Warning>
   对于每个节点，选择一种路由机制：使用普通边进行静态路由，或使用条件边/[⟦T187⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/Command)进行动态路由。不要混合来自同一节点的普通边和动态路由，因为这两条路径都可以执行并使图行为更难以推理。
@@ -1088,7 +1092,7 @@ graph.addNode("myNode", (state, config) => {
 });
 ```
 
-### 递归限制递归限制设置了图在单次执行期间可以执行的最大数量 [super-steps](#graphs)。一旦达到限额，LangGraph将提高`GraphRecursionError`。默认情况下，该值设置为 25 步。递归限制可以在运行时在任何图上设置，并通过配置对象传递给`invoke`/`stream`。重要的是，`recursionLimit`是一个独立的`config`密钥，不应像所有其他用户定义的配置一样在`configurable`密钥内传递。请参阅下面的示例：
+### 递归限制递归限制设置了图在单次执行期间可以执行的最大数量 [super-steps](#graphs)。一旦达到限制，LangGraph将提高`GraphRecursionError`。默认情况下，该值设置为 25 步。递归限制可以在运行时在任何图上设置，并通过配置对象传递给`invoke`/`stream`。重要的是，`recursionLimit`是一个独立的`config`密钥，不应像所有其他用户定义的配置一样在`configurable`密钥内传递。请参阅下面的示例：
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 await graph.invoke(inputs, {
@@ -1120,7 +1124,7 @@ const myNode: GraphNode<typeof State> = async (state, config) => {
 }
 ```
 
-使用显式终止条件设计您的图，并捕获 `GraphRecursionError` 作为安全网：
+设计具有显式终止条件的图表，并捕获 `GraphRecursionError` 作为安全网：
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import {

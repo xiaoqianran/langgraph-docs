@@ -2,6 +2,10 @@
 
 <!-- langgraph-docs: Graph API overview | https://docs.langchain.com/oss/python/langgraph/graph-api -->
 
+# 图 API 概述
+
+LangGraph 将代理工作流程建模为图形：使用 StateGraph 定义状态、节点和边以构建循环、有状态的工作流程。
+
 ## 图表
 
 其核心是，LangGraph 将代理工作流程建模为图表。您可以使用三个关键组件来定义代理的行为：
@@ -137,7 +141,7 @@ graph.invoke({"user_input": "My"})
 
   输入、输出和私有模式限制每个节点*读取*的内容（其输入模式）以及`invoke`*返回*（输出模式）。他们**不会**隐藏`stream`的频道。
 
-  当您使用 `stream_mode="values"` 进行流式传输时，图表默认会发出其**所有**状态通道，包括私有通道，因为值流式传输默认为完整的状态通道集而不是输出模式。这就是为什么像 `bar` 这样的私人频道被 `invoke` 隐藏但在流式传输时可见：
+  当您使用 `stream_mode="values"` 进行流式传输时，图表默认会发出其**所有**状态通道，包括私有通道，因为值流式传输默认为完整的状态通道集而不是输出模式。这就是为什么像`bar`这样的私人频道被`invoke`隐藏但在流式传输时可见：
 
   ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
   stream = graph.stream_events({"user_input": "My"}, version="v3")
@@ -153,7 +157,7 @@ graph.invoke({"user_input": "My"})
     为此示例打开公共 LangSmith 运行。
   </Card>
 
-  要将流式传输的值限制为一组特定的通道（例如仅输出模式），请传递 `output_keys`：
+  要将流式传输的值限制为一组特定的通道（例如，仅输出模式），请传递 `output_keys`：
 
   ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
   stream = graph.stream_events(
@@ -250,7 +254,7 @@ class State(TypedDict):
 
 #### 重置reducer字段
 
-减速器常见的混淆来源：使用合并减速器时，返回空值并不会清除字段。因为reducer将右边的参数合并到左边的参数中，所以合并了一个空的更新，并且保留了之前累积的值。
+减速器常见的混淆来源：使用合并减速器时，返回空值不会**不**清除字段。因为reducer将右边的参数合并到左边的参数中，所以合并了一个空的更新，并且保留了之前累积的值。
 
 此模式对于必须在重试尝试之间清除的错误缓冲区或重试计数器很重要：
 
@@ -291,7 +295,7 @@ def clear_errors(state: State):
 
 ### 未跟踪的值
 
-`UntrackedValue` 用于在图执行期间应该存在但不应该被设置检查点的状态字段。当图表从检查点恢复时，未跟踪的值将重置为其初始状态（或不可用）。
+`UntrackedValue` 用于在图执行期间应该存在但不应该**设置检查点**的状态字段。当图表从检查点恢复时，未跟踪的值将重置为其初始状态（或不可用）。
 
 这对于：
 
@@ -373,7 +377,7 @@ const routerNode: GraphNode<{ InputSchema: typeof State; Nodes: "process" | "don
 
 #### `State.Node` 简写
 
-每个 `StateSchema` 实例都有一个 `Node` 属性，它提供了输入节点的简写：
+每个 `StateSchema` 实例都有一个 `Node` 属性，它提供了键入节点的简写：
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 const State = new StateSchema({
@@ -536,7 +540,7 @@ builder.add_node(my_node)
 
 ### 重执行和幂等性当您使用 [checkpointer](/oss/python/langgraph/persistence) 进行编译时，LangGraph 将检查点保存在 [super-step](#graphs) 边界，而不是节点内的中间函数。如果执行停止并稍后恢复（例如在 [interrupt](/oss/python/langgraph/interrupts) 或 [retry](/oss/python/langgraph/fault-tolerance#retries) 之后），受影响的 **节点** 从其功能开始时再次运行。暂停之前的代码和副作用再次运行。
 
-**幂等性。**设计**节点**逻辑，以便重新执行不会破坏状态。如果节点插入数据库行，则运行两次不应创建重复行，除非是故意的。使用幂等性密钥、更新插入或先读后写检查。有关`interrupt()`周围的效果，请参阅[Side effects called before ⟦T190⟧ must be idempotent](/oss/python/langgraph/interrupts#side-effects-called-before-interrupt-must-be-idempotent)。
+**幂等性。**设计**节点**逻辑，以便重新执行不会破坏状态。如果节点插入数据库行，则运行两次不应创建重复行，除非是故意的。使用幂等键、更新插入或先读后写检查。有关`interrupt()`周围的效果，请参阅[Side effects called before ⟦T190⟧ must be idempotent](/oss/python/langgraph/interrupts#side-effects-called-before-interrupt-must-be-idempotent)。
 
 **图形更改。** [Determinism](/oss/python/langgraph/functional-api#determinism) 有关代码更改的规则不适用于图形结构。您可以添加或删除**节点**和边，而不会破坏现有线程的恢复。恢复的运行使用保存的状态并执行您现在编译的任何图形。**节点内的任务和中断。** 如果 **节点** 调用 [**tasks**](/oss/python/langgraph/functional-api#task) 或 [⟦T191⟧](https://reference.langchain.com/python/langgraph/types/interrupt)，则在恢复时应用更严格的确定性规则。 LangGraph 从检查点恢复已完成的 **任务** 结果，但在恢复点之前更改代码中的 **任务** 或 [⟦T192⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 顺序可能会与缓存的值不匹配。 [Functional API](/oss/python/langgraph/functional-api) **入口点** 编译为单个 **节点**，以这种方式运行整个入口点方法。请参阅 [Determinism](/oss/python/langgraph/functional-api#determinism)、[Idempotency](/oss/python/langgraph/functional-api#idempotency) 和 [Using tasks in nodes](#using-tasks-in-nodes)。
 
@@ -716,11 +720,11 @@ print(graph.invoke({"x": 5}, stream_mode='updates'))    # [!code highlight]
 ## 边缘边定义逻辑如何路由以及图形如何决定停止。这是代理如何工作以及不同节点如何相互通信的重要组成部分。有几种关键的边类型：
 
 * 普通边：直接从一个节点到下一个节点。
-* 条件边：调用函数来确定下一个要转到哪个节点。
+* 条件边：调用函数来确定下一个要转到哪个或哪些节点。
 * 入口点：当用户输入到达时首先调用哪个节点。
 * 条件入口点：调用函数来确定当用户输入到达时首先调用哪个节点。
 
-一个节点可以有多个出边。如果一个节点有多个传出边缘，则所有这些目标节点将作为下一个超级步骤的一部分并行执行。
+一个节点可以有多个出边。如果一个节点有多个传出边，则这些目标节点的**所有**将作为下一个超级步骤的一部分并行执行。
 
 <Warning>
   对于每个节点，选择一种路由机制：使用普通边进行静态路由，或使用条件边/[⟦T206⟧](https://reference.langchain.com/python/langgraph/types/Command)进行动态路由。不要混合来自同一节点的普通边和动态路由，因为这两条路径都可以执行并使图行为更难以推理。
@@ -856,7 +860,7 @@ def my_node(state: State) -> Command[Literal["other_subgraph"]]:
 <Note>
   将 `graph` 设置为 `Command.PARENT` 将导航到最近的父图。
 
-  当您将父图和子图[state schemas](#schema)共享的键的更新从子图节点发送到父图节点时，您**必须**为您在父图状态中更新的键定义一个[reducer](#reducers)。参见这个[example](/oss/python/langgraph/use-graph-api#navigate-to-a-node-in-a-parent-graph)。
+  当您将父图和子图[state schemas](#schema)共享的键的更新从子图节点发送到父图节点时，您**必须**为您在父图状态中更新的键定义一个[reducer](#reducers)。请参阅此[example](/oss/python/langgraph/use-graph-api#navigate-to-a-node-in-a-parent-graph)。
 </Note>
 
 这在实现[multi-agent handoffs](/oss/python/langchain/multi-agent/handoffs)时特别有用。详情请查看[Navigate to a node in a parent graph](/oss/python/langgraph/use-graph-api#navigate-to-a-node-in-a-parent-graph)。### 输入`invoke`或`stream`

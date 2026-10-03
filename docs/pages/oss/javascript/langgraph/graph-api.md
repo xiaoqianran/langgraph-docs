@@ -1,5 +1,9 @@
 <!-- langgraph-docs: Graph API overview | https://docs.langchain.com/oss/javascript/langgraph/graph-api -->
 
+# Graph API overview
+
+LangGraph models agent workflows as graphs: define state, nodes, and edges with StateGraph to build looping, stateful workflows.
+
 ## Graphs
 
 At its core, LangGraph models agent workflows as graphs. You define the behavior of your agents using three key components:
