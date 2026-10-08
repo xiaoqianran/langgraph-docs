@@ -85,8 +85,8 @@
       "translatedAt": "2026-09-29T16:05:40.564Z"
     },
     "oss/javascript/langgraph/human-in-the-loop.md": {
-      "hash": "8a06ea18e51756d1376c3770c23ba559084c2dd7",
-      "translatedAt": "2026-10-01T16:39:20.748Z"
+      "hash": "c345ef3bfedb669da67a4bbbee6f8ede515ea43d",
+      "translatedAt": "2026-10-08T16:49:30.405Z"
     },
     "oss/javascript/langgraph/interrupts.md": {
       "hash": "d9ca0d4447a1230075f74fbba4081cee579ac9d7",
@@ -101,8 +101,8 @@
       "translatedAt": "2026-10-02T15:56:16.210Z"
     },
     "langsmith/cli.md": {
-      "hash": "bf5b57567ac46deffa36dc04eaf2b79e0102ffdf",
-      "translatedAt": "2026-10-07T16:50:37.044Z"
+      "hash": "817041bcc6cfa41512624f3b12651cca1fe0b98f",
+      "translatedAt": "2026-10-08T16:49:50.244Z"
     },
     "oss/javascript/langgraph/persistence.md": {
       "hash": "1bcd1023e9f9ad08de397f38a0929d7b26d0e9fd",
@@ -241,8 +241,8 @@
       "translatedAt": "2026-09-29T16:07:08.323Z"
     },
     "oss/python/langgraph/human-in-the-loop.md": {
-      "hash": "afbf9a99d279c851b0807cbf8f050d23ad713adb",
-      "translatedAt": "2026-10-01T16:39:21.952Z"
+      "hash": "41077ee149304fac285044b6443f20050ef01b51",
+      "translatedAt": "2026-10-08T16:49:31.521Z"
     },
     "oss/python/langgraph/interrupts.md": {
       "hash": "17a8dbdd554c3c9d6db692dc58a51e1c7da69f06",
@@ -369,8 +369,8 @@
       "translatedAt": "2026-08-09T08:56:15.424Z"
     },
     "reference/python/langgraph-cli.md": {
-      "hash": "88d4602c70055e98d731402697f99b727fa5b0d4",
-      "translatedAt": "2026-09-29T16:07:44.889Z"
+      "hash": "75c523027570312748d609b735097000d763ea4e",
+      "translatedAt": "2026-10-08T16:49:31.991Z"
     },
     "reference/python/langgraph-swarm.md": {
       "hash": "04d89c84b30eb192555b454c70b42dd214eda4fe",
@@ -461,10 +461,10 @@
       "translatedAt": "2026-09-29T16:07:47.480Z"
     }
   },
-  "updatedAt": "2026-10-07T16:50:37.044Z",
+  "updatedAt": "2026-10-08T16:49:50.244Z",
   "stats": {
-    "translated": 1,
-    "skipped": 114,
+    "translated": 4,
+    "skipped": 111,
     "failed": 0,
     "total": 115
   }

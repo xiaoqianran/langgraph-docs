@@ -74,7 +74,7 @@ resumed = graph.stream_events(Command(resume=True), config=config, version="v3")
 final = resumed.output
 ```
 
-<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/924527bc-da7c-4e0a-8986-4194e622140a/r" arrow horizontal>
+<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/81fa636e-c8ef-45a7-bb56-88ebcc19c392/r" arrow horizontal>
   为此示例打开公共 LangSmith 运行。
 </Card>
 
@@ -190,7 +190,7 @@ while True:
     stream_input = Command(resume=user_response)
 ```
 
-<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/a1d09dc8-80ac-4bad-a70c-59e4b7cdbff8/r" arrow horizontal>
+<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/f93bbd7c-13df-4d59-878d-99bad0e1042b/r" arrow horizontal>
   为此示例打开公共 LangSmith 运行。
 </Card>
 
@@ -258,7 +258,7 @@ print("Final state:", resumed.output)
 # Final state: {'vals': ['a:answer for question_a', 'b:answer for question_b']}
 ```
 
-<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/0db5e7bd-c53b-490a-9ed2-650ac477cd2d/r" arrow horizontal>
+<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/d43fa02f-0832-41ba-8c7d-06031d75c296/r" arrow horizontal>
   为此示例打开公共 LangSmith 运行。
 </Card>
 
@@ -353,7 +353,7 @@ graph.stream_events(Command(resume=False), config=config, version="v3").output
   print(resumed.output["status"])
   ```
 
-  <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/dc8614c9-bbb7-4231-b852-7a5899964e10/r" arrow horizontal>
+  <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/9a47c888-5047-468c-9c93-5ef7f4969b88/r" arrow horizontal>
     为此示例打开公共 LangSmith 运行。
   </Card>
 </Accordion>
@@ -434,7 +434,7 @@ graph.stream_events(
   print(final_state.output["generated_text"])  # -> "Improved draft after review"
   ```
 
-  <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/cf03e7a5-8261-499d-9612-57b0d775c4ab/r" arrow horizontal>
+  <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/eef6edc7-2aad-4330-ba7e-a56d856bc699/r" arrow horizontal>
     为此示例打开公共 LangSmith 运行。
   </Card>
 </Accordion>
@@ -725,7 +725,7 @@ def node_a(state: State):
 
 ### 不要在节点内重新排序 `interrupt` 调用
 
-在单个节点中使用多个中断是很常见的，但是如果处理不仔细，这可能会导致意外的行为。当节点包含多个中断调用时，LangGraph 会保留特定于执行该节点的任务的恢复值列表。每当执行恢复时，它都会从节点的开头开始。对于遇到的每个中断，LangGraph 检查任务的恢复列表中是否存在匹配的值。匹配**严格基于索引**，因此节点内中断调用的顺序很重要。
+在单个节点中使用多个中断是很常见的，但是如果处理不仔细，这可能会导致意外的行为。当一个节点包含多个中断调用时，LangGraph 会保留特定于执行该节点的任务的恢复值列表。每当执行恢复时，它都会从节点的开头开始。对于遇到的每个中断，LangGraph 检查任务的恢复列表中是否存在匹配的值。匹配**严格基于索引**，因此节点内中断调用的顺序很重要。
 
 * ✅ 保持 [⟦T134⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 调用在节点执行之间保持一致
 
@@ -948,7 +948,7 @@ def node_in_subgraph(state: State):
 
 ## 使用中断进行调试
 
-要调试和测试图形，您可以使用静态中断作为断点，一次单步执行一个节点的图形执行。静态中断在节点执行之前或之后的定义点触发。您可以在编译图表时通过指定 `interrupt_before` 和 `interrupt_after` 来设置这些。
+要调试和测试图表，您可以使用静态中断作为断点，一次单步执行一个节点的图表执行。静态中断在节点执行之前或之后的定义点触发。您可以在编译图表时通过指定 `interrupt_before` 和 `interrupt_after` 来设置这些。
 
 <Note>
   **不**建议将静态中断用于人机交互工作流程。请改用 [⟦T151⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 函数。
@@ -1003,10 +1003,10 @@ def node_in_subgraph(state: State):
     graph.invoke(None, config=config)  # [!code highlight]
     ```
 
-    1. 使用`interrupt_before`和`interrupt_after`参数调用`graph.invoke`。这是一个运行时配置，可以在每次调用时更改。
+    1. 使用`interrupt_before`和`interrupt_after`参数调用`graph.invoke`。这是一个运行时配置，可以针对每次调用进行更改。
     2. `interrupt_before` 指定执行该节点之前应暂停执行的节点。
     3. `interrupt_after` 指定该节点执行完毕后应暂停执行的节点。
-    4. 运行图表直至遇到第一个断点。
+    4. 运行图表直到遇到第一个断点。
     5. 通过传入 `None` 作为输入来恢复图表。这将运行图表直到遇到下一个断点。
   </Tab>
 </Tabs>

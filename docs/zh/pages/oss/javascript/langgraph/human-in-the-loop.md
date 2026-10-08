@@ -183,7 +183,7 @@ while (true) {
 }
 ```
 
-<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/2f053efa-abf1-42a0-9c10-df949570681a/r" arrow horizontal>
+<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/acc5e3f4-3086-44f9-b484-51ae7eca6216/r" arrow horizontal>
   为此示例打开公共 LangSmith 运行。
 </Card>* **`stream.messages`**：聊天模型输出为内容块；迭代 `message.text` 以获得代币增量。对于嵌套子图，从`stream.subgraphs[*].messages`读取消息块。
 * **`stream.values`**：每一步后的完整状态快照
@@ -594,7 +594,7 @@ const getAgeNode: typeof State.Node = (state) => {
 // );
 ```
 
-<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/04c9112c-edbf-497d-92b8-7263fb485ff5/r" arrow horizontal>
+<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/8f40efd5-a1c5-43fe-a95c-b533b408c0b4/r" arrow horizontal>
   为此示例打开公共 LangSmith 运行。
 </Card>每个恢复调用 `getAgeNode` 一次，运行 `interrupt()` 调用一次，然后退出。当答案无效时，条件边沿循环返回，并且下一个中断会重新提示更新的问题。
 
@@ -650,7 +650,7 @@ const getAgeNode: typeof State.Node = (state) => {
 
 ## 中断规则
 
-当您在节点内调用 [⟦T113⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 时，LangGraph 会引发异常，指示运行时暂停，从而暂停执行。该异常通过调用堆栈向上传播并被运行时捕获，通知图保存当前状态并等待外部输入。
+当您在节点内调用 [⟦T113⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 时，LangGraph 通过引发异常来通知运行时暂停，从而暂停执行。该异常通过调用堆栈向上传播并被运行时捕获，通知图保存当前状态并等待外部输入。
 
 当执行恢复时（在您提供请求的输入之后），运行时会从头开始重新启动整个节点 - 它不会从调用 [⟦T114⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 的确切行恢复。这意味着在 [⟦T115⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 之前运行的任何代码都将再次执行。因此，在处理中断时需要遵循一些重要规则，以确保它们按预期运行。
 
@@ -899,7 +899,7 @@ async function nodeA(state: State) {
 </CodeGroup>
 
 * 🔴[⟦T134⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt)之前不要进行非幂等操作
-* 🔴 在未检查记录是否存在的情况下不要创建新记录
+* 🔴 在未检查新记录是否存在的情况下不要创建新记录
 
 <CodeGroup>
   ```typescript Creating records theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
@@ -953,7 +953,7 @@ async function nodeInSubgraph(state: State) {
 
 ## 使用中断进行调试
 
-要调试和测试图形，您可以使用静态中断作为断点，一次单步执行一个节点的图形执行。静态中断在节点执行之前或之后的定义点触发。您可以在编译图表时通过指定 `interruptBefore` 和 `interruptAfter` 来设置这些。
+要调试和测试图表，您可以使用静态中断作为断点，一次单步执行一个节点的图表执行。静态中断在节点执行之前或之后的定义点触发。您可以在编译图表时通过指定 `interruptBefore` 和 `interruptAfter` 来设置这些。
 
 <Note>
   **不**建议将静态中断用于人机交互工作流程。请改用 [⟦T139⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 函数。
