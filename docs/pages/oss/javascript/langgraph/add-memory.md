@@ -222,6 +222,7 @@ Once you compile a graph with a store, LangGraph automatically injects the store
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { StateGraph, StateSchema, MessagesValue, GraphNode, START } from "@langchain/langgraph";
+import { v7 as uuid7 } from "uuid";
 
 const State = new StateSchema({
   messages: MessagesValue,
@@ -241,7 +242,7 @@ const callModel: GraphNode<typeof State> = async (state, runtime) => {
   // ... Use memories in model call
 
   // Store a new memory
-  await runtime.store?.put(namespace, crypto.randomUUID(), { data: "User prefers dark mode" });
+  await runtime.store?.put(namespace, uuid7(), { data: "User prefers dark mode" });
 };
 
 const builder = new StateGraph(State)
@@ -304,6 +305,7 @@ In production, use a store backed by a database:
   import { PostgresSaver } from "@langchain/langgraph-checkpoint-postgres";
   import { PostgresStore } from "@langchain/langgraph-checkpoint-postgres/store";
 
+  import { v7 as uuid7 } from "uuid";
   const State = new StateSchema({
     messages: MessagesValue,
   });
@@ -321,7 +323,7 @@ In production, use a store backed by a database:
     const lastMessage = state.messages.at(-1);
     if (lastMessage?.content?.toLowerCase().includes("remember")) {
       const memory = "User name is Bob";
-      await runtime.store?.put(namespace, crypto.randomUUID(), { data: memory });
+      await runtime.store?.put(namespace, uuid7(), { data: memory });
     }
 
     const response = await model.invoke([
@@ -379,6 +381,7 @@ In production, use a store backed by a database:
   import { MemorySaver, StateGraph, StateSchema, MessagesValue, GraphNode, START } from "@langchain/langgraph";
   import { MongoDBStore } from "@langchain/langgraph-checkpoint-mongodb";
 
+  import { v7 as uuid7 } from "uuid";
   const State = new StateSchema({
     messages: MessagesValue,
   });
@@ -396,7 +399,7 @@ In production, use a store backed by a database:
     const lastMessage = state.messages.at(-1);
     if (lastMessage?.content?.toLowerCase().includes("remember")) {
       const memory = "User name is Bob";
-      await runtime.store?.put(namespace, crypto.randomUUID(), { data: memory });
+      await runtime.store?.put(namespace, uuid7(), { data: memory });
     }
 
     const response = await model.invoke([
@@ -916,6 +919,7 @@ const summarizeConversation: GraphNode<typeof State> = async (state) => {
   } from "@langchain/langgraph";
   import * as z from "zod";
 
+  import { v7 as uuid7 } from "uuid";
   const memory = new MemorySaver();
 
   // We will add a `summary` attribute (in addition to `messages` key)
@@ -934,7 +938,7 @@ const summarizeConversation: GraphNode<typeof State> = async (state) => {
     let { messages } = state;
     if (summary) {
       const systemMessage = new SystemMessage({
-        id: crypto.randomUUID(),
+        id: uuid7(),
         content: `Summary of conversation earlier: ${summary}`,
       });
       messages = [systemMessage, ...messages];
@@ -971,7 +975,7 @@ const summarizeConversation: GraphNode<typeof State> = async (state) => {
 
     const allMessages = [
       ...messages,
-      new HumanMessage({ id: crypto.randomUUID(), content: summaryMessage }),
+      new HumanMessage({ id: uuid7(), content: summaryMessage }),
     ];
 
     const response = await model.invoke(allMessages);

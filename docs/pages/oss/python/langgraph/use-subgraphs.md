@@ -437,7 +437,7 @@ agent = create_agent(
     final = resumed.output
     ```
 
-    <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/b9877a82-7701-4a9b-9430-bf5cb8740be0/r">
+    <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/0197c295-d619-44c2-8ec7-4bd629c786ae/r">
       Open a public LangSmith run for this example.
     </Card>
   </Tab>
@@ -569,7 +569,7 @@ agent = create_agent(
     final = resumed.output
     ```
 
-    <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/b9877a82-7701-4a9b-9430-bf5cb8740be0/r">
+    <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/0197c295-d619-44c2-8ec7-4bd629c786ae/r">
       Open a public LangSmith run for this example.
     </Card>
   </Tab>

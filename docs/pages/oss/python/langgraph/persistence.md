@@ -57,9 +57,8 @@ When using `PostgresSaver` (or `AsyncPostgresSaver`), the `thread_id` is stored 
 **Fix:** Keep `thread_id` values under 255 characters. Use a UUID or hash if you need deterministic IDs:
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-import uuid
-
-config = {"configurable": {"thread_id": str(uuid.uuid4())[:255]}}
+from langchain_core.utils.uuid import uuid7
+config = {"configurable": {"thread_id": str(uuid7())[:255]}}
 ```
 
 ### `MemorySaver` does not persist between restarts

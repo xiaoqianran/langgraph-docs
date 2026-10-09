@@ -122,7 +122,7 @@ graph.invoke({"user_input": "My"})
 # {'graph_output': 'My name is Lance'}
 ```
 
-<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/db7e0ca9-0d20-4958-9b72-48bcc6564c0e/r">
+<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/a72a6e66-883f-4551-b4e2-3ca3129be6a2/r">
   Open a public LangSmith run for this example.
 </Card>
 
@@ -161,7 +161,7 @@ There are two subtle and important points to note here:
   # {'foo': 'My name', 'user_input': 'My', 'graph_output': 'My name is Lance', 'bar': 'My name is'}
   ```
 
-  <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/41466c41-ad4c-4ca8-965a-bfae7b03ab67/r">
+  <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/00c6ab6e-18ce-48ee-893e-4c97cec6ee6c/r">
     Open a public LangSmith run for this example.
   </Card>
 
@@ -613,7 +613,7 @@ If a [node](#nodes) contains multiple operations, you may find it easier to impl
     graph.invoke({"url": "https://www.example.com"}, config)
     ```
 
-    <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/ecb04879-c086-47c3-9244-405be60f0c26/r">
+    <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/b9aac911-dc73-43de-b535-e52dfd6d7125/r">
       Open a public LangSmith run for this example.
     </Card>
   </Tab>
@@ -662,7 +662,7 @@ If a [node](#nodes) contains multiple operations, you may find it easier to impl
     graph.invoke({"urls": ["https://www.example.com"]}, config)
     ```
 
-    <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/cc6bd7b8-a3c0-45bb-80e1-a8428c1fcd4d/r">
+    <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/aff19bbc-eb5c-464c-838c-67f1257290e9/r">
       Open a public LangSmith run for this example.
     </Card>
   </Tab>
@@ -966,7 +966,7 @@ resumed = graph.stream_events(Command(resume="yes"), config, version="v3")
 final = resumed.output
 ```
 
-<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/55c552d5-6214-4be2-8271-571acd47e3e3/r">
+<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/d043193b-5547-48ea-9796-f1bf5e3d32fb/r">
   Open a public LangSmith run for this example.
 </Card>
 

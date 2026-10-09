@@ -322,7 +322,7 @@ const stream = await graph.streamEvents(
 );
 ```
 
-<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/c687f067-9c14-4e17-9ebe-0333c2344f1c/r">
+<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/7dace240-589b-4be3-89ed-8e29b5818188/r">
   Open a public LangSmith run for this example.
 </Card>
 

@@ -528,8 +528,7 @@ Once you compile a graph with a store, LangGraph automatically injects the store
 from dataclasses import dataclass
 from langgraph.runtime import Runtime
 from langgraph.graph import StateGraph, MessagesState, START
-import uuid
-
+from langchain_core.utils.uuid import uuid7
 @dataclass
 class Context:
     user_id: str
@@ -548,7 +547,7 @@ async def call_model(state: MessagesState, runtime: Runtime[Context]):  # [!code
 
     # Store a new memory
     await runtime.store.aput(  # [!code highlight]
-        namespace, str(uuid.uuid4()), {"data": "User prefers dark mode"}
+        namespace, str(uuid7()), {"data": "User prefers dark mode"}
     )
 
 builder = StateGraph(MessagesState, context_schema=Context)  # [!code highlight]
@@ -595,7 +594,6 @@ with PostgresStore.from_conn_string(DB_URI) as store:  # [!code highlight]
       from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
       from langgraph.store.postgres.aio import AsyncPostgresStore  # [!code highlight]
       from langgraph.runtime import Runtime  # [!code highlight]
-      import uuid
 
       model = init_chat_model(model="claude-haiku-4-5-20251001")
 
@@ -617,7 +615,7 @@ with PostgresStore.from_conn_string(DB_URI) as store:  # [!code highlight]
           last_message = state["messages"][-1]
           if "remember" in last_message.content.lower():
               memory = "User name is Bob"
-              await runtime.store.aput(namespace, str(uuid.uuid4()), {"data": memory})  # [!code highlight]
+              await runtime.store.aput(namespace, str(uuid7()), {"data": memory})  # [!code highlight]
 
           response = await model.ainvoke(
               [{"role": "system", "content": system_msg}] + state["messages"]
@@ -674,7 +672,6 @@ with PostgresStore.from_conn_string(DB_URI) as store:  # [!code highlight]
       from langgraph.checkpoint.postgres import PostgresSaver
       from langgraph.store.postgres import PostgresStore  # [!code highlight]
       from langgraph.runtime import Runtime  # [!code highlight]
-      import uuid
 
       model = init_chat_model(model="claude-haiku-4-5-20251001")
 
@@ -696,7 +693,7 @@ with PostgresStore.from_conn_string(DB_URI) as store:  # [!code highlight]
           last_message = state["messages"][-1]
           if "remember" in last_message.content.lower():
               memory = "User name is Bob"
-              runtime.store.put(namespace, str(uuid.uuid4()), {"data": memory})  # [!code highlight]
+              runtime.store.put(namespace, str(uuid7()), {"data": memory})  # [!code highlight]
 
           response = model.invoke(
               [{"role": "system", "content": system_msg}] + state["messages"]
@@ -765,7 +762,6 @@ with PostgresStore.from_conn_string(DB_URI) as store:  # [!code highlight]
       from langgraph.checkpoint.redis.aio import AsyncRedisSaver
       from langgraph.store.redis.aio import AsyncRedisStore  # [!code highlight]
       from langgraph.runtime import Runtime  # [!code highlight]
-      import uuid
 
       model = init_chat_model(model="claude-haiku-4-5-20251001")
 
@@ -787,7 +783,7 @@ with PostgresStore.from_conn_string(DB_URI) as store:  # [!code highlight]
           last_message = state["messages"][-1]
           if "remember" in last_message.content.lower():
               memory = "User name is Bob"
-              await runtime.store.aput(namespace, str(uuid.uuid4()), {"data": memory})  # [!code highlight]
+              await runtime.store.aput(namespace, str(uuid7()), {"data": memory})  # [!code highlight]
 
           response = await model.ainvoke(
               [{"role": "system", "content": system_msg}] + state["messages"]
@@ -842,7 +838,6 @@ with PostgresStore.from_conn_string(DB_URI) as store:  # [!code highlight]
       from langgraph.checkpoint.redis import RedisSaver
       from langgraph.store.redis import RedisStore  # [!code highlight]
       from langgraph.runtime import Runtime  # [!code highlight]
-      import uuid
 
       model = init_chat_model(model="claude-haiku-4-5-20251001")
 
@@ -864,7 +859,7 @@ with PostgresStore.from_conn_string(DB_URI) as store:  # [!code highlight]
           last_message = state["messages"][-1]
           if "remember" in last_message.content.lower():
               memory = "User name is Bob"
-              runtime.store.put(namespace, str(uuid.uuid4()), {"data": memory})  # [!code highlight]
+              runtime.store.put(namespace, str(uuid7()), {"data": memory})  # [!code highlight]
 
           response = model.invoke(
               [{"role": "system", "content": system_msg}] + state["messages"]
@@ -930,7 +925,6 @@ with PostgresStore.from_conn_string(DB_URI) as store:  # [!code highlight]
   <Tabs>
     <Tab title="Sync">
       ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-      import uuid
 
       from langchain.chat_models import init_chat_model
       from langchain.embeddings import init_embeddings
@@ -971,7 +965,7 @@ with PostgresStore.from_conn_string(DB_URI) as store:  # [!code highlight]
               last_message = state["messages"][-1]
               if "remember" in last_message.content.lower():
                   memory = "User name is Bob"
-                  store.put(namespace, str(uuid.uuid4()), {"data": memory})  # [!code highlight]
+                  store.put(namespace, str(uuid7()), {"data": memory})  # [!code highlight]
 
               response = model.invoke(
                   [{"role": "system", "content": system_msg}] + state["messages"]
@@ -1020,7 +1014,6 @@ with PostgresStore.from_conn_string(DB_URI) as store:  # [!code highlight]
 
     <Tab title="Async">
       ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-      import uuid
 
       from langchain.chat_models import init_chat_model
       from langchain.embeddings import init_embeddings
@@ -1061,7 +1054,7 @@ with PostgresStore.from_conn_string(DB_URI) as store:  # [!code highlight]
               last_message = state["messages"][-1]
               if "remember" in last_message.content.lower():
                   memory = "User name is Bob"
-                  await store.aput(namespace, str(uuid.uuid4()), {"data": memory})  # [!code highlight]
+                  await store.aput(namespace, str(uuid7()), {"data": memory})  # [!code highlight]
 
               response = await model.ainvoke(
                   [{"role": "system", "content": system_msg}] + state["messages"]

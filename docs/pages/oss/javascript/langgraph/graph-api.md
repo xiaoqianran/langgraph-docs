@@ -170,7 +170,7 @@ await graph.invoke({ userInput: "My" });
 // { graphOutput: 'My name is Lance' }
 ```
 
-<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/2ec2bda1-e202-4d3f-940b-81bdd0e23be1/r">
+<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/11c4d2f4-cc73-404c-962e-3b16c9b1574c/r">
   Open a public LangSmith run for this example.
 </Card>
 
@@ -243,7 +243,7 @@ There are two subtle and important points to note here:
   // { foo: 'My name', userInput: 'My', graphOutput: 'My name is Lance', bar: 'My name is' }
   ```
 
-  <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/03351e93-f024-493a-afae-ed5827ec7751/r">
+  <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/c326389e-fd63-4647-9d99-6c6a797d96cd/r">
     Open a public LangSmith run for this example.
   </Card>
 
@@ -299,7 +299,7 @@ const State = new StateSchema({
 });
 ```
 
-<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/93ae7eff-5da7-48ae-893a-2e85e87ecd2c/r">
+<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/51e24f47-6fcb-4d4c-addc-260c9f4f29cd/r">
   Open a public LangSmith run for this example.
 </Card>
 
@@ -310,6 +310,10 @@ const reducer = (left: string[], right: string[]) => left.concat(right);
 
 reducer(["draft"], ["review"]); // left, right → ["draft", "review"]
 ```
+
+<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/65c80463-0cf3-4a86-be27-6136cb4b67a6/r">
+  Open a public LangSmith run for this example.
+</Card>
 
 The new state value for `tags` is `["draft", "review"]`.
 
@@ -329,7 +333,7 @@ const State = new StateSchema({
 });
 ```
 
-<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/b3536d55-6b2a-4b92-b956-be768be61b3d/r">
+<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/66046eed-b4dc-4d27-89d6-ea12289d3bfd/r">
   Open a public LangSmith run for this example.
 </Card>
 
@@ -354,7 +358,7 @@ const State = new StateSchema({
 });
 ```
 
-<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/65abf4d1-0932-4229-9d3f-c21e52d6008c/r">
+<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/60729226-ed2c-4bef-bce5-54f20732c56f/r">
   Open a public LangSmith run for this example.
 </Card>
 
@@ -382,7 +386,7 @@ const State = new StateSchema({
 // state.errors is still ["bad sql"]; the empty array is merged in, not cleared
 ```
 
-<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/c65687b5-c6a9-4dca-9f6b-17ff20669c52/r">
+<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/7f2fa409-bef2-4eee-b4dd-dcb460739296/r">
   Open a public LangSmith run for this example.
 </Card>
 
@@ -402,7 +406,7 @@ const State = new StateSchema({
 // node can now clear the field with { errors: [] }
 ```
 
-<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/f08045e6-6826-46ab-8437-73b120f5f615/r">
+<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/b71bfa2d-72b9-4ecd-822b-38269f81cbe8/r">
   Open a public LangSmith run for this example.
 </Card>
 
@@ -703,6 +707,7 @@ If a [node](#nodes) contains multiple operations, you may find it easier to impl
       StateSchema,
     } from "@langchain/langgraph";
     import type { GraphNode } from "@langchain/langgraph";
+    import { uuid7 } from "langsmith";
 
     const State = new StateSchema({
       url: z.string(),
@@ -724,13 +729,13 @@ If a [node](#nodes) contains multiple operations, you may find it easier to impl
     const checkpointer = new MemorySaver();
     const graph = builder.compile({ checkpointer });
 
-    const threadId = crypto.randomUUID();
+    const threadId = uuid7();
     const config = { configurable: { thread_id: threadId } };
 
     await graph.invoke({ url: "https://www.example.com" }, config);
     ```
 
-    <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/9a25fd41-1999-46d9-800d-3da14ff1cf7a/r">
+    <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/365c3891-8f8f-4ade-9c37-aa64cd342feb/r">
       Open a public LangSmith run for this example.
     </Card>
   </Tab>
@@ -748,6 +753,7 @@ If a [node](#nodes) contains multiple operations, you may find it easier to impl
       task,
     } from "@langchain/langgraph";
     import type { GraphNode } from "@langchain/langgraph";
+    import { uuid7 } from "langsmith";
 
     const State = new StateSchema({
       urls: z.array(z.string()),
@@ -774,13 +780,13 @@ If a [node](#nodes) contains multiple operations, you may find it easier to impl
     const checkpointer = new MemorySaver();
     const graph = builder.compile({ checkpointer });
 
-    const threadId = crypto.randomUUID();
+    const threadId = uuid7();
     const config = { configurable: { thread_id: threadId } };
 
     await graph.invoke({ urls: ["https://www.example.com"] }, config);
     ```
 
-    <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/10423c16-9de8-476c-808f-08a150d19d34/r">
+    <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/f25ffc86-7e15-44ab-b9bd-9557d9ecc674/r">
       Open a public LangSmith run for this example.
     </Card>
   </Tab>
