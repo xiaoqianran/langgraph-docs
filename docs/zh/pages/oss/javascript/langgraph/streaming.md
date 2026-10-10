@@ -31,7 +31,7 @@ for await (const chunk of await graph.stream(inputs, {
 ## 流模式
 
 将以下一种或多种流模式作为列表传递给 [⟦T36⟧](https://reference.langchain.com/javascript/classes/_langchain_langgraph.index.CompiledStateGraph.html#stream) 方法：|模式|描述 |
-| :- | :- |
+| :-| :-|
 | [values](#graph-state) |每一步后的完整状态。 |
 | [updates](#graph-state) |每个步骤后状态都会更新。同一步骤中的多个更新分别进行流式传输。 |
 | [messages](#llm-tokens) |来自 LLM 调用的 2 元组（LLM 令牌、元数据）。 |
@@ -318,7 +318,7 @@ const stream = await graph.streamEvents(
   { topic: "AI", answer: "", notes: "" },
   { version: "v3" },
 );
-```<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/c687f067-9c14-4e17-9ebe-0333c2344f1c/r">
+```<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/7dace240-589b-4be3-89ed-8e29b5818188/r">
   为此示例打开公共 LangSmith 运行。
 </Card>
 
@@ -604,7 +604,7 @@ function Chat() {
 ```
 
 <Accordion title="Extended example: travel planning agent with tool progress">
-  此示例显示了一个带有异步生成器工具的完整代理，该工具可将搜索进度流式传输到 React UI。
+  此示例显示了一个带有异步生成器工具的完整代理，该工具将搜索进度流式传输到 React UI。
 
   **代理定义：**
 

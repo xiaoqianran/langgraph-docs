@@ -39,12 +39,12 @@ result = graph.invoke(
 
 ## 检查点与存储
 
-| |检查点|商店 |
+| |检查点 |商店 |
 | - | - | - |
 |坚持 |图状态快照 |应用程序定义的键值数据 |
-|范围 |单线程|跨线程|
+|范围 |单线程 |跨线程|
 |内存类型|短期、线程范围内存 |长期、跨线程内存|
-|用于 |对话连续性、人机交互、时间旅行和容错 |用户偏好、事实和共享知识 |
+|用于|对话连续性、人机交互、时间旅行和容错 |用户偏好、事实和共享知识 |
 |访问模式|在图形配置中传递 `thread_id` |从节点或应用程序代码读取和写入项目 |
 |完整指南 | [Checkpointers](/oss/python/langgraph/checkpointers) | [Stores](/oss/python/langgraph/stores) |
 
@@ -57,9 +57,8 @@ result = graph.invoke(
 **修复：** 将 `thread_id` 值保持在 255 个字符以下。如果需要确定性 ID，请使用 UUID 或哈希：
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-import uuid
-
-config = {"configurable": {"thread_id": str(uuid.uuid4())[:255]}}
+from langchain_core.utils.uuid import uuid7
+config = {"configurable": {"thread_id": str(uuid7())[:255]}}
 ```
 
 ### `MemorySaver` 在重新启动之间不会持续存在`MemorySaver`和`InMemorySaver`将检查点存储在RAM中。当进程重新启动时，所有检查点都会丢失。

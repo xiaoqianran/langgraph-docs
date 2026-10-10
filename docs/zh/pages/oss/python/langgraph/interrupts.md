@@ -47,7 +47,7 @@ def approval_node(state: State):
 
 ## 恢复中断
 
-中断暂停执行后，您可以通过使用包含恢复值的 `Command` 再次调用它来恢复图表。恢复值被传递回`interrupt`调用，允许节点继续使用外部输入执行。
+中断暂停执行后，您可以通过使用包含恢复值的 `Command` 再次调用它来恢复图表。恢复值被传回`interrupt`调用，允许节点继续使用外部输入执行。
 
 驱动可能中断的图的推荐方法是[event streaming](/oss/python/langgraph/event-streaming)——它通过`stream.interrupts`和`stream.interrupted`表面中断，并通过`stream.output`公开最终状态。
 
@@ -74,7 +74,7 @@ resumed = graph.stream_events(Command(resume=True), config=config, version="v3")
 final = resumed.output
 ```
 
-<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/924527bc-da7c-4e0a-8986-4194e622140a/r">
+<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/81fa636e-c8ef-45a7-bb56-88ebcc19c392/r">
   为此示例打开公共 LangSmith 运行。
 </Card>
 
@@ -190,7 +190,7 @@ while True:
     stream_input = Command(resume=user_response)
 ```
 
-<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/a1d09dc8-80ac-4bad-a70c-59e4b7cdbff8/r">
+<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/f93bbd7c-13df-4d59-878d-99bad0e1042b/r">
   为此示例打开公共 LangSmith 运行。
 </Card>
 
@@ -258,7 +258,7 @@ print("Final state:", resumed.output)
 # Final state: {'vals': ['a:answer for question_a', 'b:answer for question_b']}
 ```
 
-<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/0db5e7bd-c53b-490a-9ed2-650ac477cd2d/r">
+<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/d43fa02f-0832-41ba-8c7d-06031d75c296/r">
   为此示例打开公共 LangSmith 运行。
 </Card>
 
@@ -353,7 +353,7 @@ graph.stream_events(Command(resume=False), config=config, version="v3").output
   print(resumed.output["status"])
   ```
 
-  <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/dc8614c9-bbb7-4231-b852-7a5899964e10/r">
+  <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/9a47c888-5047-468c-9c93-5ef7f4969b88/r">
     为此示例打开公共 LangSmith 运行。
   </Card>
 </Accordion>
@@ -434,7 +434,7 @@ graph.stream_events(
   print(final_state.output["generated_text"])  # -> "Improved draft after review"
   ```
 
-  <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/cf03e7a5-8261-499d-9612-57b0d775c4ab/r">
+  <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/eef6edc7-2aad-4330-ba7e-a56d856bc699/r">
     为此示例打开公共 LangSmith 运行。
   </Card>
 </Accordion>
@@ -847,7 +847,7 @@ def node_a(state: State):
 
 * ✅ 在[⟦T144⟧](https://reference.langchain.com/python/langgraph/types/interrupt)之前使用幂等操作
 * ✅ 在[⟦T145⟧](https://reference.langchain.com/python/langgraph/types/interrupt)调用后放置副作用
-* ✅ 如果可能，将副作用分离到单独的节点中
+* ✅尽可能将副作用分离到单独的节点中
 
 <CodeGroup>
   ```python Idempotent operations theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}

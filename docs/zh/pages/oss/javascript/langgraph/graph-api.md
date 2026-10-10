@@ -164,7 +164,7 @@ await graph.invoke({ userInput: "My" });
 // { graphOutput: 'My name is Lance' }
 ```
 
-<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/2ec2bda1-e202-4d3f-940b-81bdd0e23be1/r">
+<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/11c4d2f4-cc73-404c-962e-3b16c9b1574c/r">
   为此示例打开公共 LangSmith 运行。
 </Card>
 
@@ -177,7 +177,7 @@ await graph.invoke({ userInput: "My" });
 
   输入、输出和私有模式限制每个节点*读取*的内容（其输入模式）以及`invoke`*返回*（输出模式）。他们**不会**隐藏`stream`的频道。
 
-  当您使用 `streamMode: "values"` 进行流式传输时，图表默认会发出其**所有**状态通道（包括私有通道），因为值流式传输默认为完整的状态通道集而不是输出模式。这就是为什么像`bar`这样的私人频道被`invoke`隐藏但在流式传输时可见：
+  当您使用 `streamMode: "values"` 进行流式传输时，图表默认会发出其**所有**状态通道（包括私有通道），因为值流式传输默认为完整的状态通道集而不是输出模式。这就是为什么像 `bar` 这样的私人频道被 `invoke` 隐藏但在流式传输时可见：
 
   ```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
   import { END, START, StateGraph, StateSchema } from "@langchain/langgraph";
@@ -235,11 +235,11 @@ await graph.invoke({ userInput: "My" });
   // { foo: 'My name', userInput: 'My', graphOutput: 'My name is Lance', bar: 'My name is' }
   ```
 
-  <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/03351e93-f024-493a-afae-ed5827ec7751/r">
+  <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/c326389e-fd63-4647-9d99-6c6a797d96cd/r">
     为此示例打开公共 LangSmith 运行。
   </Card>
 
-  要将流式传输的值限制为一组特定的通道（例如，仅输出模式），请传递 `outputKeys`：
+  要将流式传输的值限制为一组特定的通道（例如仅输出模式），请传递 `outputKeys`：
 
   ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
   const stream = await graph.streamEvents(
@@ -253,7 +253,7 @@ await graph.invoke({ userInput: "My" });
   ```如果您只需要节点实际每一步产生的通道（而不是完整的累积状态），请改用`streamMode: "updates"`。
 </Warning>
 
-### 减速器
+### 减速机
 
 减速器是理解节点更新如何应用于`State`的关键。 `State`中的每个按键都有自己独立的减速器功能。如果没有显式指定减速器函数，则假定对该键的所有更新都应覆盖它。有几种不同类型的减速器，从默认类型的减速器开始：
 
@@ -289,7 +289,7 @@ const State = new StateSchema({
 });
 ```
 
-<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/93ae7eff-5da7-48ae-893a-2e85e87ecd2c/r">
+<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/51e24f47-6fcb-4d4c-addc-260c9f4f29cd/r">
   为此示例打开公共 LangSmith 运行。
 </Card>
 
@@ -299,7 +299,11 @@ const State = new StateSchema({
 const reducer = (left: string[], right: string[]) => left.concat(right);
 
 reducer(["draft"], ["review"]); // left, right → ["draft", "review"]
-````tags` 的新状态值为 `["draft", "review"]`。
+```<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/65c80463-0cf3-4a86-be27-6136cb4b67a6/r">
+  为此示例打开公共 LangSmith 运行。
+</Card>
+
+`tags` 的新状态值为 `["draft", "review"]`。
 
 自定义减速器结合了左右参数。 [default reducer](#default-reducer) 丢弃左侧参数并仅保留右侧参数。
 
@@ -317,7 +321,7 @@ const State = new StateSchema({
 });
 ```
 
-<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/b3536d55-6b2a-4b92-b956-be768be61b3d/r">
+<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/66046eed-b4dc-4d27-89d6-ea12289d3bfd/r">
   为此示例打开公共 LangSmith 运行。
 </Card>
 
@@ -340,15 +344,15 @@ const State = new StateSchema({
     { reducer: (x, y) => x.concat(y) }
   ),
 });
-```
-
-<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/65abf4d1-0932-4229-9d3f-c21e52d6008c/r">
+```<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/60729226-ed2c-4bef-bce5-54f20732c56f/r">
   为此示例打开公共 LangSmith 运行。
-</Card>在此示例中，我们使用 `ReducedValue` 为第二个键 (`bar`) 指定减速器函数。请注意，第一个键保持不变。我们假设图的输入是`{ foo: 1, bar: ["hi"] }`。然后我们假设第一个 `Node` 返回 `{ foo: 2 }`。这被视为对状态的更新。请注意，`Node` 不需要返回整个 `State` 模式 - 只需要更新即可。应用此更新后，`State` 将变为 `{ foo: 2, bar: ["hi"] }`。如果第二个节点返回`{ bar: ["bye"] }`，则`State`将是`{ foo: 2, bar: ["hi", "bye"] }`。请注意，此处 `bar` 键是通过将两个数组连接在一起来更新的。
+</Card>
+
+在此示例中，我们使用 `ReducedValue` 为第二个键 (`bar`) 指定减速器函数。请注意，第一个键保持不变。我们假设图的输入是`{ foo: 1, bar: ["hi"] }`。然后我们假设第一个 `Node` 返回 `{ foo: 2 }`。这被视为对状态的更新。请注意，`Node` 不需要返回整个 `State` 模式 - 只需要更新即可。应用此更新后，`State` 将变为 `{ foo: 2, bar: ["hi"] }`。如果第二个节点返回`{ bar: ["bye"] }`，则`State`将是`{ foo: 2, bar: ["hi", "bye"] }`。请注意，此处 `bar` 键是通过将两个数组连接在一起来更新的。
 
 #### 重置reducer字段
 
-减速器常见的混淆来源：使用合并减速器时，返回空值不会**不**清除字段。因为reducer将右边的参数合并到左边的参数中，所以合并了一个空的更新，并且保留了之前累积的值。
+减速器常见的混淆来源：使用合并减速器时，返回空值并不会清除字段。因为reducer将右边的参数合并到左边的参数中，所以合并了一个空的更新，并且保留了之前累积的值。
 
 此模式对于必须在重试尝试之间清除的错误缓冲区或重试计数器很重要：
 
@@ -368,11 +372,9 @@ const State = new StateSchema({
 // state.errors is still ["bad sql"]; the empty array is merged in, not cleared
 ```
 
-<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/c65687b5-c6a9-4dca-9f6b-17ff20669c52/r">
+<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/7f2fa409-bef2-4eee-b4dd-dcb460739296/r">
   为此示例打开公共 LangSmith 运行。
-</Card>
-
-要让节点重置（清除）字段，请定义一个自定义化简器来替换累积值而不是合并它：
+</Card>要让节点重置（清除）字段，请定义一个自定义化简器来替换累积值而不是合并它：
 
 ```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { ReducedValue, StateSchema } from "@langchain/langgraph";
@@ -386,7 +388,9 @@ const State = new StateSchema({
 });
 
 // node can now clear the field with { errors: [] }
-```<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/f08045e6-6826-46ab-8437-73b120f5f615/r">
+```
+
+<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/b71bfa2d-72b9-4ecd-822b-38269f81cbe8/r">
   为此示例打开公共 LangSmith 运行。
 </Card>
 
@@ -445,13 +449,13 @@ const State = new StateSchema({
 });
 ```
 
-**行为：**
-
-* 执行期间：像正常状态一样存储和访问值
+**行为：*** 执行期间：像正常状态一样存储和访问值
 * 在检查点：未跟踪的值从检查点数据中**排除**
 * 恢复时：未跟踪的值重新开始（空或使用默认值）
 * 使用`guard: true`（默认）：如果多个节点在同一步骤中写入，则会抛出错误
-* 使用`guard: false`：允许多次写入，最后一个值获胜<Warning>
+* 使用`guard: false`：允许多次写入，最后一个值获胜
+
+<Warning>
   不要将 `UntrackedValue` 用于需要在中断或时间旅行中保留的数据。使用常规状态字段或`ReducedValue`来获取持久数据。
 </Warning>
 
@@ -512,7 +516,7 @@ const myNode2: typeof State.Node = (state) => ({ step: "done" });
 
 #### `ConditionalEdgeRouter`
 
-使用 `ConditionalEdgeRouter` 进行条件边中的路由函数（无状态更新，仅路由）：
+使用`ConditionalEdgeRouter`作为条件边中的路由函数（没有状态更新，只是路由）：
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { ConditionalEdgeRouter, END } from "@langchain/langgraph";
@@ -559,17 +563,15 @@ type MyUpdate = typeof MyStateSchema.Update;
 
 ### 在图形状态下处理消息
 
-#### 为什么要使用消息？
-
-大多数现代法学硕士提供商都有一个聊天模型界面，接受消息列表作为输入。 LangChain 的 [chat model interface](/oss/javascript/langchain/models) 特别接受消息对象列表作为输入。这些消息有多种形式，例如[⟦T149⟧](https://reference.langchain.com/javascript/langchain-core/messages/HumanMessage)（用户输入）或[⟦T150⟧](https://reference.langchain.com/javascript/langchain-core/messages/AIMessage)（LLM 响应）。
+#### 为什么要使用消息？大多数现代法学硕士提供商都有一个聊天模型界面，接受消息列表作为输入。 LangChain 的 [chat model interface](/oss/javascript/langchain/models) 特别接受消息对象列表作为输入。这些消息有多种形式，例如[⟦T149⟧](https://reference.langchain.com/javascript/langchain-core/messages/HumanMessage)（用户输入）或[⟦T150⟧](https://reference.langchain.com/javascript/langchain-core/messages/AIMessage)（LLM 响应）。
 
 要了解有关消息对象是什么的更多信息，请参阅[Messages conceptual guide](/oss/javascript/langchain/messages)。
 
-#### 在图表中使用消息在许多情况下，将先前的对话历史记录存储为图形状态中的消息列表会很有帮助。为此，您可以使用预构建的 `MessagesValue`，它提供了一个消息感知减速器，可以自动处理消息 ID、更新和删除。
+#### 在图表中使用消息
 
-`MessagesValue` 减速器对于告诉图如何在每次状态更新时更新状态中的 `Message` 对象列表至关重要。如果您不指定减速器，则每次状态更新都会用最近提供的值覆盖消息列表。 `MessagesValue` 正确处理此问题：对于全新消息，它会附加到现有列表，对于现有消息（通过 ID 匹配），它会就地更新它们。
+在许多情况下，将先前的对话历史记录存储为图形状态中的消息列表会很有帮助。为此，您可以使用预构建的 `MessagesValue`，它提供了一个消息感知减速器，可以自动处理消息 ID、更新和删除。
 
-<Tip>`MessagesValue` 实际上是 `ReducedValue` 的特例，预先配置了内部 `messagesStateReducer` 来处理消息列表和更新。这为LangGraph图中的聊天消息历史记录提供了方便的消息感知状态管理。</Tip>
+`MessagesValue` 减速器对于告诉图如何在每次状态更新时更新状态中的 `Message` 对象列表至关重要。如果您不指定减速器，则每次状态更新都会用最近提供的值覆盖消息列表。 `MessagesValue` 正确处理此问题：对于全新消息，它会附加到现有列表，对于现有消息（通过 ID 匹配），它会就地更新它们。<Tip>`MessagesValue` 实际上是 `ReducedValue` 的特例，预先配置了内部 `messagesStateReducer` 来处理消息列表和更新。这为 LangGraph 图中的聊天消息历史记录提供了方便的消息感知状态管理。</Tip>
 
 #### 序列化
 
@@ -585,7 +587,9 @@ type MyUpdate = typeof MyStateSchema.Update;
 {
   messages: [{ role: "human", content: "message" }];
 }
-```由于使用 `MessagesValue` 时状态更新总是反序列化为 LangChain `Messages`，因此您应该使用点表示法来访问消息属性，例如 `state.messages.at(-1).content`。下面是使用 `MessagesValue` 的图表示例：
+```
+
+由于使用 `MessagesValue` 时状态更新总是反序列化为 LangChain `Messages`，因此您应该使用点表示法来访问消息属性，例如 `state.messages.at(-1).content`。下面是使用 `MessagesValue` 的图表示例：
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { StateGraph, StateSchema, MessagesValue } from "@langchain/langgraph";
@@ -612,9 +616,7 @@ const State = new StateSchema({
 
 ## 节点
 
-在 LangGraph 中，节点通常是接受以下参数的函数（同步或异步）：
-
-1. `state`—图的[state](#state)
+在 LangGraph 中，节点通常是接受以下参数的函数（同步或异步）：1. `state`—图的[state](#state)
 2. `config`—一个[⟦T170⟧](https://reference.langchain.com/javascript/langchain-core/runnables/RunnableConfig)对象，包含`thread_id`等配置信息和`tags`等跟踪信息
 
 您可以使用 `addNode` 方法将节点添加到图中。为了获得更好的类型安全性，请使用 `GraphNode` 类型实用程序或 `State.Node` 来键入节点函数：
@@ -654,11 +656,13 @@ builder.addNode(myNode);
 // You can then create edges to/from this node by referencing it as `"myNode"`
 ```
 
-### 重执行和幂等性当您使用 [checkpointer](/oss/javascript/langgraph/persistence) 进行编译时，LangGraph 将检查点保存在 [super-step](#graphs) 边界，而不是节点内的中间函数。如果执行停止并稍后恢复（例如在 [interrupt](/oss/javascript/langgraph/interrupts) 或重试之后），受影响的 **节点** 从其功能开始时再次运行。暂停之前的代码和副作用再次运行。
+### 重执行和幂等性
 
-**幂等性。**设计**节点**逻辑，以便重新执行不会破坏状态。如果节点插入数据库行，则运行两次不应创建重复行，除非是故意的。使用幂等键、更新插入或先读后写检查。有关`interrupt()`周围的效果，请参阅[Side effects called before ⟦T178⟧ must be idempotent](/oss/javascript/langgraph/interrupts#side-effects-called-before-interrupt-must-be-idempotent)。
+当您使用 [checkpointer](/oss/javascript/langgraph/persistence) 进行编译时，LangGraph 将检查点保存在 [super-step](#graphs) 边界，而不是节点内的中间函数。如果执行停止并稍后恢复（例如在 [interrupt](/oss/javascript/langgraph/interrupts) 或重试之后），受影响的 **节点** 从其功能开始时再次运行。暂停之前的代码和副作用再次运行。
 
-**图形更改。** [Determinism](/oss/javascript/langgraph/functional-api#determinism) 有关代码更改的规则不适用于图形结构。您可以添加或删除**节点**和边，而不会破坏现有线程的恢复。恢复的运行使用保存的状态并执行您现在编译的任何图形。**节点内部的任务和中断。** 如果 **节点** 调用 [**tasks**](/oss/javascript/langgraph/functional-api#task) 或 [⟦T179⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt)，则在恢复时应用更严格的确定性规则。 LangGraph 从检查点恢复已完成的 **任务** 结果，但在恢复点之前更改代码中的 **任务** 或 [⟦T180⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 顺序可能会与缓存的值不匹配。 [Functional API](/oss/javascript/langgraph/functional-api) **入口点** 编译为单个 **节点**，以这种方式运行整个入口点方法。请参阅 [Determinism](/oss/javascript/langgraph/functional-api#determinism)、[Idempotency](/oss/javascript/langgraph/functional-api#idempotency) 和 [Using tasks in nodes](#using-tasks-in-nodes)。
+**幂等性。**设计**节点**逻辑，以便重新执行不会破坏状态。如果节点插入数据库行，则运行两次不应创建重复行，除非是故意的。使用幂等性密钥、更新插入或先读后写检查。有关`interrupt()`周围的效果，请参阅[Side effects called before ⟦T178⟧ must be idempotent](/oss/javascript/langgraph/interrupts#side-effects-called-before-interrupt-must-be-idempotent)。**图形更改。** [Determinism](/oss/javascript/langgraph/functional-api#determinism) 有关代码更改的规则不适用于图形结构。您可以添加或删除**节点**和边，而不会破坏现有线程的恢复。恢复的运行使用保存的状态并执行您现在编译的任何图形。
+
+**节点内部的任务和中断。** 如果 **节点** 调用 [**tasks**](/oss/javascript/langgraph/functional-api#task) 或 [⟦T179⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt)，则在恢复时应用更严格的确定性规则。 LangGraph 从检查点恢复已完成的 **任务** 结果，但在恢复点之前更改代码中的 **任务** 或 [⟦T180⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 顺序可能会与缓存的值不匹配。 [Functional API](/oss/javascript/langgraph/functional-api) **入口点** 编译为单个 **节点**，以这种方式运行整个入口点方法。请参阅 [Determinism](/oss/javascript/langgraph/functional-api#determinism)、[Idempotency](/oss/javascript/langgraph/functional-api#idempotency) 和 [Using tasks in nodes](#using-tasks-in-nodes)。
 
 ### 在节点中使用任务
 
@@ -677,6 +681,7 @@ builder.addNode(myNode);
       StateSchema,
     } from "@langchain/langgraph";
     import type { GraphNode } from "@langchain/langgraph";
+    import { uuid7 } from "langsmith";
 
     const State = new StateSchema({
       url: z.string(),
@@ -698,13 +703,13 @@ builder.addNode(myNode);
     const checkpointer = new MemorySaver();
     const graph = builder.compile({ checkpointer });
 
-    const threadId = crypto.randomUUID();
+    const threadId = uuid7();
     const config = { configurable: { thread_id: threadId } };
 
     await graph.invoke({ url: "https://www.example.com" }, config);
     ```
 
-    <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/9a25fd41-1999-46d9-800d-3da14ff1cf7a/r">
+    <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/365c3891-8f8f-4ade-9c37-aa64cd342feb/r">
       为此示例打开公共 LangSmith 运行。
     </Card>
   </Tab>
@@ -722,6 +727,7 @@ builder.addNode(myNode);
       task,
     } from "@langchain/langgraph";
     import type { GraphNode } from "@langchain/langgraph";
+    import { uuid7 } from "langsmith";
 
     const State = new StateSchema({
       urls: z.array(z.string()),
@@ -748,13 +754,11 @@ builder.addNode(myNode);
     const checkpointer = new MemorySaver();
     const graph = builder.compile({ checkpointer });
 
-    const threadId = crypto.randomUUID();
+    const threadId = uuid7();
     const config = { configurable: { thread_id: threadId } };
 
     await graph.invoke({ urls: ["https://www.example.com"] }, config);
-    ```
-
-    <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/10423c16-9de8-476c-808f-08a150d19d34/r">
+    ```<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/f25ffc86-7e15-44ab-b9bd-9557d9ecc674/r">
       为此示例打开公共 LangSmith 运行。
     </Card>
   </Tab>
@@ -770,7 +774,9 @@ import { START } from "@langchain/langgraph";
 graph.addEdge(START, "nodeA");
 ```
 
-### `END` 节点`END`节点是一个特殊的节点，代表终端节点。当您想要指示哪些边完成后没有任何操作时，将引用该节点。
+### `END` 节点
+
+`END`节点是一个特殊的节点，代表终端节点。当您想要指示哪些边完成后没有任何操作时，将引用此节点。
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { END } from "@langchain/langgraph";
@@ -780,7 +786,7 @@ graph.addEdge("nodeA", END);
 
 ### 节点缓存
 
-LangGraph 支持根据节点的输入来缓存任务/节点。使用缓存：
+LangGraph 支持根据节点的输入缓存任务/节点。使用缓存：
 
 * 编译图时指定缓存（或指定入口点）
 * 指定节点的缓存策略。每个缓存策略支持：
@@ -816,12 +822,12 @@ await graph.invoke({ x: 5 }, { streamMode: "updates" });   // [!code highlight]
 
 ## 边缘
 
-边定义逻辑如何路由以及图形如何决定停止。这是代理如何工作以及不同节点如何相互通信的重要组成部分。有几种关键的边类型：
-
-* 普通边：直接从一个节点到下一个节点。
-* 条件边：调用函数来确定下一个要转到哪个或哪些节点。
+边定义逻辑如何路由以及图形如何决定停止。这是代理如何工作以及不同节点如何相互通信的重要组成部分。有几种关键的边类型：* 普通边：直接从一个节点到下一个节点。
+* 条件边：调用函数来确定下一个要转到哪个节点。
 * 入口点：当用户输入到达时首先调用哪个节点。
-* 条件入口点：调用函数来确定当用户输入到达时首先调用哪个节点。一个节点可以有多个出边。如果一个节点有多个传出边，则这些目标节点的**所有**将作为下一个超级步骤的一部分并行执行。
+* 条件入口点：调用函数来确定当用户输入到达时首先调用哪个节点。
+
+一个节点可以有多个出边。如果一个节点有多个传出边缘，则所有这些目标节点将作为下一个超级步骤的一部分并行执行。
 
 <Warning>
   对于每个节点，选择一种路由机制：使用普通边进行静态路由，或使用条件边/[⟦T187⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/Command)进行动态路由。不要混合来自同一节点的普通边和动态路由，因为这两条路径都可以执行并使图行为更难以推理。
@@ -841,11 +847,11 @@ graph.addEdge("nodeA", "nodeB");
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 graph.addConditionalEdges("nodeA", routingFunction);
-```
+```与节点类似，`routingFunction`接受图的当前`state`并返回一个值。
 
-与节点类似，`routingFunction`接受图的当前`state`并返回一个值。
+默认情况下，返回值`routingFunction`用作将状态发送到下一个的节点（或节点列表）的名称。所有这些节点将作为下一个超级步骤的一部分并行运行。
 
-默认情况下，返回值`routingFunction`用作将状态发送到下一个的节点（或节点列表）的名称。所有这些节点将作为下一个超级步骤的一部分并行运行。您可以选择提供一个对象，将 `routingFunction` 的输出映射到下一个节点的名称。
+您可以选择提供一个对象，将 `routingFunction` 的输出映射到下一个节点的名称。
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 graph.addConditionalEdges("nodeA", routingFunction, {
@@ -1092,7 +1098,7 @@ graph.addNode("myNode", (state, config) => {
 });
 ```
 
-### 递归限制递归限制设置了图在单次执行期间可以执行的最大数量 [super-steps](#graphs)。一旦达到限制，LangGraph将提高`GraphRecursionError`。默认情况下，该值设置为 25 步。递归限制可以在运行时在任何图上设置，并通过配置对象传递给`invoke`/`stream`。重要的是，`recursionLimit`是一个独立的`config`密钥，不应像所有其他用户定义的配置一样在`configurable`密钥内传递。请参阅下面的示例：
+### 递归限制递归限制设置了图在单次执行期间可以执行的最大数量 [super-steps](#graphs)。一旦达到限额，LangGraph将提高`GraphRecursionError`。默认情况下，该值设置为 25 步。递归限制可以在运行时在任何图上设置，并通过配置对象传递给`invoke`/`stream`。重要的是，`recursionLimit`是一个独立的`config`密钥，不应像所有其他用户定义的配置一样在`configurable`密钥内传递。请参阅下面的示例：
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 await graph.invoke(inputs, {

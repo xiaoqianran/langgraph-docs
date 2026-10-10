@@ -105,7 +105,7 @@ await myWorkflow.invoke({ value: 1, anotherValue: 2 });
 
 ## 并行执行
 
-通过并发调用任务并等待结果，可以并行执行任务。这对于提高 IO 绑定任务的性能很有用（例如，调用 LLM 的 API）。
+通过并发调用任务并等待结果，可以并行执行任务。这对于提高 IO 密集型任务的性能很有用（例如，调用 LLM 的 API）。
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 const addOne = task("addOne", async (number: number) => {
@@ -294,7 +294,7 @@ for await (const chunk of stream.values) {
 // 10
 ```
 
-<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/8737a21a-1a44-47ce-b3bd-880a15fc7375/r">
+<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/0104f36d-4746-4819-9bfd-09bc642b913d/r">
   为此示例打开公共 LangSmith 运行。
 </Card>
 

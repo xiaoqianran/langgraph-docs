@@ -4,28 +4,28 @@
 
 # 商店
 
-LangGraph stores provide cross-thread long-term memory, complementing per-thread checkpointer persistence.
+LangGraph 存储提供跨线程长期内存，补充了每线程检查指针持久性。
 
-存储让代理可以跨线程保存信息，包括用户偏好、积累的知识以及在一次对话之后仍能保存的事实。 Unlike [checkpointers](/oss/javascript/langgraph/checkpointers), which save the full graph state scoped to one thread, stores hold arbitrary key-value data accessible from any thread.
+存储让代理可以跨线程保存信息，包括用户偏好、积累的知识以及在一次对话之后仍能保存的事实。与 [checkpointers](/oss/javascript/langgraph/checkpointers) 不同的是，[checkpointers](/oss/javascript/langgraph/checkpointers) 保存了一个线程范围内的完整图状态，存储保存了可从任何线程访问的任意键值数据。
 
 <img alt="Model of shared state" />
 
 <Info>
   **代理服务器自动处理存储**
-  When using the [Agent Server](/langsmith/agent-server), you do not need to implement or configure stores manually. The API handles all storage infrastructure for you behind the scenes.
+  使用[Agent Server](/langsmith/agent-server)时，您不需要手动实现或配置存储。 API 在幕后为您处理所有存储基础设施。
 </Info>
 
 <Note>
-  [InMemoryStore](https://reference.langchain.com/javascript/langchain-core/stores/InMemoryStore) is suitable for development and testing. For production, use a persistent store like `PostgresStore`, `MongoDBStore`, `RedisStore`, or `UpstashStore`. All implementations extend [BaseStore](https://reference.langchain.com/javascript/langchain-core/stores/BaseStore), which is the type annotation to use in node function signatures.
+  [InMemoryStore](https://reference.langchain.com/javascript/langchain-core/stores/InMemoryStore)适合开发和测试。对于生产，请使用持久存储，例如 `PostgresStore`、`MongoDBStore`、`RedisStore` 或 `UpstashStore`。所有实现都扩展[BaseStore](https://reference.langchain.com/javascript/langchain-core/stores/BaseStore)，这是在节点函数签名中使用的类型注释。
 </Note>
 
 <Note>
-  See [store integrations](/oss/javascript/integrations/long-term-memory/index) for the full list of available providers.
+  有关可用提供商的完整列表，请参阅[store integrations](/oss/javascript/integrations/long-term-memory/index)。
 </Note>
 
 ## 基本用法
 
-The following code snippet shows the [InMemoryStore](https://reference.langchain.com/javascript/langchain-core/stores/InMemoryStore) in isolation without using LangGraph:
+以下代码片段单独显示了[InMemoryStore](https://reference.langchain.com/javascript/langchain-core/stores/InMemoryStore)，而不使用LangGraph：
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { MemoryStore } from "@langchain/langgraph";
@@ -41,7 +41,8 @@ const namespaceForMemory = [userId, "memories"];
 使用`store.put`方法将内存保存到store中的命名空间中。指定上面定义的命名空间，以及内存的键值对：键只是内存的唯一标识符（`memory_id`），值（字典）是内存本身。
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-const memoryId = crypto.randomUUID();
+import { v7 as uuid7 } from "uuid";
+const memoryId = uuid7();
 const memory = { food_preference: "I like pizza" };
 await memoryStore.put(namespaceForMemory, memoryId, memory);
 ```
@@ -143,7 +144,7 @@ const memories = await store.search(namespaceForMemory, {
 // Store with specific fields to embed
 await store.put(
   namespaceForMemory,
-  crypto.randomUUID(),
+  uuid7(),
   {
     food_preference: "I love Italian cuisine",
     context: "Discussing dinner plans",
@@ -151,10 +152,11 @@ await store.put(
   { index: ["food_preference"] } // Only embed "food_preferences" field
 );
 
+import { v7 as uuid7 } from "uuid";
 // Store without embedding (still retrievable, but not searchable)
 await store.put(
   namespaceForMemory,
-  crypto.randomUUID(),
+  uuid7(),
   { system_info: "Last updated: 2024-01-01" },
   { index: false }
 );
@@ -196,6 +198,7 @@ for await (const update of await graph.stream(
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { StateSchema, MessagesValue, Runtime } from "@langchain/langgraph";
+import { v7 as uuid7 } from "uuid";
 
 const MessagesState = new StateSchema({
   messages: MessagesValue,
@@ -213,7 +216,7 @@ const updateMemory: GraphNode<typeof MessagesState> = async (state, runtime) => 
   const memory = "Some memory content";
 
   // Create a new memory ID
-  const memoryId = crypto.randomUUID();
+  const memoryId = uuid7();
 
   // We create a new memory
   await runtime.store?.put(namespace, memoryId, { memory });

@@ -116,7 +116,7 @@ graph.invoke({"user_input": "My"})
 # {'graph_output': 'My name is Lance'}
 ```
 
-<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/db7e0ca9-0d20-4958-9b72-48bcc6564c0e/r">
+<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/a72a6e66-883f-4551-b4e2-3ca3129be6a2/r">
   为此示例打开公共 LangSmith 运行。
 </Card>
 
@@ -124,7 +124,7 @@ graph.invoke({"user_input": "My"})
 
 1. 我们将`state: InputState`作为输入模式传递给`node_1`。但是，我们写入`foo`，`OverallState` 中的一个通道。我们如何写入不包含在输入模式中的状态通道？这是因为节点*可以写入图状态中的任何状态通道。*图状态是初始化时定义的状态通道的并集，其中包括`OverallState`以及过滤器`InputState`和`OutputState`。
 
-2. 我们用以下方法初始化图：
+2. 我们用以下方法初始化图表：
 
    ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
    StateGraph(
@@ -132,7 +132,7 @@ graph.invoke({"user_input": "My"})
        input_schema=InputState,
        output_schema=OutputState
    )
-   ```我们如何在`node_2`中写入`PrivateState`？如果未在 `StateGraph` 初始化中传递该架构，那么该图如何访问该架构？
+   ```我们如何在`node_2`中写入`PrivateState`？如果未在 `StateGraph` 初始化中传递该模式，那么该图如何访问该模式？
 
    我们可以这样做，因为只要状态模式定义存在，`_nodes`还可以声明附加状态`channels_`。在这种情况下，定义了`PrivateState`模式，因此我们可以将`bar`添加为图中的新状态通道并写入它。
 
@@ -141,7 +141,7 @@ graph.invoke({"user_input": "My"})
 
   输入、输出和私有模式限制每个节点*读取*的内容（其输入模式）以及`invoke`*返回*（输出模式）。他们**不会**隐藏`stream`的频道。
 
-  当您使用 `stream_mode="values"` 进行流式传输时，图表默认会发出其**所有**状态通道，包括私有通道，因为值流式传输默认为完整的状态通道集而不是输出模式。这就是为什么像`bar`这样的私人频道被`invoke`隐藏但在流式传输时可见：
+  当您使用 `stream_mode="values"` 进行流式传输时，图表默认会发出其**所有**状态通道，包括私有通道，因为值流式传输默认为完整的状态通道集而不是输出模式。这就是为什么像 `bar` 这样的私人频道被 `invoke` 隐藏但在流式传输时可见：
 
   ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
   stream = graph.stream_events({"user_input": "My"}, version="v3")
@@ -153,11 +153,11 @@ graph.invoke({"user_input": "My"})
   # {'foo': 'My name', 'user_input': 'My', 'graph_output': 'My name is Lance', 'bar': 'My name is'}
   ```
 
-  <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/41466c41-ad4c-4ca8-965a-bfae7b03ab67/r">
+  <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/00c6ab6e-18ce-48ee-893e-4c97cec6ee6c/r">
     为此示例打开公共 LangSmith 运行。
   </Card>
 
-  要将流式传输的值限制为一组特定的通道（例如，仅输出模式），请传递 `output_keys`：
+  要将流式传输的值限制为一组特定的通道（例如仅输出模式），请传递 `output_keys`：
 
   ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
   stream = graph.stream_events(
@@ -171,7 +171,7 @@ graph.invoke({"user_input": "My"})
   ```如果您只需要节点实际每一步产生的通道（而不是完整的累积状态），请改用`stream_mode="updates"`。
 </Warning>
 
-### 减速器
+### 减速机
 
 减速器是理解节点更新如何应用于`State`的关键。 `State`中的每个按键都有自己独立的减速器功能。如果没有显式指定减速器函数，则假定对该键的所有更新都应覆盖它。有几种不同类型的减速器，从默认类型的减速器开始：
 
@@ -254,7 +254,7 @@ class State(TypedDict):
 
 #### 重置reducer字段
 
-减速器常见的混淆来源：使用合并减速器时，返回空值不会**不**清除字段。因为reducer将右边的参数合并到左边的参数中，所以合并了一个空的更新，并且保留了之前累积的值。
+减速器常见的混淆来源：使用合并减速器时，返回空值并不会清除字段。因为reducer将右边的参数合并到左边的参数中，所以合并了一个空的更新，并且保留了之前累积的值。
 
 此模式对于必须在重试尝试之间清除的错误缓冲区或重试计数器很重要：
 
@@ -295,7 +295,7 @@ def clear_errors(state: State):
 
 ### 未跟踪的值
 
-`UntrackedValue` 用于在图执行期间应该存在但不应该**设置检查点**的状态字段。当图表从检查点恢复时，未跟踪的值将重置为其初始状态（或不可用）。
+`UntrackedValue` 用于在图执行期间应该存在但不应该被设置检查点的状态字段。当图表从检查点恢复时，未跟踪的值将重置为其初始状态（或不可用）。
 
 这对于：
 
@@ -445,7 +445,7 @@ type MyUpdate = typeof MyStateSchema.Update;
 
 要了解有关消息对象的更多信息，请参阅[Messages conceptual guide](/oss/python/langchain/messages)。
 
-#### 在图表中使用消息在许多情况下，将先前的对话历史记录存储为图形状态中的消息列表会很有帮助。为此，我们可以向存储`Message`对象列表的图状态添加一个键（通道），并使用reducer函数对其进行注释（请参阅下面示例中的`messages`键）。减速器函数对于告诉图如何在每次状态更新时（例如，当节点发送更新时）更新状态中的 `Message` 对象列表至关重要。如果您不指定减速器，则每次状态更新都会用最近提供的值覆盖消息列表。如果您想简单地将消息附加到现有列表，您可以使用 `operator.add` 作为减速器。但是，您可能还想手动更新图形状态中的消息（例如人机循环）。如果您要使用`operator.add`，您发送到图表的手动状态更新将被附加到现有的消息列表中，而不是更新现有的消息。为了避免这种情况，您需要一个可以跟踪消息 ID 并覆盖现有消息（如果更新）的缩减程序。为此，您可以使用预构建的 [⟦T159⟧](https://reference.langchain.com/python/langgraph/graph/message/add_messages) 函数。对于全新的消息，它只会附加到现有列表，但它也会正确处理现有消息的更新。
+#### 在图表中使用消息在许多情况下，将先前的对话历史记录存储为图形状态中的消息列表会很有帮助。为此，我们可以向存储`Message`对象列表的图状态添加一个键（通道），并使用reducer函数对其进行注释（请参阅下面示例中的`messages`键）。减速器函数对于告诉图如何在每次状态更新时（例如，当节点发送更新时）更新状态中的 `Message` 对象列表至关重要。如果您不指定减速器，则每次状态更新都会用最近提供的值覆盖消息列表。如果您想简单地将消息附加到现有列表，您可以使用 `operator.add` 作为减速器。但是，您可能还想手动更新图形状态中的消息（例如人机交互）。如果您要使用`operator.add`，您发送到图表的手动状态更新将被附加到现有的消息列表中，而不是更新现有的消息。为了避免这种情况，您需要一个可以跟踪消息 ID 并覆盖现有消息（如果更新）的缩减程序。为此，您可以使用预构建的 [⟦T159⟧](https://reference.langchain.com/python/langgraph/graph/message/add_messages) 函数。对于全新的消息，它只会附加到现有列表，但它也会正确处理现有消息的更新。
 
 #### 序列化
 
@@ -540,7 +540,7 @@ builder.add_node(my_node)
 
 ### 重执行和幂等性当您使用 [checkpointer](/oss/python/langgraph/persistence) 进行编译时，LangGraph 将检查点保存在 [super-step](#graphs) 边界，而不是节点内的中间函数。如果执行停止并稍后恢复（例如在 [interrupt](/oss/python/langgraph/interrupts) 或 [retry](/oss/python/langgraph/fault-tolerance#retries) 之后），受影响的 **节点** 从其功能开始时再次运行。暂停之前的代码和副作用再次运行。
 
-**幂等性。**设计**节点**逻辑，以便重新执行不会破坏状态。如果节点插入数据库行，则运行两次不应创建重复行，除非是故意的。使用幂等键、更新插入或先读后写检查。有关`interrupt()`周围的效果，请参阅[Side effects called before ⟦T190⟧ must be idempotent](/oss/python/langgraph/interrupts#side-effects-called-before-interrupt-must-be-idempotent)。
+**幂等性。**设计**节点**逻辑，以便重新执行不会破坏状态。如果节点插入数据库行，则运行两次不应创建重复行，除非是故意的。使用幂等性密钥、更新插入或先读后写检查。有关`interrupt()`周围的效果，请参阅[Side effects called before ⟦T190⟧ must be idempotent](/oss/python/langgraph/interrupts#side-effects-called-before-interrupt-must-be-idempotent)。
 
 **图形更改。** [Determinism](/oss/python/langgraph/functional-api#determinism) 有关代码更改的规则不适用于图形结构。您可以添加或删除**节点**和边，而不会破坏现有线程的恢复。恢复的运行使用保存的状态并执行您现在编译的任何图形。**节点内的任务和中断。** 如果 **节点** 调用 [**tasks**](/oss/python/langgraph/functional-api#task) 或 [⟦T191⟧](https://reference.langchain.com/python/langgraph/types/interrupt)，则在恢复时应用更严格的确定性规则。 LangGraph 从检查点恢复已完成的 **任务** 结果，但在恢复点之前更改代码中的 **任务** 或 [⟦T192⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 顺序可能会与缓存的值不匹配。 [Functional API](/oss/python/langgraph/functional-api) **入口点** 编译为单个 **节点**，以这种方式运行整个入口点方法。请参阅 [Determinism](/oss/python/langgraph/functional-api#determinism)、[Idempotency](/oss/python/langgraph/functional-api#idempotency) 和 [Using tasks in nodes](#using-tasks-in-nodes)。
 
@@ -585,7 +585,7 @@ builder.add_node(my_node)
     graph.invoke({"url": "https://www.example.com"}, config)
     ```
 
-    <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/ecb04879-c086-47c3-9244-405be60f0c26/r">
+    <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/b9aac911-dc73-43de-b535-e52dfd6d7125/r">
       为此示例打开公共 LangSmith 运行。
     </Card>
   </Tab>
@@ -634,7 +634,7 @@ builder.add_node(my_node)
     graph.invoke({"urls": ["https://www.example.com"]}, config)
     ```
 
-    <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/cc6bd7b8-a3c0-45bb-80e1-a8428c1fcd4d/r">
+    <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/aff19bbc-eb5c-464c-838c-67f1257290e9/r">
       为此示例打开公共 LangSmith 运行。
     </Card>
   </Tab>
@@ -650,7 +650,7 @@ from langgraph.graph import START
 graph.add_edge(START, "node_a")
 ```
 
-### `END` 节点`END`节点是一个特殊的节点，代表终端节点。当您想要指示哪些边完成后没有任何操作时，将引用该节点。
+### `END` 节点`END`节点是一个特殊的节点，代表终端节点。当您想要指示哪些边完成后没有任何操作时，将引用此节点。
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from langgraph.graph import END
@@ -720,11 +720,11 @@ print(graph.invoke({"x": 5}, stream_mode='updates'))    # [!code highlight]
 ## 边缘边定义逻辑如何路由以及图形如何决定停止。这是代理如何工作以及不同节点如何相互通信的重要组成部分。有几种关键的边类型：
 
 * 普通边：直接从一个节点到下一个节点。
-* 条件边：调用函数来确定下一个要转到哪个或哪些节点。
+* 条件边：调用函数来确定下一个要转到哪个节点。
 * 入口点：当用户输入到达时首先调用哪个节点。
 * 条件入口点：调用函数来确定当用户输入到达时首先调用哪个节点。
 
-一个节点可以有多个出边。如果一个节点有多个传出边，则这些目标节点的**所有**将作为下一个超级步骤的一部分并行执行。
+一个节点可以有多个出边。如果一个节点有多个传出边缘，则所有这些目标节点将作为下一个超级步骤的一部分并行执行。
 
 <Warning>
   对于每个节点，选择一种路由机制：使用普通边进行静态路由，或使用条件边/[⟦T206⟧](https://reference.langchain.com/python/langgraph/types/Command)进行动态路由。不要混合来自同一节点的普通边和动态路由，因为这两条路径都可以执行并使图行为更难以推理。
@@ -924,7 +924,7 @@ resumed = graph.stream_events(Command(resume="yes"), config, version="v3")
 final = resumed.output
 ```
 
-<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/55c552d5-6214-4be2-8271-571acd47e3e3/r">
+<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/d043193b-5547-48ea-9796-f1bf5e3d32fb/r">
   为此示例打开公共 LangSmith 运行。
 </Card>
 
@@ -1113,7 +1113,7 @@ except GraphRecursionError as e:
 
 |方法|检测|处理|控制流程|
 | - | - | - | - |
-|主动（使用`RemainingSteps`）|达到限制之前|通过条件路由的内部图 |图形继续完成节点 |
+|主动（使用`RemainingSteps`）|达到限制之前 |通过条件路由的内部图 |图形继续完成节点 |
 |反应式（捕捉`GraphRecursionError`）|超出限制后 | try/catch 中的外部图 |图形执行终止 |
 
 **主动优势：**

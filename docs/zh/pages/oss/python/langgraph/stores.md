@@ -40,7 +40,7 @@ namespace_for_memory = (user_id, "memories")
 使用`store.put`方法将内存保存到store中的命名空间中。指定上面定义的命名空间，以及内存的键值对：键只是内存的唯一标识符（`memory_id`），值（字典）是内存本身。
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-memory_id = str(uuid.uuid4())
+memory_id = str(uuid7())
 memory = {"food_preference" : "I like pizza"}
 store.put(namespace_for_memory, memory_id, memory)
 ```
@@ -75,7 +75,7 @@ memories[-1].dict()
 
 ## 列出命名空间中的项目
 
-在没有 `query` 和没有 `filter` 的情况下调用 [⟦T41⟧](https://reference.langchain.com/python/langgraph/store)（或异步 [⟦T42⟧](https://reference.langchain.com/python/langgraph/store)）会返回存储在 `namespace_prefix` 下的项目，最多为 `limit`。当您不需要语义排名时，可以使用它来枚举命名空间中的所有内容。
+在没有 `query` 和没有 `filter` 的情况下调用 [⟦T41⟧](https://reference.langchain.com/python/langgraph/store)（或异步 [⟦T42⟧](https://reference.langchain.com/python/langgraph/store)）会返回存储在 `namespace_prefix` 下的项目，最多为 `limit`。当您不需要语义排名时，可以使用它来枚举名称空间中的所有内容。
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 # Return up to 100 items stored under ("alice", "memories").
@@ -141,7 +141,7 @@ memories = store.search(
 # Store with specific fields to embed
 store.put(
     namespace_for_memory,
-    str(uuid.uuid4()),
+    str(uuid7()),
     {
         "food_preference": "I love Italian cuisine",
         "context": "Discussing dinner plans"
@@ -152,7 +152,7 @@ store.put(
 # Store without embedding (still retrievable, but not searchable)
 store.put(
     namespace_for_memory,
-    str(uuid.uuid4()),
+    str(uuid7()),
     {"system_info": "Last updated: 2024-01-01"},
     index=False
 )
@@ -216,7 +216,7 @@ async def update_memory(state: MessagesState, runtime: Runtime[Context]):
     # ... Analyze conversation and create a new memory
 
     # Create a new memory ID
-    memory_id = str(uuid.uuid4())
+    memory_id = str(uuid7())
 
     # We create a new memory
     await runtime.store.aput(namespace, memory_id, {"memory": memory})

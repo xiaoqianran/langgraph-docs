@@ -79,7 +79,6 @@ CSS 和 Tailwind 4.x 也受到开箱即用的支持，因此您可以在 UI 组�
 <Tabs>
   <Tab title="Python">
     ```python title="src/agent.py" theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    import uuid
     from typing import Annotated, Sequence, TypedDict
 
     from langchain.messages import AIMessage
@@ -107,7 +106,7 @@ CSS 和 Tailwind 4.x 也受到开箱即用的支持，因此您可以在 UI 组�
         )
 
         message = AIMessage(
-            id=str(uuid.uuid4()),
+            id=str(uuid7()),
             content=f"Here's the weather for {weather['city']}",
         )
 
@@ -127,6 +126,7 @@ CSS 和 Tailwind 4.x 也受到开箱即用的支持，因此您可以在 UI 组�
     使用 `typedUi` 实用程序从代理节点发出 UI 元素：
 
     ```typescript title="src/agent/index.ts" theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+    import { uuid7 } from "langsmith";
     import {
       typedUi,
       uiMessageReducer,
@@ -162,7 +162,7 @@ CSS 和 Tailwind 4.x 也受到开箱即用的支持，因此您可以在 UI 组�
           .invoke(state.messages);
 
         const response = {
-          id: crypto.randomUUID(),
+          id: uuid7(),
           type: "ai",
           content: `Here's the weather for ${weather.city}`,
         };
@@ -341,7 +341,7 @@ const { thread, submit } = useStream({
     });
   },
 });
-```然后，您可以通过使用与您要更新的 UI 消息相同的 ID 调用 `ui.push()` / `push_ui_message()` 将更新推送到 UI 组件。
+```然后，您可以通过调用与您要更新的 UI 消息相同的 ID 的 `ui.push()` / `push_ui_message()` 将更新推送到 UI 组件。
 
 <Tabs>
   <Tab title="Python">
