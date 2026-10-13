@@ -19,3 +19,5 @@
 - [⟦T3⟧](https://reference.langchain.com/python/langgraph.checkpoint.sqlite/_delta/step_walk_with_row)
 - [⟦T4⟧](https://reference.langchain.com/python/langgraph.checkpoint.sqlite/_delta/build_delta_channels_writes_history)
 - [⟦T5⟧](https://reference.langchain.com/python/langgraph.checkpoint.sqlite/utils/search_where)
+- [⟦T6⟧](https://reference.langchain.com/python/langgraph.checkpoint.sqlite/utils/pending_writes_sql)
+- [⟦T7⟧](https://reference.langchain.com/python/langgraph.checkpoint.sqlite/utils/load_pending_writes)

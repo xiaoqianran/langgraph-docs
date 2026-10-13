@@ -31,6 +31,7 @@
 ## Functions
 
 - [`copy_checkpoint()`](https://reference.langchain.com/python/langgraph.checkpoint/base/copy_checkpoint)
+- [`writes_sort_key()`](https://reference.langchain.com/python/langgraph.checkpoint/base/writes_sort_key)
 - [`get_checkpoint_id()`](https://reference.langchain.com/python/langgraph.checkpoint/base/get_checkpoint_id)
 - [`get_checkpoint_metadata()`](https://reference.langchain.com/python/langgraph.checkpoint/base/get_checkpoint_metadata)
 - [`get_serializable_checkpoint_metadata()`](https://reference.langchain.com/python/langgraph.checkpoint/base/get_serializable_checkpoint_metadata)

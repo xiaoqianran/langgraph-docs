@@ -28,11 +28,12 @@
 
 ## 函数
 
-- [⟦T15⟧](https://reference.langchain.com/python/langgraph.store/base/embed/ensure_embeddings)
-- [⟦T16⟧](https://reference.langchain.com/python/langgraph.store/base/embed/get_text_at_path)
-- [⟦T17⟧](https://reference.langchain.com/python/langgraph.store/base/embed/tokenize_path)
+- [⟦T15⟧](https://reference.langchain.com/python/langgraph.store/base/validate_op_namespace)
+- [⟦T16⟧](https://reference.langchain.com/python/langgraph.store/base/embed/ensure_embeddings)
+- [⟦T17⟧](https://reference.langchain.com/python/langgraph.store/base/embed/get_text_at_path)
+- [⟦T18⟧](https://reference.langchain.com/python/langgraph.store/base/embed/tokenize_path)
 
 ## 类型
 
-- [⟦T18⟧](https://reference.langchain.com/python/langgraph.store/base/Op)
-- [⟦T19⟧](https://reference.langchain.com/python/langgraph.store/base/Result)
+- [⟦T19⟧](https://reference.langchain.com/python/langgraph.store/base/Op)
+- [⟦T20⟧](https://reference.langchain.com/python/langgraph.store/base/Result)

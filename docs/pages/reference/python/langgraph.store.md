@@ -26,6 +26,7 @@
 
 ## Functions
 
+- [`validate_op_namespace()`](https://reference.langchain.com/python/langgraph.store/base/validate_op_namespace)
 - [`ensure_embeddings()`](https://reference.langchain.com/python/langgraph.store/base/embed/ensure_embeddings)
 - [`get_text_at_path()`](https://reference.langchain.com/python/langgraph.store/base/embed/get_text_at_path)
 - [`tokenize_path()`](https://reference.langchain.com/python/langgraph.store/base/embed/tokenize_path)
