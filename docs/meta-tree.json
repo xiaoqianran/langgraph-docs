@@ -13,14 +13,6 @@
           "rel": "langsmith/generative-ui-react.md"
         },
         {
-          "title": "LangGraph JS/TS SDK",
-          "rel": "langsmith/langgraph-js-ts-sdk.md"
-        },
-        {
-          "title": "LangGraph Python SDK",
-          "rel": "langsmith/langgraph-python-sdk.md"
-        },
-        {
           "title": "Trace LangGraph applications",
           "rel": "langsmith/trace-with-langgraph.md"
         },
@@ -71,12 +63,6 @@
         {
           "title": "Case studies",
           "rel": "oss/javascript/langgraph/case-studies.md"
-        }
-      ],
-      "changelog-js": [
-        {
-          "title": "Changelog",
-          "rel": "oss/javascript/langgraph/changelog-js.md"
         }
       ],
       "checkpointers": [
@@ -249,16 +235,16 @@
           "rel": "oss/javascript/langgraph/workflows-agents.md"
         }
       ],
-      "common-errors": [
-        {
-          "title": "Errors",
-          "rel": "oss/javascript/langgraph/common-errors.md"
-        }
-      ],
       "human-in-the-loop": [
         {
           "title": "Interrupts",
           "rel": "oss/javascript/langgraph/human-in-the-loop.md"
+        }
+      ],
+      "common-errors": [
+        {
+          "title": "Errors",
+          "rel": "oss/javascript/langgraph/common-errors.md"
         }
       ]
     }
@@ -279,22 +265,6 @@
         {
           "title": "LangGraph v1 migration guide",
           "rel": "oss/python/migrate/langgraph-v1.md"
-        }
-      ]
-    }
-  },
-  "docs-reference": {
-    "id": "docs-reference",
-    "name": "Docs · Reference",
-    "groups": {
-      "reference": [
-        {
-          "title": "LangGraph SDK",
-          "rel": "oss/javascript/reference/langgraph-javascript.md"
-        },
-        {
-          "title": "LangGraph SDK",
-          "rel": "oss/python/reference/langgraph-python.md"
         }
       ]
     }
@@ -347,12 +317,6 @@
         {
           "title": "Case studies",
           "rel": "oss/python/langgraph/case-studies.md"
-        }
-      ],
-      "changelog-py": [
-        {
-          "title": "Changelog",
-          "rel": "oss/python/langgraph/changelog-py.md"
         }
       ],
       "checkpointers": [
@@ -551,6 +515,14 @@
     "groups": {
       "python": [
         {
+          "title": "langgraph.checkpoint",
+          "rel": "reference/python/langgraph.checkpoint.md"
+        },
+        {
+          "title": "langgraph.store.postgres",
+          "rel": "reference/python/langgraph.store.postgres.md"
+        },
+        {
           "title": "langgraph.store",
           "rel": "reference/python/langgraph.store.md"
         },
@@ -559,12 +531,8 @@
           "rel": "reference/python/langgraph.checkpoint.sqlite.md"
         },
         {
-          "title": "langgraph.store.postgres",
-          "rel": "reference/python/langgraph.store.postgres.md"
-        },
-        {
-          "title": "langgraph.checkpoint",
-          "rel": "reference/python/langgraph.checkpoint.md"
+          "title": "langgraph_sdk",
+          "rel": "reference/python/langgraph-sdk.md"
         },
         {
           "title": "langgraph.checkpoint.postgres",
@@ -581,10 +549,6 @@
         {
           "title": "langgraph_supervisor",
           "rel": "reference/python/langgraph-supervisor.md"
-        },
-        {
-          "title": "langgraph_sdk",
-          "rel": "reference/python/langgraph-sdk.md"
         },
         {
           "title": "langgraph_swarm",
@@ -605,56 +569,56 @@
     "groups": {
       "javascript": [
         {
-          "title": "@langchain/langgraph-checkpoint",
-          "rel": "reference/javascript/langchain-langgraph-checkpoint.md"
-        },
-        {
-          "title": "@langchain/langgraph-sdk",
-          "rel": "reference/javascript/langchain-langgraph-sdk.md"
-        },
-        {
           "title": "@langchain/langgraph",
           "rel": "reference/javascript/langchain-langgraph.md"
-        },
-        {
-          "title": "@langchain/langgraph-checkpoint-validation",
-          "rel": "reference/javascript/langchain-langgraph-checkpoint-validation.md"
-        },
-        {
-          "title": "@langchain/langgraph-checkpoint-mongodb",
-          "rel": "reference/javascript/langchain-langgraph-checkpoint-mongodb.md"
-        },
-        {
-          "title": "@langchain/langgraph-checkpoint-sqlite",
-          "rel": "reference/javascript/langchain-langgraph-checkpoint-sqlite.md"
         },
         {
           "title": "@langchain/langgraph-checkpoint-postgres",
           "rel": "reference/javascript/langchain-langgraph-checkpoint-postgres.md"
         },
         {
-          "title": "@langchain/langgraph-checkpoint-redis",
-          "rel": "reference/javascript/langchain-langgraph-checkpoint-redis.md"
+          "title": "@langchain/langgraph-sdk",
+          "rel": "reference/javascript/langchain-langgraph-sdk.md"
         },
         {
-          "title": "@langchain/langgraph-cua",
-          "rel": "reference/javascript/langchain-langgraph-cua.md"
+          "title": "@langchain/langgraph-checkpoint",
+          "rel": "reference/javascript/langchain-langgraph-checkpoint.md"
+        },
+        {
+          "title": "@langchain/langgraph-checkpoint-mongodb",
+          "rel": "reference/javascript/langchain-langgraph-checkpoint-mongodb.md"
+        },
+        {
+          "title": "@langchain/langgraph-api",
+          "rel": "reference/javascript/langchain-langgraph-api.md"
+        },
+        {
+          "title": "@langchain/langgraph-checkpoint-validation",
+          "rel": "reference/javascript/langchain-langgraph-checkpoint-validation.md"
+        },
+        {
+          "title": "@langchain/langgraph-checkpoint-sqlite",
+          "rel": "reference/javascript/langchain-langgraph-checkpoint-sqlite.md"
+        },
+        {
+          "title": "@langchain/langgraph-checkpoint-redis",
+          "rel": "reference/javascript/langchain-langgraph-checkpoint-redis.md"
         },
         {
           "title": "@langchain/langgraph-cli",
           "rel": "reference/javascript/langchain-langgraph-cli.md"
         },
         {
-          "title": "@langchain/langgraph-swarm",
-          "rel": "reference/javascript/langchain-langgraph-swarm.md"
-        },
-        {
           "title": "@langchain/langgraph-supervisor",
           "rel": "reference/javascript/langchain-langgraph-supervisor.md"
         },
         {
-          "title": "@langchain/langgraph-api",
-          "rel": "reference/javascript/langchain-langgraph-api.md"
+          "title": "@langchain/langgraph-swarm",
+          "rel": "reference/javascript/langchain-langgraph-swarm.md"
+        },
+        {
+          "title": "@langchain/langgraph-cua",
+          "rel": "reference/javascript/langchain-langgraph-cua.md"
         }
       ]
     }

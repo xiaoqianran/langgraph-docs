@@ -30,6 +30,7 @@
 ## Functions
 
 - [`create_react_agent()`](https://reference.langchain.com/python/langgraph.prebuilt/chat_agent_executor/create_react_agent)
+- [`is_invalid_resume()`](https://reference.langchain.com/python/langgraph.prebuilt/tool_node/is_invalid_resume)
 - [`msg_content_output()`](https://reference.langchain.com/python/langgraph.prebuilt/tool_node/msg_content_output)
 - [`tools_condition()`](https://reference.langchain.com/python/langgraph.prebuilt/tool_node/tools_condition)
 

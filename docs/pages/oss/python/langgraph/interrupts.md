@@ -76,7 +76,7 @@ resumed = graph.stream_events(Command(resume=True), config=config, version="v3")
 final = resumed.output
 ```
 
-<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/81fa636e-c8ef-45a7-bb56-88ebcc19c392/r">
+<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/cf85f039-145d-4226-9c16-3e915c35a35c/r">
   Open a public LangSmith run for this example.
 </Card>
 
@@ -200,7 +200,7 @@ while True:
     stream_input = Command(resume=user_response)
 ```
 
-<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/f93bbd7c-13df-4d59-878d-99bad0e1042b/r">
+<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/3fcd0b07-12d7-455e-9d24-8b25548a46be/r">
   Open a public LangSmith run for this example.
 </Card>
 
@@ -268,7 +268,7 @@ print("Final state:", resumed.output)
 # Final state: {'vals': ['a:answer for question_a', 'b:answer for question_b']}
 ```
 
-<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/d43fa02f-0832-41ba-8c7d-06031d75c296/r">
+<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/7cbaa580-169c-4f6d-a883-5d980309e9cf/r">
   Open a public LangSmith run for this example.
 </Card>
 
@@ -365,7 +365,7 @@ graph.stream_events(Command(resume=False), config=config, version="v3").output
   print(resumed.output["status"])
   ```
 
-  <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/9a47c888-5047-468c-9c93-5ef7f4969b88/r">
+  <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/81e6322b-083e-4290-bcb2-18cf98d38038/r">
     Open a public LangSmith run for this example.
   </Card>
 </Accordion>
@@ -446,7 +446,7 @@ graph.stream_events(
   print(final_state.output["generated_text"])  # -> "Improved draft after review"
   ```
 
-  <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/eef6edc7-2aad-4330-ba7e-a56d856bc699/r">
+  <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/5efd556a-ed06-45b2-9520-a7a4819a92a6/r">
     Open a public LangSmith run for this example.
   </Card>
 </Accordion>

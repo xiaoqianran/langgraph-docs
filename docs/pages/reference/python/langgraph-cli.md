@@ -51,6 +51,7 @@
 - [`RemoteBuildSource`](https://reference.langchain.com/python/langgraph-cli/deploy/RemoteBuildSource)
 - [`BuildAndPush`](https://reference.langchain.com/python/langgraph-cli/deploy/BuildAndPush)
 - [`PublishedImage`](https://reference.langchain.com/python/langgraph-cli/deploy/PublishedImage)
+- [`CreateOnlySettings`](https://reference.langchain.com/python/langgraph-cli/deploy/CreateOnlySettings)
 - [`CustomerRegistrySource`](https://reference.langchain.com/python/langgraph-cli/deploy/CustomerRegistrySource)
 - [`NestedHelpGroup`](https://reference.langchain.com/python/langgraph-cli/deploy/NestedHelpGroup)
 - [`DeployGroup`](https://reference.langchain.com/python/langgraph-cli/deploy/DeployGroup)

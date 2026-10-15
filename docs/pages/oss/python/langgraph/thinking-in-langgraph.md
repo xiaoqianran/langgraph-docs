@@ -645,7 +645,7 @@ Let's run our agent with an urgent billing issue that needs human review:
   print("Email sent successfully!")
   ```
 
-  <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/2636e51a-5dcd-4a33-8b4d-23678e364ef2/r">
+  <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/c11c3fe2-7ea3-44bf-aa5d-85e4ac995b88/r">
     Open a public LangSmith run for this example.
   </Card>
 </Accordion>

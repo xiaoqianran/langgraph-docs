@@ -191,7 +191,7 @@ while (true) {
 }
 ```
 
-<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/acc5e3f4-3086-44f9-b484-51ae7eca6216/r">
+<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/7ebae998-6b68-4caa-a262-38d84efc922f/r">
   Open a public LangSmith run for this example.
 </Card>
 
@@ -608,7 +608,7 @@ const getAgeNode: typeof State.Node = (state) => {
 // );
 ```
 
-<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/8f40efd5-a1c5-43fe-a95c-b533b408c0b4/r">
+<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/9e6a7db8-1fa3-4f6f-91cc-3b48fcf5e6ec/r">
   Open a public LangSmith run for this example.
 </Card>
 

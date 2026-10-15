@@ -1213,7 +1213,7 @@ result = graph.invoke(
 )
 ```
 
-<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/afaeb6f7-9e5a-4417-9ea0-22352736f755/r">
+<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/9ab71e9c-3d7c-49aa-aa11-70fa6fc848aa/r">
   Open a public LangSmith run for this example.
 </Card>
 

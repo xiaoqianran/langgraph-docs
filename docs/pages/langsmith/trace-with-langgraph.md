@@ -112,7 +112,7 @@ Once you've set up your environment, you can call LangChain runnables as normal.
   tools = [search]
   tool_node = ToolNode(tools)
 
-  model = ChatOpenAI(model="gpt-5.5", temperature=0).bind_tools(tools)
+  model = ChatOpenAI(model="gpt-6-luna").bind_tools(tools)
 
   def should_continue(state: MessagesState) -> Literal["tools", "__end__"]:
       messages = state['messages']
@@ -183,8 +183,7 @@ Once you've set up your environment, you can call LangChain runnables as normal.
   const toolNode = new ToolNode<AgentState>(tools);
 
   const model = new ChatOpenAI({
-    model: "gpt-5.5",
-    temperature: 0,
+    model: "gpt-6-luna",
   }).bindTools(tools);
 
   function shouldContinue(state: AgentState) {
@@ -381,7 +380,7 @@ Once you've set up your environment, [wrap or decorate the custom functions/SDKs
       messages = state["messages"]
       # Calling the wrapped client will automatically infer the correct tracing context
       response = wrapped_client.chat.completions.create(
-          messages=messages, model="gpt-5.4-mini", tools=[tool_schema]
+          messages=messages, model="gpt-6-luna", tools=[tool_schema]
       )
       raw_tool_calls = response.choices[0].message.tool_calls
       tool_calls = [tool_call.to_dict() for tool_call in raw_tool_calls] if raw_tool_calls else []
@@ -478,7 +477,7 @@ Once you've set up your environment, [wrap or decorate the custom functions/SDKs
     // Calling the wrapped client will automatically infer the correct tracing context
     const response = await wrappedClient.chat.completions.create({
       messages,
-      model: "gpt-5.4-mini",
+      model: "gpt-6-luna",
       tools: [toolSchema],
     });
     const responseMessage = {

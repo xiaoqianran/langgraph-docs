@@ -170,7 +170,7 @@ await graph.invoke({ userInput: "My" });
 // { graphOutput: 'My name is Lance' }
 ```
 
-<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/11c4d2f4-cc73-404c-962e-3b16c9b1574c/r">
+<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/8fd9e17e-fd75-4829-a402-cb7e0bf18736/r">
   Open a public LangSmith run for this example.
 </Card>
 
@@ -243,7 +243,7 @@ There are two subtle and important points to note here:
   // { foo: 'My name', userInput: 'My', graphOutput: 'My name is Lance', bar: 'My name is' }
   ```
 
-  <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/c326389e-fd63-4647-9d99-6c6a797d96cd/r">
+  <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/32188285-dc90-4281-b140-d3bbf033748c/r">
     Open a public LangSmith run for this example.
   </Card>
 
@@ -299,7 +299,7 @@ const State = new StateSchema({
 });
 ```
 
-<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/51e24f47-6fcb-4d4c-addc-260c9f4f29cd/r">
+<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/c4537752-96b4-4e3a-832b-9733d2486e85/r">
   Open a public LangSmith run for this example.
 </Card>
 
@@ -310,10 +310,6 @@ const reducer = (left: string[], right: string[]) => left.concat(right);
 
 reducer(["draft"], ["review"]); // left, right → ["draft", "review"]
 ```
-
-<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/65c80463-0cf3-4a86-be27-6136cb4b67a6/r">
-  Open a public LangSmith run for this example.
-</Card>
 
 The new state value for `tags` is `["draft", "review"]`.
 
@@ -333,7 +329,7 @@ const State = new StateSchema({
 });
 ```
 
-<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/66046eed-b4dc-4d27-89d6-ea12289d3bfd/r">
+<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/62bd5fab-0acd-46c3-9689-42a37da3c7f5/r">
   Open a public LangSmith run for this example.
 </Card>
 
@@ -358,7 +354,7 @@ const State = new StateSchema({
 });
 ```
 
-<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/60729226-ed2c-4bef-bce5-54f20732c56f/r">
+<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/e9ae6a10-b6dc-49c9-bb16-5f307b57d2e4/r">
   Open a public LangSmith run for this example.
 </Card>
 
@@ -386,7 +382,7 @@ const State = new StateSchema({
 // state.errors is still ["bad sql"]; the empty array is merged in, not cleared
 ```
 
-<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/7f2fa409-bef2-4eee-b4dd-dcb460739296/r">
+<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/3bb1b2e1-f021-488d-86ec-0b09f71b4d14/r">
   Open a public LangSmith run for this example.
 </Card>
 
@@ -406,7 +402,7 @@ const State = new StateSchema({
 // node can now clear the field with { errors: [] }
 ```
 
-<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/b71bfa2d-72b9-4ecd-822b-38269f81cbe8/r">
+<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/0ddacd70-2b42-4e9e-97c3-064e5c5d1f4d/r">
   Open a public LangSmith run for this example.
 </Card>
 
@@ -698,6 +694,7 @@ If a [node](#nodes) contains multiple operations, you may find it easier to impl
   <Tab title="Original">
     ```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
     import * as z from "zod";
+    import { uuid7 } from "langsmith";
 
     import {
       END,
@@ -707,7 +704,6 @@ If a [node](#nodes) contains multiple operations, you may find it easier to impl
       StateSchema,
     } from "@langchain/langgraph";
     import type { GraphNode } from "@langchain/langgraph";
-    import { uuid7 } from "langsmith";
 
     const State = new StateSchema({
       url: z.string(),
@@ -735,7 +731,7 @@ If a [node](#nodes) contains multiple operations, you may find it easier to impl
     await graph.invoke({ url: "https://www.example.com" }, config);
     ```
 
-    <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/365c3891-8f8f-4ade-9c37-aa64cd342feb/r">
+    <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/13308e63-ab5d-47b0-b9ac-9a52389969ed/r">
       Open a public LangSmith run for this example.
     </Card>
   </Tab>
@@ -743,6 +739,7 @@ If a [node](#nodes) contains multiple operations, you may find it easier to impl
   <Tab title="With task">
     ```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
     import * as z from "zod";
+    import { uuid7 } from "langsmith";
 
     import {
       END,
@@ -753,7 +750,6 @@ If a [node](#nodes) contains multiple operations, you may find it easier to impl
       task,
     } from "@langchain/langgraph";
     import type { GraphNode } from "@langchain/langgraph";
-    import { uuid7 } from "langsmith";
 
     const State = new StateSchema({
       urls: z.array(z.string()),
@@ -786,7 +782,7 @@ If a [node](#nodes) contains multiple operations, you may find it easier to impl
     await graph.invoke({ urls: ["https://www.example.com"] }, config);
     ```
 
-    <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/f25ffc86-7e15-44ab-b9bd-9557d9ecc674/r">
+    <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/8a472619-c051-4137-95d3-1937c6d0855e/r">
       Open a public LangSmith run for this example.
     </Card>
   </Tab>
