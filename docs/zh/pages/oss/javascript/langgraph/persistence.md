@@ -6,7 +6,7 @@
 
 LangGraph 的持久层通过检查点为代理提供短期记忆，并通过存储为代理提供长期记忆。
 
-持久性让 LangGraph 应用程序在单个图形运行之外保留有用的信息。当代理需要继续对话、中断后恢复、从故障中恢复或记住交互过程中的信息时，这一点很重要。
+持久性让 LangGraph 应用程序能够在单个图形运行之外保留有用的信息。当代理需要继续对话、中断后恢复、从故障中恢复或记住交互过程中的信息时，这一点很重要。
 
 LangGraph提供了两个互补的持久化系统：
 
@@ -20,10 +20,10 @@ LangGraph提供了两个互补的持久化系统：
 使用检查点、存储或两者来编译图表：
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-import { MemorySaver, MemoryStore } from "@langchain/langgraph";
+import { MemorySaver, InMemoryStore } from "@langchain/langgraph";
 
 const checkpointer = new MemorySaver();
-const store = new MemoryStore();
+const store = new InMemoryStore();
 
 const graph = builder.compile({ checkpointer, store });
 
@@ -41,9 +41,9 @@ const result = await graph.invoke(
 | |检查点|商店 |
 | - | - | - |
 |坚持 |图状态快照 |应用程序定义的键值数据 |
-|范围 |单线程|跨线程|
+|范围 |单线程|跨线程 |
 |内存类型|短期、线程范围内存 |长期、跨线程内存|
-|用于 |对话连续性、人机交互、时间旅行和容错 |用户偏好、事实和共享知识 |
+|用于|对话连续性、人机交互、时间旅行和容错 |用户偏好、事实和共享知识 |
 |访问模式|在图形配置中传递 `thread_id` |从节点或应用程序代码读取和写入项目 |
 |完整指南 | [Checkpointers](/oss/javascript/langgraph/checkpointers) | [Stores](/oss/javascript/langgraph/stores) |
 
@@ -64,7 +64,7 @@ const result = await graph.invoke(
 
 ### 检查点无限增长
 
-经过长时间的对话，检查点会不断累积。这会增加延迟和存储成本。
+经过长时间的对话，检查点会不断积累。这会增加延迟和存储成本。
 
 **修复：** 定期修剪旧检查点或设置保留策略：
 

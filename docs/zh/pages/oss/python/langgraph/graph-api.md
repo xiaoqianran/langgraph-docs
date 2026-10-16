@@ -22,7 +22,7 @@ LangGraph 将代理工作流程建模为图形：使用 StateGraph 定义状态�
 
 简而言之：*节点完成工作，边缘告诉下一步做什么*。LangGraph的底层图算法使用[message passing](https://en.wikipedia.org/wiki/Message_passing)定义通用程序。当节点完成其操作时，它会沿着一条或多条边向其他节点发送消息。然后，这些接收节点执行其功能，将结果消息传递给下一组节点，然后该过程继续。受 Google [Pregel](https://research.google/pubs/pregel-a-system-for-large-scale-graph-processing/) 系统的启发，该程序以离散的“超级步骤”进行。
 
-超级步骤可以被认为是图节点上的单次迭代。并行运行的节点是同一超级步骤的一部分，而顺序运行的节点则属于单独的超级步骤。在图执行开始时，所有节点都以 `inactive` 状态开始。当节点在其任何传入边缘（或“通道”）上接收到新消息（状态）时，它就会变成`active`。然后，活动节点运行其功能并以更新进行响应。在每个超级步骤结束时，没有传入消息的节点通过将自己标记为`inactive`来投票给`halt`。当所有节点都为 `inactive` 并且没有消息在传输时，图执行终止。
+超级步骤可以被认为是图节点上的单次迭代。并行运行的节点是同一超级步骤的一部分，而顺序运行的节点则属于单独的超级步骤。在图执行开始时，所有节点都以 `inactive` 状态开始。当节点在其任何传入边缘（或“通道”）上接收到新消息（状态）时，该节点将变为`active`。然后，活动节点运行其功能并以更新进行响应。在每个超级步骤结束时，没有传入消息的节点通过将自己标记为`inactive`来投票给`halt`。当所有节点都为 `inactive` 并且没有消息在传输时，图执行终止。
 
 ### 状态图
 
@@ -116,7 +116,7 @@ graph.invoke({"user_input": "My"})
 # {'graph_output': 'My name is Lance'}
 ```
 
-<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/a72a6e66-883f-4551-b4e2-3ca3129be6a2/r">
+<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/62539b5c-8df4-4dff-8de2-f365fc05983d/r">
   为此示例打开公共 LangSmith 运行。
 </Card>
 
@@ -132,7 +132,7 @@ graph.invoke({"user_input": "My"})
        input_schema=InputState,
        output_schema=OutputState
    )
-   ```我们如何在`node_2`中写入`PrivateState`？如果未在 `StateGraph` 初始化中传递该模式，那么该图如何访问该模式？
+   ```我们如何在`node_2`中写入`PrivateState`？如果未在 `StateGraph` 初始化中传递该架构，那么该图如何访问该架构？
 
    我们可以这样做，因为只要状态模式定义存在，`_nodes`还可以声明附加状态`channels_`。在这种情况下，定义了`PrivateState`模式，因此我们可以将`bar`添加为图中的新状态通道并写入它。
 
@@ -141,7 +141,7 @@ graph.invoke({"user_input": "My"})
 
   输入、输出和私有模式限制每个节点*读取*的内容（其输入模式）以及`invoke`*返回*（输出模式）。他们**不会**隐藏`stream`的频道。
 
-  当您使用 `stream_mode="values"` 进行流式传输时，图表默认会发出其**所有**状态通道，包括私有通道，因为值流式传输默认为完整的状态通道集而不是输出模式。这就是为什么像 `bar` 这样的私人频道被 `invoke` 隐藏但在流式传输时可见：
+  当您使用 `stream_mode="values"` 进行流式传输时，图表默认会发出其**所有**状态通道，包括私有通道，因为值流式传输默认为完整的状态通道集而不是输出模式。这就是为什么像`bar`这样的私人频道被`invoke`隐藏但在流式传输时可见：
 
   ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
   stream = graph.stream_events({"user_input": "My"}, version="v3")
@@ -153,11 +153,11 @@ graph.invoke({"user_input": "My"})
   # {'foo': 'My name', 'user_input': 'My', 'graph_output': 'My name is Lance', 'bar': 'My name is'}
   ```
 
-  <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/00c6ab6e-18ce-48ee-893e-4c97cec6ee6c/r">
+  <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/086201cf-5ed2-4a4b-aade-02848b380fad/r">
     为此示例打开公共 LangSmith 运行。
   </Card>
 
-  要将流式传输的值限制为一组特定的通道（例如仅输出模式），请传递 `output_keys`：
+  要将流式传输的值限制为一组特定的通道（例如，仅输出模式），请传递 `output_keys`：
 
   ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
   stream = graph.stream_events(
@@ -171,7 +171,7 @@ graph.invoke({"user_input": "My"})
   ```如果您只需要节点实际每一步产生的通道（而不是完整的累积状态），请改用`stream_mode="updates"`。
 </Warning>
 
-### 减速机
+### 减速器
 
 减速器是理解节点更新如何应用于`State`的关键。 `State`中的每个按键都有自己独立的减速器功能。如果没有显式指定减速器函数，则假定对该键的所有更新都应覆盖它。有几种不同类型的减速器，从默认类型的减速器开始：
 
@@ -254,7 +254,7 @@ class State(TypedDict):
 
 #### 重置reducer字段
 
-减速器常见的混淆来源：使用合并减速器时，返回空值并不会清除字段。因为reducer将右边的参数合并到左边的参数中，所以合并了一个空的更新，并且保留了之前累积的值。
+减速器常见的混淆来源：使用合并减速器时，返回空值不会**不**清除字段。因为reducer将右边的参数合并到左边的参数中，所以合并了一个空的更新，并且保留了之前累积的值。
 
 此模式对于必须在重试尝试之间清除的错误缓冲区或重试计数器很重要：
 
@@ -377,7 +377,7 @@ const routerNode: GraphNode<{ InputSchema: typeof State; Nodes: "process" | "don
 
 #### `State.Node` 简写
 
-每个 `StateSchema` 实例都有一个 `Node` 属性，它提供了键入节点的简写：
+每个 `StateSchema` 实例都有一个 `Node` 属性，它提供了输入节点的简写：
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 const State = new StateSchema({
@@ -392,7 +392,7 @@ const myNode2: typeof State.Node = (state) => ({ step: "done" });
 
 #### `ConditionalEdgeRouter`
 
-使用`ConditionalEdgeRouter`作为条件边中的路由函数（没有状态更新，只是路由）：
+使用 `ConditionalEdgeRouter` 进行条件边中的路由函数（无状态更新，仅路由）：
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { ConditionalEdgeRouter, END } from "@langchain/langgraph";
@@ -443,9 +443,9 @@ type MyUpdate = typeof MyStateSchema.Update;
 
 大多数现代法学硕士提供商都有一个聊天模型界面，接受消息列表作为输入。 LangChain 的 [chat model interface](/oss/python/langchain/models) 特别接受消息对象列表作为输入。这些消息有多种形式，例如[⟦T152⟧](https://reference.langchain.com/python/langchain-core/messages/human/HumanMessage)（用户输入）或[⟦T153⟧](https://reference.langchain.com/python/langchain-core/messages/ai/AIMessage)（LLM 响应）。
 
-要了解有关消息对象的更多信息，请参阅[Messages conceptual guide](/oss/python/langchain/messages)。
+要了解有关消息对象是什么的更多信息，请参阅[Messages conceptual guide](/oss/python/langchain/messages)。
 
-#### 在图表中使用消息在许多情况下，将先前的对话历史记录存储为图形状态中的消息列表会很有帮助。为此，我们可以向存储`Message`对象列表的图状态添加一个键（通道），并使用reducer函数对其进行注释（请参阅下面示例中的`messages`键）。减速器函数对于告诉图如何在每次状态更新时（例如，当节点发送更新时）更新状态中的 `Message` 对象列表至关重要。如果您不指定减速器，则每次状态更新都会用最近提供的值覆盖消息列表。如果您想简单地将消息附加到现有列表，您可以使用 `operator.add` 作为减速器。但是，您可能还想手动更新图形状态中的消息（例如人机交互）。如果您要使用`operator.add`，您发送到图表的手动状态更新将被附加到现有的消息列表中，而不是更新现有的消息。为了避免这种情况，您需要一个可以跟踪消息 ID 并覆盖现有消息（如果更新）的缩减程序。为此，您可以使用预构建的 [⟦T159⟧](https://reference.langchain.com/python/langgraph/graph/message/add_messages) 函数。对于全新的消息，它只会附加到现有列表，但它也会正确处理现有消息的更新。
+#### 在图表中使用消息在许多情况下，将先前的对话历史记录存储为图形状态中的消息列表会很有帮助。为此，我们可以向存储`Message`对象列表的图状态添加一个键（通道），并使用reducer函数对其进行注释（请参阅下面示例中的`messages`键）。减速器函数对于告诉图如何在每次状态更新时（例如，当节点发送更新时）更新状态中的 `Message` 对象列表至关重要。如果您不指定减速器，则每次状态更新都会用最近提供的值覆盖消息列表。如果您想简单地将消息附加到现有列表，您可以使用 `operator.add` 作为减速器。但是，您可能还想手动更新图形状态中的消息（例如人机循环）。如果您要使用`operator.add`，您发送到图表的手动状态更新将被附加到现有的消息列表中，而不是更新现有的消息。为了避免这种情况，您需要一个可以跟踪消息 ID 并覆盖现有消息（如果更新）的缩减程序。为此，您可以使用预构建的 [⟦T159⟧](https://reference.langchain.com/python/langgraph/graph/message/add_messages) 函数。对于全新的消息，它只会附加到现有列表，但它也会正确处理现有消息的更新。
 
 #### 序列化
 
@@ -585,7 +585,7 @@ builder.add_node(my_node)
     graph.invoke({"url": "https://www.example.com"}, config)
     ```
 
-    <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/b9aac911-dc73-43de-b535-e52dfd6d7125/r">
+    <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/3bce38d1-45db-477d-87a2-f58b0d2473d9/r">
       为此示例打开公共 LangSmith 运行。
     </Card>
   </Tab>
@@ -634,7 +634,7 @@ builder.add_node(my_node)
     graph.invoke({"urls": ["https://www.example.com"]}, config)
     ```
 
-    <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/aff19bbc-eb5c-464c-838c-67f1257290e9/r">
+    <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/906c25d1-3431-4e07-a0a5-c8f6b51bfa66/r">
       为此示例打开公共 LangSmith 运行。
     </Card>
   </Tab>
@@ -642,7 +642,7 @@ builder.add_node(my_node)
 
 ### `START` 节点
 
-[⟦T194⟧](https://reference.langchain.com/python/langgraph/constants/START) 节点是一个特殊节点，表示将用户输入发送到图形的节点。引用该节点的主要目的是确定应该首先调用哪些节点。
+[⟦T194⟧](https://reference.langchain.com/python/langgraph/constants/START) 节点是一个特殊节点，表示将用户输入发送到图表的节点。引用该节点的主要目的是确定应该首先调用哪些节点。
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from langgraph.graph import START
@@ -720,7 +720,7 @@ print(graph.invoke({"x": 5}, stream_mode='updates'))    # [!code highlight]
 ## 边缘边定义逻辑如何路由以及图形如何决定停止。这是代理如何工作以及不同节点如何相互通信的重要组成部分。有几种关键的边类型：
 
 * 普通边：直接从一个节点到下一个节点。
-* 条件边：调用函数来确定下一个要转到哪个节点。
+* 条件边：调用函数来确定下一个要转到哪个或哪些节点。
 * 入口点：当用户输入到达时首先调用哪个节点。
 * 条件入口点：调用函数来确定当用户输入到达时首先调用哪个节点。
 
@@ -799,7 +799,7 @@ graph.add_conditional_edges("node_a", continue_to_jokes)
 
 ## `Command`
 
-[⟦T228⟧](https://reference.langchain.com/python/langgraph/types/Command)是一种用于控制图形执行的多功能原语。它接受四个参数：* `update`：应用状态更新（类似于从节点返回更新）。
+[⟦T228⟧](https://reference.langchain.com/python/langgraph/types/Command)是一种用于控制图形执行的通用原语。它接受四个参数：* `update`：应用状态更新（类似于从节点返回更新）。
 * `goto`：导航到特定节点（类似于[conditional edges](#conditional-edges)）。
 * `graph`：从[subgraphs](/oss/python/langgraph/use-subgraphs)导航时定位父图。
 * `resume`：提供一个值以在[interrupt](/oss/python/langgraph/interrupts)之后恢复执行。
@@ -860,7 +860,7 @@ def my_node(state: State) -> Command[Literal["other_subgraph"]]:
 <Note>
   将 `graph` 设置为 `Command.PARENT` 将导航到最近的父图。
 
-  当您将父图和子图[state schemas](#schema)共享的键的更新从子图节点发送到父图节点时，您**必须**为您在父图状态中更新的键定义一个[reducer](#reducers)。请参阅此[example](/oss/python/langgraph/use-graph-api#navigate-to-a-node-in-a-parent-graph)。
+  当您将父图和子图[state schemas](#schema)共享的键的更新从子图节点发送到父图节点时，您**必须**为您在父图状态中更新的键定义一个[reducer](#reducers)。参见这个[example](/oss/python/langgraph/use-graph-api#navigate-to-a-node-in-a-parent-graph)。
 </Note>
 
 这在实现[multi-agent handoffs](/oss/python/langchain/multi-agent/handoffs)时特别有用。详情请查看[Navigate to a node in a parent graph](/oss/python/langgraph/use-graph-api#navigate-to-a-node-in-a-parent-graph)。### 输入`invoke`或`stream`
@@ -924,7 +924,7 @@ resumed = graph.stream_events(Command(resume="yes"), config, version="v3")
 final = resumed.output
 ```
 
-<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/d043193b-5547-48ea-9796-f1bf5e3d32fb/r">
+<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/b9e32d60-4cf6-44e6-b85c-60f763578a10/r">
   为此示例打开公共 LangSmith 运行。
 </Card>
 

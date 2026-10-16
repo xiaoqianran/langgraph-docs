@@ -664,7 +664,7 @@ const items = await store.search(["user_123", "memories"], {
 
 启用 [short-term memory](#add-short-term-memory) 后，长时间对话可能会超出 LLM 的上下文窗口。常见的解决方案有：
 
-* [Trim messages](#trim-messages)：删除前 N 条或后 N 条消息（在调用 LLM 之前）
+* [Trim messages](#trim-messages)：删除前N条或后N条消息（在调用LLM之前）
 * [Delete messages](#delete-messages)从LangGraph状态永久
 * [Summarize messages](#summarize-messages)：总结历史记录中较早的消息并用摘要替换它们
 * [Manage checkpoints](#manage-checkpoints) 存储和检索消息历史记录
@@ -710,7 +710,7 @@ const builder = new StateGraph(State)
     messages: MessagesValue,
   });
 
-  const model = new ChatAnthropic({ model: "claude-3-5-sonnet-20241022" });
+  const model = new ChatAnthropic({ model: "claude-sonnet-4-6" });
 
   const callModel: GraphNode<typeof State> = async (state) => {
     const messages = trimMessages(state.messages, {
@@ -783,7 +783,7 @@ const deleteMessages = (state) => {
     messages: MessagesValue,
   });
 
-  const model = new ChatAnthropic({ model: "claude-3-5-sonnet-20241022" });
+  const model = new ChatAnthropic({ model: "claude-sonnet-4-6" });
 
   const deleteMessages: GraphNode<typeof State> = (state) => {
     const messages = state.messages;

@@ -74,7 +74,7 @@ resumed = graph.stream_events(Command(resume=True), config=config, version="v3")
 final = resumed.output
 ```
 
-<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/81fa636e-c8ef-45a7-bb56-88ebcc19c392/r">
+<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/cf85f039-145d-4226-9c16-3e915c35a35c/r">
   为此示例打开公共 LangSmith 运行。
 </Card>
 
@@ -190,7 +190,7 @@ while True:
     stream_input = Command(resume=user_response)
 ```
 
-<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/f93bbd7c-13df-4d59-878d-99bad0e1042b/r">
+<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/3fcd0b07-12d7-455e-9d24-8b25548a46be/r">
   为此示例打开公共 LangSmith 运行。
 </Card>
 
@@ -258,7 +258,7 @@ print("Final state:", resumed.output)
 # Final state: {'vals': ['a:answer for question_a', 'b:answer for question_b']}
 ```
 
-<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/d43fa02f-0832-41ba-8c7d-06031d75c296/r">
+<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/7cbaa580-169c-4f6d-a883-5d980309e9cf/r">
   为此示例打开公共 LangSmith 运行。
 </Card>
 
@@ -353,14 +353,14 @@ graph.stream_events(Command(resume=False), config=config, version="v3").output
   print(resumed.output["status"])
   ```
 
-  <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/9a47c888-5047-468c-9c93-5ef7f4969b88/r">
+  <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/81e6322b-083e-4290-bcb2-18cf98d38038/r">
     为此示例打开公共 LangSmith 运行。
   </Card>
 </Accordion>
 
 ### 查看和编辑状态
 
-有时您希望在继续之前让人工检查并编辑部分图形状态。这对于纠正法学硕士、添加缺失的信息或进行调整非常有用。
+有时，您希望在继续之前让人工检查并编辑部分图形状态。这对于纠正法学硕士、添加缺失的信息或进行调整非常有用。
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from langgraph.types import interrupt
@@ -434,7 +434,7 @@ graph.stream_events(
   print(final_state.output["generated_text"])  # -> "Improved draft after review"
   ```
 
-  <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/eef6edc7-2aad-4330-ba7e-a56d856bc699/r">
+  <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/5efd556a-ed06-45b2-9520-a7a4819a92a6/r">
     为此示例打开公共 LangSmith 运行。
   </Card>
 </Accordion>
@@ -725,7 +725,7 @@ def node_a(state: State):
 
 ### 不要在节点内重新排序 `interrupt` 调用
 
-在单个节点中使用多个中断是很常见的，但是如果处理不仔细，这可能会导致意外的行为。当节点包含多个中断调用时，LangGraph 会保留特定于执行该节点的任务的恢复值列表。每当执行恢复时，它都会从节点的开头开始。对于遇到的每个中断，LangGraph 检查任务的恢复列表中是否存在匹配的值。匹配**严格基于索引**，因此节点内中断调用的顺序很重要。
+在单个节点中使用多个中断是很常见的，但是如果处理不仔细，这可能会导致意外的行为。当一个节点包含多个中断调用时，LangGraph 会保留特定于执行该节点的任务的恢复值列表。每当执行恢复时，它都会从节点的开头开始。对于遇到的每个中断，LangGraph 检查任务的恢复列表中是否存在匹配的值。匹配**严格基于索引**，因此节点内中断调用的顺序很重要。
 
 * ✅ 保持 [⟦T134⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 调用在节点执行之间保持一致
 
@@ -847,7 +847,7 @@ def node_a(state: State):
 
 * ✅ 在[⟦T144⟧](https://reference.langchain.com/python/langgraph/types/interrupt)之前使用幂等操作
 * ✅ 在[⟦T145⟧](https://reference.langchain.com/python/langgraph/types/interrupt)调用后放置副作用
-* ✅尽可能将副作用分离到单独的节点中
+* ✅ 如果可能，将副作用分离到单独的节点中
 
 <CodeGroup>
   ```python Idempotent operations theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
@@ -900,7 +900,7 @@ def node_a(state: State):
 </CodeGroup>
 
 * 🔴[⟦T146⟧](https://reference.langchain.com/python/langgraph/types/interrupt)之前不要进行非幂等操作
-* 🔴 在未检查记录是否存在的情况下不要创建新记录
+* 🔴 在未检查新记录是否存在的情况下不要创建新记录
 
 <CodeGroup>
   ```python Creating records theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
@@ -948,7 +948,7 @@ def node_in_subgraph(state: State):
 
 ## 使用中断进行调试
 
-要调试和测试图形，您可以使用静态中断作为断点，一次单步执行一个节点的图形执行。静态中断在节点执行之前或之后的定义点触发。您可以在编译图表时通过指定 `interrupt_before` 和 `interrupt_after` 来设置这些。
+要调试和测试图表，您可以使用静态中断作为断点，一次单步执行一个节点的图表执行。静态中断在节点执行之前或之后的定义点触发。您可以在编译图表时通过指定 `interrupt_before` 和 `interrupt_after` 来设置这些。
 
 <Note>
   **不**建议将静态中断用于人机交互工作流程。请改用 [⟦T151⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 函数。

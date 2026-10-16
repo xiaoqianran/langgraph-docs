@@ -180,7 +180,7 @@ flowchart TD
 
 * 原始电子邮件和发件人信息（以后无法重建）
 * 分类结果（多个后期/下游节点需要）
-* 搜索结果和客户数据（重新获取的费用昂贵）
+* 搜索结果和客户数据（重新获取的成本很高）
 * 回复草稿（需继续审核）
 * 执行元数据（用于调试和恢复）
 
@@ -235,7 +235,7 @@ class EmailAgentState(TypedDict):
 
 不同的错误需要不同的处理策略：
 
-|错误类型 |谁来解决这个问题？战略|何时使用 |
+|错误类型 |谁来解决这个问题？策略|何时使用 |
 | - | - | - | - |
 |瞬时错误（网络问题、速率限制）|系统（自动）|重试政策 |通常重试即可解决的临时故障 |
 | LLM 可恢复错误（工具故障、解析问题）|法学硕士 |将错误存储在状态中并循环返回 | LLM可以看到错误并调整其方法|
@@ -633,7 +633,7 @@ class EmailAgentState(TypedDict):
   print("Email sent successfully!")
   ```
 
-  <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/2636e51a-5dcd-4a33-8b4d-23678e364ef2/r">
+  <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/c11c3fe2-7ea3-44bf-aa5d-85e4ac995b88/r">
     为此示例打开公共 LangSmith 运行。
   </Card>
 </Accordion>

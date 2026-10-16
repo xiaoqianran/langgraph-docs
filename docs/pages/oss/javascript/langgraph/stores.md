@@ -26,9 +26,9 @@ Stores let agents persist information across threads, including user preferences
 The following code snippet shows the [InMemoryStore](https://reference.langchain.com/javascript/langchain-core/stores/InMemoryStore) in isolation without using LangGraph:
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-import { MemoryStore } from "@langchain/langgraph";
+import { InMemoryStore } from "@langchain/langgraph";
 
-const memoryStore = new MemoryStore();
+const memoryStore = new InMemoryStore();
 ```
 
 Memories are namespaced by a `tuple`, which is `(<user_id>, "memories")` in the following example. The namespace can be any length and represent anything, does not have to be user specific.

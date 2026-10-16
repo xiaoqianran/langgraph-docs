@@ -18,10 +18,10 @@ Most applications can use both: a [checkpointer](/oss/javascript/langgraph/check
 Compile your graph with a checkpointer, a store, or both:
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-import { MemorySaver, MemoryStore } from "@langchain/langgraph";
+import { MemorySaver, InMemoryStore } from "@langchain/langgraph";
 
 const checkpointer = new MemorySaver();
-const store = new MemoryStore();
+const store = new InMemoryStore();
 
 const graph = builder.compile({ checkpointer, store });
 

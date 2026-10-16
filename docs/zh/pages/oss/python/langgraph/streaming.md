@@ -147,7 +147,7 @@ for part in graph.stream(
 | [custom](#custom-data) | [⟦T77⟧](https://reference.langchain.com/python/langgraph/types/CustomStreamPart) |通过 [⟦T78⟧](https://reference.langchain.com/python/langgraph/config/get_stream_writer) 从节点发出的自定义数据。 |
 | [checkpoints](#checkpoints) | [⟦T79⟧](https://reference.langchain.com/python/langgraph/types/CheckpointStreamPart) |检查点事件（与`get_state()`格式相同）。需要一个检查点。 |
 | [tasks](#tasks) | [⟦T81⟧](https://reference.langchain.com/python/langgraph/types/TasksStreamPart) |任务开始/结束事件以及结果和错误。需要一个检查点。 |
-| [debug](#debug) | [⟦T82⟧](https://reference.langchain.com/python/langgraph/types/DebugStreamPart) |所有可用信息 — 将 `checkpoints` 和 `tasks` 与额外元数据结合起来。 |
+| [debug](#debug) | [⟦T82⟧](https://reference.langchain.com/python/langgraph/types/DebugStreamPart) |所有可用信息 — 将 `checkpoints` 和 `tasks` 与额外元数据结合在一起。 |
 
 ### 图状态
 
@@ -426,7 +426,7 @@ initial_state: State = {"topic": "AI", "answer": "", "notes": ""}
 stream = graph.stream_events(initial_state, version="v3")
 ```
 
-<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/e17f4132-e295-47d7-a61d-eb85ca98fbfa/r">
+<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/e5687375-a6ad-4b8d-b553-8672cc6da1b3/r">
   为此示例打开公共 LangSmith 运行。
 </Card>
 

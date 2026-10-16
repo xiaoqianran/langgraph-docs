@@ -94,7 +94,7 @@ my_workflow.invoke({"value": 1, "another_value": 2})
 
 ## 并行执行
 
-通过并发调用任务并等待结果，可以并行执行任务。这对于提高 IO 密集型任务的性能很有用（例如，调用 LLM 的 API）。
+通过并发调用任务并等待结果，可以并行执行任务。这对于提高 IO 绑定任务的性能很有用（例如，调用 LLM 的 API）。
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 @task
@@ -259,7 +259,7 @@ for mode, chunk in stream.interleave("values"):
 # values: 10
 ```
 
-<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/64d863ef-f16b-469d-9c63-b0d2d5e24554/r">
+<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/6a1d451c-0e3a-4a7b-8e6f-b5cedae52a15/r">
   为此示例打开公共 LangSmith 运行。
 </Card>
 

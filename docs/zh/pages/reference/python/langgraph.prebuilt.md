@@ -32,11 +32,12 @@
 ## 函数
 
 - [⟦T18⟧](https://reference.langchain.com/python/langgraph.prebuilt/chat_agent_executor/create_react_agent)
-- [⟦T19⟧](https://reference.langchain.com/python/langgraph.prebuilt/tool_node/msg_content_output)
-- [⟦T20⟧](https://reference.langchain.com/python/langgraph.prebuilt/tool_node/tools_condition)
+- [⟦T19⟧](https://reference.langchain.com/python/langgraph.prebuilt/tool_node/is_invalid_resume)
+- [⟦T20⟧](https://reference.langchain.com/python/langgraph.prebuilt/tool_node/msg_content_output)
+- [⟦T21⟧](https://reference.langchain.com/python/langgraph.prebuilt/tool_node/tools_condition)
 
 ## 类型
 
-- [⟦T21⟧](https://reference.langchain.com/python/langgraph.prebuilt/chat_agent_executor/StructuredResponse)
-- [⟦T22⟧](https://reference.langchain.com/python/langgraph.prebuilt/chat_agent_executor/StructuredResponseSchema)
-- [⟦T23⟧](https://reference.langchain.com/python/langgraph.prebuilt/chat_agent_executor/Prompt)
+- [⟦T22⟧](https://reference.langchain.com/python/langgraph.prebuilt/chat_agent_executor/StructuredResponse)
+- [⟦T23⟧](https://reference.langchain.com/python/langgraph.prebuilt/chat_agent_executor/StructuredResponseSchema)
+- [⟦T24⟧](https://reference.langchain.com/python/langgraph.prebuilt/chat_agent_executor/Prompt)

@@ -112,7 +112,7 @@ export LANGSMITH_WORKSPACE_ID=<your-workspace-id>
   tools = [search]
   tool_node = ToolNode(tools)
 
-  model = ChatOpenAI(model="gpt-5.5", temperature=0).bind_tools(tools)
+  model = ChatOpenAI(model="gpt-6-luna").bind_tools(tools)
 
   def should_continue(state: MessagesState) -> Literal["tools", "__end__"]:
       messages = state['messages']
@@ -183,8 +183,7 @@ export LANGSMITH_WORKSPACE_ID=<your-workspace-id>
   const toolNode = new ToolNode<AgentState>(tools);
 
   const model = new ChatOpenAI({
-    model: "gpt-5.5",
-    temperature: 0,
+    model: "gpt-6-luna",
   }).bindTools(tools);
 
   function shouldContinue(state: AgentState) {
@@ -310,7 +309,7 @@ export OPENAI_API_KEY=<your-openai-api-key>
 
 ### 3. 记录跟踪
 
-设置好环境后，您想要跟踪[wrap or decorate the custom functions/SDKs](/langsmith/annotate-code#use-%40traceable-%2F-traceable)。然后LangSmith将推断出正确的跟踪配置：
+设置好环境后，您想要跟踪 [wrap or decorate the custom functions/SDKs](/langsmith/annotate-code#use-%40traceable-%2F-traceable)。然后LangSmith将推断出正确的跟踪配置：
 
 <CodeGroup>
   ```python Python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
@@ -377,7 +376,7 @@ export OPENAI_API_KEY=<your-openai-api-key>
       messages = state["messages"]
       # Calling the wrapped client will automatically infer the correct tracing context
       response = wrapped_client.chat.completions.create(
-          messages=messages, model="gpt-5.4-mini", tools=[tool_schema]
+          messages=messages, model="gpt-6-luna", tools=[tool_schema]
       )
       raw_tool_calls = response.choices[0].message.tool_calls
       tool_calls = [tool_call.to_dict() for tool_call in raw_tool_calls] if raw_tool_calls else []
@@ -474,7 +473,7 @@ export OPENAI_API_KEY=<your-openai-api-key>
     // Calling the wrapped client will automatically infer the correct tracing context
     const response = await wrappedClient.chat.completions.create({
       messages,
-      model: "gpt-5.4-mini",
+      model: "gpt-6-luna",
       tools: [toolSchema],
     });
     const responseMessage = {

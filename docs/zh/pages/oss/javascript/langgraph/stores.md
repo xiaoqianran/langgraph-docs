@@ -6,7 +6,7 @@
 
 LangGraph 存储提供跨线程长期内存，补充了每线程检查指针持久性。
 
-存储让代理可以跨线程保存信息，包括用户偏好、积累的知识以及在一次对话之后仍能保存的事实。与 [checkpointers](/oss/javascript/langgraph/checkpointers) 不同的是，[checkpointers](/oss/javascript/langgraph/checkpointers) 保存了一个线程范围内的完整图状态，存储保存了可从任何线程访问的任意键值数据。
+存储让代理可以跨线程保存信息，包括用户偏好、积累的知识以及在一次对话之后仍能保存的事实。与[checkpointers](/oss/javascript/langgraph/checkpointers)不同的是，[checkpointers](/oss/javascript/langgraph/checkpointers)保存了一个线程范围内的完整图状态，存储保存了可从任何线程访问的任意键值数据。
 
 <img alt="Model of shared state" />
 
@@ -28,9 +28,9 @@ LangGraph 存储提供跨线程长期内存，补充了每线程检查指针持�
 以下代码片段单独显示了[InMemoryStore](https://reference.langchain.com/javascript/langchain-core/stores/InMemoryStore)，而不使用LangGraph：
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-import { MemoryStore } from "@langchain/langgraph";
+import { InMemoryStore } from "@langchain/langgraph";
 
-const memoryStore = new MemoryStore();
+const memoryStore = new InMemoryStore();
 ```内存由 `tuple` 命名，在以下示例中为 `(<user_id>, "memories")`。命名空间可以是任意长度并代表任何内容，不必是特定于用户的。
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
@@ -78,7 +78,7 @@ memories[memories.length - 1];
 
 * `updatedAt`：此内存更新的时间戳## 列出命名空间中的项目
 
-在没有 `query` 和 `filter` 的情况下调用 `store.search` 将返回存储在命名空间前缀下的项目，最多为 `limit`。当您不需要语义排名时，可以使用它来枚举名称空间中的所有内容。
+在没有 `query` 和 `filter` 的情况下调用 `store.search` 将返回存储在命名空间前缀下的项目，最多为 `limit`。当您不需要语义排名时，可以使用它来枚举命名空间中的所有内容。
 
 ```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 // Return up to 100 items stored under ["alice", "memories"].
