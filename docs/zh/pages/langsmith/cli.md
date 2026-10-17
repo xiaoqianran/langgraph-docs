@@ -50,7 +50,7 @@
 
 对于 JS，使用 `npx @langchain/langgraph-cli <command>` （或 `langgraphjs` 如果全局安装）。
 
-## 配置文件要构建并运行有效的应用程序，LangGraph CLI 需要遵循此 [schema](https://raw.githubusercontent.com/langchain-ai/langgraph/refs/heads/main/libs/cli/schemas/schema.json) 的 JSON 配置文件。它包含以下属性：
+## 配置文件要构建并运行有效的应用程序，LangGraph CLI 需要遵循此[schema](https://raw.githubusercontent.com/langchain-ai/langgraph/refs/heads/main/libs/cli/schemas/schema.json) 的 JSON 配置文件。它包含以下属性：
 
 <Note>LangGraph CLI 默认使用当前目录下名为 <strong>langgraph.json</strong> 的配置文件。</Note>
 
@@ -537,7 +537,7 @@
 
     **选项**
 
-    |选项|默认|描述 |
+    |选项 |默认 |描述 |
     | - | - | - |
     | `-c, --config FILE` | `langgraph.json` |声明依赖项、图形和环境变量的配置文件路径 |
     | `--host TEXT` | `127.0.0.1` |将服务器绑定到的主机 |
@@ -561,7 +561,7 @@
     npx @langchain/langgraph-cli dev [OPTIONS]
     ```
 
-    **选项**|选项|默认|描述 |
+    **选项**|选项 |默认 |描述 |
     | - | - | - |
     | `-c, --config FILE` | `langgraph.json` |声明依赖项、图形和环境变量的配置文件路径 |
     | `--host TEXT` | `127.0.0.1` |将服务器绑定到的主机 |
@@ -590,7 +590,7 @@
     langgraph build [OPTIONS]
     ```
 
-    **选项**|选项|默认|描述 |
+    **选项**|选项 |默认 |描述 |
     | - | - | - |
     | `--platform TEXT` | |要为其构建 Docker 映像的目标平台。示例：`langgraph build --platform linux/amd64,linux/arm64` |
     | `-t, --tag TEXT` | | **必需的**。 Docker 镜像的标签。示例：`langgraph build -t my-image` |
@@ -612,7 +612,7 @@
     npx @langchain/langgraph-cli build [OPTIONS]
     ```
 
-    **选项**|选项|默认|描述 |
+    **选项**|选项 |默认 |描述 |
     | - | - | - |
     | `--platform TEXT` | |要为其构建 Docker 映像的目标平台。示例：`langgraph build --platform linux/amd64,linux/arm64` |
     | `-t, --tag TEXT` | | **必需的**。 Docker 镜像的标签。示例：`langgraph build -t my-image` |
@@ -626,7 +626,7 @@
 
 <Tabs>
   <Tab title="Python">
-    <Note>此命令位于[beta](/langsmith/release-stages)中并且正在积极开发中。期待频繁的更新和改进。 AWS 中的 LangSmith 云 (SaaS) 尚不支持`langgraph deploy`。</Note>
+    <Note>此命令位于[beta](/langsmith/release-stages)中，并且正在积极开发中。期待频繁的更新和改进。在 AWS 中的 LangSmith 云 (SaaS) 上，本地构建需要 `langgraph-cli` 0.4.35 或更高版本。</Note>
 
     构建LangGraph镜像并将其直接部署到[LangSmith Deployments](/langsmith/deployment)。此命令在本地构建 Docker 映像，将其推送到托管注册表，并创建或更新部署 - 所有这些都只需一步即可完成。如果未安装 Docker，则会触发远程构建。
 
@@ -645,7 +645,7 @@
 
     **选项**
 
-    |选项|默认|描述 |
+    |选项 |默认 |描述 |
     | - | - | - |
     | `--api-key TEXT` | | LangSmith 部署的 API 密钥。也可以通过 `LANGGRAPH_HOST_API_KEY`、`LANGSMITH_API_KEY` 或 `LANGCHAIN_API_KEY` 环境变量或 `.env` 文件进行设置。 |
     | `--name TEXT` |当前目录名称 |部署名称。也可以通过 `LANGSMITH_DEPLOYMENT_NAME` 环境变量或 `.env` 文件设置。 |
@@ -766,7 +766,7 @@
 
     **选项**
 
-    |选项|默认|描述 |
+    |选项 |默认 |描述 |
     | - | - | - |
     | `--name-contains TEXT` | |仅显示名称包含此值的部署。 |
     | `--api-key TEXT` | | API 密钥。也可以通过 `LANGGRAPH_HOST_API_KEY`、`LANGSMITH_API_KEY` 或 `LANGCHAIN_API_KEY` 环境变量或 `.env` 文件进行设置。 |
@@ -782,7 +782,7 @@
 
     **选项**
 
-    |选项|默认|描述 |
+    |选项 |默认 |描述 |
     | - | - | - |
     | `--help` | |显示此消息并退出。 |
 
@@ -808,7 +808,7 @@
 
     **选项**
 
-    |选项|默认|描述 |
+    |选项 |默认 |描述 |
     | - | - | - |
     | `--json` | |将侦听器作为 JSON 数组而不是表发出。 |
     | `--api-key TEXT` | | API 密钥。也可以通过 `LANGGRAPH_HOST_API_KEY`、`LANGSMITH_API_KEY` 或 `LANGCHAIN_API_KEY` 环境变量或 `.env` 文件进行设置。 |
@@ -824,7 +824,7 @@
     langgraph deploy revisions [OPTIONS] COMMAND [ARGS]...
     ```
 
-    **选项**|选项|默认|描述 |
+    **选项**|选项 |默认 |描述 |
     | - | - | - |
     | `--help` | |显示此消息并退出。 |
 
@@ -848,7 +848,7 @@
 
     **选项**
 
-    |选项|默认|描述 |
+    |选项 |默认 |描述 |
     | - | - | - |
     | `--limit INTEGER` | `10` |返回的最大修订数。 |
     | `--api-key TEXT` | | API 密钥。也可以通过 `LANGGRAPH_HOST_API_KEY`、`LANGSMITH_API_KEY` 或 `LANGCHAIN_API_KEY` 环境变量或 `.env` 文件进行设置。 |
@@ -868,7 +868,7 @@
 
     **选项**
 
-    |选项|默认|描述 |
+    |选项 |默认 |描述 |
     | - | - | - |
     | `--force` | |删除而不提示确认。 |
     | `--api-key TEXT` | | API 密钥。也可以通过 `LANGGRAPH_HOST_API_KEY`、`LANGSMITH_API_KEY` 或 `LANGCHAIN_API_KEY` 环境变量或 `.env` 文件进行设置。 |
@@ -884,7 +884,7 @@
 
     **选项**
 
-    |选项|默认|描述 |
+    |选项 |默认 |描述 |
     | - | - | - |
     | `-f, --follow` | `False` |不断轮询新日志。 |
     | `--end-time TEXT` | | ISO8601 结束时间。示例：`2026-03-08T00:00:00Z`。 |
@@ -917,7 +917,7 @@
 
     **选项**
 
-    |选项|默认|描述 |
+    |选项 |默认 |描述 |
     | - | - | - |
     | `--wait` | |返回之前等待服务启动。意味着--分离|
     | `--base-image TEXT` | `langchain/langgraph-api` |用于 LangGraph API 服务器的基础镜像。使用版本标签固定到特定版本。 |
@@ -943,7 +943,7 @@
     npx @langchain/langgraph-cli up [OPTIONS]
     ```
 
-    **选项**|选项|默认|描述 |
+    **选项**|选项 |默认 |描述 |
     | - | - | - |
     | <span style={{ whiteSpace: "nowrap" }}>`--wait`</span> | |返回之前等待服务启动。意味着--分离|
     | <span style={{ whiteSpace: "nowrap" }}>`--base-image TEXT`</span> | <span style={{ whiteSpace: "nowrap" }}>`langchain/langgraph-api`</span> |用于 LangGraph API 服务器的基础镜像。使用版本标签固定到特定版本。 |
@@ -971,7 +971,7 @@
 
     **选项**
 
-    |选项|默认|描述 |
+    |选项 |默认 |描述 |
     | - | - | - |
     | `-c, --config FILE` | `langgraph.json` |声明依赖项、图表和环境变量的[configuration file](#configuration-file)的路径。 |
     | `--help` | |显示此消息并退出。 |
@@ -1020,7 +1020,7 @@
 
     **选项**
 
-    |选项|默认|描述 |
+    |选项 |默认 |描述 |
     | - | - | - |
     | `-c, --config FILE` | `langgraph.json` |声明依赖项、图表和环境变量的[configuration file](#configuration-file)的路径。 |
     | `--help` | |显示此消息并退出。 |

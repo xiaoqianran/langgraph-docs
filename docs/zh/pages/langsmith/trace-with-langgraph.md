@@ -74,7 +74,7 @@ export LANGSMITH_WORKSPACE_ID=<your-workspace-id>
     </tbody>
   </table>
 
-  例如，欧盟账户：`export LANGSMITH_ENDPOINT="https://eu.api.smith.langchain.com"`。不要在 URL 中添加尾部斜杠，因为这可能会导致身份验证错误。
+  例如，欧盟账户：`export LANGSMITH_ENDPOINT="https://eu.api.smith.langchain.com"`。
 </Note>
 
 <Info>
@@ -82,7 +82,7 @@ export LANGSMITH_WORKSPACE_ID=<your-workspace-id>
 
   `export LANGCHAIN_CALLBACKS_BACKGROUND=true`
 
-  如果您处于无服务器环境中，我们建议相反设置以允许跟踪在函数结束之前完成：
+  如果您处于无服务器环境中，我们建议相反设置，以允许跟踪在函数结束之前完成：
 
   `export LANGCHAIN_CALLBACKS_BACKGROUND=false`
 
@@ -292,15 +292,15 @@ export OPENAI_API_KEY=<your-openai-api-key>
         <td>AWS 美国</td>
       </tr>
     </tbody>
-  </table>例如，欧盟账户：`export LANGSMITH_ENDPOINT="https://eu.api.smith.langchain.com"`。不要在 URL 中添加尾部斜杠，因为这可能会导致身份验证错误。
-</Note>
+  </table>
 
-<Info>
+  例如，欧盟账户：`export LANGSMITH_ENDPOINT="https://eu.api.smith.langchain.com"`。
+</Note><Info>
   如果您将 LangChain.js 与 LangSmith 一起使用并且不在无服务器环境中，我们还建议显式设置以下内容以减少延迟：
 
   `export LANGCHAIN_CALLBACKS_BACKGROUND=true`
 
-  如果您处于无服务器环境中，我们建议相反设置以允许跟踪在函数结束之前完成：
+  如果您处于无服务器环境中，我们建议相反设置，以允许跟踪在函数结束之前完成：
 
   `export LANGCHAIN_CALLBACKS_BACKGROUND=false`
 
@@ -536,7 +536,9 @@ LangSmith UI 中的 **Trajectory** 视图显示用户和代理之间的简化对
 <div>
   <Callout icon="terminal-2">
     [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
-  </Callout><Callout icon="edit">
+  </Callout>
+
+  <Callout icon="edit">
     [Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/langsmith/trace-with-langgraph.mdx) 或 [file an issue](https://github.com/langchain-ai/docs/issues/new/choose)。
   </Callout>
 </div>
