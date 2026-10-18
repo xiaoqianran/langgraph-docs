@@ -461,10 +461,10 @@
       "translatedAt": "2026-10-17T13:07:31.536Z"
     }
   },
-  "updatedAt": "2026-10-17T13:07:39.331Z",
+  "updatedAt": "2026-10-18T13:27:50.483Z",
   "stats": {
-    "translated": 4,
-    "skipped": 105,
+    "translated": 0,
+    "skipped": 109,
     "failed": 0,
     "total": 109
   }
