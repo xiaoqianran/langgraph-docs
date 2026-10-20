@@ -8,7 +8,6 @@
 
 ## Classes
 
-- [`AsyncPostgresStore`](https://reference.langchain.com/python/langgraph.store.postgres/aio/AsyncPostgresStore)
 - [`Migration`](https://reference.langchain.com/python/langgraph.store.postgres/base/Migration)
 - [`PoolConfig`](https://reference.langchain.com/python/langgraph.store.postgres/base/PoolConfig)
 - [`ANNIndexConfig`](https://reference.langchain.com/python/langgraph.store.postgres/base/ANNIndexConfig)
@@ -18,6 +17,7 @@
 - [`BasePostgresStore`](https://reference.langchain.com/python/langgraph.store.postgres/base/BasePostgresStore)
 - [`PostgresStore`](https://reference.langchain.com/python/langgraph.store.postgres/base/PostgresStore)
 - [`Row`](https://reference.langchain.com/python/langgraph.store.postgres/base/Row)
+- [`AsyncPostgresStore`](https://reference.langchain.com/python/langgraph.store.postgres/aio/AsyncPostgresStore)
 
 ## Functions
 
