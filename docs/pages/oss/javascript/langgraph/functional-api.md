@@ -13,9 +13,9 @@ The Functional API uses two key building blocks:
 
 This provides a minimal abstraction for building workflows with state management and streaming.
 
-<Tip>
-  For information on how to use the functional API, see [Use Functional API](/oss/javascript/langgraph/use-functional-api).
-</Tip>
+> [!TIP]
+>
+> For information on how to use the functional API, see [Use Functional API](/oss/javascript/langgraph/use-functional-api).
 
 ## Functional API vs. Graph API
 
@@ -63,87 +63,87 @@ const workflow = entrypoint(
 );
 ```
 
-<Accordion title="Detailed Explanation">
-  This workflow will write an essay about the topic "cat" and then pause to get a review from a human. The workflow can be interrupted for an indefinite amount of time until a review is provided.
-
-  When the workflow is resumed, it executes from the very start, but because the result of the `writeEssay` task was already saved, the task result will be loaded from the checkpoint instead of being recomputed.
-
-  ```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  import { MemorySaver, entrypoint, interrupt, task } from "@langchain/langgraph";
-
-  const writeEssay = task("writeEssay", async (topic: string) => {
-    // This is a placeholder for a long-running task.
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    return `An essay about topic: ${topic}`;
-  });
-
-  const workflow = entrypoint(
-    { checkpointer: new MemorySaver(), name: "workflow" },
-    async (_topic: string) => {
-      const essay = await writeEssay("cat");
-      const isApproved = interrupt({
-        // Any json-serializable payload provided to interrupt as argument.
-        // It will be surfaced on the client side as an Interrupt when streaming data
-        // from the workflow.
-        essay, // The essay we want reviewed.
-        // We can add any additional information that we need.
-        // For example, introduce a key called "action" with some instructions.
-        action: "Please approve/reject the essay",
-      });
-
-      return {
-        essay, // The essay that was generated
-        isApproved, // Response from HIL
-      };
-    },
-  );
-
-  const threadId = "functional-api-thread";
-  const config = {
-    configurable: {
-      thread_id: threadId,
-    },
-  };
-
-  const stream = await workflow.streamEvents("cat", { ...config, version: "v2" });
-  const initialChunks: Record<string, unknown>[] = [];
-  for await (const event of stream) {
-    const chunk = event.data?.chunk;
-    if (chunk && typeof chunk === "object") {
-      console.log(chunk);
-      initialChunks.push(chunk as Record<string, unknown>);
-    }
-  }
-  // { writeEssay: "An essay about topic: cat" }
-  // { __interrupt__: [Interrupt(...)] }
-  ```
-
-  An essay has been written and is ready for review. Once the review is provided, we can resume the workflow:
-
-  ```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  import { Command } from "@langchain/langgraph";
-
-  // Get review from a user (e.g., via a UI)
-  // In this case, we're using a bool, but this can be any json-serializable value.
-  const humanReview = true;
-
-  const resumedStream = await workflow.streamEvents(
-    new Command({ resume: humanReview }),
-    { ...config, version: "v2" },
-  );
-  const resumedChunks: Record<string, unknown>[] = [];
-  for await (const event of resumedStream) {
-    const chunk = event.data?.chunk;
-    if (chunk && typeof chunk === "object") {
-      console.log(chunk);
-      resumedChunks.push(chunk as Record<string, unknown>);
-    }
-  }
-  // { essay: "An essay about topic: cat", isApproved: true }
-  ```
-
-  The workflow has been completed and the review has been added to the essay.
-</Accordion>
+> **Detailed Explanation**
+>
+> This workflow will write an essay about the topic "cat" and then pause to get a review from a human. The workflow can be interrupted for an indefinite amount of time until a review is provided.
+>
+> When the workflow is resumed, it executes from the very start, but because the result of the `writeEssay` task was already saved, the task result will be loaded from the checkpoint instead of being recomputed.
+>
+> ```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import { MemorySaver, entrypoint, interrupt, task } from "@langchain/langgraph";
+>
+> const writeEssay = task("writeEssay", async (topic: string) => {
+>   // This is a placeholder for a long-running task.
+>   await new Promise((resolve) => setTimeout(resolve, 1000));
+>   return `An essay about topic: ${topic}`;
+> });
+>
+> const workflow = entrypoint(
+>   { checkpointer: new MemorySaver(), name: "workflow" },
+>   async (_topic: string) => {
+>     const essay = await writeEssay("cat");
+>     const isApproved = interrupt({
+>       // Any json-serializable payload provided to interrupt as argument.
+>       // It will be surfaced on the client side as an Interrupt when streaming data
+>       // from the workflow.
+>       essay, // The essay we want reviewed.
+>       // We can add any additional information that we need.
+>       // For example, introduce a key called "action" with some instructions.
+>       action: "Please approve/reject the essay",
+>     });
+>
+>     return {
+>       essay, // The essay that was generated
+>       isApproved, // Response from HIL
+>     };
+>   },
+> );
+>
+> const threadId = "functional-api-thread";
+> const config = {
+>   configurable: {
+>     thread_id: threadId,
+>   },
+> };
+>
+> const stream = await workflow.streamEvents("cat", { ...config, version: "v2" });
+> const initialChunks: Record<string, unknown>[] = [];
+> for await (const event of stream) {
+>   const chunk = event.data?.chunk;
+>   if (chunk && typeof chunk === "object") {
+>     console.log(chunk);
+>     initialChunks.push(chunk as Record<string, unknown>);
+>   }
+> }
+> // { writeEssay: "An essay about topic: cat" }
+> // { __interrupt__: [Interrupt(...)] }
+> ```
+>
+> An essay has been written and is ready for review. Once the review is provided, we can resume the workflow:
+>
+> ```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import { Command } from "@langchain/langgraph";
+>
+> // Get review from a user (e.g., via a UI)
+> // In this case, we're using a bool, but this can be any json-serializable value.
+> const humanReview = true;
+>
+> const resumedStream = await workflow.streamEvents(
+>   new Command({ resume: humanReview }),
+>   { ...config, version: "v2" },
+> );
+> const resumedChunks: Record<string, unknown>[] = [];
+> for await (const event of resumedStream) {
+>   const chunk = event.data?.chunk;
+>   if (chunk && typeof chunk === "object") {
+>     console.log(chunk);
+>     resumedChunks.push(chunk as Record<string, unknown>);
+>   }
+> }
+> // { essay: "An essay about topic: cat", isApproved: true }
+> ```
+>
+> The workflow has been completed and the review has been added to the essay.
 
 ## Entrypoint
 
@@ -172,88 +172,84 @@ const myWorkflow = entrypoint(
 );
 ```
 
-<Warning>
-  **Serialization**
-  The **inputs** and **outputs** of entrypoints must be JSON-serializable to support checkpointing. Please see the [serialization](#serialization) section for more details.
-</Warning>
+> [!WARNING]
+>
+> **Serialization**
+> The **inputs** and **outputs** of entrypoints must be JSON-serializable to support checkpointing. Please see the [serialization](#serialization) section for more details.
 
 ### Executing
 
 Using the [`entrypoint`](#entrypoint) function will return an object that can be executed using the `invoke` and `stream` methods.
 
-<Tabs>
-  <Tab title="Invoke">
-    ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    const config = {
-      configurable: {
-        thread_id: "some_thread_id"
-      }
-    };
-    await myWorkflow.invoke(someInput, config); // Wait for the result
-    ```
-  </Tab>
+**Invoke**
 
-  <Tab title="Stream">
-    ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    const config = {
-      configurable: {
-        thread_id: "some_thread_id"
-      }
-    };
+```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+const config = {
+  configurable: {
+    thread_id: "some_thread_id"
+  }
+};
+await myWorkflow.invoke(someInput, config); // Wait for the result
+```
 
-    const stream = await myWorkflow.streamEvents(someInput, config, { version: "v3" });
-    for await (const message of stream.messages) {
-      for await (const token of message.text) {
-        process.stdout.write(token);
-      }
-    }
-    ```
-  </Tab>
-</Tabs>
+**Stream**
+
+```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+const config = {
+  configurable: {
+    thread_id: "some_thread_id"
+  }
+};
+
+const stream = await myWorkflow.streamEvents(someInput, config, { version: "v3" });
+for await (const message of stream.messages) {
+  for await (const token of message.text) {
+    process.stdout.write(token);
+  }
+}
+```
 
 ### Resuming
 
 Resuming an execution after an [interrupt](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) can be done by passing a **resume** value to the [`Command`](https://reference.langchain.com/javascript/langchain-langgraph/index/Command) primitive.
 
-<Tabs>
-  <Tab title="Invoke">
-    ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    import { Command } from "@langchain/langgraph";
+**Invoke**
 
-    const config = {
-      configurable: {
-        thread_id: "some_thread_id"
-      }
-    };
+```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import { Command } from "@langchain/langgraph";
 
-    await myWorkflow.invoke(new Command({ resume: someResumeValue }), config);
-    ```
-  </Tab>
+const config = {
+  configurable: {
+    thread_id: "some_thread_id"
+  }
+};
 
-  <Tab title="Stream">
-    ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    import { Command } from "@langchain/langgraph";
+await myWorkflow.invoke(new Command({ resume: someResumeValue }), config);
+```
 
-    const config = {
-      configurable: {
-        thread_id: "some_thread_id"
-      }
-    };
+**Stream**
 
-    const stream = await myWorkflow.streamEvents(
-      new Command({ resume: someResumableValue }),
-      config,
-      { version: "v3" },
-    );
+```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import { Command } from "@langchain/langgraph";
 
-    for await (const message of stream.messages) {
-      for await (const token of message.text) {
-        process.stdout.write(token);
-      }
-    }
-    ```
-  </Tab>
-</Tabs>
+const config = {
+  configurable: {
+    thread_id: "some_thread_id"
+  }
+};
+
+const stream = await myWorkflow.streamEvents(
+  new Command({ resume: someResumableValue }),
+  config,
+  { version: "v3" },
+);
+
+for await (const message of stream.messages) {
+  for await (const token of message.text) {
+    process.stdout.write(token);
+  }
+}
+```
 
 **Resuming after an error**
 
@@ -261,36 +257,34 @@ To resume after an error, run the `entrypoint` with `null` and the same **thread
 
 This assumes that the underlying **error** has been resolved and execution can proceed successfully.
 
-<Tabs>
-  <Tab title="Invoke">
-    ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    const config = {
-      configurable: {
-        thread_id: "some_thread_id"
-      }
-    };
+**Invoke**
 
-    await myWorkflow.invoke(null, config);
-    ```
-  </Tab>
+```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+const config = {
+  configurable: {
+    thread_id: "some_thread_id"
+  }
+};
 
-  <Tab title="Stream">
-    ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    const config = {
-      configurable: {
-        thread_id: "some_thread_id"
-      }
-    };
+await myWorkflow.invoke(null, config);
+```
 
-    const stream = await myWorkflow.streamEvents(null, config, { version: "v3" });
-    for await (const message of stream.messages) {
-      for await (const token of message.text) {
-        process.stdout.write(token);
-      }
-    }
-    ```
-  </Tab>
-</Tabs>
+**Stream**
+
+```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+const config = {
+  configurable: {
+    thread_id: "some_thread_id"
+  }
+};
+
+const stream = await myWorkflow.streamEvents(null, config, { version: "v3" });
+for await (const message of stream.messages) {
+  for await (const token of message.text) {
+    process.stdout.write(token);
+  }
+}
+```
 
 ### Short-term memory
 
@@ -323,7 +317,7 @@ await myWorkflow.invoke(2, config); // 3 (previous was 1 from the previous invoc
 
 #### `entrypoint.final`
 
-[`entrypoint.final`](https://reference.langchain.com/javascript/functions/_langchain_langgraph.index.entrypoint.html#final) is a special primitive that can be returned from an entrypoint and allows **decoupling** the value that is **saved in the checkpoint** from the **return value of the entrypoint**.
+[`entrypoint.final`](https://reference.langchain.com/javascript/langchain-langgraph/index/entrypoint/final) is a special primitive that can be returned from an entrypoint and allows **decoupling** the value that is **saved in the checkpoint** from the **return value of the entrypoint**.
 
 The first value is the return value of the entrypoint, and the second value is the value that will be saved in the checkpoint.
 
@@ -374,10 +368,10 @@ const slowComputation = task("slowComputation", async (inputValue: any) => {
 });
 ```
 
-<Warning>
-  **Serialization**
-  The **outputs** of tasks must be JSON-serializable to support checkpointing.
-</Warning>
+> [!WARNING]
+>
+> **Serialization**
+> The **outputs** of tasks must be JSON-serializable to support checkpointing.
 
 ### Execution
 
@@ -447,50 +441,48 @@ When a workflow resumes, LangGraph replays completed **task** results from the c
 
 Encapsulate side effects (e.g., writing to a file, sending an email) in tasks to ensure they are not executed multiple times when resuming a workflow.
 
-<Tabs>
-  <Tab title="Incorrect">
-    In this example, a side effect (writing to a file) is directly included in the workflow, so it will be executed a second time when resuming the workflow.
+**Incorrect**
 
-    ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    import { entrypoint, interrupt } from "@langchain/langgraph";
-    import fs from "fs";
+In this example, a side effect (writing to a file) is directly included in the workflow, so it will be executed a second time when resuming the workflow.
 
-    const myWorkflow = entrypoint(
-      { checkpointer, name: "workflow },
-      async (inputs: Record<string, any>) => {
-        // This code will be executed a second time when resuming the workflow.
-        // Which is likely not what you want.
-        fs.writeFileSync("output.txt", "Side effect executed");
-        const value = interrupt("question");
-        return value;
-      }
-    );
-    ```
-  </Tab>
+```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import { entrypoint, interrupt } from "@langchain/langgraph";
+import fs from "fs";
 
-  <Tab title="Correct">
-    In this example, the side effect is encapsulated in a task, ensuring consistent execution upon resumption.
+const myWorkflow = entrypoint(
+  { checkpointer, name: "workflow },
+  async (inputs: Record<string, any>) => {
+    // This code will be executed a second time when resuming the workflow.
+    // Which is likely not what you want.
+    fs.writeFileSync("output.txt", "Side effect executed");
+    const value = interrupt("question");
+    return value;
+  }
+);
+```
 
-    ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    import { entrypoint, task, interrupt } from "@langchain/langgraph";
-    import * as fs from "fs";
+**Correct**
 
-    const writeToFile = task("writeToFile", async () => {
-      fs.writeFileSync("output.txt", "Side effect executed");
-    });
+In this example, the side effect is encapsulated in a task, ensuring consistent execution upon resumption.
 
-    const myWorkflow = entrypoint(
-      { checkpointer, name: "workflow" },
-      async (inputs: Record<string, any>) => {
-        // The side effect is now encapsulated in a task.
-        await writeToFile();
-        const value = interrupt("question");
-        return value;
-      }
-    );
-    ```
-  </Tab>
-</Tabs>
+```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import { entrypoint, task, interrupt } from "@langchain/langgraph";
+import * as fs from "fs";
+
+const writeToFile = task("writeToFile", async () => {
+  fs.writeFileSync("output.txt", "Side effect executed");
+});
+
+const myWorkflow = entrypoint(
+  { checkpointer, name: "workflow" },
+  async (inputs: Record<string, any>) => {
+    // The side effect is now encapsulated in a task.
+    await writeToFile();
+    const value = interrupt("question");
+    return value;
+  }
+);
+```
 
 ### Non-deterministic control flow
 
@@ -505,63 +497,61 @@ If order of execution is not maintained when resuming, one [`interrupt`](https:/
 
 Please read the section on [determinism](#determinism) for more details.
 
-<Tabs>
-  <Tab title="Incorrect">
-    In this example, the workflow uses the current time to determine which task to execute. This is non-deterministic because the result of the workflow depends on the time at which it is executed.
+**Incorrect**
 
-    ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    import { entrypoint, interrupt } from "@langchain/langgraph";
+In this example, the workflow uses the current time to determine which task to execute. This is non-deterministic because the result of the workflow depends on the time at which it is executed.
 
-    const myWorkflow = entrypoint(
-      { checkpointer, name: "workflow" },
-      async (inputs: { t0: number }) => {
-        const t1 = Date.now();
+```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import { entrypoint, interrupt } from "@langchain/langgraph";
 
-        const deltaT = t1 - inputs.t0;
+const myWorkflow = entrypoint(
+  { checkpointer, name: "workflow" },
+  async (inputs: { t0: number }) => {
+    const t1 = Date.now();
 
-        if (deltaT > 1000) {
-          const result = await slowTask(1);
-          const value = interrupt("question");
-          return { result, value };
-        } else {
-          const result = await slowTask(2);
-          const value = interrupt("question");
-          return { result, value };
-        }
-      }
-    );
-    ```
-  </Tab>
+    const deltaT = t1 - inputs.t0;
 
-  <Tab title="Correct">
-    In this example, the workflow uses the input `t0` to determine which task to execute. This is deterministic because the result of the workflow depends only on the input.
+    if (deltaT > 1000) {
+      const result = await slowTask(1);
+      const value = interrupt("question");
+      return { result, value };
+    } else {
+      const result = await slowTask(2);
+      const value = interrupt("question");
+      return { result, value };
+    }
+  }
+);
+```
 
-    ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    import { entrypoint, task, interrupt } from "@langchain/langgraph";
+**Correct**
 
-    const getTime = task("getTime", () => Date.now());
+In this example, the workflow uses the input `t0` to determine which task to execute. This is deterministic because the result of the workflow depends only on the input.
 
-    const myWorkflow = entrypoint(
-      { checkpointer, name: "workflow" },
-      async (inputs: { t0: number }): Promise<any> => {
-        const t1 = await getTime();
+```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import { entrypoint, task, interrupt } from "@langchain/langgraph";
 
-        const deltaT = t1 - inputs.t0;
+const getTime = task("getTime", () => Date.now());
 
-        if (deltaT > 1000) {
-          const result = await slowTask(1);
-          const value = interrupt("question");
-          return { result, value };
-        } else {
-          const result = await slowTask(2);
-          const value = interrupt("question");
-          return { result, value };
-        }
-      }
-    );
-    ```
-  </Tab>
-</Tabs>
+const myWorkflow = entrypoint(
+  { checkpointer, name: "workflow" },
+  async (inputs: { t0: number }): Promise<any> => {
+    const t1 = await getTime();
+
+    const deltaT = t1 - inputs.t0;
+
+    if (deltaT > 1000) {
+      const result = await slowTask(1);
+      const value = interrupt("question");
+      return { result, value };
+    } else {
+      const result = await slowTask(2);
+      const value = interrupt("question");
+      return { result, value };
+    }
+  }
+);
+```
 
 ## Learn more
 
@@ -571,12 +561,6 @@ Please read the section on [determinism](#determinism) for more details.
 
 ***
 
-<div>
-  <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
-  </Callout>
+[Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
 
-  <Callout icon="edit">
-    [Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/functional-api.mdx) or [file an issue](https://github.com/langchain-ai/docs/issues/new/choose).
-  </Callout>
-</div>
+[Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/functional-api.mdx) or [file an issue](https://github.com/langchain-ai/docs/issues/new/choose).

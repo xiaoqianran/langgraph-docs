@@ -16,10 +16,10 @@ Subgraphs are useful for:
 npm install @langchain/langgraph
 ```
 
-<Tip>
-  **Set up LangSmith for LangGraph development**
-  Sign up for [LangSmith](https://smith.langchain.com?utm_source=docs\&utm_medium=cta\&utm_campaign=langsmith-signup\&utm_content=oss-langgraph-use-subgraphs) to quickly spot issues and improve the performance of your LangGraph projects. LangSmith lets you use trace data to debug, test, and monitor your LLM apps built with LangGraph—read more about [how to get started with LangSmith](https://docs.langchain.com/langsmith/observability).
-</Tip>
+> [!TIP]
+>
+> **Set up LangSmith for LangGraph development**
+> Sign up for [LangSmith](https://smith.langchain.com?utm_source=docs\&utm_medium=cta\&utm_campaign=langsmith-signup\&utm_content=oss-langgraph-use-subgraphs) to quickly spot issues and improve the performance of your LangGraph projects. LangSmith lets you use trace data to debug, test, and monitor your LLM apps built with LangGraph—read more about [how to get started with LangSmith](https://docs.langchain.com/langsmith/observability).
 
 ## Define subgraph communication
 
@@ -69,166 +69,166 @@ const builder = new StateGraph(State)
 const graph = builder.compile();
 ```
 
-<Accordion title="Full example: different state schemas">
-  ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  import { StateGraph, StateSchema, START } from "@langchain/langgraph";
-  import * as z from "zod";
+> **Full example: different state schemas**
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import { StateGraph, StateSchema, START } from "@langchain/langgraph";
+> import * as z from "zod";
+>
+> // Define subgraph
+> const SubgraphState = new StateSchema({
+>   // note that none of these keys are shared with the parent graph state
+>   bar: z.string(),
+>   baz: z.string(),
+> });
+>
+> const subgraphBuilder = new StateGraph(SubgraphState)
+>   .addNode("subgraphNode1", (state) => {
+>     return { baz: "baz" };
+>   })
+>   .addNode("subgraphNode2", (state) => {
+>     return { bar: state.bar + state.baz };
+>   })
+>   .addEdge(START, "subgraphNode1")
+>   .addEdge("subgraphNode1", "subgraphNode2");
+>
+> const subgraph = subgraphBuilder.compile();
+>
+> // Define parent graph
+> const ParentState = new StateSchema({
+>   foo: z.string(),
+> });
+>
+> const builder = new StateGraph(ParentState)
+>   .addNode("node1", (state) => {
+>     return { foo: "hi! " + state.foo };
+>   })
+>   .addNode("node2", async (state) => {
+>     const response = await subgraph.invoke({ bar: state.foo });   // [!code highlight]
+>     return { foo: response.bar };   // [!code highlight]
+>   })
+>   .addEdge(START, "node1")
+>   .addEdge("node1", "node2");
+>
+> const graph = builder.compile();
+>
+> const stream = await graph.streamEvents(
+>   { foo: "foo" },
+>   { subgraphs: true, version: "v3" }
+> );
+> for await (const message of stream.messages) {
+>   for await (const token of message.text) {
+>     process.stdout.write(token);
+>   }
+> }
+> ```
+>
+> 1. Transform the state to the subgraph state
+> 2. Transform response back to the parent state
+>
+> ```
+> [[], { node1: { foo: 'hi! foo' } }]
+> [['node2:9c36dd0f-151a-cb42-cbad-fa2f851f9ab7'], { subgraphNode1: { baz: 'baz' } }]
+> [['node2:9c36dd0f-151a-cb42-cbad-fa2f851f9ab7'], { subgraphNode2: { bar: 'hi! foobaz' } }]
+> [[], { node2: { foo: 'hi! foobaz' } }]
+> ```
 
-  // Define subgraph
-  const SubgraphState = new StateSchema({
-    // note that none of these keys are shared with the parent graph state
-    bar: z.string(),
-    baz: z.string(),
-  });
-
-  const subgraphBuilder = new StateGraph(SubgraphState)
-    .addNode("subgraphNode1", (state) => {
-      return { baz: "baz" };
-    })
-    .addNode("subgraphNode2", (state) => {
-      return { bar: state.bar + state.baz };
-    })
-    .addEdge(START, "subgraphNode1")
-    .addEdge("subgraphNode1", "subgraphNode2");
-
-  const subgraph = subgraphBuilder.compile();
-
-  // Define parent graph
-  const ParentState = new StateSchema({
-    foo: z.string(),
-  });
-
-  const builder = new StateGraph(ParentState)
-    .addNode("node1", (state) => {
-      return { foo: "hi! " + state.foo };
-    })
-    .addNode("node2", async (state) => {
-      const response = await subgraph.invoke({ bar: state.foo });   // [!code highlight]
-      return { foo: response.bar };   // [!code highlight]
-    })
-    .addEdge(START, "node1")
-    .addEdge("node1", "node2");
-
-  const graph = builder.compile();
-
-  const stream = await graph.streamEvents(
-    { foo: "foo" },
-    { subgraphs: true, version: "v3" }
-  );
-  for await (const message of stream.messages) {
-    for await (const token of message.text) {
-      process.stdout.write(token);
-    }
-  }
-  ```
-
-  1. Transform the state to the subgraph state
-  2. Transform response back to the parent state
-
-  ```
-  [[], { node1: { foo: 'hi! foo' } }]
-  [['node2:9c36dd0f-151a-cb42-cbad-fa2f851f9ab7'], { subgraphNode1: { baz: 'baz' } }]
-  [['node2:9c36dd0f-151a-cb42-cbad-fa2f851f9ab7'], { subgraphNode2: { bar: 'hi! foobaz' } }]
-  [[], { node2: { foo: 'hi! foobaz' } }]
-  ```
-</Accordion>
-
-<Accordion title="Full example: different state schemas (two levels of subgraphs)">
-  This is an example with two levels of subgraphs: parent -> child -> grandchild.
-
-  ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  import { StateGraph, StateSchema, START, END } from "@langchain/langgraph";
-  import * as z from "zod";
-
-  // Grandchild graph
-  const GrandChildState = new StateSchema({
-    myGrandchildKey: z.string(),
-  });
-
-  const grandchild = new StateGraph(GrandChildState)
-    .addNode("grandchild1", (state) => {
-      // NOTE: child or parent keys will not be accessible here
-      return { myGrandchildKey: state.myGrandchildKey + ", how are you" };
-    })
-    .addEdge(START, "grandchild1")
-    .addEdge("grandchild1", END);
-
-  const grandchildGraph = grandchild.compile();
-
-  // Child graph
-  const ChildState = new StateSchema({
-    myChildKey: z.string(),
-  });
-
-  const child = new StateGraph(ChildState)
-    .addNode("child1", async (state) => {
-      // NOTE: parent or grandchild keys won't be accessible here
-      const grandchildGraphInput = { myGrandchildKey: state.myChildKey };   // [!code highlight]
-      const grandchildGraphOutput = await grandchildGraph.invoke(grandchildGraphInput);
-      return { myChildKey: grandchildGraphOutput.myGrandchildKey + " today?" };   // [!code highlight]
-    })   // [!code highlight]
-    .addEdge(START, "child1")
-    .addEdge("child1", END);
-
-  const childGraph = child.compile();
-
-  // Parent graph
-  const ParentState = new StateSchema({
-    myKey: z.string(),
-  });
-
-  const parent = new StateGraph(ParentState)
-    .addNode("parent1", (state) => {
-      // NOTE: child or grandchild keys won't be accessible here
-      return { myKey: "hi " + state.myKey };
-    })
-    .addNode("child", async (state) => {
-      const childGraphInput = { myChildKey: state.myKey };   // [!code highlight]
-      const childGraphOutput = await childGraph.invoke(childGraphInput);
-      return { myKey: childGraphOutput.myChildKey };   // [!code highlight]
-    })   // [!code highlight]
-    .addNode("parent2", (state) => {
-      return { myKey: state.myKey + " bye!" };
-    })
-    .addEdge(START, "parent1")
-    .addEdge("parent1", "child")
-    .addEdge("child", "parent2")
-    .addEdge("parent2", END);
-
-  const parentGraph = parent.compile();
-
-  const stream = await parentGraph.streamEvents(
-    { myKey: "Bob" },
-    { subgraphs: true, version: "v3" }
-  );
-  for await (const message of stream.messages) {
-    for await (const token of message.text) {
-      process.stdout.write(token);
-    }
-  }
-  ```
-
-  1. We're transforming the state from the child state channels (`myChildKey`) to the grandchild state channels (`myGrandchildKey`)
-  2. We're transforming the state from the grandchild state channels (`myGrandchildKey`) back to the child state channels (`myChildKey`)
-  3. We're passing a function here instead of just compiled graph (`grandchildGraph`)
-  4. We're transforming the state from the parent state channels (`myKey`) to the child state channels (`myChildKey`)
-  5. We're transforming the state from the child state channels (`myChildKey`) back to the parent state channels (`myKey`)
-  6. We're passing a function here instead of just a compiled graph (`childGraph`)
-
-  ```
-  [[], { parent1: { myKey: 'hi Bob' } }]
-  [['child:2e26e9ce-602f-862c-aa66-1ea5a4655e3b', 'child1:781bb3b1-3971-84ce-810b-acf819a03f9c'], { grandchild1: { myGrandchildKey: 'hi Bob, how are you' } }]
-  [['child:2e26e9ce-602f-862c-aa66-1ea5a4655e3b'], { child1: { myChildKey: 'hi Bob, how are you today?' } }]
-  [[], { child: { myKey: 'hi Bob, how are you today?' } }]
-  [[], { parent2: { myKey: 'hi Bob, how are you today? bye!' } }]
-  ```
-</Accordion>
+> **Full example: different state schemas (two levels of subgraphs)**
+>
+> This is an example with two levels of subgraphs: parent -> child -> grandchild.
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import { StateGraph, StateSchema, START, END } from "@langchain/langgraph";
+> import * as z from "zod";
+>
+> // Grandchild graph
+> const GrandChildState = new StateSchema({
+>   myGrandchildKey: z.string(),
+> });
+>
+> const grandchild = new StateGraph(GrandChildState)
+>   .addNode("grandchild1", (state) => {
+>     // NOTE: child or parent keys will not be accessible here
+>     return { myGrandchildKey: state.myGrandchildKey + ", how are you" };
+>   })
+>   .addEdge(START, "grandchild1")
+>   .addEdge("grandchild1", END);
+>
+> const grandchildGraph = grandchild.compile();
+>
+> // Child graph
+> const ChildState = new StateSchema({
+>   myChildKey: z.string(),
+> });
+>
+> const child = new StateGraph(ChildState)
+>   .addNode("child1", async (state) => {
+>     // NOTE: parent or grandchild keys won't be accessible here
+>     const grandchildGraphInput = { myGrandchildKey: state.myChildKey };   // [!code highlight]
+>     const grandchildGraphOutput = await grandchildGraph.invoke(grandchildGraphInput);
+>     return { myChildKey: grandchildGraphOutput.myGrandchildKey + " today?" };   // [!code highlight]
+>   })   // [!code highlight]
+>   .addEdge(START, "child1")
+>   .addEdge("child1", END);
+>
+> const childGraph = child.compile();
+>
+> // Parent graph
+> const ParentState = new StateSchema({
+>   myKey: z.string(),
+> });
+>
+> const parent = new StateGraph(ParentState)
+>   .addNode("parent1", (state) => {
+>     // NOTE: child or grandchild keys won't be accessible here
+>     return { myKey: "hi " + state.myKey };
+>   })
+>   .addNode("child", async (state) => {
+>     const childGraphInput = { myChildKey: state.myKey };   // [!code highlight]
+>     const childGraphOutput = await childGraph.invoke(childGraphInput);
+>     return { myKey: childGraphOutput.myChildKey };   // [!code highlight]
+>   })   // [!code highlight]
+>   .addNode("parent2", (state) => {
+>     return { myKey: state.myKey + " bye!" };
+>   })
+>   .addEdge(START, "parent1")
+>   .addEdge("parent1", "child")
+>   .addEdge("child", "parent2")
+>   .addEdge("parent2", END);
+>
+> const parentGraph = parent.compile();
+>
+> const stream = await parentGraph.streamEvents(
+>   { myKey: "Bob" },
+>   { subgraphs: true, version: "v3" }
+> );
+> for await (const message of stream.messages) {
+>   for await (const token of message.text) {
+>     process.stdout.write(token);
+>   }
+> }
+> ```
+>
+> 1. We're transforming the state from the child state channels (`myChildKey`) to the grandchild state channels (`myGrandchildKey`)
+> 2. We're transforming the state from the grandchild state channels (`myGrandchildKey`) back to the child state channels (`myChildKey`)
+> 3. We're passing a function here instead of just compiled graph (`grandchildGraph`)
+> 4. We're transforming the state from the parent state channels (`myKey`) to the child state channels (`myChildKey`)
+> 5. We're transforming the state from the child state channels (`myChildKey`) back to the parent state channels (`myKey`)
+> 6. We're passing a function here instead of just a compiled graph (`childGraph`)
+>
+> ```
+> [[], { parent1: { myKey: 'hi Bob' } }]
+> [['child:2e26e9ce-602f-862c-aa66-1ea5a4655e3b', 'child1:781bb3b1-3971-84ce-810b-acf819a03f9c'], { grandchild1: { myGrandchildKey: 'hi Bob, how are you' } }]
+> [['child:2e26e9ce-602f-862c-aa66-1ea5a4655e3b'], { child1: { myChildKey: 'hi Bob, how are you today?' } }]
+> [[], { child: { myKey: 'hi Bob, how are you today?' } }]
+> [[], { parent2: { myKey: 'hi Bob, how are you today? bye!' } }]
+> ```
 
 ### Add a subgraph as a node
 
 When the parent graph and subgraph **share state keys**, you can pass a compiled subgraph directly to `add_node`. No wrapper function is needed—the subgraph reads from and writes to the parent's state channels automatically. For example, in [multi-agent](/oss/javascript/langchain/multi-agent) systems, the agents often communicate over a shared [messages](/oss/javascript/langgraph/graph-api#why-use-messages) key.
 
-<img alt="SQL agent graph" />
+![SQL agent graph](https://mintcdn.com/langchain-5e9cc07a/ybiAaBfoBvFquMDz/oss/images/subgraph.png?fit=max\&auto=format\&n=ybiAaBfoBvFquMDz\&q=85\&s=c280df5c968cd4237b0b5d03823d8946)
 
 If your subgraph shares state keys with the parent graph, you can follow these steps to add it to your graph:
 
@@ -260,62 +260,62 @@ const builder = new StateGraph(State)
 const graph = builder.compile();
 ```
 
-<Accordion title="Full example: shared state schemas">
-  ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  import { StateGraph, StateSchema, START } from "@langchain/langgraph";
-  import * as z from "zod";
-
-  // Define subgraph
-  const SubgraphState = new StateSchema({
-    foo: z.string(),    // [!code highlight]
-    bar: z.string(),    // [!code highlight]
-  });
-
-  const subgraphBuilder = new StateGraph(SubgraphState)
-    .addNode("subgraphNode1", (state) => {
-      return { bar: "bar" };
-    })
-    .addNode("subgraphNode2", (state) => {
-      // note that this node is using a state key ('bar') that is only available in the subgraph
-      // and is sending update on the shared state key ('foo')
-      return { foo: state.foo + state.bar };
-    })
-    .addEdge(START, "subgraphNode1")
-    .addEdge("subgraphNode1", "subgraphNode2");
-
-  const subgraph = subgraphBuilder.compile();
-
-  // Define parent graph
-  const ParentState = new StateSchema({
-    foo: z.string(),
-  });
-
-  const builder = new StateGraph(ParentState)
-    .addNode("node1", (state) => {
-      return { foo: "hi! " + state.foo };
-    })
-    .addNode("node2", subgraph)
-    .addEdge(START, "node1")
-    .addEdge("node1", "node2");
-
-  const graph = builder.compile();
-
-  const stream = await graph.streamEvents({ foo: "foo" }, { version: "v3" });
-  for await (const message of stream.messages) {
-    for await (const token of message.text) {
-      process.stdout.write(token);
-    }
-  }
-  ```
-
-  1. This key is shared with the parent graph state
-  2. This key is private to the `SubgraphState` and is not visible to the parent graph
-
-  ```
-  { node1: { foo: 'hi! foo' } }
-  { node2: { foo: 'hi! foobar' } }
-  ```
-</Accordion>
+> **Full example: shared state schemas**
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import { StateGraph, StateSchema, START } from "@langchain/langgraph";
+> import * as z from "zod";
+>
+> // Define subgraph
+> const SubgraphState = new StateSchema({
+>   foo: z.string(),    // [!code highlight]
+>   bar: z.string(),    // [!code highlight]
+> });
+>
+> const subgraphBuilder = new StateGraph(SubgraphState)
+>   .addNode("subgraphNode1", (state) => {
+>     return { bar: "bar" };
+>   })
+>   .addNode("subgraphNode2", (state) => {
+>     // note that this node is using a state key ('bar') that is only available in the subgraph
+>     // and is sending update on the shared state key ('foo')
+>     return { foo: state.foo + state.bar };
+>   })
+>   .addEdge(START, "subgraphNode1")
+>   .addEdge("subgraphNode1", "subgraphNode2");
+>
+> const subgraph = subgraphBuilder.compile();
+>
+> // Define parent graph
+> const ParentState = new StateSchema({
+>   foo: z.string(),
+> });
+>
+> const builder = new StateGraph(ParentState)
+>   .addNode("node1", (state) => {
+>     return { foo: "hi! " + state.foo };
+>   })
+>   .addNode("node2", subgraph)
+>   .addEdge(START, "node1")
+>   .addEdge("node1", "node2");
+>
+> const graph = builder.compile();
+>
+> const stream = await graph.streamEvents({ foo: "foo" }, { version: "v3" });
+> for await (const message of stream.messages) {
+>   for await (const token of message.text) {
+>     process.stdout.write(token);
+>   }
+> }
+> ```
+>
+> 1. This key is shared with the parent graph state
+> 2. This key is private to the `SubgraphState` and is not visible to the parent graph
+>
+> ```
+> { node1: { foo: 'hi! foo' } }
+> { node2: { foo: 'hi! foobar' } }
+> ```
 
 ## Subgraph persistence
 
@@ -331,13 +331,13 @@ The `checkpointer` parameter on `.compile()` controls subgraph persistence:
 
 Per-invocation is the right choice for most applications, including [multi-agent](/oss/javascript/langchain/multi-agent) systems where subagents handle independent requests. Use per-thread when a subagent needs multi-turn conversation memory (for example, a research assistant that builds context over several exchanges).
 
-<Note>
-  The parent graph must be compiled with a checkpointer for subgraph persistence features (interrupts, state inspection, per-thread memory) to work. See [persistence](/oss/javascript/langgraph/persistence).
-</Note>
+> [!NOTE]
+>
+> The parent graph must be compiled with a checkpointer for subgraph persistence features (interrupts, state inspection, per-thread memory) to work. See [persistence](/oss/javascript/langgraph/persistence).
 
-<Info>
-  The examples below use LangChain's [`create_agent`](https://reference.langchain.com/javascript/langchain/index/createAgent), which is a common way to build agents. `create_agent` produces a [LangGraph graph](/oss/javascript/langgraph/graph-api) under the hood, so all subgraph persistence concepts apply directly. If you're building with raw LangGraph `StateGraph`, the same patterns and configuration options apply—see the [Graph API](/oss/javascript/langgraph/graph-api) for details.
-</Info>
+> [!NOTE]
+>
+> The examples below use LangChain's [`create_agent`](https://reference.langchain.com/javascript/langchain/index/createAgent), which is a common way to build agents. `create_agent` produces a [LangGraph graph](/oss/javascript/langgraph/graph-api) under the hood, so all subgraph persistence concepts apply directly. If you're building with raw LangGraph `StateGraph`, the same patterns and configuration options apply—see the [Graph API](/oss/javascript/langgraph/graph-api) for details.
 
 ### Stateful
 
@@ -345,9 +345,9 @@ Stateful subgraphs inherit the parent graph's checkpointer, which enables [inter
 
 #### Per-invocation (default)
 
-<Tip>
-  This is the recommended mode for most applications, including [multi-agent](/oss/javascript/langchain/multi-agent) systems where subagents are invoked as tools. It supports [interrupts](/oss/javascript/langgraph/interrupts), [persistence](/oss/javascript/langgraph/persistence), and parallel calls while keeping each invocation isolated.
-</Tip>
+> [!TIP]
+>
+> This is the recommended mode for most applications, including [multi-agent](/oss/javascript/langchain/multi-agent) systems where subagents are invoked as tools. It supports [interrupts](/oss/javascript/langgraph/interrupts), [persistence](/oss/javascript/langgraph/persistence), and parallel calls while keeping each invocation isolated.
 
 Use per-invocation persistence when each call to the subgraph is independent and the subagent doesn't need to remember anything from previous calls. This is the most common pattern, especially for [multi-agent](/oss/javascript/langchain/multi-agent) systems where subagents handle one-off requests like "look up this customer's order" or "summarize this document."
 
@@ -431,78 +431,76 @@ const agent = createAgent({
 });
 ```
 
-<Tabs>
-  <Tab title="Interrupts">
-    Each invocation can use `interrupt()` to pause and resume. Add `interrupt()` to a tool function to require user approval before proceeding:
+**Interrupts**
 
-    ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    const fruitInfo = tool(
-      (input) => {
-        interrupt("continue?");  // [!code highlight]
-        return `Info about ${input.fruitName}`;
-      },
-      {
-        name: "fruit_info",
-        description: "Look up fruit info.",
-        schema: z.object({ fruitName: z.string() }),
-      }
-    );
-    ```
+Each invocation can use `interrupt()` to pause and resume. Add `interrupt()` to a tool function to require user approval before proceeding:
 
-    ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    const config = { configurable: { thread_id: "1" } };
+```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+const fruitInfo = tool(
+  (input) => {
+    interrupt("continue?");  // [!code highlight]
+    return `Info about ${input.fruitName}`;
+  },
+  {
+    name: "fruit_info",
+    description: "Look up fruit info.",
+    schema: z.object({ fruitName: z.string() }),
+  }
+);
+```
 
-    // Invoke - the subagent's tool calls interrupt()
-    let response = await agent.invoke(
-      { messages: [{ role: "user", content: "Tell me about apples" }] },
-      config,
-    );
-    // response contains __interrupt__
+```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+const config = { configurable: { thread_id: "1" } };
 
-    // Resume - approve the interrupt
-    response = await agent.invoke(new Command({ resume: true }), config);  // [!code highlight]
-    // Subagent message count: 4
-    ```
-  </Tab>
+// Invoke - the subagent's tool calls interrupt()
+let response = await agent.invoke(
+  { messages: [{ role: "user", content: "Tell me about apples" }] },
+  config,
+);
+// response contains __interrupt__
 
-  <Tab title="Multi-turn">
-    Each invocation starts with a fresh subagent state. The subagent does not remember previous calls:
+// Resume - approve the interrupt
+response = await agent.invoke(new Command({ resume: true }), config);  // [!code highlight]
+// Subagent message count: 4
+```
 
-    ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    const config = { configurable: { thread_id: "1" } };
+**Multi-turn**
 
-    // First call
-    let response = await agent.invoke(
-      { messages: [{ role: "user", content: "Tell me about apples" }] },
-      config,
-    );
-    // Subagent message count: 4
+Each invocation starts with a fresh subagent state. The subagent does not remember previous calls:
 
-    // Second call - subagent starts fresh, no memory of apples
-    response = await agent.invoke(
-      { messages: [{ role: "user", content: "Now tell me about bananas" }] },
-      config,
-    );
-    // Subagent message count: 4 (still fresh!)
-    ```
-  </Tab>
+```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+const config = { configurable: { thread_id: "1" } };
 
-  <Tab title="Multiple subgraph calls">
-    Multiple calls to the same subgraph work without conflicts, since each invocation gets its own checkpoint namespace:
+// First call
+let response = await agent.invoke(
+  { messages: [{ role: "user", content: "Tell me about apples" }] },
+  config,
+);
+// Subagent message count: 4
 
-    ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    const config = { configurable: { thread_id: "1" } };
+// Second call - subagent starts fresh, no memory of apples
+response = await agent.invoke(
+  { messages: [{ role: "user", content: "Now tell me about bananas" }] },
+  config,
+);
+// Subagent message count: 4 (still fresh!)
+```
 
-    // LLM calls ask_fruit_expert for both apples and bananas
-    const response = await agent.invoke(
-      { messages: [{ role: "user", content: "Tell me about apples and bananas" }] },
-      config,
-    );
-    // Subagent message count: 4 (apples - fresh)
-    // Subagent message count: 4 (bananas - fresh)
-    ```
-  </Tab>
-</Tabs>
+**Multiple subgraph calls**
+
+Multiple calls to the same subgraph work without conflicts, since each invocation gets its own checkpoint namespace:
+
+```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+const config = { configurable: { thread_id: "1" } };
+
+// LLM calls ask_fruit_expert for both apples and bananas
+const response = await agent.invoke(
+  { messages: [{ role: "user", content: "Tell me about apples and bananas" }] },
+  config,
+);
+// Subagent message count: 4 (apples - fresh)
+// Subagent message count: 4 (bananas - fresh)
+```
 
 #### Per-thread
 
@@ -510,11 +508,11 @@ Use per-thread persistence when a subagent needs to remember previous interactio
 
 Compile with `checkpointer=True` to enable this behavior.
 
-<Warning>
-  Per-thread subgraphs do not support parallel tool calls. When an LLM has access to a per-thread subagent as a tool, it may try to call that tool multiple times in parallel (for example, asking the fruit expert about apples and bananas simultaneously). This causes checkpoint conflicts because both calls write to the same namespace.
-
-  The examples below use LangChain's `ToolCallLimitMiddleware` to prevent this. If you're building with pure LangGraph `StateGraph`, you need to prevent parallel tool calls yourself—for example, by configuring your model to disable parallel tool calling or by adding logic to ensure the same subgraph is not invoked multiple times in parallel.
-</Warning>
+> [!WARNING]
+>
+> Per-thread subgraphs do not support parallel tool calls. When an LLM has access to a per-thread subagent as a tool, it may try to call that tool multiple times in parallel (for example, asking the fruit expert about apples and bananas simultaneously). This causes checkpoint conflicts because both calls write to the same namespace.
+>
+> The examples below use LangChain's `ToolCallLimitMiddleware` to prevent this. If you're building with pure LangGraph `StateGraph`, you need to prevent parallel tool calls yourself—for example, by configuring your model to disable parallel tool calling or by adding logic to ensure the same subgraph is not invoked multiple times in parallel.
 
 The following examples use a fruit expert subagent compiled with `checkpointer=True`:
 
@@ -569,114 +567,112 @@ const agent = createAgent({
 });
 ```
 
-<Tabs>
-  <Tab title="Interrupts">
-    Per-thread subagents support `interrupt()` just like per-invocation. Add `interrupt()` to a tool function to require user approval:
+**Interrupts**
 
-    ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    const fruitInfo = tool(
-      (input) => {
-        interrupt("continue?");  // [!code highlight]
-        return `Info about ${input.fruitName}`;
-      },
-      {
-        name: "fruit_info",
-        description: "Look up fruit info.",
-        schema: z.object({ fruitName: z.string() }),
-      }
-    );
-    ```
+Per-thread subagents support `interrupt()` just like per-invocation. Add `interrupt()` to a tool function to require user approval:
 
-    ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    const config = { configurable: { thread_id: "1" } };
+```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+const fruitInfo = tool(
+  (input) => {
+    interrupt("continue?");  // [!code highlight]
+    return `Info about ${input.fruitName}`;
+  },
+  {
+    name: "fruit_info",
+    description: "Look up fruit info.",
+    schema: z.object({ fruitName: z.string() }),
+  }
+);
+```
 
-    // Invoke - the subagent's tool calls interrupt()
-    let response = await agent.invoke(
-      { messages: [{ role: "user", content: "Tell me about apples" }] },
-      config,
-    );
-    // response contains __interrupt__
+```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+const config = { configurable: { thread_id: "1" } };
 
-    // Resume - approve the interrupt
-    response = await agent.invoke(new Command({ resume: true }), config);  // [!code highlight]
-    // Subagent message count: 4
-    ```
-  </Tab>
+// Invoke - the subagent's tool calls interrupt()
+let response = await agent.invoke(
+  { messages: [{ role: "user", content: "Tell me about apples" }] },
+  config,
+);
+// response contains __interrupt__
 
-  <Tab title="Multi-turn">
-    State accumulates across invocations—the subagent remembers past conversations:
+// Resume - approve the interrupt
+response = await agent.invoke(new Command({ resume: true }), config);  // [!code highlight]
+// Subagent message count: 4
+```
 
-    ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    const config = { configurable: { thread_id: "1" } };
+**Multi-turn**
 
-    // First call
-    let response = await agent.invoke(
-      { messages: [{ role: "user", content: "Tell me about apples" }] },
-      config,
-    );
-    // Subagent message count: 4
+State accumulates across invocations—the subagent remembers past conversations:
 
-    // Second call - subagent REMEMBERS apples conversation
-    response = await agent.invoke(
-      { messages: [{ role: "user", content: "Now tell me about bananas" }] },
-      config,
-    );
-    // Subagent message count: 8 (accumulated!)
-    ```
-  </Tab>
+```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+const config = { configurable: { thread_id: "1" } };
 
-  <Tab title="Multiple subgraph calls">
-    When you have multiple **different** per-thread subgraphs (for example, a fruit expert and a veggie expert), each one needs its own storage space so their checkpoints don't overwrite each other. This is called **namespace isolation**.
+// First call
+let response = await agent.invoke(
+  { messages: [{ role: "user", content: "Tell me about apples" }] },
+  config,
+);
+// Subagent message count: 4
 
-    If you [call subgraphs inside a node](#call-a-subgraph-inside-a-node), LangGraph assigns namespaces based on call order (first call, second call, etc.). This means reordering your calls can mix up which subgraph loads which state. To avoid this, wrap each subagent in its own `StateGraph` with a unique node name—this gives each subgraph a stable, unique namespace:
+// Second call - subagent REMEMBERS apples conversation
+response = await agent.invoke(
+  { messages: [{ role: "user", content: "Now tell me about bananas" }] },
+  config,
+);
+// Subagent message count: 8 (accumulated!)
+```
 
-    ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    import { StateGraph, StateSchema, MessagesValue, START } from "@langchain/langgraph";
+**Multiple subgraph calls**
 
-    function createSubAgent(model: string, { name, ...kwargs }: { name: string; [key: string]: any }) {
-      const agent = createAgent({ model, name, ...kwargs });
-      return new StateGraph(new StateSchema({ messages: MessagesValue }))
-        .addNode(name, agent)  // unique name → stable namespace  // [!code highlight]
-        .addEdge(START, name)
-        .compile();
-    }
+When you have multiple **different** per-thread subgraphs (for example, a fruit expert and a veggie expert), each one needs its own storage space so their checkpoints don't overwrite each other. This is called **namespace isolation**.
 
-    const fruitAgent = createSubAgent("gpt-5.4-mini", {
-      name: "fruit_agent", tools: [fruitInfo], prompt: "...", checkpointer: true,
-    });
-    const veggieAgent = createSubAgent("gpt-5.4-mini", {
-      name: "veggie_agent", tools: [veggieInfo], prompt: "...", checkpointer: true,
-    });
-    const config = { configurable: { thread_id: "1" } };
+If you [call subgraphs inside a node](#call-a-subgraph-inside-a-node), LangGraph assigns namespaces based on call order (first call, second call, etc.). This means reordering your calls can mix up which subgraph loads which state. To avoid this, wrap each subagent in its own `StateGraph` with a unique node name—this gives each subgraph a stable, unique namespace:
 
-    // First call - LLM calls both fruit and veggie experts
-    let response = await agent.invoke(
-      { messages: [{ role: "user", content: "Tell me about cherries and broccoli" }] },
-      config,
-    );
-    // Fruit subagent message count: 4
-    // Veggie subagent message count: 4
+```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import { StateGraph, StateSchema, MessagesValue, START } from "@langchain/langgraph";
 
-    // Second call - both agents accumulate independently
-    response = await agent.invoke(
-      { messages: [{ role: "user", content: "Now tell me about oranges and carrots" }] },
-      config,
-    );
-    // Fruit subagent message count: 8 (remembers cherries!)
-    // Veggie subagent message count: 8 (remembers broccoli!)
-    ```
+function createSubAgent(model: string, { name, ...kwargs }: { name: string; [key: string]: any }) {
+  const agent = createAgent({ model, name, ...kwargs });
+  return new StateGraph(new StateSchema({ messages: MessagesValue }))
+    .addNode(name, agent)  // unique name → stable namespace  // [!code highlight]
+    .addEdge(START, name)
+    .compile();
+}
 
-    Subgraphs [added as nodes](#add-a-subgraph-as-a-node) already get name-based namespaces automatically, so they don't need this wrapper.
-  </Tab>
-</Tabs>
+const fruitAgent = createSubAgent("gpt-5.4-mini", {
+  name: "fruit_agent", tools: [fruitInfo], prompt: "...", checkpointer: true,
+});
+const veggieAgent = createSubAgent("gpt-5.4-mini", {
+  name: "veggie_agent", tools: [veggieInfo], prompt: "...", checkpointer: true,
+});
+const config = { configurable: { thread_id: "1" } };
+
+// First call - LLM calls both fruit and veggie experts
+let response = await agent.invoke(
+  { messages: [{ role: "user", content: "Tell me about cherries and broccoli" }] },
+  config,
+);
+// Fruit subagent message count: 4
+// Veggie subagent message count: 4
+
+// Second call - both agents accumulate independently
+response = await agent.invoke(
+  { messages: [{ role: "user", content: "Now tell me about oranges and carrots" }] },
+  config,
+);
+// Fruit subagent message count: 8 (remembers cherries!)
+// Veggie subagent message count: 8 (remembers broccoli!)
+```
+
+Subgraphs [added as nodes](#add-a-subgraph-as-a-node) already get name-based namespaces automatically, so they don't need this wrapper.
 
 ### Stateless
 
 Use this when you want to run a subagent like a plain function call with no checkpointing overhead. The subgraph cannot pause/resume and does not benefit from [durable execution](/oss/javascript/langgraph/persistence). Compile with `checkpointer=False`.
 
-<Warning>
-  Without checkpointing, the subgraph has no durable execution. If the process crashes mid-run, the subgraph cannot recover and must be re-run from the beginning.
-</Warning>
+> [!WARNING]
+>
+> Without checkpointing, the subgraph has no durable execution. If the process crashes mid-run, the subgraph cannot recover and must be re-run from the beginning.
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 const subgraphBuilder = new StateGraph(...);
@@ -696,9 +692,9 @@ const subgraph = builder.compile({ checkpointer: false });  // or true, or null
 | `checkpointer=` | `None` | `True` | `False` |
 | Interrupts (HITL) | ✅ | ✅ | ❌ |
 | Multi-turn memory | ❌ | ✅ | ❌ |
-| Multiple calls (different subgraphs) | ✅ | <Tooltip>⚠️</Tooltip> | ✅ |
+| Multiple calls (different subgraphs) | ✅ | ⚠️ (Calls to multiple per-thread subgraphs in the same node can cause namespace conflicts. Workarounds are available.) | ✅ |
 | Multiple calls (same subgraph) | ✅ | ❌ | ✅ |
-| State inspection | <Tooltip>⚠️</Tooltip> | ✅ | ❌ |
+| State inspection | ⚠️ (State inspection with per-invocation persistence is available for the current invocation only (while interrupted). Each invocation starts fresh, so there is no accumulated state to inspect after the invocation completes.) | ✅ | ❌ |
 
 * **Interrupts (HITL)**: The subgraph can use [interrupt()](/oss/javascript/langgraph/interrupts) to pause execution and wait for user input, then resume where it left off.
 * **Multi-turn memory**: The subgraph retains its state across multiple invocations within the same [thread](/oss/javascript/langgraph/checkpointers#threads). Each call picks up where the last one left off rather than starting fresh.
@@ -710,85 +706,83 @@ const subgraph = builder.compile({ checkpointer: false });  // or true, or null
 
 When you enable [persistence](/oss/javascript/langgraph/persistence), you can inspect the subgraph state using the subgraphs option. With [stateless](#stateless) checkpointing (`checkpointer=False`), no subgraph checkpoints are saved, so subgraph state is not available.
 
-<Note>
-  Viewing subgraph state requires that LangGraph can **statically discover** the subgraph—i.e., it is [added as a node](#add-a-subgraph-as-a-node) or [called inside a node](#call-a-subgraph-inside-a-node). It does not work when a subgraph is called inside a [tool](/oss/javascript/langchain/tools) function or other indirection (e.g., the [subagents](/oss/javascript/langchain/multi-agent/subagents) pattern). Interrupts still propagate to the top-level graph regardless of nesting.
-</Note>
+> [!NOTE]
+>
+> Viewing subgraph state requires that LangGraph can **statically discover** the subgraph—i.e., it is [added as a node](#add-a-subgraph-as-a-node) or [called inside a node](#call-a-subgraph-inside-a-node). It does not work when a subgraph is called inside a [tool](/oss/javascript/langchain/tools) function or other indirection (e.g., the [subagents](/oss/javascript/langchain/multi-agent/subagents) pattern). Interrupts still propagate to the top-level graph regardless of nesting.
 
-<Tabs>
-  <Tab title="Per-invocation">
-    Returns subgraph state for the **current invocation only**. Each invocation starts fresh.
+**Per-invocation**
 
-    ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    import { StateGraph, StateSchema, START, MemorySaver, interrupt, Command } from "@langchain/langgraph";
-    import * as z from "zod";
+Returns subgraph state for the **current invocation only**. Each invocation starts fresh.
 
-    const State = new StateSchema({
-      foo: z.string(),
-    });
+```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import { StateGraph, StateSchema, START, MemorySaver, interrupt, Command } from "@langchain/langgraph";
+import * as z from "zod";
 
-    // Subgraph
-    const subgraphBuilder = new StateGraph(State)
-      .addNode("subgraphNode1", (state) => {
-        const value = interrupt("Provide value:");
-        return { foo: state.foo + value };
-      })
-      .addEdge(START, "subgraphNode1");
+const State = new StateSchema({
+  foo: z.string(),
+});
 
-    const subgraph = subgraphBuilder.compile();  // inherits parent checkpointer
+// Subgraph
+const subgraphBuilder = new StateGraph(State)
+  .addNode("subgraphNode1", (state) => {
+    const value = interrupt("Provide value:");
+    return { foo: state.foo + value };
+  })
+  .addEdge(START, "subgraphNode1");
 
-    // Parent graph
-    const builder = new StateGraph(State)
-      .addNode("node1", subgraph)
-      .addEdge(START, "node1");
+const subgraph = subgraphBuilder.compile();  // inherits parent checkpointer
 
-    const checkpointer = new MemorySaver();
-    const graph = builder.compile({ checkpointer });
+// Parent graph
+const builder = new StateGraph(State)
+  .addNode("node1", subgraph)
+  .addEdge(START, "node1");
 
-    const config = { configurable: { thread_id: "1" } };
+const checkpointer = new MemorySaver();
+const graph = builder.compile({ checkpointer });
 
-    await graph.invoke({ foo: "" }, config);
+const config = { configurable: { thread_id: "1" } };
 
-    // View subgraph state for the current invocation
-    const subgraphState = (await graph.getState(config, { subgraphs: true })).tasks[0].state;  // [!code highlight]
+await graph.invoke({ foo: "" }, config);
 
-    // Resume the subgraph
-    await graph.invoke(new Command({ resume: "bar" }), config);
-    ```
-  </Tab>
+// View subgraph state for the current invocation
+const subgraphState = (await graph.getState(config, { subgraphs: true })).tasks[0].state;  // [!code highlight]
 
-  <Tab title="Per-thread">
-    Returns **accumulated** subgraph state across all invocations on this thread.
+// Resume the subgraph
+await graph.invoke(new Command({ resume: "bar" }), config);
+```
 
-    ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    import { StateGraph, StateSchema, MessagesValue, START, MemorySaver } from "@langchain/langgraph";
+**Per-thread**
 
-    // Subgraph with its own persistent state
-    const SubgraphState = new StateSchema({
-      messages: MessagesValue,
-    });
+Returns **accumulated** subgraph state across all invocations on this thread.
 
-    const subgraphBuilder = new StateGraph(SubgraphState);
-    // ... add nodes and edges
-    const subgraph = subgraphBuilder.compile({ checkpointer: true });  // [!code highlight]
+```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import { StateGraph, StateSchema, MessagesValue, START, MemorySaver } from "@langchain/langgraph";
 
-    // Parent graph
-    const builder = new StateGraph(SubgraphState)
-      .addNode("agent", subgraph)
-      .addEdge(START, "agent");
+// Subgraph with its own persistent state
+const SubgraphState = new StateSchema({
+  messages: MessagesValue,
+});
 
-    const checkpointer = new MemorySaver();
-    const graph = builder.compile({ checkpointer });
+const subgraphBuilder = new StateGraph(SubgraphState);
+// ... add nodes and edges
+const subgraph = subgraphBuilder.compile({ checkpointer: true });  // [!code highlight]
 
-    const config = { configurable: { thread_id: "1" } };
+// Parent graph
+const builder = new StateGraph(SubgraphState)
+  .addNode("agent", subgraph)
+  .addEdge(START, "agent");
 
-    await graph.invoke({ messages: [{ role: "user", content: "hi" }] }, config);
-    await graph.invoke({ messages: [{ role: "user", content: "what did I say?" }] }, config);
+const checkpointer = new MemorySaver();
+const graph = builder.compile({ checkpointer });
 
-    // View accumulated subgraph state (includes messages from both invocations)
-    const subgraphState = (await graph.getState(config, { subgraphs: true })).tasks[0].state;  // [!code highlight]
-    ```
-  </Tab>
-</Tabs>
+const config = { configurable: { thread_id: "1" } };
+
+await graph.invoke({ messages: [{ role: "user", content: "hi" }] }, config);
+await graph.invoke({ messages: [{ role: "user", content: "what did I say?" }] }, config);
+
+// View accumulated subgraph state (includes messages from both invocations)
+const subgraphState = (await graph.getState(config, { subgraphs: true })).tasks[0].state;  // [!code highlight]
+```
 
 ## Stream subgraph outputs
 
@@ -809,76 +803,70 @@ for await (const snapshot of stream.values) {
 
 1. Set `subgraphs: true` to stream outputs from subgraphs.
 
-<Accordion title="Stream from subgraphs">
-  ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  import { StateGraph, StateSchema, START } from "@langchain/langgraph";
-  import * as z from "zod";
-
-  // Define subgraph
-  const SubgraphState = new StateSchema({
-    foo: z.string(),
-    bar: z.string(),
-  });
-
-  const subgraphBuilder = new StateGraph(SubgraphState)
-    .addNode("subgraphNode1", (state) => {
-      return { bar: "bar" };
-    })
-    .addNode("subgraphNode2", (state) => {
-      // note that this node is using a state key ('bar') that is only available in the subgraph
-      // and is sending update on the shared state key ('foo')
-      return { foo: state.foo + state.bar };
-    })
-    .addEdge(START, "subgraphNode1")
-    .addEdge("subgraphNode1", "subgraphNode2");
-
-  const subgraph = subgraphBuilder.compile();
-
-  // Define parent graph
-  const ParentState = new StateSchema({
-    foo: z.string(),
-  });
-
-  const builder = new StateGraph(ParentState)
-    .addNode("node1", (state) => {
-      return { foo: "hi! " + state.foo };
-    })
-    .addNode("node2", subgraph)
-    .addEdge(START, "node1")
-    .addEdge("node1", "node2");
-
-  const graph = builder.compile();
-
-  const stream = await graph.streamEvents(
-    { foo: "foo" },
-    {
-      subgraphs: true,   // [!code highlight]
-      version: "v3",
-    }
-  );
-  for await (const snapshot of stream.values) {
-    console.log(snapshot);
-  }
-  ```
-
-  1. Set `subgraphs: true` to stream outputs from subgraphs.
-
-  ```
-  [[], { node1: { foo: 'hi! foo' } }]
-  [['node2:e58e5673-a661-ebb0-70d4-e298a7fc28b7'], { subgraphNode1: { bar: 'bar' } }]
-  [['node2:e58e5673-a661-ebb0-70d4-e298a7fc28b7'], { subgraphNode2: { foo: 'hi! foobar' } }]
-  [[], { node2: { foo: 'hi! foobar' } }]
-  ```
-</Accordion>
+> **Stream from subgraphs**
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import { StateGraph, StateSchema, START } from "@langchain/langgraph";
+> import * as z from "zod";
+>
+> // Define subgraph
+> const SubgraphState = new StateSchema({
+>   foo: z.string(),
+>   bar: z.string(),
+> });
+>
+> const subgraphBuilder = new StateGraph(SubgraphState)
+>   .addNode("subgraphNode1", (state) => {
+>     return { bar: "bar" };
+>   })
+>   .addNode("subgraphNode2", (state) => {
+>     // note that this node is using a state key ('bar') that is only available in the subgraph
+>     // and is sending update on the shared state key ('foo')
+>     return { foo: state.foo + state.bar };
+>   })
+>   .addEdge(START, "subgraphNode1")
+>   .addEdge("subgraphNode1", "subgraphNode2");
+>
+> const subgraph = subgraphBuilder.compile();
+>
+> // Define parent graph
+> const ParentState = new StateSchema({
+>   foo: z.string(),
+> });
+>
+> const builder = new StateGraph(ParentState)
+>   .addNode("node1", (state) => {
+>     return { foo: "hi! " + state.foo };
+>   })
+>   .addNode("node2", subgraph)
+>   .addEdge(START, "node1")
+>   .addEdge("node1", "node2");
+>
+> const graph = builder.compile();
+>
+> const stream = await graph.streamEvents(
+>   { foo: "foo" },
+>   {
+>     subgraphs: true,   // [!code highlight]
+>     version: "v3",
+>   }
+> );
+> for await (const snapshot of stream.values) {
+>   console.log(snapshot);
+> }
+> ```
+>
+> 1. Set `subgraphs: true` to stream outputs from subgraphs.
+>
+> ```
+> [[], { node1: { foo: 'hi! foo' } }]
+> [['node2:e58e5673-a661-ebb0-70d4-e298a7fc28b7'], { subgraphNode1: { bar: 'bar' } }]
+> [['node2:e58e5673-a661-ebb0-70d4-e298a7fc28b7'], { subgraphNode2: { foo: 'hi! foobar' } }]
+> [[], { node2: { foo: 'hi! foobar' } }]
+> ```
 
 ***
 
-<div>
-  <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
-  </Callout>
+[Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
 
-  <Callout icon="edit">
-    [Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/use-subgraphs.mdx) or [file an issue](https://github.com/langchain-ai/docs/issues/new/choose).
-  </Callout>
-</div>
+[Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/use-subgraphs.mdx) or [file an issue](https://github.com/langchain-ai/docs/issues/new/choose).

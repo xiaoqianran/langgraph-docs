@@ -39,7 +39,7 @@ def approval_node(state: State):
 
 1. **图形执行在调用 [⟦T51⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 的确切位置暂停**2. **使用检查指针保存状态**，以便稍后可以恢复执行，在生产中，这应该是一个持久的检查指针（例如由数据库支持）
 
-3. 当使用[event streaming](/oss/python/langgraph/event-streaming)（`graph.stream_events(..., version="v3")`）时，**在`stream.interrupts`上，或在`__interrupt__`下，使用默认的`invoke()` API，将值返回给调用者；它可以是任何 JSON 可序列化的值（字符串、对象、数组等）
+3. 使用[event streaming](/oss/python/langgraph/event-streaming)（`graph.stream_events(..., version="v3")`）时，**在`stream.interrupts`上，或在使用默认`invoke()` API时，在`__interrupt__`下，将值返回给调用者；它可以是任何 JSON 可序列化的值（字符串、对象、数组等）
 
 4. **Graph 无限期地等待**，直到您通过响应恢复执行
 
@@ -74,30 +74,30 @@ resumed = graph.stream_events(Command(resume=True), config=config, version="v3")
 final = resumed.output
 ```
 
-<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/cf85f039-145d-4226-9c16-3e915c35a35c/r">
-  为此示例打开公共 LangSmith 运行。
-</Card>
+> **[View example trace](https://smith.langchain.com/public/cf85f039-145d-4226-9c16-3e915c35a35c/r)**
+>
+> 为此示例打开公共 LangSmith 运行。
 
-<Note>
-  默认的 `graph.invoke(...)` API 仍然可以工作并在 `result["__interrupt__"]` 下显示中断。当您不需要流式投影时使用它；否则更喜欢`graph.stream_events(..., version="v3")`。
-</Note>**恢复要点：**
+> [!注意]
+>
+> 默认的 `graph.invoke(...)` API 仍然可以工作并在 `result["__interrupt__"]` 下显示中断。当您不需要流式投影时使用它；否则更喜欢`graph.stream_events(..., version="v3")`。**恢复要点：**
 
 * 恢复时必须使用与中断发生时使用的**相同的线程 ID**
 * 传递给`Command(resume=...)`的值成为[⟦T66⟧](https://reference.langchain.com/python/langgraph/types/interrupt)调用的返回值
 * 节点从恢复时调用[⟦T67⟧](https://reference.langchain.com/python/langgraph/types/interrupt)的节点开始重新启动，因此[⟦T68⟧](https://reference.langchain.com/python/langgraph/types/interrupt)之前的任何代码都会再次运行
 * 您可以传递任何 JSON 可序列化值作为恢复值，当您指定类型化 `response_schema` 时需要进行验证
 
-<Warning>
-  `Command(resume=...)` 是**唯一** `Command` 模式，旨在作为 `invoke()`/`stream()`/`stream_events()` 的输入。其他`Command`参数（`update`、`goto`、`graph`）是为[returning from node functions](/oss/python/langgraph/graph-api#command)设计的。不要传递 `Command(update=...)` 作为输入来继续多轮对话 - 而是传递一个简单的输入字典。
-</Warning>
+> [!警告]
+>
+> `Command(resume=...)` 是**唯一** `Command` 模式，旨在作为 `invoke()`/`stream()`/`stream_events()` 的输入。其他`Command`参数（`update`、`goto`、`graph`）是为[returning from node functions](/oss/python/langgraph/graph-api#command)设计的。不要传递 `Command(update=...)` 作为输入来继续多轮对话 - 而是传递一个简单的输入字典。
 
 ## 定义中断响应模式
 
 [⟦T81⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 的 `response_schema` 参数描述了恢复图表时预期的输入。客户端可以使用该架构来呈现键入的输入表单。
 
-<Note>
-  中断响应模式需要`langgraph>=1.2.12`。
-</Note>传递 Pydantic 模型类、来自 `typing_extensions` 的 `TypedDict` 或数据类来验证简历值。 LangGraph 将类型转换为 JSON Schema 并将其包含在 `Interrupt.response_schema` 中，与中断的 `value` 负载分开。该模式可用于返回调用者的中断和检查点任务中断。
+> [!注意]
+>
+> 中断响应模式需要`langgraph>=1.2.12`。传递 Pydantic 模型类、来自 `typing_extensions` 的 `TypedDict` 或数据类来验证简历值。 LangGraph 将类型转换为 JSON Schema 并将其包含在 `Interrupt.response_schema` 中，与中断的 `value` 负载分开。该模式可用于返回调用者的中断和检查点任务中断。
 
 此示例使用 LangGraph 中断测试的批准模式：
 
@@ -148,26 +148,26 @@ assert result["answer"] == Decision(approved=True)
 
 Studio 将中断响应架构呈现为键入的输入字段而不是 JSON 编辑器。 Studio 组件的此预览使用带有批准、注释和数字金额字段的示例数据。
 
-<img alt="Studio interrupt form with an approval toggle, a note field, and a numeric amount set to 125.50" />
+![Studio interrupt form with an approval toggle, a note field, and a numeric amount set to 125.50](https://mintcdn.com/langchain-5e9cc07a/u62GP5wl5NeQqwjE/images/langgraph-interrupt-response-schema.png?fit=max\&auto=format\&n=u62GP5wl5NeQqwjE\&q=85\&s=b10304786d356849862616a60b74aa3d)
 
 ## 常见模式中断解锁的关键是能够暂停执行并等待外部输入。这对于各种用例都很有用，包括：
 
-* <Icon icon="circle-check" /> [Approval workflows](#approve-or-reject)：在执行关键操作（API 调用、数据库更改、金融交易）之前暂停
-* <Icon icon="link" /> [Handling multiple interrupts](#handling-multiple-interrupts)：在单次调用中恢复多个中断时将中断 ID 与恢复值配对
-* <Icon icon="pencil" /> [Review and edit](#review-and-edit-state)：让人们在继续之前检查和修改LLM输出或工具调用
-* <Icon icon="tool" /> [Interrupting tool calls](#interrupts-in-tools)：执行工具调用前暂停，以在执行前查看和编辑工具调用
-* <Icon icon="shield-check" /> [Validating human input](#validating-human-input)：在继续下一步验证人工输入之前暂停
+* [Approval workflows](#approve-or-reject)：在执行关键操作（API 调用、数据库更改、金融交易）之前暂停
+* [Handling multiple interrupts](#handling-multiple-interrupts)：在单次调用中恢复多个中断时，将中断 ID 与恢复值配对
+* [Review and edit](#review-and-edit-state)：让人们在继续之前检查和修改LLM输出或工具调用
+* [Interrupting tool calls](#interrupts-in-tools)：执行工具调用前暂停，以在执行前查看和编辑工具调用
+* [Validating human input](#validating-human-input)：在继续下一步验证人工输入之前暂停
 
 ### 具有人机交互 (HITL) 中断的流
 
-当使用人机交互工作流程构建交互式代理时，您可以使用[event streaming](/oss/python/langgraph/event-streaming)在处理中断的同时同时使用消息块和状态快照。
+当使用人机交互工作流程构建交互式代理时，您可以使用[event streaming](/oss/python/langgraph/event-streaming)在处理中断时同时使用消息块和状态快照。
 
-循环使用 `graph.stream_events(..., version="v3")` 返回的类型化投影，直到运行完成：* 通过`stream.messages`逐个流式传输 AI 响应
+循环使用 `graph.stream_events(..., version="v3")` 返回的类型化投影，直到运行完成：
+
+* 通过`stream.messages`逐个流式传输 AI 响应
 * 通过`stream.values`观察每步状态快照
 * 通过`stream.interrupted`检测中断并从`stream.interrupts`读取中断负载
-* 通过使用`Command(resume=...)`再次调用`stream_events`来恢复执行，并重复直到`stream.interrupted`为假
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+* 通过使用`Command(resume=...)`再次调用`stream_events`来恢复执行，并重复直到`stream.interrupted`为假```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from langgraph.types import Command
 
 stream_input: dict | Command = initial_input
@@ -190,9 +190,9 @@ while True:
     stream_input = Command(resume=user_response)
 ```
 
-<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/3fcd0b07-12d7-455e-9d24-8b25548a46be/r">
-  为此示例打开公共 LangSmith 运行。
-</Card>
+> **[View example trace](https://smith.langchain.com/public/3fcd0b07-12d7-455e-9d24-8b25548a46be/r)**
+>
+> 为此示例打开公共 LangSmith 运行。
 
 * **`stream.messages`**：聊天模型输出为内容块；迭代每个`message.text`以获得代币增量。对于嵌套子图，从`stream.subgraphs[*].messages`读取消息块。
 * **`stream.values`**：每一步后的完整状态快照
@@ -258,11 +258,13 @@ print("Final state:", resumed.output)
 # Final state: {'vals': ['a:answer for question_a', 'b:answer for question_b']}
 ```
 
-<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/7cbaa580-169c-4f6d-a883-5d980309e9cf/r">
-  为此示例打开公共 LangSmith 运行。
-</Card>
+> **[View example trace](https://smith.langchain.com/public/7cbaa580-169c-4f6d-a883-5d980309e9cf/r)**
+>
+> 为此示例打开公共 LangSmith 运行。
 
-### 批准或拒绝中断最常见的用途之一是在关键操作之前暂停并请求批准。例如，您可能想要请求人工批准 API 调用、数据库更改或任何其他重要决策。
+### 批准或拒绝
+
+中断最常见的用途之一是在关键操作之前暂停并请求批准。例如，您可能想要请求人工批准 API 调用、数据库更改或任何其他重要决策。
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from typing import Literal
@@ -280,9 +282,7 @@ def approval_node(state: State) -> Command[Literal["proceed", "cancel"]]:
         return Command(goto="proceed")  # Runs after the resume payload is provided
     else:
         return Command(goto="cancel")
-```
-
-当您恢复图表时，通过 `True` 批准或 `False` 拒绝：
+```当您恢复图表时，通过 `True` 批准或 `False` 拒绝：
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 # To approve
@@ -292,71 +292,71 @@ graph.stream_events(Command(resume=True), config=config, version="v3").output
 graph.stream_events(Command(resume=False), config=config, version="v3").output
 ```
 
-<Accordion title="Full example">
-  ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  from typing import Literal, Optional, TypedDict
-
-  from langgraph.checkpoint.memory import InMemorySaver
-  from langgraph.graph import END, START, StateGraph
-  from langgraph.types import Command, interrupt
-
-
-  class ApprovalState(TypedDict):
-      action_details: str
-      status: Optional[Literal["pending", "approved", "rejected"]]
-
-
-  def approval_node(state: ApprovalState) -> Command[Literal["proceed", "cancel"]]:
-      # Expose details so the caller can render them in a UI
-      decision = interrupt(
-          {
-              "question": "Approve this action?",
-              "details": state["action_details"],
-          }
-      )
-
-      # Route to the appropriate node after resume
-      return Command(goto="proceed" if decision else "cancel")
-
-
-  def proceed_node(state: ApprovalState):
-      return {"status": "approved"}
-
-
-  def cancel_node(state: ApprovalState):
-      return {"status": "rejected"}
-
-
-  builder = StateGraph(ApprovalState)
-  builder.add_node("approval", approval_node)
-  builder.add_node("proceed", proceed_node)
-  builder.add_node("cancel", cancel_node)
-  builder.add_edge(START, "approval")
-  builder.add_edge("proceed", END)
-  builder.add_edge("cancel", END)
-
-  # Use a more durable checkpointer in production
-  checkpointer = InMemorySaver()
-  graph = builder.compile(checkpointer=checkpointer)
-
-  config = {"configurable": {"thread_id": "approval-123"}}
-  initial = graph.stream_events(
-      {"action_details": "Transfer $500", "status": "pending"},
-      config=config,
-      version="v3",
-  )
-  _ = initial.output  # drive the stream to completion
-  print(initial.interrupts)  # -> (Interrupt(value={'question': ..., 'details': ...}),)
-
-  # Resume with the decision; True routes to proceed, False to cancel
-  resumed = graph.stream_events(Command(resume=True), config=config, version="v3")
-  print(resumed.output["status"])
-  ```
-
-  <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/81e6322b-083e-4290-bcb2-18cf98d38038/r">
-    为此示例打开公共 LangSmith 运行。
-  </Card>
-</Accordion>
+> **完整示例**
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> from typing import Literal, Optional, TypedDict
+>
+> from langgraph.checkpoint.memory import InMemorySaver
+> from langgraph.graph import END, START, StateGraph
+> from langgraph.types import Command, interrupt
+>
+>
+> class ApprovalState(TypedDict):
+>     action_details: str
+>     status: Optional[Literal["pending", "approved", "rejected"]]
+>
+>
+> def approval_node(state: ApprovalState) -> Command[Literal["proceed", "cancel"]]:
+>     # Expose details so the caller can render them in a UI
+>     decision = interrupt(
+>         {
+>             "question": "Approve this action?",
+>             "details": state["action_details"],
+>         }
+>     )
+>
+>     # Route to the appropriate node after resume
+>     return Command(goto="proceed" if decision else "cancel")
+>
+>
+> def proceed_node(state: ApprovalState):
+>     return {"status": "approved"}
+>
+>
+> def cancel_node(state: ApprovalState):
+>     return {"status": "rejected"}
+>
+>
+> builder = StateGraph(ApprovalState)
+> builder.add_node("approval", approval_node)
+> builder.add_node("proceed", proceed_node)
+> builder.add_node("cancel", cancel_node)
+> builder.add_edge(START, "approval")
+> builder.add_edge("proceed", END)
+> builder.add_edge("cancel", END)
+>
+> # Use a more durable checkpointer in production
+> checkpointer = InMemorySaver()
+> graph = builder.compile(checkpointer=checkpointer)
+>
+> config = {"configurable": {"thread_id": "approval-123"}}
+> initial = graph.stream_events(
+>     {"action_details": "Transfer $500", "status": "pending"},
+>     config=config,
+>     version="v3",
+> )
+> _ = initial.output  # drive the stream to completion
+> print(initial.interrupts)  # -> (Interrupt(value={'question': ..., 'details': ...}),)
+>
+> # Resume with the decision; True routes to proceed, False to cancel
+> resumed = graph.stream_events(Command(resume=True), config=config, version="v3")
+> print(resumed.output["status"])
+> ```
+>
+>> **[View example trace](https://smith.langchain.com/public/81e6322b-083e-4290-bcb2-18cf98d38038/r)**
+>>
+>> 为此示例打开公共 LangSmith 运行。
 
 ### 查看和编辑状态
 
@@ -386,58 +386,58 @@ graph.stream_events(
 ).output
 ```
 
-<Accordion title="Full example">
-  ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  from typing import TypedDict
-
-  from langgraph.checkpoint.memory import MemorySaver
-  from langgraph.graph import END, START, StateGraph
-  from langgraph.types import Command, interrupt
-
-
-  class ReviewState(TypedDict):
-      generated_text: str
-
-
-  def review_node(state: ReviewState):
-      # Ask a reviewer to edit the generated content
-      updated = interrupt(
-          {
-              "instruction": "Review and edit this content",
-              "content": state["generated_text"],
-          }
-      )
-      return {"generated_text": updated}
-
-
-  builder = StateGraph(ReviewState)
-  builder.add_node("review", review_node)
-  builder.add_edge(START, "review")
-  builder.add_edge("review", END)
-
-  checkpointer = MemorySaver()
-  graph = builder.compile(checkpointer=checkpointer)
-
-  config = {"configurable": {"thread_id": "review-42"}}
-  initial = graph.stream_events(
-      {"generated_text": "Initial draft"}, config=config, version="v3"
-  )
-  _ = initial.output  # drive the stream to completion
-  print(initial.interrupts)  # -> (Interrupt(value={'instruction': ..., 'content': ...}),)
-
-  # Resume with the edited text from the reviewer
-  final_state = graph.stream_events(
-      Command(resume="Improved draft after review"),
-      config=config,
-      version="v3",
-  )
-  print(final_state.output["generated_text"])  # -> "Improved draft after review"
-  ```
-
-  <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/5efd556a-ed06-45b2-9520-a7a4819a92a6/r">
-    为此示例打开公共 LangSmith 运行。
-  </Card>
-</Accordion>
+> **完整示例**
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> from typing import TypedDict
+>
+> from langgraph.checkpoint.memory import MemorySaver
+> from langgraph.graph import END, START, StateGraph
+> from langgraph.types import Command, interrupt
+>
+>
+> class ReviewState(TypedDict):
+>     generated_text: str
+>
+>
+> def review_node(state: ReviewState):
+>     # Ask a reviewer to edit the generated content
+>     updated = interrupt(
+>         {
+>             "instruction": "Review and edit this content",
+>             "content": state["generated_text"],
+>         }
+>     )
+>     return {"generated_text": updated}
+>
+>
+> builder = StateGraph(ReviewState)
+> builder.add_node("review", review_node)
+> builder.add_edge(START, "review")
+> builder.add_edge("review", END)
+>
+> checkpointer = MemorySaver()
+> graph = builder.compile(checkpointer=checkpointer)
+>
+> config = {"configurable": {"thread_id": "review-42"}}
+> initial = graph.stream_events(
+>     {"generated_text": "Initial draft"}, config=config, version="v3"
+> )
+> _ = initial.output  # drive the stream to completion
+> print(initial.interrupts)  # -> (Interrupt(value={'instruction': ..., 'content': ...}),)
+>
+> # Resume with the edited text from the reviewer
+> final_state = graph.stream_events(
+>     Command(resume="Improved draft after review"),
+>     config=config,
+>     version="v3",
+> )
+> print(final_state.output["generated_text"])  # -> "Improved draft after review"
+> ```
+>
+>> **[View example trace](https://smith.langchain.com/public/5efd556a-ed06-45b2-9520-a7a4819a92a6/r)**
+>>
+>> 为此示例打开公共 LangSmith 运行。
 
 ### 工具中断
 
@@ -469,122 +469,124 @@ def send_email(to: str, subject: str, body: str):
         final_body = response.get("body", body)
         return f"Email sent to {final_to} with subject '{final_subject}'"
     return "Email cancelled by user"
-```当您希望批准逻辑与工具本身一起存在时，这种方法非常有用，使其可以在图表的不同部分中重复使用。 LLM 可以自然地调用该工具，每当调用该工具时中断就会暂停执行，允许您批准、编辑或取消操作。
+```
 
-<Accordion title="Full example">
-  ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  import sqlite3
-  import operator
-  from typing import TypedDict, Annotated, Literal
-  from langchain.tools import tool
-  from langchain_anthropic import ChatAnthropic
-  from langgraph.checkpoint.sqlite import SqliteSaver
-  from langgraph.graph import StateGraph, START, END
-  from langgraph.types import Command, interrupt
-  from langchain.messages import AnyMessage, SystemMessage, ToolMessage
+当您希望批准逻辑与工具本身一起存在时，这种方法非常有用，使其可以在图表的不同部分中重复使用。 LLM 可以自然地调用该工具，每当调用该工具时中断就会暂停执行，允许您批准、编辑或取消操作。
 
+> **完整示例**
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import sqlite3
+> import operator
+> from typing import TypedDict, Annotated, Literal
+> from langchain.tools import tool
+> from langchain_anthropic import ChatAnthropic
+> from langgraph.checkpoint.sqlite import SqliteSaver
+> from langgraph.graph import StateGraph, START, END
+> from langgraph.types import Command, interrupt
+> from langchain.messages import AnyMessage, SystemMessage, ToolMessage
+>
+>
+> class AgentState(TypedDict):
+>     messages: Annotated[list[AnyMessage], operator.add]
+>
+>
+> @tool
+> def send_email(to: str, subject: str, body: str):
+>     """Send an email to a recipient."""
+>
+>     # Pause before sending; payload surfaces on stream.interrupts when using event streaming
+>     response = interrupt({
+>         "action": "send_email",
+>         "to": to,
+>         "subject": subject,
+>         "body": body,
+>         "message": "Approve sending this email?",
+>     })
+>
+>     if response.get("action") == "approve":
+>         final_to = response.get("to", to)
+>         final_subject = response.get("subject", subject)
+>         final_body = response.get("body", body)
+>
+>         # Actually send the email (your implementation here)
+>         print(f"[send_email] to={final_to} subject={final_subject} body={final_body}")
+>         return f"Email sent to {final_to}"
+>
+>     return "Email cancelled by user"
+>
+>
+> model = ChatAnthropic(model="claude-sonnet-4-6").bind_tools([send_email])
+> tools_by_name = {"send_email": send_email}
+>
+>
+> def agent_node(state: AgentState):
+>     # LLM may decide to call the tool; interrupt pauses before sending
+>     result = model.invoke(state["messages"])
+>     return {"messages": [result]}
+>
+> def tool_node(state: AgentState):
+>     """Performs the tool call"""
+>     result = []
+>     for tool_call in state["messages"][-1].tool_calls:
+>         tool = tools_by_name[tool_call["name"]]
+>         observation = tool.invoke(tool_call["args"])
+>         result.append(ToolMessage(content=observation, tool_call_id=tool_call["id"]))
+>     return {"messages": result}
+>
+> def should_continue(state: AgentState) -> Literal["tool_node", END]:
+>     """Decide if we should continue the loop or stop based upon whether the LLM made a tool call"""
+>     messages = state["messages"]
+>     last_message = messages[-1]
+>
+>     if last_message.tool_calls:
+>         return "tool_node"
+>     return END
+>
+> builder = StateGraph(AgentState)
+> builder.add_node("agent", agent_node)
+> builder.add_node("tool_node", tool_node)
+>
+> builder.add_edge(START, "agent")
+> builder.add_conditional_edges("agent", should_continue, ["tool_node", END])  # Routes to "tools" or END
+> builder.add_edge("tool_node", "agent")  # Loop back after tools
+>
+> checkpointer = SqliteSaver(
+>     sqlite3.connect("tool-approval.db", check_same_thread=False)
+> )
+> graph = builder.compile(checkpointer=checkpointer)
+>
+> config = {"configurable": {"thread_id": "email-workflow"}}
+> initial = graph.stream_events(
+>     {
+>         "messages": [
+>             {"role": "user", "content": "Send an email to alice@example.com about the meeting"}
+>         ]
+>     },
+>     config=config,
+>     version="v3",
+> )
+> initial.output  # drive the stream to completion
+> print(initial.interrupts)  # -> (Interrupt(value={'action': 'send_email', ...}),)
+>
+> # Resume with approval and optionally edited arguments
+> resumed = graph.stream_events(
+>     Command(resume={"action": "approve", "subject": "Updated subject"}),
+>     config=config,
+>     version="v3",
+> )
+> print(resumed.output["messages"][-1])  # -> Tool result returned by send_email
+> ```
 
-  class AgentState(TypedDict):
-      messages: Annotated[list[AnyMessage], operator.add]
+### 验证人工输入有时您需要验证人类的输入并重新提示该值是否无效。推荐的方法是调用`interrupt()` **每次节点调用一次**，从状态中存储错误消息的节点返回，并使用**条件边**循环回节点，直到提供有效值。
 
+> [!警告]
+>
+> **避免 `while True` + `interrupt()` 在单个节点内循环。** 因为节点在每次恢复时都从头重新运行（请参阅 [Rules of interrupts](#rules-of-interrupts)），多次调用 `interrupt()` 的循环会导致每个恢复重播所有先前的迭代：第一个恢复重播 1 次迭代，第二次重播 2 次迭代，依此类推。结果是循环体内任何代码的指数重新执行。
 
-  @tool
-  def send_email(to: str, subject: str, body: str):
-      """Send an email to a recipient."""
+正确的模式：
 
-      # Pause before sending; payload surfaces on stream.interrupts when using event streaming
-      response = interrupt({
-          "action": "send_email",
-          "to": to,
-          "subject": subject,
-          "body": body,
-          "message": "Approve sending this email?",
-      })
-
-      if response.get("action") == "approve":
-          final_to = response.get("to", to)
-          final_subject = response.get("subject", subject)
-          final_body = response.get("body", body)
-
-          # Actually send the email (your implementation here)
-          print(f"[send_email] to={final_to} subject={final_subject} body={final_body}")
-          return f"Email sent to {final_to}"
-
-      return "Email cancelled by user"
-
-
-  model = ChatAnthropic(model="claude-sonnet-4-6").bind_tools([send_email])
-  tools_by_name = {"send_email": send_email}
-
-
-  def agent_node(state: AgentState):
-      # LLM may decide to call the tool; interrupt pauses before sending
-      result = model.invoke(state["messages"])
-      return {"messages": [result]}
-
-  def tool_node(state: AgentState):
-      """Performs the tool call"""
-      result = []
-      for tool_call in state["messages"][-1].tool_calls:
-          tool = tools_by_name[tool_call["name"]]
-          observation = tool.invoke(tool_call["args"])
-          result.append(ToolMessage(content=observation, tool_call_id=tool_call["id"]))
-      return {"messages": result}
-
-  def should_continue(state: AgentState) -> Literal["tool_node", END]:
-      """Decide if we should continue the loop or stop based upon whether the LLM made a tool call"""
-      messages = state["messages"]
-      last_message = messages[-1]
-
-      if last_message.tool_calls:
-          return "tool_node"
-      return END
-
-  builder = StateGraph(AgentState)
-  builder.add_node("agent", agent_node)
-  builder.add_node("tool_node", tool_node)
-
-  builder.add_edge(START, "agent")
-  builder.add_conditional_edges("agent", should_continue, ["tool_node", END])  # Routes to "tools" or END
-  builder.add_edge("tool_node", "agent")  # Loop back after tools
-
-  checkpointer = SqliteSaver(
-      sqlite3.connect("tool-approval.db", check_same_thread=False)
-  )
-  graph = builder.compile(checkpointer=checkpointer)
-
-  config = {"configurable": {"thread_id": "email-workflow"}}
-  initial = graph.stream_events(
-      {
-          "messages": [
-              {"role": "user", "content": "Send an email to alice@example.com about the meeting"}
-          ]
-      },
-      config=config,
-      version="v3",
-  )
-  initial.output  # drive the stream to completion
-  print(initial.interrupts)  # -> (Interrupt(value={'action': 'send_email', ...}),)
-
-  # Resume with approval and optionally edited arguments
-  resumed = graph.stream_events(
-      Command(resume={"action": "approve", "subject": "Updated subject"}),
-      config=config,
-      version="v3",
-  )
-  print(resumed.output["messages"][-1])  # -> Tool result returned by send_email
-  ```
-</Accordion>
-
-### 验证人工输入
-
-有时您需要验证人类的输入并重新提示该值是否无效。推荐的方法是调用`interrupt()` **每次节点调用一次**，从状态中存储错误消息的节点返回，并使用**条件边**循环回节点，直到提供有效值。
-
-<Warning>
-  **避免 `while True` + `interrupt()` 在单个节点内循环。** 因为节点在每次恢复时都从头重新运行（请参阅 [Rules of interrupts](#rules-of-interrupts)），所以多次调用 `interrupt()` 的循环会导致每个恢复重播所有先前的迭代：第一个恢复重播 1 次迭代，第二次重播 2 次迭代，依此类推。结果是循环体内任何代码的指数重新执行。
-</Warning>
-
-正确的模式：1. 将重新提示的问题存储在状态中（例如`pending_question`）。
+1. 将重新提示的问题存储在状态中（例如`pending_question`）。
 2. 在节点中，调用`interrupt()` **恰好一次**，从状态传递当前问题。
 3. 如果答案无效，则返回更新后的`pending_question`，以便下次调用重新提示。
 4. 使用`add_conditional_edges`路由回节点，直到收集到有效值。
@@ -617,100 +619,96 @@ builder = StateGraph(FormState)
 builder.add_node("collect_age", get_age_node)
 builder.add_edge(START, "collect_age")
 builder.add_conditional_edges("collect_age", route)
-```
+```每个恢复调用 `get_age_node` 一次，运行 `interrupt()` 调用一次，然后退出。当答案无效时，条件边沿循环返回，并且下一个中断会重新提示更新的问题。每个简历中没有代码运行超过一次。
 
-每个恢复调用 `get_age_node` 一次，运行 `interrupt()` 调用一次，然后退出。当答案无效时，条件边沿循环返回，并且下一个中断会重新提示更新的问题。每个简历中没有代码运行超过一次。
-
-<Accordion title="Full example">
-  ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  from typing import TypedDict
-
-  from langgraph.checkpoint.memory import InMemorySaver
-  from langgraph.graph import END, START, StateGraph
-  from langgraph.types import Command, interrupt
-
-
-  class FormState(TypedDict):
-      age: int | None
-      pending_question: str | None
-
-
-  def get_age_node(state: FormState):
-      question = state.get("pending_question") or "What is your age?"
-      answer = interrupt(question)  # called exactly once per node invocation
-      print(f"I got {answer}")  # runs exactly once per resume
-      if isinstance(answer, int) and answer > 0:
-          return {"age": answer, "pending_question": None}
-      return {"pending_question": f"'{answer}' is not a valid age. Please enter a positive number."}
-
-
-  def route(state: FormState):
-      # Loop back to collect_age until we have a valid age
-      return END if state.get("age") is not None else "collect_age"
-
-
-  builder = StateGraph(FormState)
-  builder.add_node("collect_age", get_age_node)
-  builder.add_edge(START, "collect_age")
-  builder.add_conditional_edges("collect_age", route)
-
-  checkpointer = InMemorySaver()
-  graph = builder.compile(checkpointer=checkpointer)
-
-  config = {"configurable": {"thread_id": "form-1"}}
-  first = graph.stream_events({"age": None, "pending_question": None}, config=config, version="v3")
-  _ = first.output  # drive the stream to completion
-  print(first.interrupts)  # -> (Interrupt(value='What is your age?', ...),)
-
-  # Provide invalid data; the node re-prompts via the conditional edge
-  retry = graph.stream_events(Command(resume="thirty"), config=config, version="v3")
-  _ = retry.output
-  print(retry.interrupts)  # -> (Interrupt(value="'thirty' is not a valid age...", ...),)
-
-  # Provide valid data; route() returns END and the graph finishes
-  final = graph.stream_events(Command(resume=30), config=config, version="v3")
-  print(final.output["age"])  # -> 30
-  ```
-</Accordion>
+> **完整示例**
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> from typing import TypedDict
+>
+> from langgraph.checkpoint.memory import InMemorySaver
+> from langgraph.graph import END, START, StateGraph
+> from langgraph.types import Command, interrupt
+>
+>
+> class FormState(TypedDict):
+>     age: int | None
+>     pending_question: str | None
+>
+>
+> def get_age_node(state: FormState):
+>     question = state.get("pending_question") or "What is your age?"
+>     answer = interrupt(question)  # called exactly once per node invocation
+>     print(f"I got {answer}")  # runs exactly once per resume
+>     if isinstance(answer, int) and answer > 0:
+>         return {"age": answer, "pending_question": None}
+>     return {"pending_question": f"'{answer}' is not a valid age. Please enter a positive number."}
+>
+>
+> def route(state: FormState):
+>     # Loop back to collect_age until we have a valid age
+>     return END if state.get("age") is not None else "collect_age"
+>
+>
+> builder = StateGraph(FormState)
+> builder.add_node("collect_age", get_age_node)
+> builder.add_edge(START, "collect_age")
+> builder.add_conditional_edges("collect_age", route)
+>
+> checkpointer = InMemorySaver()
+> graph = builder.compile(checkpointer=checkpointer)
+>
+> config = {"configurable": {"thread_id": "form-1"}}
+> first = graph.stream_events({"age": None, "pending_question": None}, config=config, version="v3")
+> _ = first.output  # drive the stream to completion
+> print(first.interrupts)  # -> (Interrupt(value='What is your age?', ...),)
+>
+> # Provide invalid data; the node re-prompts via the conditional edge
+> retry = graph.stream_events(Command(resume="thirty"), config=config, version="v3")
+> _ = retry.output
+> print(retry.interrupts)  # -> (Interrupt(value="'thirty' is not a valid age...", ...),)
+>
+> # Provide valid data; route() returns END and the graph finishes
+> final = graph.stream_events(Command(resume=30), config=config, version="v3")
+> print(final.output["age"])  # -> 30
+> ```
 
 ## 中断规则
 
-当您在节点内调用 [⟦T125⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 时，LangGraph 会引发异常，指示运行时暂停，从而暂停执行。该异常通过调用堆栈向上传播并被运行时捕获，通知图保存当前状态并等待外部输入。当执行恢复时（在您提供请求的输入之后），运行时会从头开始重新启动整个节点 - 它不会从调用 [⟦T126⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 的确切行恢复。这意味着在 [⟦T127⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 之前运行的任何代码都将再次执行。因此，在处理中断时需要遵循一些重要规则，以确保它们按预期运行。
+当您在节点内调用 [⟦T125⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 时，LangGraph 通过引发异常来通知运行时暂停，从而暂停执行。该异常通过调用堆栈向上传播并被运行时捕获，通知图保存当前状态并等待外部输入。
 
-### 不要将 `interrupt` 调用包装在 try/ except 中
+当执行恢复时（在您提供请求的输入之后），运行时会从头开始重新启动整个节点 - 它不会从调用 [⟦T126⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 的确切行恢复。这意味着在 [⟦T127⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 之前运行的任何代码都将再次执行。因此，在处理中断时需要遵循一些重要规则，以确保它们按预期运行。
 
-[⟦T129⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 在调用点暂停执行的方法是抛出一个特殊的异常。如果将 [⟦T130⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 调用包装在 try/ except 块中，您将捕获此异常，并且中断将不会传递回图表。
+### 不要将 `interrupt` 调用包装在 try/ except 中[⟦T129⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 在调用点暂停执行的方法是抛出一个特殊的异常。如果将 [⟦T130⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 调用包装在 try/ except 块中，您将捕获此异常，并且中断将不会传递回图表。
 
 * ✅ 将 [⟦T131⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 调用与容易出错的代码分开
 * ✅ 在 try/ except 块中使用特定的异常类型
 
-<CodeGroup>
-  ```python Separating logic theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  def node_a(state: State):
-      # ✅ Good: interrupting first, then handling
-      # error conditions separately
-      interrupt("What's your name?")
-      try:
-          fetch_data()  # This can fail
-      except Exception as e:
-          print(e)
-      return state
-  ```
+```python Separating logic theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+def node_a(state: State):
+    # ✅ Good: interrupting first, then handling
+    # error conditions separately
+    interrupt("What's your name?")
+    try:
+        fetch_data()  # This can fail
+    except Exception as e:
+        print(e)
+    return state
+```
 
-  ```python Explicit exception handling theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  def node_a(state: State):
-      # ✅ Good: catching specific exception types
-      # will not catch the interrupt exception
-      try:
-          name = interrupt("What's your name?")
-          fetch_data()  # This can fail
-      except NetworkException as e:
-          print(e)
-      return state
-  ```
-</CodeGroup>
+```python Explicit exception handling theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+def node_a(state: State):
+    # ✅ Good: catching specific exception types
+    # will not catch the interrupt exception
+    try:
+        name = interrupt("What's your name?")
+        fetch_data()  # This can fail
+    except NetworkException as e:
+        print(e)
+    return state
+```
 
-* 🔴 不要将 [⟦T132⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 调用包装在裸的 try/ except 块中
+* 🔴 不要将 [⟦T132⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 调用包装在裸露的 try/ except 块中
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 def node_a(state: State):
@@ -725,7 +723,9 @@ def node_a(state: State):
 
 ### 不要在节点内重新排序 `interrupt` 调用
 
-在单个节点中使用多个中断是很常见的，但是如果处理不仔细，这可能会导致意外的行为。当一个节点包含多个中断调用时，LangGraph 会保留特定于执行该节点的任务的恢复值列表。每当执行恢复时，它都会从节点的开头开始。对于遇到的每个中断，LangGraph 检查任务的恢复列表中是否存在匹配的值。匹配**严格基于索引**，因此节点内中断调用的顺序很重要。
+在单个节点中使用多个中断是很常见的，但是如果处理不仔细，这可能会导致意外的行为。
+
+当节点包含多个中断调用时，LangGraph 保留特定于执行该节点的任务的恢复值列表。每当执行恢复时，它都会从节点的开头开始。对于遇到的每个中断，LangGraph 检查任务的恢复列表中是否存在匹配的值。匹配**严格基于索引**，因此节点内中断调用的顺序很重要。
 
 * ✅ 保持 [⟦T134⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 调用在节点执行之间保持一致
 
@@ -741,39 +741,35 @@ def node_a(state: State):
         "age": age,
         "city": city
     }
+```* 🔴 不要有条件地跳过节点内的 [⟦T135⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 调用
+* 🔴 不要使用在执行过程中不确定的逻辑来循环 [⟦T136⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 调用，包括 `while True` 验证循环。使用条件边代替（参见[Validating human input](#validating-human-input)）
+
+```python Skipping interrupts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+def node_a(state: State):
+    # ❌ Bad: conditionally skipping interrupts changes the order
+    name = interrupt("What's your name?")
+
+    # On first run, this might skip the interrupt
+    # On resume, it might not skip it - causing index mismatch
+    if state.get("needs_age"):
+        age = interrupt("What's your age?")
+
+    city = interrupt("What's your city?")
+
+    return {"name": name, "city": city}
 ```
 
-* 🔴 不要有条件地跳过节点内的 [⟦T135⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 调用
-* 🔴 不要使用跨执行不确定的逻辑来循环 [⟦T136⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 调用，包括 `while True` 验证循环。使用条件边代替（参见[Validating human input](#validating-human-input)）
+```python Looping interrupts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+def node_a(state: State):
+    # ❌ Bad: looping based on non-deterministic data
+    # The number of interrupts changes between executions
+    results = []
+    for item in state.get("dynamic_list", []):  # List might change between runs
+        result = interrupt(f"Approve {item}?")
+        results.append(result)
 
-<CodeGroup>
-  ```python Skipping interrupts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  def node_a(state: State):
-      # ❌ Bad: conditionally skipping interrupts changes the order
-      name = interrupt("What's your name?")
-
-      # On first run, this might skip the interrupt
-      # On resume, it might not skip it - causing index mismatch
-      if state.get("needs_age"):
-          age = interrupt("What's your age?")
-
-      city = interrupt("What's your city?")
-
-      return {"name": name, "city": city}
-  ```
-
-  ```python Looping interrupts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  def node_a(state: State):
-      # ❌ Bad: looping based on non-deterministic data
-      # The number of interrupts changes between executions
-      results = []
-      for item in state.get("dynamic_list", []):  # List might change between runs
-          result = interrupt(f"Approve {item}?")
-          results.append(result)
-
-      return {"results": results}
-  ```
-</CodeGroup>
+    return {"results": results}
+```
 
 ### 不要在 `interrupt` 调用中返回复数值
 
@@ -782,155 +778,149 @@ def node_a(state: State):
 * ✅ 将简单的 JSON 可序列化类型传递给 [⟦T139⟧](https://reference.langchain.com/python/langgraph/types/interrupt)
 * ✅ 传递具有简单值的字典/对象
 
-<CodeGroup>
-  ```python Simple values theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  def node_a(state: State):
-      # ✅ Good: passing simple types that are serializable
-      name = interrupt("What's your name?")
-      count = interrupt(42)
-      approved = interrupt(True)
+```python Simple values theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+def node_a(state: State):
+    # ✅ Good: passing simple types that are serializable
+    name = interrupt("What's your name?")
+    count = interrupt(42)
+    approved = interrupt(True)
 
-      return {"name": name, "count": count, "approved": approved}
-  ```
+    return {"name": name, "count": count, "approved": approved}
+```
 
-  ```python Structured data theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  def node_a(state: State):
-      # ✅ Good: passing dictionaries with simple values
-      response = interrupt({
-          "question": "Enter user details",
-          "fields": ["name", "email", "age"],
-          "current_values": state.get("user", {})
-      })
+```python Structured data theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+def node_a(state: State):
+    # ✅ Good: passing dictionaries with simple values
+    response = interrupt({
+        "question": "Enter user details",
+        "fields": ["name", "email", "age"],
+        "current_values": state.get("user", {})
+    })
 
-      return {"user": response}
-  ```
-</CodeGroup>* 🔴不要将函数、类实例或其他复杂对象传递给[⟦T140⟧](https://reference.langchain.com/python/langgraph/types/interrupt)
+    return {"user": response}
+```
 
-<CodeGroup>
-  ```python Functions theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  def validate_input(value):
-      return len(value) > 0
+* 🔴不要将函数、类实例或其他复杂对象传递给[⟦T140⟧](https://reference.langchain.com/python/langgraph/types/interrupt)
 
-  def node_a(state: State):
-      # ❌ Bad: passing a function to interrupt
-      # The function cannot be serialized
-      response = interrupt({
-          "question": "What's your name?",
-          "validator": validate_input  # This will fail
-      })
-      return {"name": response}
-  ```
+```python Functions theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+def validate_input(value):
+    return len(value) > 0
 
-  ```python Class instances theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  class DataProcessor:
-      def __init__(self, config):
-          self.config = config
+def node_a(state: State):
+    # ❌ Bad: passing a function to interrupt
+    # The function cannot be serialized
+    response = interrupt({
+        "question": "What's your name?",
+        "validator": validate_input  # This will fail
+    })
+    return {"name": response}
+```
 
-  def node_a(state: State):
-      processor = DataProcessor({"mode": "strict"})
+```python Class instances theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+class DataProcessor:
+    def __init__(self, config):
+        self.config = config
 
-      # ❌ Bad: passing a class instance to interrupt
-      # The instance cannot be serialized
-      response = interrupt({
-          "question": "Enter data to process",
-          "processor": processor  # This will fail
-      })
-      return {"result": response}
-  ```
-</CodeGroup>
+def node_a(state: State):
+    processor = DataProcessor({"mode": "strict"})
+
+    # ❌ Bad: passing a class instance to interrupt
+    # The instance cannot be serialized
+    response = interrupt({
+        "question": "Enter data to process",
+        "processor": processor  # This will fail
+    })
+    return {"result": response}
+```
 
 ### 在`interrupt`之前调用的副作用必须是幂等的
 
-因为中断是通过重新运行调用它们的节点来工作的，所以在 [⟦T142⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 之前调用的副作用应该（理想情况下）是幂等的。对于上下文来说，幂等性意味着可以多次应用相同的操作，而不会改变初始执行之外的结果。
-
-例如，您可能有一个 API 调用来更新节点内的记录。如果在调用之后调用[⟦T143⟧](https://reference.langchain.com/python/langgraph/types/interrupt)，则当节点恢复时它将重新运行多次，可能会覆盖初始更新或创建重复记录。
+因为中断是通过重新运行调用它们的节点来工作的，所以在 [⟦T142⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 之前调用的副作用应该（理想情况下）是幂等的。对于上下文来说，幂等性意味着可以多次应用相同的操作，而不会改变初始执行之外的结果。例如，您可能有一个 API 调用来更新节点内的记录。如果在调用之后调用[⟦T143⟧](https://reference.langchain.com/python/langgraph/types/interrupt)，则当节点恢复时它将重新运行多次，可能会覆盖初始更新或创建重复记录。
 
 * ✅ 在[⟦T144⟧](https://reference.langchain.com/python/langgraph/types/interrupt)之前使用幂等操作
-* ✅ 在[⟦T145⟧](https://reference.langchain.com/python/langgraph/types/interrupt)调用后放置副作用
-* ✅ 如果可能，将副作用分离到单独的节点中
+* ✅ 在 [⟦T145⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 调用之后放置副作用
+* ✅尽可能将副作用分离到单独的节点中
 
-<CodeGroup>
-  ```python Idempotent operations theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  def node_a(state: State):
-      # ✅ Good: using upsert operation which is idempotent
-      # Running this multiple times will have the same result
-      db.upsert_user(
-          user_id=state["user_id"],
-          status="pending_approval"
-      )
+```python Idempotent operations theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+def node_a(state: State):
+    # ✅ Good: using upsert operation which is idempotent
+    # Running this multiple times will have the same result
+    db.upsert_user(
+        user_id=state["user_id"],
+        status="pending_approval"
+    )
 
-      approved = interrupt("Approve this change?")
+    approved = interrupt("Approve this change?")
 
-      return {"approved": approved}
-  ```
+    return {"approved": approved}
+```
 
-  ```python Side effects after interrupt theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  def node_a(state: State):
-      # ✅ Good: placing side effect after the interrupt
-      # This ensures it only runs once after approval is received
-      approved = interrupt("Approve this change?")
+```python Side effects after interrupt theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+def node_a(state: State):
+    # ✅ Good: placing side effect after the interrupt
+    # This ensures it only runs once after approval is received
+    approved = interrupt("Approve this change?")
 
-      if approved:
-          db.create_audit_log(
-              user_id=state["user_id"],
-              action="approved"
-          )
+    if approved:
+        db.create_audit_log(
+            user_id=state["user_id"],
+            action="approved"
+        )
 
-      return {"approved": approved}
-  ```
+    return {"approved": approved}
+```
 
-  ```python Separating into different nodes theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  def approval_node(state: State):
-      # ✅ Good: only handling the interrupt in this node
-      approved = interrupt("Approve this change?")
+```python Separating into different nodes theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+def approval_node(state: State):
+    # ✅ Good: only handling the interrupt in this node
+    approved = interrupt("Approve this change?")
 
-      return {"approved": approved}
+    return {"approved": approved}
 
-  def notification_node(state: State):
-      # ✅ Good: side effect happens in a separate node
-      # This runs after approval, so it only executes once
-      if (state.approved):
-          send_notification(
-              user_id=state["user_id"],
-              status="approved"
-          )
+def notification_node(state: State):
+    # ✅ Good: side effect happens in a separate node
+    # This runs after approval, so it only executes once
+    if (state.approved):
+        send_notification(
+            user_id=state["user_id"],
+            status="approved"
+        )
 
-      return state
-  ```
-</CodeGroup>
+    return state
+```
 
 * 🔴[⟦T146⟧](https://reference.langchain.com/python/langgraph/types/interrupt)之前不要进行非幂等操作
-* 🔴 在未检查新记录是否存在的情况下不要创建新记录
+* 🔴 在未检查记录是否存在的情况下不要创建新记录
 
-<CodeGroup>
-  ```python Creating records theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  def node_a(state: State):
-      # ❌ Bad: creating a new record before interrupt
-      # This will create duplicate records on each resume
-      audit_id = db.create_audit_log({
-          "user_id": state["user_id"],
-          "action": "pending_approval",
-          "timestamp": datetime.now()
-      })
+```python Creating records theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+def node_a(state: State):
+    # ❌ Bad: creating a new record before interrupt
+    # This will create duplicate records on each resume
+    audit_id = db.create_audit_log({
+        "user_id": state["user_id"],
+        "action": "pending_approval",
+        "timestamp": datetime.now()
+    })
 
-      approved = interrupt("Approve this change?")
+    approved = interrupt("Approve this change?")
 
-      return {"approved": approved, "audit_id": audit_id}
-  ```
+    return {"approved": approved, "audit_id": audit_id}
+```
 
-  ```python Appending to lists theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  def node_a(state: State):
-      # ❌ Bad: appending to a list before interrupt
-      # This will add duplicate entries on each resume
-      db.append_to_history(state["user_id"], "approval_requested")
+```python Appending to lists theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+def node_a(state: State):
+    # ❌ Bad: appending to a list before interrupt
+    # This will add duplicate entries on each resume
+    db.append_to_history(state["user_id"], "approval_requested")
 
-      approved = interrupt("Approve this change?")
+    approved = interrupt("Approve this change?")
 
-      return {"approved": approved}
-  ```
-</CodeGroup>
+    return {"approved": approved}
+```
 
-## 与称为函数的子图一起使用当调用节点内的子图时，父图将从调用子图并触发[⟦T147⟧](https://reference.langchain.com/python/langgraph/types/interrupt)的**节点**开始处恢复执行。同样，**子图**也会从调用 [⟦T148⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 的节点的开头开始恢复。
+## 与称为函数的子图一起使用
+
+当调用节点内的子图时，父图将从调用子图并触发[⟦T147⟧](https://reference.langchain.com/python/langgraph/types/interrupt)的**节点**开始处恢复执行。同样，**子图**也会从调用 [⟦T148⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 的节点的开头开始恢复。
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 def node_in_parent_graph(state: State):
@@ -946,87 +936,79 @@ def node_in_subgraph(state: State):
     # ...
 ```
 
-## 使用中断进行调试
+## 使用中断进行调试要调试和测试图形，您可以使用静态中断作为断点，一次单步执行一个节点的图形执行。静态中断在节点执行之前或之后的定义点触发。您可以在编译图表时通过指定 `interrupt_before` 和 `interrupt_after` 来设置这些。
 
-要调试和测试图表，您可以使用静态中断作为断点，一次单步执行一个节点的图表执行。静态中断在节点执行之前或之后的定义点触发。您可以在编译图表时通过指定 `interrupt_before` 和 `interrupt_after` 来设置这些。
+> [!注意]
+>
+> **不**建议将静态中断用于人机交互工作流程。请改用 [⟦T151⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 函数。
 
-<Note>
-  **不**建议将静态中断用于人机交互工作流程。请改用 [⟦T151⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 函数。
-</Note>
+**编译时**
 
-<Tabs>
-  <Tab title="At compile time">
-    ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    graph = builder.compile(
-        interrupt_before=["node_a"],  # [!code highlight]
-        interrupt_after=["node_b", "node_c"],  # [!code highlight]
-        checkpointer=checkpointer,
-    )
+```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+graph = builder.compile(
+    interrupt_before=["node_a"],  # [!code highlight]
+    interrupt_after=["node_b", "node_c"],  # [!code highlight]
+    checkpointer=checkpointer,
+)
 
-    # Pass a thread ID to the graph
-    config = {
-        "configurable": {
-            "thread_id": "some_thread"
-        }
+# Pass a thread ID to the graph
+config = {
+    "configurable": {
+        "thread_id": "some_thread"
     }
+}
 
-    # Run the graph until the breakpoint
-    graph.invoke(inputs, config=config)  # [!code highlight]
+# Run the graph until the breakpoint
+graph.invoke(inputs, config=config)  # [!code highlight]
 
-    # Resume the graph
-    graph.invoke(None, config=config)  # [!code highlight]
-    ```1. 断点设置在`compile`时间内。
-    2. `interrupt_before` 指定执行该节点之前应暂停执行的节点。
-    3. `interrupt_after` 指定该节点执行完毕后应暂停执行的节点。
-    4. 需要一个检查点来启用断点。
-    5. 运行图表直到遇到第一个断点。
-    6. 通过传入 `None` 作为输入来恢复图表。这将运行图表直到遇到下一个断点。
-  </Tab>
+# Resume the graph
+graph.invoke(None, config=config)  # [!code highlight]
+```
 
-  <Tab title="At run time">
-    ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    config = {
-        "configurable": {
-            "thread_id": "some_thread"
-        }
+1. 断点设置在`compile`时间内。
+2. `interrupt_before` 指定执行该节点之前应暂停执行的节点。
+3. `interrupt_after` 指定该节点执行完毕后应暂停执行的节点。
+4. 需要一个检查点来启用断点。
+5. 运行图表直到遇到第一个断点。
+6. 通过传入 `None` 作为输入来恢复图表。这将运行图表直到遇到下一个断点。
+
+**运行时**
+
+```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+config = {
+    "configurable": {
+        "thread_id": "some_thread"
     }
+}
 
-    # Run the graph until the breakpoint
-    graph.invoke(
-        inputs,
-        interrupt_before=["node_a"],  # [!code highlight]
-        interrupt_after=["node_b", "node_c"],  # [!code highlight]
-        config=config,
-    )
+# Run the graph until the breakpoint
+graph.invoke(
+    inputs,
+    interrupt_before=["node_a"],  # [!code highlight]
+    interrupt_after=["node_b", "node_c"],  # [!code highlight]
+    config=config,
+)
 
-    # Resume the graph
-    graph.invoke(None, config=config)  # [!code highlight]
-    ```
+# Resume the graph
+graph.invoke(None, config=config)  # [!code highlight]
+```1. 使用`interrupt_before`和`interrupt_after`参数调用`graph.invoke`。这是一个运行时配置，可以针对每次调用进行更改。
+2. `interrupt_before` 指定执行该节点之前应暂停执行的节点。
+3. `interrupt_after` 指定该节点执行完毕后应暂停执行的节点。
+4. 运行图表直至遇到第一个断点。
+5. 通过传入 `None` 作为输入来恢复图表。这将运行图表直到遇到下一个断点。
 
-    1. 使用`interrupt_before`和`interrupt_after`参数调用`graph.invoke`。这是一个运行时配置，可以针对每次调用进行更改。
-    2. `interrupt_before` 指定执行该节点之前应暂停执行的节点。
-    3. `interrupt_after` 指定该节点执行完毕后应暂停执行的节点。
-    4. 运行图表直到遇到第一个断点。
-    5. 通过传入 `None` 作为输入来恢复图表。这将运行图表直到遇到下一个断点。
-  </Tab>
-</Tabs>
+> [!提示]
+>
+> 要调试中断，请使用[LangSmith](/langsmith/observability)。
 
-<Tip>
-  要调试中断，请使用[LangSmith](/langsmith/observability)。
-</Tip>
+### 使用LangSmith Studio
 
-### 使用LangSmith Studio在运行图表之前，您可以使用 [LangSmith Studio](/langsmith/studio) 在 UI 中的图表中设置静态中断。您还可以使用 UI 在执行过程中的任意时刻检查图形状态。
+在运行图表之前，您可以使用 [LangSmith Studio](/langsmith/studio) 在 UI 中的图表中设置静态中断。您还可以使用 UI 在执行过程中的任意时刻检查图形状态。
 
-<img alt="image" />
+![image](https://mintcdn.com/langchain-5e9cc07a/dL5Sn6Cmy9pwtY0V/oss/images/static-interrupt.png?fit=max\&auto=format\&n=dL5Sn6Cmy9pwtY0V\&q=85\&s=5aa4e7cea2ab147cef5b4e210dd6c4a1)
 
 ***
 
-<div>
-  <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
-  </Callout>
+[Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
 
-  <Callout icon="edit">
-    [Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/interrupts.mdx) 或 [file an issue](https://github.com/langchain-ai/docs/issues/new/choose)。
-  </Callout>
-</div>
+[Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/interrupts.mdx) 或 [file an issue](https://github.com/langchain-ai/docs/issues/new/choose)。

@@ -16,9 +16,9 @@ LangGraph的前端优势是UI可以遵循与
 解释系统正在做什么，而不是将执行隐藏在系统后面
 助理消息。
 
-<Note>
-  这些模式使用 v1 前端 SDK 包。如果您使用的是早期版本，请参阅 [React](https://github.com/langchain-ai/langgraphjs/blob/main/libs/sdk-react/docs/v1-migration.md)、[Vue](https://github.com/langchain-ai/langgraphjs/blob/main/libs/sdk-vue/docs/v1-migration.md)、[Svelte](https://github.com/langchain-ai/langgraphjs/blob/main/libs/sdk-svelte/docs/v1-migration.md) 和 [Angular](https://github.com/langchain-ai/langgraphjs/blob/main/libs/sdk-angular/docs/v1-migration.md) 的迁移指南。
-</Note>
+> [!注意]
+>
+> 这些模式使用 v1 前端 SDK 包。如果您使用的是早期版本，请参阅 [React](https://github.com/langchain-ai/langgraphjs/blob/main/libs/sdk-react/docs/v1-migration.md)、[Vue](https://github.com/langchain-ai/langgraphjs/blob/main/libs/sdk-vue/docs/v1-migration.md)、[Svelte](https://github.com/langchain-ai/langgraphjs/blob/main/libs/sdk-svelte/docs/v1-migration.md) 和 [Angular](https://github.com/langchain-ai/langgraphjs/blob/main/libs/sdk-angular/docs/v1-migration.md) 的迁移指南。
 
 ## 架构
 
@@ -115,15 +115,13 @@ function Pipeline() {
 
 ## 模式
 
-<CardGroup>
-  <Card title="Graph execution" icon="chart-dots" href="/oss/python/langgraph/frontend/graph-execution">
-    通过每个节点的状态和流内容可视化多步骤图形管道。
-  </Card>
+> **[Graph execution](/oss/python/langgraph/frontend/graph-execution)**
+>
+> 通过每个节点的状态和流内容可视化多步骤图形管道。
 
-  <Card title="Custom stream channels" icon="broadcast" href="/oss/python/langgraph/frontend/custom-stream-channels">
-    将自定义服务器端数据流式传输到前端并使用`useExtension`和`useChannel`读取它。
-  </Card>
-</CardGroup>
+> **[Custom stream channels](/oss/python/langgraph/frontend/custom-stream-channels)**
+>
+> 将自定义服务器端数据流式传输到前端并使用`useExtension`和`useChannel`读取它。
 
 ## 相关模式
 
@@ -131,12 +129,6 @@ function Pipeline() {
 
 ***
 
-<div>
-  <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
-  </Callout>
+[Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
 
-  <Callout icon="edit">
-    [Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/frontend/overview.md) 或 [file an issue](https://github.com/langchain-ai/docs/issues/new/choose)。
-  </Callout>
-</div>
+[Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/frontend/overview.md) 或 [file an issue](https://github.com/langchain-ai/docs/issues/new/choose)。

@@ -14,28 +14,26 @@ LangGraph is focused on the underlying capabilities important for agent orchestr
 
 One of LangGraph's core strengths is the ability to mix deterministic steps with LLM-driven agentic steps in a single graph. This lets you build bespoke workflows where parts of the logic are fully predictable and auditable while other parts are flexible and model-driven, giving you fine-grained control over exactly where and how AI is applied.
 
-<Expandable title="how LangChain products fit together">
-  * [Deep Agents](/oss/python/deepagents/overview) is an [agent harness](/oss/python/concepts/products#agent-harnesses-like-the-deep-agents-sdk): planning, subagents, filesystem tools, and context management on top of LangGraph.
-  * [LangChain](/oss/python/langchain/overview) is the agent framework: abstractions and integrations for models, tools, and agent loops.
-  * [LangGraph](/oss/python/langgraph/overview) is the orchestration runtime: durable execution, streaming, human-in-the-loop, and persistence.
-  * [LangSmith](/langsmith/observability) is the platform for tracing, evaluation, prompts, and deployment across frameworks.
-  * [LangSmith Engine](/langsmith/engine) detects issues in your LangGraph agent traces and proposes fixes. You can open a pull request with the proposed fix directly from the Engine tab.
-  * [LangSmith Fleet](/langsmith/fleet/index) is the no-code agent builder for templates, integrations, and routine automation.
+**how LangChain products fit together**
 
-  Read [Frameworks, runtimes, and harnesses](/oss/python/concepts/products) for a comparison of the open source stack.
-</Expandable>
+* [Deep Agents](/oss/python/deepagents/overview) is an [agent harness](/oss/python/concepts/products#agent-harnesses-like-the-deep-agents-sdk): planning, subagents, filesystem tools, and context management on top of LangGraph.
+* [LangChain](/oss/python/langchain/overview) is the agent framework: abstractions and integrations for models, tools, and agent loops.
+* [LangGraph](/oss/python/langgraph/overview) is the orchestration runtime: durable execution, streaming, human-in-the-loop, and persistence.
+* [LangSmith](/langsmith/observability) is the platform for tracing, evaluation, prompts, and deployment across frameworks.
+* [LangSmith Engine](/langsmith/engine) detects issues in your LangGraph agent traces and proposes fixes. You can open a pull request with the proposed fix directly from the Engine tab.
+* [LangSmith Fleet](/langsmith/fleet/index) is the no-code agent builder for templates, integrations, and routine automation.
 
-## <Icon icon="download" /> Install
+Read [Frameworks, runtimes, and harnesses](/oss/python/concepts/products) for a comparison of the open source stack.
 
-<CodeGroup>
-  ```bash pip theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  pip install -U langgraph
-  ```
+## &#x20;Install
 
-  ```bash uv theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  uv add langgraph
-  ```
-</CodeGroup>
+```bash pip theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+pip install -U langgraph
+```
+
+```bash uv theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+uv add langgraph
+```
 
 Then, create a simple hello world example:
 
@@ -54,9 +52,9 @@ graph = graph.compile()
 graph.invoke({"messages": [{"role": "user", "content": "hi!"}]})
 ```
 
-<Tip>
-  Use [LangSmith](/langsmith/observability) to trace requests, debug agent behavior, and evaluate outputs. Set `LANGSMITH_TRACING=true` and your API key to get started. Follow the [tracing quickstart](/langsmith/trace-with-langchain) to get set up.  We recommend you also set up [LangSmith Engine](/langsmith/engine) which monitors your traces, detects issues, and proposes fixes.
-</Tip>
+> [!TIP]
+>
+> Use [LangSmith](/langsmith/observability) to trace requests, debug agent behavior, and evaluate outputs. Set `LANGSMITH_TRACING=true` and your API key to get started. Follow the [tracing quickstart](/langsmith/trace-with-langchain) to get set up.  We recommend you also set up [LangSmith Engine](/langsmith/engine) which monitors your traces, detects issues, and proposes fixes.
 
 ## Core benefits
 
@@ -73,19 +71,17 @@ LangGraph provides low-level supporting infrastructure for *any* long-running, s
 
 While LangGraph can be used standalone, it also integrates seamlessly with any LangChain product, giving developers a full suite of tools for building agents. To improve your LLM application development, pair LangGraph with:
 
-<Columns>
-  <Card title="LangSmith Observability" icon="https://mintcdn.com/langchain-5e9cc07a/nQm-sjd_MByLhgeW/images/brand/observability-icon-dark.png?fit=max&auto=format&n=nQm-sjd_MByLhgeW&q=85&s=ccbc183bca2a5e4ca78d30149e3836cc" href="/langsmith/observability">
-    Trace requests, evaluate outputs, and monitor deployments in one place. Prototype locally with LangGraph, then move to production with integrated observability and evaluation to build more reliable agent systems.
-  </Card>
+> **[LangSmith Observability](/langsmith/observability)**
+>
+> Trace requests, evaluate outputs, and monitor deployments in one place. Prototype locally with LangGraph, then move to production with integrated observability and evaluation to build more reliable agent systems.
 
-  <Card title="LangSmith Deployment" icon="https://mintcdn.com/langchain-5e9cc07a/nQm-sjd_MByLhgeW/images/brand/deployment-icon-dark.png?fit=max&auto=format&n=nQm-sjd_MByLhgeW&q=85&s=024e3712d388bfa55f4f160cc9d6a85b" href="/langsmith/deployment">
-    Deploy and scale agents effortlessly with a purpose-built deployment platform for long running, stateful workflows. Discover, reuse, configure, and share agents across teams — and iterate quickly with visual prototyping in Studio.
-  </Card>
+> **[LangSmith Deployment](/langsmith/deployment)**
+>
+> Deploy and scale agents effortlessly with a purpose-built deployment platform for long running, stateful workflows. Discover, reuse, configure, and share agents across teams — and iterate quickly with visual prototyping in Studio.
 
-  <Card title="LangChain" icon="https://mintcdn.com/langchain-5e9cc07a/nQm-sjd_MByLhgeW/images/brand/langchain-icon.png?fit=max&auto=format&n=nQm-sjd_MByLhgeW&q=85&s=663b30f85baf99ad708b97e05da2a5a4" href="/oss/python/langchain/overview">
-    Provides integrations and composable components to streamline LLM application development. Contains agent abstractions built on top of LangGraph.
-  </Card>
-</Columns>
+> **[LangChain](/oss/python/langchain/overview)**
+>
+> Provides integrations and composable components to streamline LLM application development. Contains agent abstractions built on top of LangGraph.
 
 ## Acknowledgements
 
@@ -93,12 +89,6 @@ LangGraph is inspired by [Pregel](https://research.google/pubs/pub37252/) and [A
 
 ***
 
-<div>
-  <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
-  </Callout>
+[Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
 
-  <Callout icon="edit">
-    [Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/overview.mdx) or [file an issue](https://github.com/langchain-ai/docs/issues/new/choose).
-  </Callout>
-</div>
+[Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/overview.mdx) or [file an issue](https://github.com/langchain-ai/docs/issues/new/choose).

@@ -2,35 +2,31 @@
 
 # LangGraph v1 migration guide
 
-<Prompt description="Migrate a codebase to LangGraph v1." icon="arrow-right">
-  Migrate this codebase to LangGraph v1 (requires `langgraph>=1.0.0`, `langchain-core>=0.3.0`).
+Migrate this codebase to LangGraph v1 (requires `langgraph>=1.0.0`, `langchain-core>=0.3.0`).
 
-  Key changes:
+Key changes:
 
-  1. **Upgrade packages**: run `pip install -U langgraph langchain-core` (or `uv add langgraph langchain-core`).
-  2. **`create_react_agent` → `create_agent`**: replace all `from langgraph.prebuilt import create_react_agent` with `from langchain.agents import create_agent`. Update call sites: `create_agent(model, tools, system_prompt=...)` instead of `create_react_agent(model, tools, prompt=...)`.
-  3. **Remove deprecated state types**: replace `AgentState`, `AgentStatePydantic`, `AgentStateWithStructuredResponse`, and `AgentStateWithStructuredResponsePydantic` (all from `langgraph.prebuilt`) with `langchain.agents.AgentState`.
-  4. **Human-in-the-loop**: replace `HumanInterruptConfig`, `ActionRequest`, and `HumanInterrupt` (from `langgraph.types` or `langgraph.prebuilt`) with `langchain.agents.middleware.human_in_the_loop.InterruptOnConfig` and `HITLRequest`.
-  5. **`ValidationNode`**: remove it. `create_agent` validates tool input automatically.
-  6. **`MessageGraph`**: replace with `StateGraph` using a `messages` key, or use `create_agent` directly.
-  7. **LangGraph v1 is otherwise backwards compatible**: custom `StateGraph`-based graphs, checkpointers, `interrupt()`, `Command`, `Send`, and `MemorySaver` all continue to work unchanged.
+1. **Upgrade packages**: run `pip install -U langgraph langchain-core` (or `uv add langgraph langchain-core`).
+2. **`create_react_agent` → `create_agent`**: replace all `from langgraph.prebuilt import create_react_agent` with `from langchain.agents import create_agent`. Update call sites: `create_agent(model, tools, system_prompt=...)` instead of `create_react_agent(model, tools, prompt=...)`.
+3. **Remove deprecated state types**: replace `AgentState`, `AgentStatePydantic`, `AgentStateWithStructuredResponse`, and `AgentStateWithStructuredResponsePydantic` (all from `langgraph.prebuilt`) with `langchain.agents.AgentState`.
+4. **Human-in-the-loop**: replace `HumanInterruptConfig`, `ActionRequest`, and `HumanInterrupt` (from `langgraph.types` or `langgraph.prebuilt`) with `langchain.agents.middleware.human_in_the_loop.InterruptOnConfig` and `HITLRequest`.
+5. **`ValidationNode`**: remove it. `create_agent` validates tool input automatically.
+6. **`MessageGraph`**: replace with `StateGraph` using a `messages` key, or use `create_agent` directly.
+7. **LangGraph v1 is otherwise backwards compatible**: custom `StateGraph`-based graphs, checkpointers, `interrupt()`, `Command`, `Send`, and `MemorySaver` all continue to work unchanged.
 
-  Search the codebase for all imports from `langgraph.prebuilt` (`create_react_agent`, `AgentState`, `AgentStatePydantic`, `AgentStateWithStructuredResponse`, `HumanInterruptConfig`, `ActionRequest`, `HumanInterrupt`, `ValidationNode`, `MessageGraph`) and apply the necessary changes. Flag anything that cannot be migrated automatically.
-</Prompt>
+Search the codebase for all imports from `langgraph.prebuilt` (`create_react_agent`, `AgentState`, `AgentStatePydantic`, `AgentStateWithStructuredResponse`, `HumanInterruptConfig`, `ActionRequest`, `HumanInterrupt`, `ValidationNode`, `MessageGraph`) and apply the necessary changes. Flag anything that cannot be migrated automatically.
 
 This guide outlines changes in LangGraph v1 and how to migrate from previous versions. For a high-level overview of changes, see the [what's new](/oss/python/releases/langgraph-v1) page.
 
 To upgrade:
 
-<CodeGroup>
-  ```bash pip theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  pip install -U langgraph langchain-core
-  ```
+```bash pip theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+pip install -U langgraph langchain-core
+```
 
-  ```bash uv theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  uv add langgraph langchain-core
-  ```
-</CodeGroup>
+```bash uv theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+uv add langgraph langchain-core
+```
 
 ## Summary of changes
 
@@ -62,27 +58,25 @@ See the LangChain v1 docs for details:
 * [Release notes](/oss/python/releases/langchain-v1#create_agent)
 * [Migration guide](/oss/python/migrate/langchain-v1#migrate-to-create_agent)
 
-<CodeGroup>
-  ```python v1 (new) theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  from langchain.agents import create_agent
+```python v1 (new) theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+from langchain.agents import create_agent
 
-  agent = create_agent(  # [!code highlight]
-      model,
-      tools,
-      system_prompt="You are a helpful assistant.",
-  )
-  ```
+agent = create_agent(  # [!code highlight]
+    model,
+    tools,
+    system_prompt="You are a helpful assistant.",
+)
+```
 
-  ```python v0 (old) theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  from langgraph.prebuilt import create_react_agent
+```python v0 (old) theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+from langgraph.prebuilt import create_react_agent
 
-  agent = create_react_agent(  # [!code highlight]
-      model,
-      tools,
-      prompt="You are a helpful assistant.",  # [!code highlight]
-  )
-  ```
-</CodeGroup>
+agent = create_react_agent(  # [!code highlight]
+    model,
+    tools,
+    prompt="You are a helpful assistant.",  # [!code highlight]
+)
+```
 
 ## Breaking changes
 
@@ -92,12 +86,6 @@ All LangChain packages now require **Python 3.10 or higher**. Python 3.9 reached
 
 ***
 
-<div>
-  <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
-  </Callout>
+[Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
 
-  <Callout icon="edit">
-    [Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/python/migrate/langgraph-v1.mdx) or [file an issue](https://github.com/langchain-ai/docs/issues/new/choose).
-  </Callout>
-</div>
+[Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/python/migrate/langgraph-v1.mdx) or [file an issue](https://github.com/langchain-ai/docs/issues/new/choose).

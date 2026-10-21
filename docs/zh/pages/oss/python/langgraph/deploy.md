@@ -8,9 +8,9 @@
 
 当您准备好将 LangGraph 代理部署到生产环境时，请选择适合您的堆栈的托管模型。 **[LangSmith Cloud](/langsmith/deploy-to-cloud)** 为有状态、长期运行的代理提供完全托管的基础设施，具有持久状态和后台执行。
 
-<Tip>
-  LangSmith提供了云之外的多种部署选项，包括[hybrid](/langsmith/hybrid)、[standalone servers](/langsmith/deploy-standalone-server)和[self-hosted with control plane](/langsmith/deploy-with-control-plane)。欲了解更多信息，请参阅[LangSmith Deployment overview](/langsmith/deployment)。
-</Tip>
+> [!提示]
+>
+> LangSmith提供云之外的多种部署选项，包括[hybrid](/langsmith/hybrid)、[standalone servers](/langsmith/deploy-standalone-server)和[self-hosted with control plane](/langsmith/deploy-with-control-plane)。欲了解更多信息，请参阅[LangSmith Deployment overview](/langsmith/deployment)。
 
 ## LangSmith 云
 
@@ -29,23 +29,21 @@
 
 您的应用程序的代码必须驻留在 GitHub 存储库中才能部署在 LangSmith 上。支持公共和私有存储库。对于本快速入门，首先按照 [local server setup guide](/oss/python/langgraph/studio#set-up-local-agent-server) 确保您的应用与 LangGraph 兼容。然后，将您的代码推送到存储库。
 
-#### 2. 部署到LangSmith<Steps>
-  <Step title="Navigate to LangSmith Deployment">
-    登录[LangSmith](https://smith.langchain.com?utm_source=docs\&utm_medium=cta\&utm_campaign=langsmith-signup\&utm_content=oss-langgraph-deploy)。在左侧边栏中，选择**部署**。
-  </Step>
+#### 2. 部署到LangSmith
 
-  <Step title="Create new deployment">
-    单击 **+ 新部署** 按钮。将打开一个窗格，您可以在其中填写必填字段。
-  </Step>
+**1.导航至LangSmith部署**登录[LangSmith](https://smith.langchain.com?utm_source=docs\&utm_medium=cta\&utm_campaign=langsmith-signup\&utm_content=oss-langgraph-deploy)。在左侧边栏中，选择**部署**。
 
-  <Step title="Link repository">
-    如果您是首次使用或添加之前未连接过的私有存储库，请单击 **添加新帐户** 按钮并按照说明连接您的 GitHub 帐户。
-  </Step>
+**2.创建新部署**
 
-  <Step title="Deploy repository">
-    选择您的应用程序的存储库。单击**提交**进行部署。这可能需要大约 15 分钟才能完成。您可以在 **部署详细信息** 视图中检查状态。
-  </Step>
-</Steps>
+单击 **+ 新部署** 按钮。将打开一个窗格，您可以在其中填写必填字段。
+
+**3.链接存储库**
+
+如果您是首次使用或添加之前未连接过的私有存储库，请单击 **添加新帐户** 按钮并按照说明连接您的 GitHub 帐户。
+
+**4.部署存储库**
+
+选择您的应用程序的存储库。单击**提交**进行部署。这可能需要大约 15 分钟才能完成。您可以在 **部署详细信息** 视图中检查状态。
 
 #### 3. 在 Studio 中测试您的应用程序
 
@@ -63,66 +61,58 @@
 
 您现在可以测试 API：
 
-<Tabs>
-  <Tab title="Python">
-    1.安装LangGraph SDK：
+**Python**
 
-    ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    pip install langgraph-sdk
-    ```
+1.安装LangGraph SDK：
 
-    2. 向代理发送消息：```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    from langgraph_sdk import get_sync_client # or get_client for async
+```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+pip install langgraph-sdk
+```
 
-    client = get_sync_client(url="your-deployment-url", api_key="your-langsmith-api-key")
+2. 向代理发送消息：
 
-    for chunk in client.runs.stream(
-        None,    # Threadless run
-        "agent", # Name of agent. Defined in langgraph.json.
-        input={
-            "messages": [{
-                "role": "human",
-                "content": "What is LangGraph?",
-            }],
+```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+from langgraph_sdk import get_sync_client # or get_client for async
+
+client = get_sync_client(url="your-deployment-url", api_key="your-langsmith-api-key")
+
+for chunk in client.runs.stream(
+    None,    # Threadless run
+    "agent", # Name of agent. Defined in langgraph.json.
+    input={
+        "messages": [{
+            "role": "human",
+            "content": "What is LangGraph?",
+        }],
+    },
+    stream_mode="updates",
+):
+    print(f"Receiving new event of type: {chunk.event}...")
+    print(chunk.data)
+    print("\n\n")
+```
+
+**休息API**
+
+```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+curl -s --request POST \
+    --url <DEPLOYMENT_URL>/runs/stream \
+    --header 'Content-Type: application/json' \
+    --header "X-Api-Key: <LANGSMITH API KEY> \
+    --data "{
+        \"assistant_id\": \"agent\", `# Name of agent. Defined in langgraph.json.`
+        \"input\": {
+            \"messages\": [
+                {
+                    \"role\": \"human\",
+                    \"content\": \"What is LangGraph?\"
+                }
+            ]
         },
-        stream_mode="updates",
-    ):
-        print(f"Receiving new event of type: {chunk.event}...")
-        print(chunk.data)
-        print("\n\n")
-    ```
-  </Tab>
+        \"stream_mode\": \"updates\"
+    }"
+```
 
-  <Tab title="Rest API">
-    ```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    curl -s --request POST \
-        --url <DEPLOYMENT_URL>/runs/stream \
-        --header 'Content-Type: application/json' \
-        --header "X-Api-Key: <LANGSMITH API KEY> \
-        --data "{
-            \"assistant_id\": \"agent\", `# Name of agent. Defined in langgraph.json.`
-            \"input\": {
-                \"messages\": [
-                    {
-                        \"role\": \"human\",
-                        \"content\": \"What is LangGraph?\"
-                    }
-                ]
-            },
-            \"stream_mode\": \"updates\"
-        }"
-    ```
-  </Tab>
-</Tabs>
+***[Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
 
-***
-
-<div>
-  <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
-  </Callout>
-
-  <Callout icon="edit">
-    [Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/deploy.mdx) 或 [file an issue](https://github.com/langchain-ai/docs/issues/new/choose)。
-  </Callout>
-</div>
+[Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/deploy.mdx) 或 [file an issue](https://github.com/langchain-ai/docs/issues/new/choose)。

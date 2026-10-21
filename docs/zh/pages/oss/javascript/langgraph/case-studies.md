@@ -21,9 +21,9 @@
 | [Definely](https://www.definely.com/) |法律 |特定领域任务的副驾驶 | [Case study, 2025](https://blog.langchain.com/customers-definely/) || [Docent Pro](https://docentpro.com/) |旅游 | GenAI嵌入式产品体验| [Case study, 2025](https://blog.langchain.com/customers-docentpro/) |
 | [Elastic](https://www.elastic.co/) |软件与技术 |特定领域任务的副驾驶 | [Blog post, 2025](https://www.elastic.co/blog/elastic-security-generative-ai-features) |
 | [Exa](https://exa.ai/) |软件与技术（GenAI Native）|搜索 | [Case study, 2025](https://blog.langchain.com/exa/) |
-| [GitLab](https://about.gitlab.com/) |软件与技术 |代码生成 | [Duo workflow docs](https://handbook.gitlab.com/handbook/engineering/architecture/design-documents/duo_workflow/) |
+| [GitLab](https://about.gitlab.com/) |软件与技术 |代码生成| [Duo workflow docs](https://handbook.gitlab.com/handbook/engineering/architecture/design-documents/duo_workflow/) |
 | [Harmonic](https://harmonic.ai/) |软件与技术 |搜索 | [Case study, 2025](https://blog.langchain.com/customers-harmonic/) |
-| [Inconvo](https://inconvo.ai/?ref=blog.langchain.dev) |软件与技术 |代码生成 | [Case study, 2025](https://blog.langchain.dev/customers-inconvo/) |
+| [Inconvo](https://inconvo.ai/?ref=blog.langchain.dev) |软件与技术 |代码生成| [Case study, 2025](https://blog.langchain.dev/customers-inconvo/) |
 | [Infor](https://infor.com/) |软件与技术 | GenAI嵌入式产品体验；客户支持；副驾驶 | [Case study, 2025](https://blog.langchain.dev/customers-infor/) |
 | [J.P. Morgan](https://www.jpmorganchase.com/) |金融服务|特定领域任务的副驾驶 | [Interrupt talk, 2025](https://youtu.be/yMalr0jiOAc?feature=shared) |
 | [Klarna](https://www.klarna.com/) |金融科技|特定领域任务的副驾驶 | [Case study, 2025](https://blog.langchain.dev/customers-klarna/) |
@@ -35,27 +35,21 @@
 | [Morningstar](https://www.morningstar.com/) |金融服务|研究与总结| [Video story, 2025](https://youtu.be/6LidoFXCJPs?feature=shared) |
 | [OpenRecovery](https://www.openrecovery.com/) |医疗保健 |特定领域任务的副驾驶 | [Case study, 2024](https://blog.langchain.dev/customers-openrecovery/) |
 | [Pigment](https://www.pigment.com/) |金融科技| GenAI嵌入式产品体验| [Video story, 2025](https://youtu.be/5JVSO2KYOmE?feature=shared) || [Prosper](https://www.prosper.com/) |金融科技|客户支持 | [Video story, 2025](https://youtu.be/9RFNOYtkwsc?feature=shared) |
-| [Qodo](https://www.qodo.ai/) |软件与技术（GenAI Native）|代码生成 | [Blog post, 2025](https://www.qodo.ai/blog/why-we-chose-langgraph-to-build-our-coding-agent/) |
+| [Qodo](https://www.qodo.ai/) |软件与技术（GenAI Native）|代码生成| [Blog post, 2025](https://www.qodo.ai/blog/why-we-chose-langgraph-to-build-our-coding-agent/) |
 | [Rakuten](https://www.rakuten.com/) |电子商务/金融科技|特定领域任务的副驾驶 | [Video story, 2025](https://youtu.be/gD1LIjCkuA8?feature=shared)； [Blog post, 2025](https://rakuten.today/blog/from-ai-hype-to-real-world-tools-rakuten-teams-up-with-langchain.html) |
-| [Replit](https://replit.com/) |软件与技术 |代码生成 | [Blog post, 2024](https://blog.langchain.dev/customers-replit/)； [Breakout agent story, 2024](https://www.langchain.com/breakoutagents/replit)； [Fireside chat video, 2024](https://www.youtube.com/watch?v=ViykMqljjxU) |
+| [Replit](https://replit.com/) |软件与技术 |代码生成| [Blog post, 2024](https://blog.langchain.dev/customers-replit/)； [Breakout agent story, 2024](https://www.langchain.com/breakoutagents/replit)； [Fireside chat video, 2024](https://www.youtube.com/watch?v=ViykMqljjxU) |
 | [Rexera](https://www.rexera.com/) |房地产（GenAI Native）|特定领域任务的副驾驶 | [Case study, 2024](https://blog.langchain.dev/customers-rexera/) |
 | [Abu Dhabi Government](https://www.tamm.abudhabi/) |政府|搜索 | [Case study, 2025](https://blog.langchain.com/customers-abu-dhabi-government/) |
 | [Tradestack](https://www.tradestack.uk/) |软件与技术（GenAI Native）|特定领域任务的副驾驶 | [Case study, 2024](https://blog.langchain.dev/customers-tradestack/) |
-| [Uber](https://www.uber.com/) |交通 |开发人员生产力；代码生成 | [Interrupt talk, 2025](https://youtu.be/Bugs0dVcNI8?feature=shared)； [Presentation, 2024](https://dpe.org/sessions/ty-smith-adam-huda/this-year-in-ubers-ai-driven-developer-productivity-revolution/)； [Video, 2024](https://www.youtube.com/watch?v=8rkA5vWUE4Y) |
+| [Uber](https://www.uber.com/) |交通 |开发人员生产力；代码生成| [Interrupt talk, 2025](https://youtu.be/Bugs0dVcNI8?feature=shared)； [Presentation, 2024](https://dpe.org/sessions/ty-smith-adam-huda/this-year-in-ubers-ai-driven-developer-productivity-revolution/)； [Video, 2024](https://www.youtube.com/watch?v=8rkA5vWUE4Y) |
 | [Unify](https://www.unifygtm.com/) |软件与技术（GenAI Native）|特定领域任务的副驾驶 | [Interrupt talk, 2025](https://youtu.be/pKk-LfhujwI?feature=shared)； [Blog post, 2024](https://blog.langchain.dev/unify-launches-agents-for-account-qualification-using-langgraph-and-langsmith/) |
 | [Vizient](https://www.vizientinc.com/) |医疗保健 |特定领域任务的副驾驶 | [Video story, 2025](https://www.youtube.com/watch?v=vrjJ6NuyTWA)； [Case study, 2025](https://www.langchain.com/blog/customers-vizient) |
-| [Vodafone](https://www.vodafone.com/) |电信 |代码生成；内部搜索| [Case study, 2025](https://blog.langchain.dev/customers-vodafone/) |
+| [Vodafone](https://www.vodafone.com/) |电信 |代码生成；内部搜索 | [Case study, 2025](https://blog.langchain.dev/customers-vodafone/) |
 | [WebToon](https://www.webtoons.com/en/) |媒体与娱乐 |数据提取| [Case study, 2025](https://blog.langchain.com/customers-webtoon/) |
 | [11x](https://www.11x.ai/) |软件与技术（GenAI Native）|研究与推广| [Interrupt talk, 2025](https://youtu.be/fegwPmaAPQk?feature=shared) |
 
 ***
 
-<div>
-  <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
-  </Callout>
+[Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
 
-  <Callout icon="edit">
-    [Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/case-studies.mdx) 或 [file an issue](https://github.com/langchain-ai/docs/issues/new/choose)。
-  </Callout>
-</div>
+[Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/case-studies.mdx) 或 [file an issue](https://github.com/langchain-ai/docs/issues/new/choose)。

@@ -10,14 +10,12 @@ LangGraph 代理传输的不仅仅是消息和工具调用。服务器端
 **流转换器**可以在协议流向时检查或重写协议
 客户端并在命名的**自定义通道**上发布自己的结构化数据。的
 前端使用两个选择器读取该通道：[⟦T17⟧](https://reference.langchain.com/javascript/langchain-react/useExtension)代表最新的
-有效负载，以及 [⟦T18⟧](https://reference.langchain.com/javascript/langchain-react/useChannel) 作为原始事件逃生舱口。
+有效载荷，以及 [⟦T18⟧](https://reference.langchain.com/javascript/langchain-react/useChannel) 作为原始事件逃生舱口。
 
 下面的示例是一个客户支持代理，其变压器编辑了 PII
 （电子邮件、电话号码、SSN、卡号、IP）之前的每个活动
 到达浏览器，并发布正在运行的密文计数
 `redaction-stats`频道。侧面板实时呈现这些计数。
-
-<PatternEmbed />
 
 ## 自定义频道如何工作
 
@@ -32,9 +30,9 @@ LangGraph 代理传输的不仅仅是消息和工具调用。服务器端
 前端 SDK 包（`@langchain/react`、`@langchain/vue`、
 `@langchain/svelte`、`@langchain/angular`）。
 
-<Note>
-  流转换器和`StreamChannel`需要`langgraph>=1.2`。
-</Note>
+> [!注意]
+>
+> 流转换器和 `StreamChannel` 需要 `langgraph>=1.2`。
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import time
@@ -105,29 +103,45 @@ type RedactionStatsEvent = {
 像往常一样连接[⟦T36⟧](https://reference.langchain.com/javascript/langchain-react/index/useStream)。自定义通道选择器采用相同的
 `stream` 句柄在此处返回。
 
-<Info>
-  代码示例使用 `useStream<typeof myAgent>` 来实现类型安全的流状态。请参阅 [Python](/oss/python/langchain/frontend/overview#type-inference) 或 [JavaScript](/oss/javascript/langchain/frontend/overview#type-inference) 后端的类型推断。
-</Info>
+> [!注意]
+>
+> 代码示例使用 `useStream<typeof myAgent>` 来实现类型安全的流状态。请参阅 [Python](/oss/python/langchain/frontend/overview#type-inference) 或 [JavaScript](/oss/javascript/langchain/frontend/overview#type-inference) 后端的类型推断。
 
-<CodeGroup>
-  ```tsx React theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  import { useStream } from "@langchain/react";
+```tsx React theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import { useStream } from "@langchain/react";
 
-  const AGENT_URL = "http://localhost:2024";
+const AGENT_URL = "http://localhost:2024";
 
-  export function RedactionChat() {
-    const stream = useStream<typeof myAgent>({
-      apiUrl: AGENT_URL,
-      assistantId: "custom_stream_channel",
-    });
+export function RedactionChat() {
+  const stream = useStream<typeof myAgent>({
+    apiUrl: AGENT_URL,
+    assistantId: "custom_stream_channel",
+  });
 
-    return <RedactionStatsPanel stream={stream} />;
-  }
-  ```
+  return <RedactionStatsPanel stream={stream} />;
+}
+```
 
-  ```vue Vue theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  <script setup lang="ts">
-  import { useStream } from "@langchain/vue";
+```vue Vue theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+<script setup lang="ts">
+import { useStream } from "@langchain/vue";
+
+const AGENT_URL = "http://localhost:2024";
+
+const stream = useStream<typeof myAgent>({
+  apiUrl: AGENT_URL,
+  assistantId: "custom_stream_channel",
+});
+</script>
+
+<template>
+  <RedactionStatsPanel :stream="stream" />
+</template>
+```
+
+```svelte Svelte theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+<script lang="ts">
+  import { useStream } from "@langchain/svelte";
 
   const AGENT_URL = "http://localhost:2024";
 
@@ -135,46 +149,28 @@ type RedactionStatsEvent = {
     apiUrl: AGENT_URL,
     assistantId: "custom_stream_channel",
   });
-  </script>
+</script>
 
-  <template>
-    <RedactionStatsPanel :stream="stream" />
-  </template>
-  ```
+<RedactionStatsPanel {stream} />
+```
 
-  ```svelte Svelte theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  <script lang="ts">
-    import { useStream } from "@langchain/svelte";
+```ts Angular theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import { Component } from "@angular/core";
+import { injectStream } from "@langchain/angular";
 
-    const AGENT_URL = "http://localhost:2024";
+const AGENT_URL = "http://localhost:2024";
 
-    const stream = useStream<typeof myAgent>({
-      apiUrl: AGENT_URL,
-      assistantId: "custom_stream_channel",
-    });
-  </script>
-
-  <RedactionStatsPanel {stream} />
-  ```
-
-  ```ts Angular theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  import { Component } from "@angular/core";
-  import { injectStream } from "@langchain/angular";
-
-  const AGENT_URL = "http://localhost:2024";
-
-  @Component({
-    selector: "app-redaction-chat",
-    template: `<app-redaction-stats-panel [stream]="stream" />`,
-  })
-  export class RedactionChatComponent {
-    stream = injectStream<typeof myAgent>({
-      apiUrl: AGENT_URL,
-      assistantId: "custom_stream_channel",
-    });
-  }
-  ```
-</CodeGroup>
+@Component({
+  selector: "app-redaction-chat",
+  template: `<app-redaction-stats-panel [stream]="stream" />`,
+})
+export class RedactionChatComponent {
+  stream = injectStream<typeof myAgent>({
+    apiUrl: AGENT_URL,
+    assistantId: "custom_stream_channel",
+  });
+}
+```
 
 ## 使用`useExtension`读取最新的payload
 
@@ -183,37 +179,35 @@ type RedactionStatsEvent = {
 当 UI 仅需要当前值（例如实时值）时，符合人体工学的选择
 计数器、进度百分比或状态徽章。
 
-传递裸通道名称 (`"redaction-stats"`)，而不是 `custom:` 前缀：<CodeGroup>
-  ```tsx React theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  import { useExtension } from "@langchain/react";
+传递裸通道名称 (`"redaction-stats"`)，而不是 `custom:` 前缀：
 
-  const latest = useExtension<RedactionStatsEvent>(stream, "redaction-stats");
-  // latest?.total, latest?.counts.email, latest?.delta
-  ```
+```tsx React theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import { useExtension } from "@langchain/react";
 
-  ```vue Vue theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  import { useExtension } from "@langchain/vue";
+const latest = useExtension<RedactionStatsEvent>(stream, "redaction-stats");
+// latest?.total, latest?.counts.email, latest?.delta
+```
 
-  const latest = useExtension<RedactionStatsEvent>(stream, "redaction-stats");
-  // latest.value?.total
-  ```
+```vue Vue theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import { useExtension } from "@langchain/vue";
 
-  ```svelte Svelte theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  import { useExtension } from "@langchain/svelte";
+const latest = useExtension<RedactionStatsEvent>(stream, "redaction-stats");
+// latest.value?.total
+```
 
-  const latest = useExtension<RedactionStatsEvent>(stream, "redaction-stats");
-  // latest?.total
-  ```
+```svelte Svelte theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import { useExtension } from "@langchain/svelte";
 
-  ```ts Angular theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  import { injectExtension } from "@langchain/angular";
+const latest = useExtension<RedactionStatsEvent>(stream, "redaction-stats");
+// latest?.total
+```
 
-  const latest = injectExtension<RedactionStatsEvent>(stream, "redaction-stats");
-  // latest()?.total
-  ```
-</CodeGroup>
+```ts Angular theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import { injectExtension } from "@langchain/angular";
 
-返回值遵循每个框架的反应性模型：一个简单的值
+const latest = injectExtension<RedactionStatsEvent>(stream, "redaction-stats");
+// latest()?.total
+```返回值遵循每个框架的反应性模型：一个简单的值
 React 和 Svelte、Vue 中的 `Ref` (`latest.value`) 以及 Angular 中的信号
 （`latest()`）。在第一个有效负载到达之前，该值为`undefined`。
 
@@ -232,33 +226,31 @@ React 和 Svelte、Vue 中的 `Ref` (`latest.value`) 以及 Angular 中的信号
 
 传递完整的频道ID（`"custom:redaction-stats"`）：
 
-<CodeGroup>
-  ```tsx React theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  import { useChannel } from "@langchain/react";
+```tsx React theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import { useChannel } from "@langchain/react";
 
-  const rawEvents = useChannel(stream, ["custom:redaction-stats"]);
-  ```
+const rawEvents = useChannel(stream, ["custom:redaction-stats"]);
+```
 
-  ```vue Vue theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  import { useChannel } from "@langchain/vue";
+```vue Vue theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import { useChannel } from "@langchain/vue";
 
-  const rawEvents = useChannel(stream, ["custom:redaction-stats"]);
-  // rawEvents.value
-  ```
+const rawEvents = useChannel(stream, ["custom:redaction-stats"]);
+// rawEvents.value
+```
 
-  ```svelte Svelte theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  import { useChannel } from "@langchain/svelte";
+```svelte Svelte theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import { useChannel } from "@langchain/svelte";
 
-  const rawEvents = useChannel(stream, ["custom:redaction-stats"]);
-  ```
+const rawEvents = useChannel(stream, ["custom:redaction-stats"]);
+```
 
-  ```ts Angular theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  import { injectChannel } from "@langchain/angular";
+```ts Angular theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import { injectChannel } from "@langchain/angular";
 
-  const rawEvents = injectChannel(stream, ["custom:redaction-stats"]);
-  // rawEvents()
-  ```
-</CodeGroup>
+const rawEvents = injectChannel(stream, ["custom:redaction-stats"]);
+// rawEvents()
+```
 
 每个条目都是一个原始协议事件，因此有效负载位于
 `event.params.data`。自己拆开：
@@ -289,12 +281,12 @@ const rawEvents = useChannel(
 | `bufferSize` | `"default"` |缓冲事件的最大数量。一旦达到上限，较旧的事件就会消失。 |
 | `replay` | `true` |安装选择器时重播通道上已经看到的事件，而不仅仅是实时事件。 |
 
-<Note>
-  更喜欢更高级别的选择器（`useExtension`、`useMessages`、
-  `useToolCalls`、`useValues`）适用于常见情况。他们返回的是已打好字、未包装的
-  值并仅跟踪您渲染的内容。当您特别需要时，请使用`useChannel`
-  需要原始事件流。
-</Note>
+> [!注意]
+>
+> 更喜欢更高级别的选择器（`useExtension`、`useMessages`、
+> `useToolCalls`、`useValues`）适用于常见情况。他们返回的是已打好字、未包装的
+> 值并仅跟踪您渲染的内容。当您特别需要时，请使用`useChannel`
+> 需要原始事件流。
 
 ## 在`useExtension`和`useChannel`之间选择
 
@@ -334,12 +326,6 @@ const rawEvents = useChannel(
 
 ***
 
-<div>
-  <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
-  </Callout>
+[Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
 
-  <Callout icon="edit">
-    [Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/frontend/custom-stream-channels.mdx) 或 [file an issue](https://github.com/langchain-ai/docs/issues/new/choose)。
-  </Callout>
-</div>
+[Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/frontend/custom-stream-channels.mdx) 或 [file an issue](https://github.com/langchain-ai/docs/issues/new/choose)。

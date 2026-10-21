@@ -29,48 +29,25 @@ The streaming stack has two main layers:
 1. **Streaming** emits raw graph execution events from the Pregel engine.
 2. **Event streaming** normalizes those events, runs them through stream transformers, and exposes typed projections.
 
-<div>
-  <div>
-    <div>
-      <div>Pregel engine</div>
-      <div>Runs graph steps</div>
-    </div>
+Pregel engineRuns graph steps
 
-    <div>emits</div>
+emits
 
-    <div>
-      <div>Raw Pregel events</div>
-      <div><code>updates</code>, <code>values</code>, <code>messages</code>, <code>custom</code>, <code>checkpoints</code>, <code>tasks</code>, <code>debug</code></div>
-    </div>
+Raw Pregel events`updates`, `values`, `messages`, `custom`, `checkpoints`, `tasks`, `debug`
 
-    <div>sent to</div>
+sent to
 
-    <div>
-      <div>Event router</div>
-      <div>Routes each event through the transformer pipeline</div>
-    </div>
+Event routerRoutes each event through the transformer pipeline
 
-    <div>cascades through</div>
+cascades through
 
-    <div>
-      <div>Stream transformers</div>
+Stream transformers
 
-      <div>
-        <div>ValuesTransformer</div>
-        <div>MessagesTransformer</div>
-        <div>...</div>
-        <div>Custom transformers</div>
-      </div>
-    </div>
+ValuesTransformerMessagesTransformer...Custom transformers
 
-    <div>produces</div>
+produces
 
-    <div>
-      <div>Event Stream</div>
-      <div>Projected events for application code</div>
-    </div>
-  </div>
-</div>
+Event StreamProjected events for application code
 
 The event router is the bridge between the two layers. It receives normalized Pregel events and passes each event through the registered stream transformers. Built-in transformers create standard projections such as `stream.messages`, `stream.values`, `stream.subgraphs`, and `stream.output`. Custom transformers can add application-specific projections under `stream.extensions`.
 
@@ -543,12 +520,6 @@ The wire-level event and command formats are defined in the [Agent Protocol](htt
 
 ***
 
-<div>
-  <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
-  </Callout>
+[Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
 
-  <Callout icon="edit">
-    [Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/event-streaming.mdx) or [file an issue](https://github.com/langchain-ai/docs/issues/new/choose).
-  </Callout>
-</div>
+[Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/event-streaming.mdx) or [file an issue](https://github.com/langchain-ai/docs/issues/new/choose).

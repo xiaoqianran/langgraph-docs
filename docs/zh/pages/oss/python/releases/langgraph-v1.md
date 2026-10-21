@@ -2,37 +2,33 @@
 
 <!-- langgraph-docs: What's new in LangGraph v1 | https://docs.langchain.com/oss/python/releases/langgraph-v1 -->
 
-# LangGraph v1 的新功能
+# LangGraph v1 中的新功能
 
 **LangGraph v1 是一个以稳定性为中心的代理运行时版本。** 它保持核心图形 API 和执行模型不变，同时改进类型安全、文档和开发人员人体工程学。
 
 它旨在与 [LangChain v1](/oss/python/releases/langchain-v1)（其 `create_agent` 构建于 LangGraph 之上）协同工作，因此您可以从高层开始，并在需要时下降到精细控制。
 
-<CardGroup>
-  <Card title="Stable core APIs" icon="sitemap">
-    图基元（状态、节点、边）和执行/运行时模型保持不变，使升级变得简单。
-  </Card>
+> **稳定的核心API**
+>
+> 图基元（状态、节点、边）和执行/运行时模型保持不变，使升级变得简单。
 
-  <Card title="Reliability, by default" icon="database">
-    具有检查点、持久性、流式传输和人机交互的持久执行仍然是一流的。
-  </Card>
+> **默认可靠性**
+>
+> 具有检查点、持久性、流式传输和人机交互的持久执行仍然是一流的。
 
-  <Card title="Seamless with LangChain v1" icon="link">
-    LangChain 的 `create_agent` 在 LangGraph 上运行。使用LangChain快速启动；下降到 LangGraph 进行自定义编排。
-  </Card>
-</CardGroup>
+> **与 LangChain v1 无缝连接**
+>
+> LangChain 的 `create_agent` 在 LangGraph 上运行。使用LangChain快速启动；下降到 LangGraph 进行自定义编排。
 
 要升级，
 
-<CodeGroup>
-  ```bash pip theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  pip install -U langgraph
-  ```
+```bash pip theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+pip install -U langgraph
+```
 
-  ```bash uv theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  uv add langgraph
-  ```
-</CodeGroup>
+```bash uv theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+uv add langgraph
+```
 
 ## `create_react_agent` 弃用
 
@@ -45,31 +41,29 @@
 
 ## 其他资源
 
-<CardGroup>
-  <Card title="LangGraph 1.0" icon="rocket" href="https://blog.langchain.com/langchain-langchain-1-0-alpha-releases/">
-    阅读公告
-  </Card>
+> **[LangGraph 1.0](https://blog.langchain.com/langchain-langchain-1-0-alpha-releases/)**
+>
+> 阅读公告
 
-  <Card title="Overview" icon="book" href="/oss/python/langgraph/overview">
-    LangGraph是什么以及何时使用它
-  </Card>
+> **[Overview](/oss/python/langgraph/overview)**
+>
+> LangGraph是什么以及何时使用它
 
-  <Card title="Graph API" icon="sitemap" href="/oss/python/langgraph/graph-api">
-    使用状态、节点和边构建图
-  </Card>
+> **[Graph API](/oss/python/langgraph/graph-api)**
+>
+> 使用状态、节点和边构建图
 
-  <Card title="LangChain Agents" icon="robot" href="/oss/python/langchain/agents">
-    基于LangGraph构建的高级代理
-  </Card>
+> **[LangChain Agents](/oss/python/langchain/agents)**
+>
+> 基于LangGraph构建的高级代理
 
-  <Card title="Migration guide" icon="arrows-exchange" href="/oss/python/migrate/langgraph-v1">
-    如何迁移到LangGraph v1
-  </Card>
+> **[Migration guide](/oss/python/migrate/langgraph-v1)**
+>
+> 如何迁移到LangGraph v1
 
-  <Card title="GitHub" icon="brand-github" href="https://github.com/langchain-ai/langgraph">
-    报告问题或贡献
-  </Card>
-</CardGroup>
+> **[GitHub](https://github.com/langchain-ai/langgraph)**
+>
+> 报告问题或贡献
 
 ## 另请参阅
 
@@ -78,12 +72,6 @@
 
 ***
 
-<div>
-  <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
-  </Callout>
+[Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
 
-  <Callout icon="edit">
-    [Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/python/releases/langgraph-v1.mdx) 或 [file an issue](https://github.com/langchain-ai/docs/issues/new/choose)。
-  </Callout>
-</div>
+[Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/python/releases/langgraph-v1.mdx) 或 [file an issue](https://github.com/langchain-ai/docs/issues/new/choose)。

@@ -4,24 +4,24 @@
 
 # 商店
 
-LangGraph 存储提供跨线程长期内存，补充了每线程检查点持久性。
+LangGraph 存储提供跨线程长期内存，补充了每线程检查指针持久性。
 
 存储让代理可以跨线程保存信息，包括用户偏好、积累的知识以及在一次对话之后仍能保存的事实。与[checkpointers](/oss/python/langgraph/checkpointers)不同的是，[checkpointers](/oss/python/langgraph/checkpointers)保存了一个线程范围内的完整图状态，存储保存了可从任何线程访问的任意键值数据。
 
-<img alt="Model of shared state" />
+![Model of shared state](https://mintcdn.com/langchain-5e9cc07a/dL5Sn6Cmy9pwtY0V/oss/images/shared_state.png?fit=max\&auto=format\&n=dL5Sn6Cmy9pwtY0V\&q=85\&s=354526fb48c5eb11b4b2684a2df40d6c)
 
-<Info>
-  **代理服务器自动处理存储**
-  使用[Agent Server](/langsmith/agent-server)时，您不需要手动实现或配置存储。 API 在幕后为您处理所有存储基础设施。
-</Info>
+> [!注意]
+>
+> **代理服务器自动处理存储**
+> 使用[Agent Server](/langsmith/agent-server)时，您无需手动实现或配置存储。 API 在幕后为您处理所有存储基础设施。
 
-<Note>
-  [InMemoryStore](https://reference.langchain.com/python/langchain-core/stores/InMemoryStore)适合开发和测试。对于生产，请使用持久存储，例如 `PostgresStore`、`MongoDBStore`、`RedisStore` 或 `UpstashStore`。所有实现都扩展[BaseStore](https://reference.langchain.com/python/langchain-core/stores/BaseStore)，这是在节点函数签名中使用的类型注释。
-</Note>
+> [!注意]
+>
+> [InMemoryStore](https://reference.langchain.com/python/langchain-core/stores/InMemoryStore)适合开发和测试。对于生产，请使用持久存储，例如 `PostgresStore`、`MongoDBStore`、`RedisStore` 或 `UpstashStore`。所有实现都扩展[BaseStore](https://reference.langchain.com/python/langchain-core/stores/BaseStore)，这是在节点函数签名中使用的类型注释。
 
-<Note>
-  有关可用提供商的完整列表，请参阅[store integrations](/oss/python/integrations/long-term-memory/index)。
-</Note>
+> [!注意]
+>
+> 请参阅 [store integrations](/oss/python/integrations/long-term-memory/index) 了解可用提供商的完整列表。
 
 ## 基本用法
 
@@ -65,9 +65,9 @@ memories[-1].dict()
 
 * `key`：该内存在该命名空间中的唯一键
 
-* `namespace`：字符串元组，该内存类型的命名空间<Note>
-    虽然类型为`tuple[str, ...]`，但转换为 JSON 时可能会序列化为列表（例如，`['1', 'memories']`）。
-  </Note>
+* `namespace`：字符串元组，该内存类型的命名空间> [!注意]
+  >
+  > 虽然类型为`tuple[str, ...]`，但转换为 JSON 时可能会序列化为列表（例如，`['1', 'memories']`）。
 
 * `created_at`：创建该内存的时间戳
 
@@ -75,7 +75,7 @@ memories[-1].dict()
 
 ## 列出命名空间中的项目
 
-在没有 `query` 和没有 `filter` 的情况下调用 [⟦T41⟧](https://reference.langchain.com/python/langgraph/store)（或异步 [⟦T42⟧](https://reference.langchain.com/python/langgraph/store)）会返回存储在 `namespace_prefix` 下的项目，最多为 `limit`。当您不需要语义排名时，可以使用它来枚举名称空间中的所有内容。
+在没有 `query` 和没有 `filter` 的情况下调用 [⟦T41⟧](https://reference.langchain.com/python/langgraph/store) （或异步 [⟦T42⟧](https://reference.langchain.com/python/langgraph/store)）会返回存储在 `namespace_prefix` 下的项目，最多为 `limit`。当您不需要语义排名时，可以使用它来枚举名称空间中的所有内容。
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 # Return up to 100 items stored under ("alice", "memories").
@@ -195,7 +195,7 @@ for update in graph.stream(
     context=Context(user_id="1"),
 ):
     print(update)
-```您可以使用 `Runtime` 对象从*任何节点*访问存储和 `user_id`。当您将`Runtime`作为参数添加到节点函数时，LangGraph会自动注入它。您可以用它来保存记忆：
+```You can access the store and the `user_id` from *any node* by using the `Runtime` object. The `Runtime` is automatically injected by LangGraph when you add it as a parameter to your node function.您可以用它来保存记忆：
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from langgraph.runtime import Runtime
@@ -223,7 +223,7 @@ async def update_memory(state: MessagesState, runtime: Runtime[Context]):
 
 ```
 
-您还可以从任何节点访问存储并使用`store.search`方法获取记忆。内存以可以转换为字典的对象列表的形式返回。
+您还可以从任何节点访问存储并使用`store.search`方法来获取记忆。内存以可以转换为字典的对象列表的形式返回。
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 memories[-1].dict()
@@ -262,7 +262,7 @@ async def call_model(state: MessagesState, runtime: Runtime[Context]):
     # ... Use memories in the model call
 ```
 
-如果你创建一个新线程，只要`user_id`相同，你仍然可以访问相同的内存。
+If you create a new thread, you can still access the same memories so long as the `user_id` is the same.
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 # Invoke the graph on a new thread
@@ -278,7 +278,7 @@ for update in graph.stream(
     print(update)
 ```
 
-当您在本地使用LangSmith（例如，在[Studio](/langsmith/studio)中）或[hosted](/langsmith/platform-setup)时，默认情况下可以使用基本存储，并且不需要在图形编译期间指定它。但是，要启用语义搜索，您**确实**需要在 `langgraph.json` 文件中配置索引设置。例如：
+当您在本地使用LangSmith（例如，在[Studio](/langsmith/studio)中）或[hosted](/langsmith/platform-setup)时，默认情况下可以使用基本存储，并且不需要在图形编译期间指定它。 To enable semantic search, however, you **do** need to configure the indexing settings in your `langgraph.json` file.例如：
 
 ```json theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 {
@@ -293,11 +293,11 @@ for update in graph.stream(
 }
 ```
 
-有关更多详细信息和配置选项，请参阅[deployment guide](/langsmith/semantic-search)。
+See the [deployment guide](/langsmith/semantic-search) for more details and configuration options.
 
 ## 建立一个自定义商店
 
-要使用内置实现之外的存储后端，请子类 [BaseStore](https://reference.langchain.com/python/langchain-core/stores/BaseStore) 并实现其所需的方法。内置的[InMemoryStore](https://reference.langchain.com/python/langchain-core/stores/InMemoryStore)是最简单的参考实现。
+To use a storage backend other than the built-in implementations, subclass [BaseStore](https://reference.langchain.com/python/langchain-core/stores/BaseStore) and implement its required methods. The built-in [InMemoryStore](https://reference.langchain.com/python/langchain-core/stores/InMemoryStore) is the simplest reference implementation.
 
 ### 基础合约所有五个异步方法都是必需的。同步对应项（`put`、`get`、`delete`、`search`、`list_namespaces`）是可选的，但建议与同步图执行兼容。
 
@@ -398,12 +398,6 @@ async def test_search_prefix(store, reference):
 
 ***
 
-<div>
-  <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
-  </Callout>
+[Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
 
-  <Callout icon="edit">
-    [Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/stores.mdx) 或[file an issue](https://github.com/langchain-ai/docs/issues/new/choose)。
-  </Callout>
-</div>
+[Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/stores.mdx) 或 [file an issue](https://github.com/langchain-ai/docs/issues/new/choose)。

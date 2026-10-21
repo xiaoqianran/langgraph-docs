@@ -14,9 +14,9 @@ messages are all visible runtime concepts, so you can build interfaces that
 explain what the system is doing instead of hiding execution behind one
 assistant message.
 
-<Note>
-  These patterns use the v1 frontend SDK packages. If you are using an earlier version, see the migration guides for [React](https://github.com/langchain-ai/langgraphjs/blob/main/libs/sdk-react/docs/v1-migration.md), [Vue](https://github.com/langchain-ai/langgraphjs/blob/main/libs/sdk-vue/docs/v1-migration.md), [Svelte](https://github.com/langchain-ai/langgraphjs/blob/main/libs/sdk-svelte/docs/v1-migration.md), and [Angular](https://github.com/langchain-ai/langgraphjs/blob/main/libs/sdk-angular/docs/v1-migration.md).
-</Note>
+> [!NOTE]
+>
+> These patterns use the v1 frontend SDK packages. If you are using an earlier version, see the migration guides for [React](https://github.com/langchain-ai/langgraphjs/blob/main/libs/sdk-react/docs/v1-migration.md), [Vue](https://github.com/langchain-ai/langgraphjs/blob/main/libs/sdk-vue/docs/v1-migration.md), [Svelte](https://github.com/langchain-ai/langgraphjs/blob/main/libs/sdk-svelte/docs/v1-migration.md), and [Angular](https://github.com/langchain-ai/langgraphjs/blob/main/libs/sdk-angular/docs/v1-migration.md).
 
 ## Architecture
 
@@ -117,15 +117,13 @@ chat panel to a full workflow debugger without changing the backend protocol.
 
 ## Patterns
 
-<CardGroup>
-  <Card title="Graph execution" icon="chart-dots" href="/oss/python/langgraph/frontend/graph-execution">
-    Visualize multi-step graph pipelines with per-node status and streaming content.
-  </Card>
+> **[Graph execution](/oss/python/langgraph/frontend/graph-execution)**
+>
+> Visualize multi-step graph pipelines with per-node status and streaming content.
 
-  <Card title="Custom stream channels" icon="broadcast" href="/oss/python/langgraph/frontend/custom-stream-channels">
-    Stream custom server-side data to the frontend and read it with `useExtension` and `useChannel`.
-  </Card>
-</CardGroup>
+> **[Custom stream channels](/oss/python/langgraph/frontend/custom-stream-channels)**
+>
+> Stream custom server-side data to the frontend and read it with `useExtension` and `useChannel`.
 
 ## Related patterns
 
@@ -133,12 +131,6 @@ The [LangChain frontend patterns](/oss/python/langchain/frontend/overview)—mar
 
 ***
 
-<div>
-  <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
-  </Callout>
+[Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
 
-  <Callout icon="edit">
-    [Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/frontend/overview.md) or [file an issue](https://github.com/langchain-ai/docs/issues/new/choose).
-  </Callout>
-</div>
+[Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/frontend/overview.md) or [file an issue](https://github.com/langchain-ai/docs/issues/new/choose).

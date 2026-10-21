@@ -8,27 +8,25 @@ Configure and build applications on the [Agent Server](/langsmith/agent-server) 
 
 ## Capabilities
 
-<CardGroup cols={2}>
-  <Card title="Develop your application" cta="Set up your project" href="/langsmith/application-structure" icon="code">
-    Structure your app, configure dependencies for Python, JavaScript, and monorepos, and connect agents with RemoteGraph, semantic search, TTLs, and CI/CD.
-  </Card>
+> **[Develop your application](/langsmith/application-structure)**
+>
+> Structure your app, configure dependencies for Python, JavaScript, and monorepos, and connect agents with RemoteGraph, semantic search, TTLs, and CI/CD.
 
-  <Card title="Agent Server runtime" cta="Explore the runtime" href="/langsmith/agent-server" icon="bolt">
-    Work with assistants, threads, runs, and cron jobs. Stream to users, pause for human review, handle concurrent input, and connect via MCP and A2A.
-  </Card>
+> **[Agent Server runtime](/langsmith/agent-server)**
+>
+> Work with assistants, threads, runs, and cron jobs. Stream to users, pause for human review, handle concurrent input, and connect via MCP and A2A.
 
-  <Card title="Auth & access control" cta="Secure your server" href="/langsmith/auth" icon="lock">
-    Authenticate users, enforce resource-level access, and connect external OAuth2 identity providers.
-  </Card>
+> **[Auth & access control](/langsmith/auth)**
+>
+> Authenticate users, enforce resource-level access, and connect external OAuth2 identity providers.
 
-  <Card title="Server customization" cta="Customize your server" href="/langsmith/caching" icon="settings">
-    Add caching, custom stores and checkpointers, lifespan hooks, middleware, custom routes, encryption, and configurable headers and logs.
-  </Card>
+> **[Server customization](/langsmith/caching)**
+>
+> Add caching, custom stores and checkpointers, lifespan hooks, middleware, custom routes, encryption, and configurable headers and logs.
 
-  <Card title="REST API" cta="Browse the API" href="/langsmith/server-api-ref" icon="book">
-    Full REST API reference for assistants, threads, runs, crons, store, A2A, MCP, and system endpoints.
-  </Card>
-</CardGroup>
+> **[REST API](/langsmith/server-api-ref)**
+>
+> Full REST API reference for assistants, threads, runs, crons, store, A2A, MCP, and system endpoints.
 
 ## Tutorials
 
@@ -50,12 +48,6 @@ Configure and build applications on the [Agent Server](/langsmith/agent-server) 
 
 ***
 
-<div className="source-links">
-  <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
-  </Callout>
+[Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
 
-  <Callout icon="edit">
-    [Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/langsmith/agent-server-overview.mdx) or [file an issue](https://github.com/langchain-ai/docs/issues/new/choose).
-  </Callout>
-</div>
+[Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/langsmith/agent-server-overview.mdx) or [file an issue](https://github.com/langchain-ai/docs/issues/new/choose).

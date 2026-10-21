@@ -21,9 +21,9 @@ This guide covers how to develop and test [Agent Server](/langsmith/agent-server
 | **IDE Debugging** | Built-in [DAP](https://microsoft.github.io/debug-adapter-protocol/) support | Regular container debugging |
 | **Custom auth** | Yes | Yes (with license key) |
 
-<Tip>
-  For full reference details, refer to the [LangGraph CLI reference](/langsmith/cli) page.
-</Tip>
+> [!TIP]
+>
+> For full reference details, refer to the [LangGraph CLI reference](/langsmith/cli) page.
 
 ## Development
 
@@ -62,212 +62,203 @@ The [`langgraph dev`](/langsmith/cli#dev) command runs a lightweight server dire
 * **Built-in [Debug Adapter Protocol](https://microsoft.github.io/debug-adapter-protocol/) support**: Attach your IDE debugger to the server for line-level breakpoints & debugging.
 * **Local storage**: State persisted to local directory.
 
-<Note>
-  The `dev` server is tested with the same integration test suite as production to ensure its behavior is the same during development while using minimal resources.
-</Note>
+> [!NOTE]
+>
+> The `dev` server is tested with the same integration test suite as production to ensure its behavior is the same during development while using minimal resources.
 
-<Accordion title="Get started with langgraph dev">
-  Before you begin, ensure you have:
-
-  * An API key for [LangSmith](https://smith.langchain.com/settings) (free to sign up).
-  * [uv](https://docs.astral.sh/uv/getting-started/installation/) for Python or [npx](https://docs.npmjs.com/cli/commands/npx) for TypeScript.
-
-  <Steps>
-    <Step title="Create a LangGraph app">
-      Create a new app from the [`new-langgraph-project-python` template](https://github.com/langchain-ai/new-langgraph-project) or [`new-langgraph-project-js` template](https://github.com/langchain-ai/new-langgraphjs-project). This template demonstrates a single-node application you can extend with your own logic.
-
-      <Tabs>
-        <Tab title="Python server">
-          ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-          uvx --from langgraph-cli@latest langgraph new path/to/your/app --template new-langgraph-project-python
-          ```
-        </Tab>
-
-        <Tab title="Node server">
-          ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-          npx @langchain/langgraph-cli new path/to/your/app --template new-langgraph-project-js
-          ```
-        </Tab>
-      </Tabs>
-
-      <Tip>
-        **Additional templates**<br />
-        If you use [`langgraph new`](/langsmith/cli) without specifying a template, you will be presented with an interactive menu that will allow you to choose from a list of available templates.
-      </Tip>
-    </Step>
-
-    <Step title="Install dependencies">
-      <Tabs>
-        <Tab title="Python server">
-          ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-          cd path/to/your/app
-          uv sync --dev -U
-          ```
-        </Tab>
-
-        <Tab title="Node server">
-          ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-          cd path/to/your/app
-          yarn install
-          ```
-        </Tab>
-      </Tabs>
-    </Step>
-
-    <Step title="Launch Agent Server">
-      <Tabs>
-        <Tab title="Python server">
-          ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-          uv run langgraph dev
-          ```
-        </Tab>
-
-        <Tab title="Node server">
-          ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-          npx @langchain/langgraph-cli dev
-          ```
-        </Tab>
-      </Tabs>
-
-      Sample output:
-
-      ```
-      >    Ready!
-      >
-      >    - API: [http://localhost:2024](http://localhost:2024/)
-      >
-      >    - Docs: http://localhost:2024/docs
-      >
-      >    - Studio Web UI: https://smith.langchain.com/studio/?baseUrl=http://127.0.0.1:2024
-      ```
-    </Step>
-
-    <Step title="Test the API">
-      <Tabs>
-        <Tab title="Python SDK (async)">
-          1. Install the LangGraph Python SDK:
-
-          ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-          pip install langgraph-sdk
-          ```
-
-          2. Send a message to the assistant (threadless run):
-
-          ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-          from langgraph_sdk import get_client
-          import asyncio
-
-          client = get_client(url="http://localhost:2024")
-
-          async def main():
-              async for chunk in client.runs.stream(
-                  None,  # Threadless run
-                  "agent", # Name of assistant. Defined in langgraph.json.
-                  input={
-                  "messages": [{
-                      "role": "human",
-                      "content": "What is LangGraph?",
-                      }],
-                  },
-              ):
-                  print(f"Receiving new event of type: {chunk.event}...")
-                  print(chunk.data)
-                  print("\n\n")
-
-          asyncio.run(main())
-          ```
-        </Tab>
-
-        <Tab title="Python SDK (sync)">
-          1. Install the LangGraph Python SDK:
-
-          ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-          pip install langgraph-sdk
-          ```
-
-          2. Send a message to the assistant (threadless run):
-
-          ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-          from langgraph_sdk import get_sync_client
-
-          client = get_sync_client(url="http://localhost:2024")
-
-          for chunk in client.runs.stream(
-              None,  # Threadless run
-              "agent", # Name of assistant. Defined in langgraph.json.
-              input={
-                  "messages": [{
-                      "role": "human",
-                      "content": "What is LangGraph?",
-                  }],
-              },
-              stream_mode="messages-tuple",
-          ):
-              print(f"Receiving new event of type: {chunk.event}...")
-              print(chunk.data)
-              print("\n\n")
-          ```
-        </Tab>
-
-        <Tab title="Javascript SDK">
-          1. Install the LangGraph JS SDK:
-
-          ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-          npm install @langchain/langgraph-sdk
-          ```
-
-          2. Send a message to the assistant (threadless run):
-
-          ```js theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-          const { Client } = await import("@langchain/langgraph-sdk");
-
-          // only set the apiUrl if you changed the default port when calling langgraph dev
-          const client = new Client({ apiUrl: "http://localhost:2024"});
-
-          const streamResponse = client.runs.stream(
-              null, // Threadless run
-              "agent", // Assistant ID
-              {
-                  input: {
-                      "messages": [
-                          { "role": "user", "content": "What is LangGraph?"}
-                      ]
-                  },
-                  streamMode: "messages-tuple",
-              }
-          );
-
-          for await (const chunk of streamResponse) {
-              console.log(`Receiving new event of type: ${chunk.event}...`);
-              console.log(JSON.stringify(chunk.data));
-              console.log("\n\n");
-          }
-          ```
-        </Tab>
-
-        <Tab title="Rest API">
-          ```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-          curl -s --request POST \
-              --url "http://localhost:2024/runs/stream" \
-              --header 'Content-Type: application/json' \
-              --data "{
-                  \"assistant_id\": \"agent\",
-                  \"input\": {
-                      \"messages\": [
-                          {
-                              \"role\": \"human\",
-                              \"content\": \"What is LangGraph?\"
-                          }
-                      ]
-                  },
-                  \"stream_mode\": \"messages-tuple\"
-              }"
-          ```
-        </Tab>
-      </Tabs>
-    </Step>
-  </Steps>
-</Accordion>
+> **Get started with langgraph dev**
+>
+> Before you begin, ensure you have:
+>
+> * An API key for [LangSmith](https://smith.langchain.com/settings) (free to sign up).
+> * [uv](https://docs.astral.sh/uv/getting-started/installation/) for Python or [npx](https://docs.npmjs.com/cli/commands/npx) for TypeScript.
+>
+> **1. Create a LangGraph app**
+>
+> Create a new app from the [`new-langgraph-project-python` template](https://github.com/langchain-ai/new-langgraph-project) or [`new-langgraph-project-js` template](https://github.com/langchain-ai/new-langgraphjs-project). This template demonstrates a single-node application you can extend with your own logic.
+>
+> **Python server**
+>
+> ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> uvx --from langgraph-cli@latest langgraph new path/to/your/app --template new-langgraph-project-python
+> ```
+>
+> **Node server**
+>
+> ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> npx @langchain/langgraph-cli new path/to/your/app --template new-langgraph-project-js
+> ```
+>
+> > [!TIP]
+> >
+> > **Additional templates**\\
+> >
+> > If you use [`langgraph new`](/langsmith/cli) without specifying a template, you will be presented with an interactive menu that will allow you to choose from a list of available templates.
+>
+> **2. Install dependencies**
+>
+> **Python server**
+>
+> ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> cd path/to/your/app
+> uv sync --dev -U
+> ```
+>
+> **Node server**
+>
+> ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> cd path/to/your/app
+> yarn install
+> ```
+>
+> **3. Launch Agent Server**
+>
+> **Python server**
+>
+> ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> uv run langgraph dev
+> ```
+>
+> **Node server**
+>
+> ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> npx @langchain/langgraph-cli dev
+> ```
+>
+> Sample output:
+>
+> ```
+> >    Ready!
+> >
+> >    - API: [http://localhost:2024](http://localhost:2024/)
+> >
+> >    - Docs: http://localhost:2024/docs
+> >
+> >    - Studio Web UI: https://smith.langchain.com/studio/?baseUrl=http://127.0.0.1:2024
+> ```
+>
+> **4. Test the API**
+>
+> **Python SDK (async)**
+>
+> 1. Install the LangGraph Python SDK:
+>
+> ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> pip install langgraph-sdk
+> ```
+>
+> 2. Send a message to the assistant (threadless run):
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> from langgraph_sdk import get_client
+> import asyncio
+>
+> client = get_client(url="http://localhost:2024")
+>
+> async def main():
+>     async for chunk in client.runs.stream(
+>         None,  # Threadless run
+>         "agent", # Name of assistant. Defined in langgraph.json.
+>         input={
+>         "messages": [{
+>             "role": "human",
+>             "content": "What is LangGraph?",
+>             }],
+>         },
+>     ):
+>         print(f"Receiving new event of type: {chunk.event}...")
+>         print(chunk.data)
+>         print("\n\n")
+>
+> asyncio.run(main())
+> ```
+>
+> **Python SDK (sync)**
+>
+> 1. Install the LangGraph Python SDK:
+>
+> ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> pip install langgraph-sdk
+> ```
+>
+> 2. Send a message to the assistant (threadless run):
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> from langgraph_sdk import get_sync_client
+>
+> client = get_sync_client(url="http://localhost:2024")
+>
+> for chunk in client.runs.stream(
+>     None,  # Threadless run
+>     "agent", # Name of assistant. Defined in langgraph.json.
+>     input={
+>         "messages": [{
+>             "role": "human",
+>             "content": "What is LangGraph?",
+>         }],
+>     },
+>     stream_mode="messages-tuple",
+> ):
+>     print(f"Receiving new event of type: {chunk.event}...")
+>     print(chunk.data)
+>     print("\n\n")
+> ```
+>
+> **Javascript SDK**
+>
+> 1. Install the LangGraph JS SDK:
+>
+> ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> npm install @langchain/langgraph-sdk
+> ```
+>
+> 2. Send a message to the assistant (threadless run):
+>
+> ```js theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> const { Client } = await import("@langchain/langgraph-sdk");
+>
+> // only set the apiUrl if you changed the default port when calling langgraph dev
+> const client = new Client({ apiUrl: "http://localhost:2024"});
+>
+> const streamResponse = client.runs.stream(
+>     null, // Threadless run
+>     "agent", // Assistant ID
+>     {
+>         input: {
+>             "messages": [
+>                 { "role": "user", "content": "What is LangGraph?"}
+>             ]
+>         },
+>         streamMode: "messages-tuple",
+>     }
+> );
+>
+> for await (const chunk of streamResponse) {
+>     console.log(`Receiving new event of type: ${chunk.event}...`);
+>     console.log(JSON.stringify(chunk.data));
+>     console.log("\n\n");
+> }
+> ```
+>
+> **Rest API**
+>
+> ```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> curl -s --request POST \
+>     --url "http://localhost:2024/runs/stream" \
+>     --header 'Content-Type: application/json' \
+>     --data "{
+>         \"assistant_id\": \"agent\",
+>         \"input\": {
+>             \"messages\": [
+>                 {
+>                     \"role\": \"human\",
+>                     \"content\": \"What is LangGraph?\"
+>                 }
+>             ]
+>         },
+>         \"stream_mode\": \"messages-tuple\"
+>     }"
+> ```
 
 ### Use cases
 
@@ -292,17 +283,17 @@ The [`langgraph up`](/langsmith/cli#up) command orchestrates a full Docker-based
 * **Isolated networking**: Realistic container networking.
 * **Production validation**: Verifies deployment readiness.
 
-<Accordion title="Get started with langgraph up">
-  ```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  # Ensure Docker is running
-  docker ps
-
-  # Start production-like stack
-  langgraph up
-  ```
-
-  Your server starts at `http://localhost:8123` with full persistent storage.
-</Accordion>
+> **Get started with langgraph up**
+>
+> ```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> # Ensure Docker is running
+> docker ps
+>
+> # Start production-like stack
+> langgraph up
+> ```
+>
+> Your server starts at `http://localhost:8123` with full persistent storage.
 
 ### Use cases
 
@@ -347,76 +338,72 @@ The `dependencies` field tells the [CLI](/langsmith/cli) **where** to find your 
 * **A specific subdirectory**: `"dependencies": ["./my_agent"]`
 * **A specific package**: `"dependencies": ["my-package==1.0.0"]` (Python) or `"dependencies": ["my-package@1.0.0"]` (JavaScript)
 
-<Tabs>
-  <Tab title="Python">
-    ```json theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    {
-      "dependencies": ["."],
-      "graphs": {
-        "my_agent": "./my_agent/agent.py:graph"
-      },
-      "env": "./.env"
-    }
-    ```
-  </Tab>
+**Python**
 
-  <Tab title="JavaScript">
-    ```json theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    {
-      "dependencies": ["."],
-      "graphs": {
-        "my_agent": "./my_agent/agent.js:graph"
-      },
-      "env": "./.env"
-    }
-    ```
-  </Tab>
-</Tabs>
+```json theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+{
+  "dependencies": ["."],
+  "graphs": {
+    "my_agent": "./my_agent/agent.py:graph"
+  },
+  "env": "./.env"
+}
+```
+
+**JavaScript**
+
+```json theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+{
+  "dependencies": ["."],
+  "graphs": {
+    "my_agent": "./my_agent/agent.js:graph"
+  },
+  "env": "./.env"
+}
+```
 
 ### Package dependency files
 
 These files define **what** packages your application needs:
 
-<Tabs>
-  <Tab title="Python">
-    **pyproject.toml example:**
+**Python**
 
-    ```toml theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    [project]
-    name = "my-agent"
-    version = "0.1.0"
-    dependencies = [
-        "langchain-openai",
-        "langchain-anthropic",
-        "langgraph",
-    ]
-    ```
+**pyproject.toml example:**
 
-    **requirements.txt example:**
+```toml theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+[project]
+name = "my-agent"
+version = "0.1.0"
+dependencies = [
+    "langchain-openai",
+    "langchain-anthropic",
+    "langgraph",
+]
+```
 
-    ```
-    langchain-openai
-    langchain-anthropic
-    langgraph
-    ```
-  </Tab>
+**requirements.txt example:**
 
-  <Tab title="JavaScript">
-    **package.json example:**
+```
+langchain-openai
+langchain-anthropic
+langgraph
+```
 
-    ```json theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    {
-      "name": "my-agent",
-      "version": "1.0.0",
-      "dependencies": {
-        "@langchain/openai": "^0.3.0",
-        "@langchain/anthropic": "^0.3.0",
-        "@langchain/langgraph": "^0.2.0"
-      }
-    }
-    ```
-  </Tab>
-</Tabs>
+**JavaScript**
+
+**package.json example:**
+
+```json theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+{
+  "name": "my-agent",
+  "version": "1.0.0",
+  "dependencies": {
+    "@langchain/openai": "^0.3.0",
+    "@langchain/anthropic": "^0.3.0",
+    "@langchain/langgraph": "^0.2.0"
+  }
+}
+```
 
 ### Dependency resolution process
 
@@ -527,12 +514,6 @@ For more details, refer to the [Platform setup comparison](/langsmith/platform-s
 
 ***
 
-<div className="source-links">
-  <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
-  </Callout>
+[Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
 
-  <Callout icon="edit">
-    [Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/langsmith/local-dev-testing.mdx) or [file an issue](https://github.com/langchain-ai/docs/issues/new/choose).
-  </Callout>
-</div>
+[Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/langsmith/local-dev-testing.mdx) or [file an issue](https://github.com/langchain-ai/docs/issues/new/choose).

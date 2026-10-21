@@ -2,9 +2,9 @@
 
 # Streaming
 
-<Tip>
-  For new applications, we recommend [event streaming](/oss/javascript/langgraph/event-streaming)—the typed-projection API introduced in LangGraph v1.2. Event streaming gives you separate iterators per projection (messages, values, subgraphs, output) so you can consume them independently instead of branching on `stream_mode` chunks.
-</Tip>
+> [!TIP]
+>
+> For new applications, we recommend [event streaming](/oss/javascript/langgraph/event-streaming)—the typed-projection API introduced in LangGraph v1.2. Event streaming gives you separate iterators per projection (messages, values, subgraphs, output) so you can consume them independently instead of branching on `stream_mode` chunks.
 
 This page covers LangGraph's stream-mode API. It exposes graph execution through stream modes such as `updates`, `values`, `messages`, `custom`, `checkpoints`, `tasks`, and `debug`. Use it when you need direct access to graph-runtime events or specific stream-mode output.
 
@@ -12,7 +12,7 @@ This page covers LangGraph's stream-mode API. It exposes graph execution through
 
 ### Basic usage
 
-LangGraph graphs expose the [`stream`](https://reference.langchain.com/javascript/classes/_langchain_langgraph.pregel.Pregel.html#stream) method to yield streamed outputs as iterators.
+LangGraph graphs expose the [`stream`](https://reference.langchain.com/javascript/langchain-langgraph/pregel/Pregel/stream) method to yield streamed outputs as iterators.
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 for await (const chunk of await graph.stream(inputs, {
@@ -22,13 +22,13 @@ for await (const chunk of await graph.stream(inputs, {
 }
 ```
 
-<Tip>
-  Debug streaming events, inspect token-by-token LLM output, and monitor latency with [LangSmith](https://smith.langchain.com?utm_source=docs\&utm_medium=cta\&utm_campaign=langsmith-signup\&utm_content=oss-langgraph-streaming). Follow the [tracing quickstart](/langsmith/trace-with-langgraph) to get set up.
-</Tip>
+> [!TIP]
+>
+> Debug streaming events, inspect token-by-token LLM output, and monitor latency with [LangSmith](https://smith.langchain.com?utm_source=docs\&utm_medium=cta\&utm_campaign=langsmith-signup\&utm_content=oss-langgraph-streaming). Follow the [tracing quickstart](/langsmith/trace-with-langgraph) to get set up.
 
 ## Stream modes
 
-Pass one or more of the following stream modes as a list to the [`stream`](https://reference.langchain.com/javascript/classes/_langchain_langgraph.index.CompiledStateGraph.html#stream) method:
+Pass one or more of the following stream modes as a list to the [`stream`](https://reference.langchain.com/javascript/langchain-langgraph/index/CompiledStateGraph/stream) method:
 
 | Mode | Description |
 | :- | :- |
@@ -68,35 +68,33 @@ const graph = new StateGraph(State)
   .compile();
 ```
 
-<Tabs>
-  <Tab title="updates">
-    Use this to stream only the **state updates** returned by the nodes after each step. The streamed outputs include the name of the node as well as the update.
+**updates**
 
-    ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    for await (const chunk of await graph.stream(
-      { topic: "ice cream" },
-      { streamMode: "updates" }
-    )) {
-      for (const [nodeName, state] of Object.entries(chunk)) {
-        console.log(`Node ${nodeName} updated:`, state);
-      }
-    }
-    ```
-  </Tab>
+Use this to stream only the **state updates** returned by the nodes after each step. The streamed outputs include the name of the node as well as the update.
 
-  <Tab title="values">
-    Use this to stream the **full state** of the graph after each step.
+```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+for await (const chunk of await graph.stream(
+  { topic: "ice cream" },
+  { streamMode: "updates" }
+)) {
+  for (const [nodeName, state] of Object.entries(chunk)) {
+    console.log(`Node ${nodeName} updated:`, state);
+  }
+}
+```
 
-    ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    for await (const chunk of await graph.stream(
-      { topic: "ice cream" },
-      { streamMode: "values" }
-    )) {
-      console.log(`topic: ${chunk.topic}, joke: ${chunk.joke}`);
-    }
-    ```
-  </Tab>
-</Tabs>
+**values**
+
+Use this to stream the **full state** of the graph after each step.
+
+```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+for await (const chunk of await graph.stream(
+  { topic: "ice cream" },
+  { streamMode: "values" }
+)) {
+  console.log(`topic: ${chunk.topic}, joke: ${chunk.joke}`);
+}
+```
 
 ### LLM tokens
 
@@ -182,67 +180,67 @@ for await (const [msg, metadata] of await graph.stream(
 }
 ```
 
-<Accordion title="Extended example: filtering by tags">
-  ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  import { ChatOpenAI } from "@langchain/openai";
-  import { StateGraph, StateSchema, GraphNode, START } from "@langchain/langgraph";
-  import * as z from "zod";
-
-  // The jokeModel is tagged with "joke"
-  const jokeModel = new ChatOpenAI({
-    model: "gpt-5.4-mini",
-    tags: ["joke"]
-  });
-  // The poemModel is tagged with "poem"
-  const poemModel = new ChatOpenAI({
-    model: "gpt-5.4-mini",
-    tags: ["poem"]
-  });
-
-  const State = new StateSchema({
-    topic: z.string(),
-    joke: z.string(),
-    poem: z.string(),
-  });
-
-  const callModel: GraphNode<typeof State> = async (state) => {
-    const topic = state.topic;
-    console.log("Writing joke...");
-
-    const jokeResponse = await jokeModel.invoke([
-      { role: "user", content: `Write a joke about ${topic}` }
-    ]);
-
-    console.log("\n\nWriting poem...");
-    const poemResponse = await poemModel.invoke([
-      { role: "user", content: `Write a short poem about ${topic}` }
-    ]);
-
-    return {
-      joke: jokeResponse.content,
-      poem: poemResponse.content
-    };
-  };
-
-  const graph = new StateGraph(State)
-    .addNode("callModel", callModel)
-    .addEdge(START, "callModel")
-    .compile();
-
-  // The streamMode is set to "messages" to stream LLM tokens
-  // The metadata contains information about the LLM invocation, including the tags
-  for await (const [msg, metadata] of await graph.stream(
-    { topic: "cats" },
-    { streamMode: "messages" }
-  )) {
-    // Filter the streamed tokens by the tags field in the metadata to only include
-    // the tokens from the LLM invocation with the "joke" tag
-    if (metadata.tags?.includes("joke")) {
-      console.log(msg.content + "|");
-    }
-  }
-  ```
-</Accordion>
+> **Extended example: filtering by tags**
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import { ChatOpenAI } from "@langchain/openai";
+> import { StateGraph, StateSchema, GraphNode, START } from "@langchain/langgraph";
+> import * as z from "zod";
+>
+> // The jokeModel is tagged with "joke"
+> const jokeModel = new ChatOpenAI({
+>   model: "gpt-5.4-mini",
+>   tags: ["joke"]
+> });
+> // The poemModel is tagged with "poem"
+> const poemModel = new ChatOpenAI({
+>   model: "gpt-5.4-mini",
+>   tags: ["poem"]
+> });
+>
+> const State = new StateSchema({
+>   topic: z.string(),
+>   joke: z.string(),
+>   poem: z.string(),
+> });
+>
+> const callModel: GraphNode<typeof State> = async (state) => {
+>   const topic = state.topic;
+>   console.log("Writing joke...");
+>
+>   const jokeResponse = await jokeModel.invoke([
+>     { role: "user", content: `Write a joke about ${topic}` }
+>   ]);
+>
+>   console.log("\n\nWriting poem...");
+>   const poemResponse = await poemModel.invoke([
+>     { role: "user", content: `Write a short poem about ${topic}` }
+>   ]);
+>
+>   return {
+>     joke: jokeResponse.content,
+>     poem: poemResponse.content
+>   };
+> };
+>
+> const graph = new StateGraph(State)
+>   .addNode("callModel", callModel)
+>   .addEdge(START, "callModel")
+>   .compile();
+>
+> // The streamMode is set to "messages" to stream LLM tokens
+> // The metadata contains information about the LLM invocation, including the tags
+> for await (const [msg, metadata] of await graph.stream(
+>   { topic: "cats" },
+>   { streamMode: "messages" }
+> )) {
+>   // Filter the streamed tokens by the tags field in the metadata to only include
+>   // the tokens from the LLM invocation with the "joke" tag
+>   if (metadata.tags?.includes("joke")) {
+>     console.log(msg.content + "|");
+>   }
+> }
+> ```
 
 #### Omit messages from the stream
 
@@ -322,9 +320,9 @@ const stream = await graph.streamEvents(
 );
 ```
 
-<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/ba51f3a8-41b5-4403-bf37-5978e9fadb99/r">
-  Open a public LangSmith run for this example.
-</Card>
+> **[View example trace](https://smith.langchain.com/public/ba51f3a8-41b5-4403-bf37-5978e9fadb99/r)**
+>
+> Open a public LangSmith run for this example.
 
 #### Filter by node
 
@@ -346,59 +344,59 @@ for await (const [msg, metadata] of await graph.stream(
 }
 ```
 
-<Accordion title="Extended example: streaming LLM tokens from specific nodes">
-  ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  import { ChatOpenAI } from "@langchain/openai";
-  import { StateGraph, StateSchema, GraphNode, START } from "@langchain/langgraph";
-  import * as z from "zod";
-
-  const model = new ChatOpenAI({ model: "gpt-5.4-mini" });
-
-  const State = new StateSchema({
-    topic: z.string(),
-    joke: z.string(),
-    poem: z.string(),
-  });
-
-  const writeJoke: GraphNode<typeof State> = async (state) => {
-    const topic = state.topic;
-    const jokeResponse = await model.invoke([
-      { role: "user", content: `Write a joke about ${topic}` }
-    ]);
-    return { joke: jokeResponse.content };
-  };
-
-  const writePoem: GraphNode<typeof State> = async (state) => {
-    const topic = state.topic;
-    const poemResponse = await model.invoke([
-      { role: "user", content: `Write a short poem about ${topic}` }
-    ]);
-    return { poem: poemResponse.content };
-  };
-
-  const graph = new StateGraph(State)
-    .addNode("writeJoke", writeJoke)
-    .addNode("writePoem", writePoem)
-    // write both the joke and the poem concurrently
-    .addEdge(START, "writeJoke")
-    .addEdge(START, "writePoem")
-    .compile();
-
-  // The "messages" stream mode returns a tuple of [messageChunk, metadata]
-  // where messageChunk is the token streamed by the LLM and metadata is a dictionary
-  // with information about the graph node where the LLM was called and other information
-  for await (const [msg, metadata] of await graph.stream(
-    { topic: "cats" },
-    { streamMode: "messages" }
-  )) {
-    // Filter the streamed tokens by the langgraph_node field in the metadata
-    // to only include the tokens from the writePoem node
-    if (msg.content && metadata.langgraph_node === "writePoem") {
-      console.log(msg.content + "|");
-    }
-  }
-  ```
-</Accordion>
+> **Extended example: streaming LLM tokens from specific nodes**
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import { ChatOpenAI } from "@langchain/openai";
+> import { StateGraph, StateSchema, GraphNode, START } from "@langchain/langgraph";
+> import * as z from "zod";
+>
+> const model = new ChatOpenAI({ model: "gpt-5.4-mini" });
+>
+> const State = new StateSchema({
+>   topic: z.string(),
+>   joke: z.string(),
+>   poem: z.string(),
+> });
+>
+> const writeJoke: GraphNode<typeof State> = async (state) => {
+>   const topic = state.topic;
+>   const jokeResponse = await model.invoke([
+>     { role: "user", content: `Write a joke about ${topic}` }
+>   ]);
+>   return { joke: jokeResponse.content };
+> };
+>
+> const writePoem: GraphNode<typeof State> = async (state) => {
+>   const topic = state.topic;
+>   const poemResponse = await model.invoke([
+>     { role: "user", content: `Write a short poem about ${topic}` }
+>   ]);
+>   return { poem: poemResponse.content };
+> };
+>
+> const graph = new StateGraph(State)
+>   .addNode("writeJoke", writeJoke)
+>   .addNode("writePoem", writePoem)
+>   // write both the joke and the poem concurrently
+>   .addEdge(START, "writeJoke")
+>   .addEdge(START, "writePoem")
+>   .compile();
+>
+> // The "messages" stream mode returns a tuple of [messageChunk, metadata]
+> // where messageChunk is the token streamed by the LLM and metadata is a dictionary
+> // with information about the graph node where the LLM was called and other information
+> for await (const [msg, metadata] of await graph.stream(
+>   { topic: "cats" },
+>   { streamMode: "messages" }
+> )) {
+>   // Filter the streamed tokens by the langgraph_node field in the metadata
+>   // to only include the tokens from the writePoem node
+>   if (msg.content && metadata.langgraph_node === "writePoem") {
+>     console.log(msg.content + "|");
+>   }
+> }
+> ```
 
 ### Custom data
 
@@ -407,70 +405,68 @@ To send **custom user-defined data** from inside a LangGraph node or tool, follo
 1. Use the `writer` parameter from the `LangGraphRunnableConfig` to emit custom data.
 2. Set `streamMode: "custom"` when calling `.stream()` to get the custom data in the stream. You can combine multiple modes (e.g., `["updates", "custom"]`), but at least one must be `"custom"`.
 
-<Tabs>
-  <Tab title="node">
-    ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    import { StateGraph, StateSchema, GraphNode, START, LangGraphRunnableConfig } from "@langchain/langgraph";
-    import * as z from "zod";
+**node**
 
-    const State = new StateSchema({
-      query: z.string(),
-      answer: z.string(),
-    });
+```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import { StateGraph, StateSchema, GraphNode, START, LangGraphRunnableConfig } from "@langchain/langgraph";
+import * as z from "zod";
 
-    const node: GraphNode<typeof State> = async (state, config) => {
-      // Use the writer to emit a custom key-value pair (e.g., progress update)
-      config.writer({ custom_key: "Generating custom data inside node" });
-      return { answer: "some data" };
-    };
+const State = new StateSchema({
+  query: z.string(),
+  answer: z.string(),
+});
 
-    const graph = new StateGraph(State)
-      .addNode("node", node)
-      .addEdge(START, "node")
-      .compile();
+const node: GraphNode<typeof State> = async (state, config) => {
+  // Use the writer to emit a custom key-value pair (e.g., progress update)
+  config.writer({ custom_key: "Generating custom data inside node" });
+  return { answer: "some data" };
+};
 
-    const inputs = { query: "example" };
+const graph = new StateGraph(State)
+  .addNode("node", node)
+  .addEdge(START, "node")
+  .compile();
 
-    // Set streamMode: "custom" to receive the custom data in the stream
-    for await (const chunk of await graph.stream(inputs, { streamMode: "custom" })) {
-      console.log(chunk);
-    }
-    ```
-  </Tab>
+const inputs = { query: "example" };
 
-  <Tab title="tool">
-    ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    import { tool } from "@langchain/core/tools";
-    import { LangGraphRunnableConfig } from "@langchain/langgraph";
-    import * as z from "zod";
+// Set streamMode: "custom" to receive the custom data in the stream
+for await (const chunk of await graph.stream(inputs, { streamMode: "custom" })) {
+  console.log(chunk);
+}
+```
 
-    const queryDatabase = tool(
-      async (input, config: LangGraphRunnableConfig) => {
-        // Use the writer to emit a custom key-value pair (e.g., progress update)
-        config.writer({ data: "Retrieved 0/100 records", type: "progress" });
-        // perform query
-        // Emit another custom key-value pair
-        config.writer({ data: "Retrieved 100/100 records", type: "progress" });
-        return "some-answer";
-      },
-      {
-        name: "query_database",
-        description: "Query the database.",
-        schema: z.object({
-          query: z.string().describe("The query to execute."),
-        }),
-      }
-    );
+**tool**
 
-    const graph = // ... define a graph that uses this tool
+```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import { tool } from "@langchain/core/tools";
+import { LangGraphRunnableConfig } from "@langchain/langgraph";
+import * as z from "zod";
 
-    // Set streamMode: "custom" to receive the custom data in the stream
-    for await (const chunk of await graph.stream(inputs, { streamMode: "custom" })) {
-      console.log(chunk);
-    }
-    ```
-  </Tab>
-</Tabs>
+const queryDatabase = tool(
+  async (input, config: LangGraphRunnableConfig) => {
+    // Use the writer to emit a custom key-value pair (e.g., progress update)
+    config.writer({ data: "Retrieved 0/100 records", type: "progress" });
+    // perform query
+    // Emit another custom key-value pair
+    config.writer({ data: "Retrieved 100/100 records", type: "progress" });
+    return "some-answer";
+  },
+  {
+    name: "query_database",
+    description: "Query the database.",
+    schema: z.object({
+      query: z.string().describe("The query to execute."),
+    }),
+  }
+);
+
+const graph = // ... define a graph that uses this tool
+
+// Set streamMode: "custom" to receive the custom data in the stream
+for await (const chunk of await graph.stream(inputs, { streamMode: "custom" })) {
+  console.log(chunk);
+}
+```
 
 ### Tool progress
 
@@ -529,9 +525,9 @@ const searchFlights = tool(
 );
 ```
 
-<Note>
-  Existing tools that return a `Promise` are fully compatible. They emit `on_tool_start` and `on_tool_end` events but no `on_tool_event` events.
-</Note>
+> [!NOTE]
+>
+> Existing tools that return a `Promise` are fully compatible. They emit `on_tool_start` and `on_tool_end` events but no `on_tool_event` events.
 
 #### Consume tool events server-side
 
@@ -609,145 +605,145 @@ function Chat() {
 }
 ```
 
-<Accordion title="Extended example: travel planning agent with tool progress">
-  This example shows a complete agent with async-generator tools that stream search progress to a React UI.
-
-  **Agent definition:**
-
-  ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  import { tool } from "@langchain/core/tools";
-  import { ChatOpenAI } from "@langchain/openai";
-  import { createAgent } from "@langchain/langgraph";
-  import { MemorySaver } from "@langchain/langgraph-checkpoint-memory";
-  import { z } from "zod/v4";
-
-  const searchFlights = tool(
-    async function* (input) {
-      const airlines = ["United", "Delta", "American", "JetBlue"];
-      const completed: string[] = [];
-
-      for (let i = 0; i < airlines.length; i++) {
-        await new Promise((r) => setTimeout(r, 600));
-        completed.push(`${airlines[i]}: checked`);
-        yield {
-          message: `Searching ${airlines[i]}...`,
-          progress: (i + 1) / airlines.length,
-          completed,
-        };
-      }
-
-      return JSON.stringify({
-        flights: [
-          { airline: "United", price: 450, duration: "5h 30m" },
-          { airline: "Delta", price: 520, duration: "5h 15m" },
-        ],
-      });
-    },
-    {
-      name: "search_flights",
-      description: "Search for available flights.",
-      schema: z.object({
-        destination: z.string(),
-        departure_date: z.string(),
-      }),
-    }
-  );
-
-  const checkHotels = tool(
-    async function* (input) {
-      const hotels = ["Grand Hyatt", "Marriott", "Hilton"];
-      const completed: string[] = [];
-
-      for (let i = 0; i < hotels.length; i++) {
-        await new Promise((r) => setTimeout(r, 400));
-        completed.push(`${hotels[i]}: available`);
-        yield {
-          message: `Checking ${hotels[i]}...`,
-          progress: (i + 1) / hotels.length,
-          completed,
-        };
-      }
-
-      return JSON.stringify({
-        hotels: [
-          { name: "Grand Hyatt", price: 250, rating: 4.5 },
-          { name: "Marriott", price: 180, rating: 4.2 },
-        ],
-      });
-    },
-    {
-      name: "check_hotels",
-      description: "Check hotel availability.",
-      schema: z.object({
-        city: z.string(),
-        check_in: z.string(),
-        nights: z.number(),
-      }),
-    }
-  );
-
-  export const agent = createAgent({
-    model: new ChatOpenAI({ model: "gpt-5.4-mini" }),
-    tools: [searchFlights, checkHotels],
-    checkpointer: new MemorySaver(),
-  });
-  ```
-
-  **React component with progress cards:**
-
-  ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  import { useStream } from "@langchain/langgraph-sdk/react";
-
-  function TravelPlanner() {
-    const stream = useStream<typeof agent>({
-      assistantId: "travel-agent",
-      streamMode: ["values", "tools"],
-    });
-
-    const activeTools = stream.toolProgress.filter(
-      (t) => t.state === "starting" || t.state === "running"
-    );
-
-    return (
-      <div>
-        {stream.messages.map((msg) => (
-          <div key={msg.id}>{msg.content}</div>
-        ))}
-
-        {activeTools.map((tool) => {
-          const data = tool.data as {
-            message?: string;
-            progress?: number;
-            completed?: string[];
-          } | undefined;
-
-          return (
-            <div key={tool.toolCallId ?? tool.name}>
-              <strong>{tool.name}</strong>
-              {data?.message && <p>{data.message}</p>}
-              {data?.progress != null && (
-                <div style={{ width: "100%", background: "#eee" }}>
-                  <div
-                    style={{
-                      width: `${data.progress * 100}%`,
-                      background: "#4CAF50",
-                      height: 8,
-                      transition: "width 0.3s ease",
-                    }}
-                  />
-                </div>
-              )}
-              {data?.completed?.map((step, i) => (
-                <div key={i}>&#10003; {step}</div>
-              ))}
-            </div>
-          );
-        })}
-      </div>
-    );
-  }
-  ```
-</Accordion>
+> **Extended example: travel planning agent with tool progress**
+>
+> This example shows a complete agent with async-generator tools that stream search progress to a React UI.
+>
+> **Agent definition:**
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import { tool } from "@langchain/core/tools";
+> import { ChatOpenAI } from "@langchain/openai";
+> import { createAgent } from "@langchain/langgraph";
+> import { MemorySaver } from "@langchain/langgraph-checkpoint-memory";
+> import { z } from "zod/v4";
+>
+> const searchFlights = tool(
+>   async function* (input) {
+>     const airlines = ["United", "Delta", "American", "JetBlue"];
+>     const completed: string[] = [];
+>
+>     for (let i = 0; i < airlines.length; i++) {
+>       await new Promise((r) => setTimeout(r, 600));
+>       completed.push(`${airlines[i]}: checked`);
+>       yield {
+>         message: `Searching ${airlines[i]}...`,
+>         progress: (i + 1) / airlines.length,
+>         completed,
+>       };
+>     }
+>
+>     return JSON.stringify({
+>       flights: [
+>         { airline: "United", price: 450, duration: "5h 30m" },
+>         { airline: "Delta", price: 520, duration: "5h 15m" },
+>       ],
+>     });
+>   },
+>   {
+>     name: "search_flights",
+>     description: "Search for available flights.",
+>     schema: z.object({
+>       destination: z.string(),
+>       departure_date: z.string(),
+>     }),
+>   }
+> );
+>
+> const checkHotels = tool(
+>   async function* (input) {
+>     const hotels = ["Grand Hyatt", "Marriott", "Hilton"];
+>     const completed: string[] = [];
+>
+>     for (let i = 0; i < hotels.length; i++) {
+>       await new Promise((r) => setTimeout(r, 400));
+>       completed.push(`${hotels[i]}: available`);
+>       yield {
+>         message: `Checking ${hotels[i]}...`,
+>         progress: (i + 1) / hotels.length,
+>         completed,
+>       };
+>     }
+>
+>     return JSON.stringify({
+>       hotels: [
+>         { name: "Grand Hyatt", price: 250, rating: 4.5 },
+>         { name: "Marriott", price: 180, rating: 4.2 },
+>       ],
+>     });
+>   },
+>   {
+>     name: "check_hotels",
+>     description: "Check hotel availability.",
+>     schema: z.object({
+>       city: z.string(),
+>       check_in: z.string(),
+>       nights: z.number(),
+>     }),
+>   }
+> );
+>
+> export const agent = createAgent({
+>   model: new ChatOpenAI({ model: "gpt-5.4-mini" }),
+>   tools: [searchFlights, checkHotels],
+>   checkpointer: new MemorySaver(),
+> });
+> ```
+>
+> **React component with progress cards:**
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import { useStream } from "@langchain/langgraph-sdk/react";
+>
+> function TravelPlanner() {
+>   const stream = useStream<typeof agent>({
+>     assistantId: "travel-agent",
+>     streamMode: ["values", "tools"],
+>   });
+>
+>   const activeTools = stream.toolProgress.filter(
+>     (t) => t.state === "starting" || t.state === "running"
+>   );
+>
+>   return (
+>     <div>
+>       {stream.messages.map((msg) => (
+>         <div key={msg.id}>{msg.content}</div>
+>       ))}
+>
+>       {activeTools.map((tool) => {
+>         const data = tool.data as {
+>           message?: string;
+>           progress?: number;
+>           completed?: string[];
+>         } | undefined;
+>
+>         return (
+>           <div key={tool.toolCallId ?? tool.name}>
+>             <strong>{tool.name}</strong>
+>             {data?.message && <p>{data.message}</p>}
+>             {data?.progress != null && (
+>               <div style={{ width: "100%", background: "#eee" }}>
+>                 <div
+>                   style={{
+>                     width: `${data.progress * 100}%`,
+>                     background: "#4CAF50",
+>                     height: 8,
+>                     transition: "width 0.3s ease",
+>                   }}
+>                 />
+>               </div>
+>             )}
+>             {data?.completed?.map((step, i) => (
+>               <div key={i}>&#10003; {step}</div>
+>             ))}
+>           </div>
+>         );
+>       })}
+>     </div>
+>   );
+> }
+> ```
 
 #### `tools` vs `custom` stream mode
 
@@ -775,91 +771,91 @@ for await (const chunk of await graph.stream(
 }
 ```
 
-<Note>
-  This applies to every `streamMode`, including `"messages"`. [`createAgent`](https://reference.langchain.com/javascript/langchain/index/createAgent) returns a `ReactAgent` wrapper; pass `agent.graph` when adding it as a node so the parent treats it as a subgraph. With `subgraphs: true`, message chunks are `[namespace, [token, metadata]]`, so you can tell which subgraph emitted them.
+> [!NOTE]
+>
+> This applies to every `streamMode`, including `"messages"`. [`createAgent`](https://reference.langchain.com/javascript/langchain/index/createAgent) returns a `ReactAgent` wrapper; pass `agent.graph` when adding it as a node so the parent treats it as a subgraph. With `subgraphs: true`, message chunks are `[namespace, [token, metadata]]`, so you can tell which subgraph emitted them.
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import { createAgent } from "langchain";
+> import { END, START, StateGraph } from "@langchain/langgraph";
+>
+> const agent = createAgent({ model, tools, stateSchema: State });
+>
+> const graph = new StateGraph(State)
+>     .addNode("agent", agent.graph)
+>     .addEdge(START, "agent")
+>     .addEdge("agent", END)
+>     .compile();
+>
+> for await (const [ns, data] of await graph.stream(
+>     { messages: [{ role: "user", content: "..." }] },
+>     {
+>         streamMode: "messages",
+>         subgraphs: true, // [!code highlight]
+>     }
+> )) {
+>     const [token, metadata] = data;
+>     console.log(ns, token, metadata);
+> }
+> ```
 
-  ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  import { createAgent } from "langchain";
-  import { END, START, StateGraph } from "@langchain/langgraph";
-
-  const agent = createAgent({ model, tools, stateSchema: State });
-
-  const graph = new StateGraph(State)
-      .addNode("agent", agent.graph)
-      .addEdge(START, "agent")
-      .addEdge("agent", END)
-      .compile();
-
-  for await (const [ns, data] of await graph.stream(
-      { messages: [{ role: "user", content: "..." }] },
-      {
-          streamMode: "messages",
-          subgraphs: true, // [!code highlight]
-      }
-  )) {
-      const [token, metadata] = data;
-      console.log(ns, token, metadata);
-  }
-  ```
-</Note>
-
-<Accordion title="Extended example: streaming from subgraphs">
-  ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  import { StateGraph, StateSchema, START } from "@langchain/langgraph";
-  import { z } from "zod/v4";
-
-  // Define subgraph
-  const SubgraphState = new StateSchema({
-    foo: z.string(), // note that this key is shared with the parent graph state
-    bar: z.string(),
-  });
-
-  const subgraphBuilder = new StateGraph(SubgraphState)
-    .addNode("subgraphNode1", (state) => {
-      return { bar: "bar" };
-    })
-    .addNode("subgraphNode2", (state) => {
-      return { foo: state.foo + state.bar };
-    })
-    .addEdge(START, "subgraphNode1")
-    .addEdge("subgraphNode1", "subgraphNode2");
-  const subgraph = subgraphBuilder.compile();
-
-  // Define parent graph
-  const ParentState = new StateSchema({
-    foo: z.string(),
-  });
-
-  const builder = new StateGraph(ParentState)
-    .addNode("node1", (state) => {
-      return { foo: "hi! " + state.foo };
-    })
-    .addNode("node2", subgraph)
-    .addEdge(START, "node1")
-    .addEdge("node1", "node2");
-  const graph = builder.compile();
-
-  for await (const chunk of await graph.stream(
-    { foo: "foo" },
-    {
-      streamMode: "updates",
-      // Set subgraphs: true to stream outputs from subgraphs
-      subgraphs: true,
-    }
-  )) {
-    console.log(chunk);
-  }
-  ```
-
-  ```
-  [[], {'node1': {'foo': 'hi! foo'}}]
-  [['node2:dfddc4ba-c3c5-6887-5012-a243b5b377c2'], {'subgraphNode1': {'bar': 'bar'}}]
-  [['node2:dfddc4ba-c3c5-6887-5012-a243b5b377c2'], {'subgraphNode2': {'foo': 'hi! foobar'}}]
-  [[], {'node2': {'foo': 'hi! foobar'}}]
-  ```
-
-  **Note** that we are receiving not just the node updates, but we also the namespaces which tell us what graph (or subgraph) we are streaming from.
-</Accordion>
+> **Extended example: streaming from subgraphs**
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import { StateGraph, StateSchema, START } from "@langchain/langgraph";
+> import { z } from "zod/v4";
+>
+> // Define subgraph
+> const SubgraphState = new StateSchema({
+>   foo: z.string(), // note that this key is shared with the parent graph state
+>   bar: z.string(),
+> });
+>
+> const subgraphBuilder = new StateGraph(SubgraphState)
+>   .addNode("subgraphNode1", (state) => {
+>     return { bar: "bar" };
+>   })
+>   .addNode("subgraphNode2", (state) => {
+>     return { foo: state.foo + state.bar };
+>   })
+>   .addEdge(START, "subgraphNode1")
+>   .addEdge("subgraphNode1", "subgraphNode2");
+> const subgraph = subgraphBuilder.compile();
+>
+> // Define parent graph
+> const ParentState = new StateSchema({
+>   foo: z.string(),
+> });
+>
+> const builder = new StateGraph(ParentState)
+>   .addNode("node1", (state) => {
+>     return { foo: "hi! " + state.foo };
+>   })
+>   .addNode("node2", subgraph)
+>   .addEdge(START, "node1")
+>   .addEdge("node1", "node2");
+> const graph = builder.compile();
+>
+> for await (const chunk of await graph.stream(
+>   { foo: "foo" },
+>   {
+>     streamMode: "updates",
+>     // Set subgraphs: true to stream outputs from subgraphs
+>     subgraphs: true,
+>   }
+> )) {
+>   console.log(chunk);
+> }
+> ```
+>
+> ```
+> [[], {'node1': {'foo': 'hi! foo'}}]
+> [['node2:dfddc4ba-c3c5-6887-5012-a243b5b377c2'], {'subgraphNode1': {'bar': 'bar'}}]
+> [['node2:dfddc4ba-c3c5-6887-5012-a243b5b377c2'], {'subgraphNode2': {'foo': 'hi! foobar'}}]
+> [[], {'node2': {'foo': 'hi! foobar'}}]
+> ```
+>
+> **Note** that we are receiving not just the node updates, but we also the namespaces which tell us what graph (or subgraph) we are streaming from.
 
 ### Debug
 
@@ -928,127 +924,127 @@ for await (const chunk of await graph.stream(
 }
 ```
 
-<Accordion title="Extended example: streaming arbitrary chat model">
-  ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  import { StateGraph, StateSchema, MessagesValue, GraphNode, START, LangGraphRunnableConfig } from "@langchain/langgraph";
-  import { tool } from "@langchain/core/tools";
-  import * as z from "zod";
-  import OpenAI from "openai";
-
-  const openaiClient = new OpenAI();
-  const modelName = "gpt-5.4-mini";
-
-  async function* streamTokens(modelName: string, messages: any[]) {
-    const response = await openaiClient.chat.completions.create({
-      messages,
-      model: modelName,
-      stream: true,
-    });
-
-    let role: string | null = null;
-    for await (const chunk of response) {
-      const delta = chunk.choices[0]?.delta;
-
-      if (delta?.role) {
-        role = delta.role;
-      }
-
-      if (delta?.content) {
-        yield { role, content: delta.content };
-      }
-    }
-  }
-
-  // this is our tool
-  const getItems = tool(
-    async (input, config: LangGraphRunnableConfig) => {
-      let response = "";
-      for await (const msgChunk of streamTokens(
-        modelName,
-        [
-          {
-            role: "user",
-            content: `Can you tell me what kind of items i might find in the following place: '${input.place}'. List at least 3 such items separating them by a comma. And include a brief description of each item.`,
-          },
-        ]
-      )) {
-        response += msgChunk.content;
-        config.writer?.(msgChunk);
-      }
-      return response;
-    },
-    {
-      name: "get_items",
-      description: "Use this tool to list items one might find in a place you're asked about.",
-      schema: z.object({
-        place: z.string().describe("The place to look up items for."),
-      }),
-    }
-  );
-
-  const State = new StateSchema({
-    messages: MessagesValue,
-  });
-
-  const callTool: GraphNode<typeof State> = async (state) => {
-    const aiMessage = state.messages.at(-1);
-    const toolCall = aiMessage.tool_calls?.at(-1);
-
-    const functionName = toolCall?.function?.name;
-    if (functionName !== "get_items") {
-      throw new Error(`Tool ${functionName} not supported`);
-    }
-
-    const functionArguments = toolCall?.function?.arguments;
-    const args = JSON.parse(functionArguments);
-
-    const functionResponse = await getItems.invoke(args);
-    const toolMessage = {
-      tool_call_id: toolCall.id,
-      role: "tool",
-      name: functionName,
-      content: functionResponse,
-    };
-    return { messages: [toolMessage] };
-  };
-
-  const graph = new StateGraph(State)
-    // this is the tool-calling graph node
-    .addNode("callTool", callTool)
-    .addEdge(START, "callTool")
-    .compile();
-  ```
-
-  Let's invoke the graph with an [`AIMessage`](https://reference.langchain.com/javascript/langchain-core/messages/AIMessage) that includes a tool call:
-
-  ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  const inputs = {
-    messages: [
-      {
-        content: null,
-        role: "assistant",
-        tool_calls: [
-          {
-            id: "1",
-            function: {
-              arguments: '{"place":"bedroom"}',
-              name: "get_items",
-            },
-            type: "function",
-          }
-        ],
-      }
-    ]
-  };
-
-  for await (const chunk of await graph.stream(
-    inputs,
-    { streamMode: "custom" }
-  )) {
-    console.log(chunk.content + "|");
-  }
-  ```
-</Accordion>
+> **Extended example: streaming arbitrary chat model**
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import { StateGraph, StateSchema, MessagesValue, GraphNode, START, LangGraphRunnableConfig } from "@langchain/langgraph";
+> import { tool } from "@langchain/core/tools";
+> import * as z from "zod";
+> import OpenAI from "openai";
+>
+> const openaiClient = new OpenAI();
+> const modelName = "gpt-5.4-mini";
+>
+> async function* streamTokens(modelName: string, messages: any[]) {
+>   const response = await openaiClient.chat.completions.create({
+>     messages,
+>     model: modelName,
+>     stream: true,
+>   });
+>
+>   let role: string | null = null;
+>   for await (const chunk of response) {
+>     const delta = chunk.choices[0]?.delta;
+>
+>     if (delta?.role) {
+>       role = delta.role;
+>     }
+>
+>     if (delta?.content) {
+>       yield { role, content: delta.content };
+>     }
+>   }
+> }
+>
+> // this is our tool
+> const getItems = tool(
+>   async (input, config: LangGraphRunnableConfig) => {
+>     let response = "";
+>     for await (const msgChunk of streamTokens(
+>       modelName,
+>       [
+>         {
+>           role: "user",
+>           content: `Can you tell me what kind of items i might find in the following place: '${input.place}'. List at least 3 such items separating them by a comma. And include a brief description of each item.`,
+>         },
+>       ]
+>     )) {
+>       response += msgChunk.content;
+>       config.writer?.(msgChunk);
+>     }
+>     return response;
+>   },
+>   {
+>     name: "get_items",
+>     description: "Use this tool to list items one might find in a place you're asked about.",
+>     schema: z.object({
+>       place: z.string().describe("The place to look up items for."),
+>     }),
+>   }
+> );
+>
+> const State = new StateSchema({
+>   messages: MessagesValue,
+> });
+>
+> const callTool: GraphNode<typeof State> = async (state) => {
+>   const aiMessage = state.messages.at(-1);
+>   const toolCall = aiMessage.tool_calls?.at(-1);
+>
+>   const functionName = toolCall?.function?.name;
+>   if (functionName !== "get_items") {
+>     throw new Error(`Tool ${functionName} not supported`);
+>   }
+>
+>   const functionArguments = toolCall?.function?.arguments;
+>   const args = JSON.parse(functionArguments);
+>
+>   const functionResponse = await getItems.invoke(args);
+>   const toolMessage = {
+>     tool_call_id: toolCall.id,
+>     role: "tool",
+>     name: functionName,
+>     content: functionResponse,
+>   };
+>   return { messages: [toolMessage] };
+> };
+>
+> const graph = new StateGraph(State)
+>   // this is the tool-calling graph node
+>   .addNode("callTool", callTool)
+>   .addEdge(START, "callTool")
+>   .compile();
+> ```
+>
+> Let's invoke the graph with an [`AIMessage`](https://reference.langchain.com/javascript/langchain-core/messages/AIMessage) that includes a tool call:
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> const inputs = {
+>   messages: [
+>     {
+>       content: null,
+>       role: "assistant",
+>       tool_calls: [
+>         {
+>           id: "1",
+>           function: {
+>             arguments: '{"place":"bedroom"}',
+>             name: "get_items",
+>           },
+>           type: "function",
+>         }
+>       ],
+>     }
+>   ]
+> };
+>
+> for await (const chunk of await graph.stream(
+>   inputs,
+>   { streamMode: "custom" }
+> )) {
+>   console.log(chunk.content + "|");
+> }
+> ```
 
 ### Disable streaming for specific chat models
 
@@ -1067,18 +1063,12 @@ const model = new ChatOpenAI({
 });
 ```
 
-<Note>
-  Not all chat model integrations support the `streaming` parameter. If your model doesn't support it, use `disableStreaming: true` instead. This parameter is available on all chat models via the base class.
-</Note>
+> [!NOTE]
+>
+> Not all chat model integrations support the `streaming` parameter. If your model doesn't support it, use `disableStreaming: true` instead. This parameter is available on all chat models via the base class.
 
 ***
 
-<div>
-  <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
-  </Callout>
+[Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
 
-  <Callout icon="edit">
-    [Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/streaming.mdx) or [file an issue](https://github.com/langchain-ai/docs/issues/new/choose).
-  </Callout>
-</div>
+[Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/streaming.mdx) or [file an issue](https://github.com/langchain-ai/docs/issues/new/choose).

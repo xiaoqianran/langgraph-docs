@@ -9,13 +9,13 @@
 * 工作流程具有预定的代码路径，并被设计为按特定顺序运行。
 * 代理是动态的，并定义自己的流程和工具使用。
 
-<img alt="Agent Workflow" />
+![Agent Workflow](https://mintcdn.com/langchain-5e9cc07a/-_xGPoyjhyiDWTPJ/oss/images/agent_workflow.png?fit=max\&auto=format\&n=-_xGPoyjhyiDWTPJ\&q=85\&s=c217c9ef517ee556cae3fc928a21dc55)
 
-LangGraph 在构建代理和工作流时提供了多项优势，包括 [persistence](/oss/javascript/langgraph/persistence)、[streaming](/oss/javascript/langgraph/streaming)、调试支持以及 [deployment](/oss/javascript/langgraph/deploy)。
+LangGraph 在构建代理和工作流时提供了多项优势，包括 [persistence](/oss/javascript/langgraph/persistence)、[streaming](/oss/javascript/langgraph/streaming)、调试支持以及[deployment](/oss/javascript/langgraph/deploy)。
 
-<Tip>
-  使用 [LangSmith](https://smith.langchain.com?utm_source=docs\&utm_medium=cta\&utm_campaign=langsmith-signup\&utm_content=oss-langgraph-workflows-agents) 跟踪并比较这些工作流程模式。按照[tracing quickstart](/langsmith/trace-with-langgraph)查看数据如何流经每个步骤。我们建议您还设置 [LangSmith Engine](/langsmith/engine) 来监控您的痕迹、检测问题并提出修复建议。
-</Tip>
+> [!提示]
+>
+> 使用 [LangSmith](https://smith.langchain.com?utm_source=docs\&utm_medium=cta\&utm_campaign=langsmith-signup\&utm_content=oss-langgraph-workflows-agents) 跟踪并比较这些工作流程模式。按照[tracing quickstart](/langsmith/trace-with-langgraph)查看数据如何流经每个步骤。我们建议您还设置 [LangSmith Engine](/langsmith/engine) 来监视您的痕迹、检测问题并提出修复建议。
 
 ## 设置
 
@@ -23,23 +23,21 @@ LangGraph 在构建代理和工作流时提供了多项优势，包括 [persiste
 
 1.安装依赖
 
-<CodeGroup>
-  ```bash npm theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  npm install @langchain/langgraph @langchain/core
-  ```
+```bash npm theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+npm install @langchain/langgraph @langchain/core
+```
 
-  ```bash pnpm theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  pnpm add @langchain/langgraph @langchain/core
-  ```
+```bash pnpm theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+pnpm add @langchain/langgraph @langchain/core
+```
 
-  ```bash yarn theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  yarn add @langchain/langgraph @langchain/core
-  ```
+```bash yarn theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+yarn add @langchain/langgraph @langchain/core
+```
 
-  ```bash bun theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  bun add @langchain/langgraph @langchain/core
-  ```
-</CodeGroup>
+```bash bun theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+bun add @langchain/langgraph @langchain/core
+```
 
 2. 初始化LLM：
 
@@ -56,7 +54,7 @@ const llm = new ChatAnthropic({
 
 工作流程和代理系统基于法学硕士以及您添加到其中的各种增强功能。 [Tool calling](/oss/javascript/langchain/tools)、[structured outputs](/oss/javascript/langchain/structured-output) 和 [short term memory](/oss/javascript/langchain/short-term-memory) 是根据您的需求定制法学硕士的几个选项。
 
-<img alt="LLM augmentations" />
+![LLM augmentations](https://mintcdn.com/langchain-5e9cc07a/-_xGPoyjhyiDWTPJ/oss/images/augmented_llm.png?fit=max\&auto=format\&n=-_xGPoyjhyiDWTPJ\&q=85\&s=7ea9656f46649b3ebac19e8309ae9006)
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 
@@ -109,140 +107,138 @@ console.log(msg.tool_calls);
 * 将文档翻译成不同语言
 * 验证生成内容的一致性
 
-<img alt="Prompt chaining" />
+![Prompt chaining](https://mintcdn.com/langchain-5e9cc07a/dL5Sn6Cmy9pwtY0V/oss/images/prompt_chain.png?fit=max\&auto=format\&n=dL5Sn6Cmy9pwtY0V\&q=85\&s=762dec147c31b8dc6ebb0857e236fc1f)
 
-<CodeGroup>
-  ```typescript Graph API theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  import { StateGraph, StateSchema, GraphNode, ConditionalEdgeRouter } from "@langchain/langgraph";
-  import { z } from "zod/v4";
+```typescript Graph API theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import { StateGraph, StateSchema, GraphNode, ConditionalEdgeRouter } from "@langchain/langgraph";
+import { z } from "zod/v4";
 
-  // Graph state
-  const State = new StateSchema({
-    topic: z.string(),
-    joke: z.string(),
-    improvedJoke: z.string(),
-    finalJoke: z.string(),
-  });
+// Graph state
+const State = new StateSchema({
+  topic: z.string(),
+  joke: z.string(),
+  improvedJoke: z.string(),
+  finalJoke: z.string(),
+});
 
-  // Define node functions
+// Define node functions
 
-  // First LLM call to generate initial joke
-  const generateJoke: GraphNode<typeof State> = async (state) => {
-    const msg = await llm.invoke(`Write a short joke about ${state.topic}`);
-    return { joke: msg.content };
-  };
+// First LLM call to generate initial joke
+const generateJoke: GraphNode<typeof State> = async (state) => {
+  const msg = await llm.invoke(`Write a short joke about ${state.topic}`);
+  return { joke: msg.content };
+};
 
-  // Gate function to check if the joke has a punchline
-  const checkPunchline: ConditionalEdgeRouter<{ InputSchema: typeof State; Nodes: "improveJoke" }> = (state) => {
-    // Simple check - does the joke contain "?" or "!"
-    if (state.joke?.includes("?") || state.joke?.includes("!")) {
-      return "Pass";
-    }
-    return "Fail";
-  };
+// Gate function to check if the joke has a punchline
+const checkPunchline: ConditionalEdgeRouter<{ InputSchema: typeof State; Nodes: "improveJoke" }> = (state) => {
+  // Simple check - does the joke contain "?" or "!"
+  if (state.joke?.includes("?") || state.joke?.includes("!")) {
+    return "Pass";
+  }
+  return "Fail";
+};
+
+// Second LLM call to improve the joke
+const improveJoke: GraphNode<typeof State> = async (state) => {
+  const msg = await llm.invoke(
+    `Make this joke funnier by adding wordplay: ${state.joke}`
+  );
+  return { improvedJoke: msg.content };
+};
+
+// Third LLM call for final polish
+const polishJoke: GraphNode<typeof State> = async (state) => {
+  const msg = await llm.invoke(
+    `Add a surprising twist to this joke: ${state.improvedJoke}`
+  );
+  return { finalJoke: msg.content };
+};
+
+// Build workflow
+const chain = new StateGraph(State)
+  .addNode("generateJoke", generateJoke)
+  .addNode("improveJoke", improveJoke)
+  .addNode("polishJoke", polishJoke)
+  .addEdge("__start__", "generateJoke")
+  .addConditionalEdges("generateJoke", checkPunchline, {
+    Pass: "improveJoke",
+    Fail: "__end__"
+  })
+  .addEdge("improveJoke", "polishJoke")
+  .addEdge("polishJoke", "__end__")
+  .compile();
+
+// Invoke
+const state = await chain.invoke({ topic: "cats" });
+console.log("Initial joke:");
+console.log(state.joke);
+console.log("\n--- --- ---\n");
+if (state.improvedJoke !== undefined) {
+  console.log("Improved joke:");
+  console.log(state.improvedJoke);
+  console.log("\n--- --- ---\n");
+
+  console.log("Final joke:");
+  console.log(state.finalJoke);
+} else {
+  console.log("Joke failed quality gate - no punchline detected!");
+}
+```
+
+```typescript Functional API theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import { task, entrypoint } from "@langchain/langgraph";
+
+// Tasks
+
+// First LLM call to generate initial joke
+const generateJoke = task("generateJoke", async (topic: string) => {
+  const msg = await llm.invoke(`Write a short joke about ${topic}`);
+  return msg.content;
+});
+
+// Gate function to check if the joke has a punchline
+function checkPunchline(joke: string) {
+  // Simple check - does the joke contain "?" or "!"
+  if (joke.includes("?") || joke.includes("!")) {
+    return "Pass";
+  }
+  return "Fail";
+}
 
   // Second LLM call to improve the joke
-  const improveJoke: GraphNode<typeof State> = async (state) => {
-    const msg = await llm.invoke(
-      `Make this joke funnier by adding wordplay: ${state.joke}`
-    );
-    return { improvedJoke: msg.content };
-  };
-
-  // Third LLM call for final polish
-  const polishJoke: GraphNode<typeof State> = async (state) => {
-    const msg = await llm.invoke(
-      `Add a surprising twist to this joke: ${state.improvedJoke}`
-    );
-    return { finalJoke: msg.content };
-  };
-
-  // Build workflow
-  const chain = new StateGraph(State)
-    .addNode("generateJoke", generateJoke)
-    .addNode("improveJoke", improveJoke)
-    .addNode("polishJoke", polishJoke)
-    .addEdge("__start__", "generateJoke")
-    .addConditionalEdges("generateJoke", checkPunchline, {
-      Pass: "improveJoke",
-      Fail: "__end__"
-    })
-    .addEdge("improveJoke", "polishJoke")
-    .addEdge("polishJoke", "__end__")
-    .compile();
-
-  // Invoke
-  const state = await chain.invoke({ topic: "cats" });
-  console.log("Initial joke:");
-  console.log(state.joke);
-  console.log("\n--- --- ---\n");
-  if (state.improvedJoke !== undefined) {
-    console.log("Improved joke:");
-    console.log(state.improvedJoke);
-    console.log("\n--- --- ---\n");
-
-    console.log("Final joke:");
-    console.log(state.finalJoke);
-  } else {
-    console.log("Joke failed quality gate - no punchline detected!");
-  }
-  ```
-
-  ```typescript Functional API theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  import { task, entrypoint } from "@langchain/langgraph";
-
-  // Tasks
-
-  // First LLM call to generate initial joke
-  const generateJoke = task("generateJoke", async (topic: string) => {
-    const msg = await llm.invoke(`Write a short joke about ${topic}`);
-    return msg.content;
-  });
-
-  // Gate function to check if the joke has a punchline
-  function checkPunchline(joke: string) {
-    // Simple check - does the joke contain "?" or "!"
-    if (joke.includes("?") || joke.includes("!")) {
-      return "Pass";
-    }
-    return "Fail";
-  }
-
-    // Second LLM call to improve the joke
-  const improveJoke = task("improveJoke", async (joke: string) => {
-    const msg = await llm.invoke(
-      `Make this joke funnier by adding wordplay: ${joke}`
-    );
-    return msg.content;
-  });
-
-  // Third LLM call for final polish
-  const polishJoke = task("polishJoke", async (joke: string) => {
-    const msg = await llm.invoke(
-      `Add a surprising twist to this joke: ${joke}`
-    );
-    return msg.content;
-  });
-
-  const workflow = entrypoint(
-    "jokeMaker",
-    async (topic: string) => {
-      const originalJoke = await generateJoke(topic);
-      if (checkPunchline(originalJoke) === "Pass") {
-        return originalJoke;
-      }
-      const improvedJoke = await improveJoke(originalJoke);
-      const polishedJoke = await polishJoke(improvedJoke);
-      return polishedJoke;
-    }
+const improveJoke = task("improveJoke", async (joke: string) => {
+  const msg = await llm.invoke(
+    `Make this joke funnier by adding wordplay: ${joke}`
   );
+  return msg.content;
+});
 
-  const stream = await workflow.streamEvents("cats", { version: "v3" });
-  for await (const snapshot of stream.values) {
-    console.log(snapshot);
+// Third LLM call for final polish
+const polishJoke = task("polishJoke", async (joke: string) => {
+  const msg = await llm.invoke(
+    `Add a surprising twist to this joke: ${joke}`
+  );
+  return msg.content;
+});
+
+const workflow = entrypoint(
+  "jokeMaker",
+  async (topic: string) => {
+    const originalJoke = await generateJoke(topic);
+    if (checkPunchline(originalJoke) === "Pass") {
+      return originalJoke;
+    }
+    const improvedJoke = await improveJoke(originalJoke);
+    const polishedJoke = await polishJoke(improvedJoke);
+    return polishedJoke;
   }
-  ```
-</CodeGroup>
+);
+
+const stream = await workflow.streamEvents("cats", { version: "v3" });
+for await (const snapshot of stream.values) {
+  console.log(snapshot);
+}
+```
 
 ## 并行化
 
@@ -256,337 +252,333 @@ console.log(msg.tool_calls);
 * 运行一个子任务来处理文档中的关键字，并运行第二个子任务来检查格式错误
 * 多次运行一项任务，根据不同的标准（例如引用次数、使用的来源数量以及来源的质量）对文档的准确性进行评分
 
-<img alt="parallelization.png" />
+![parallelization.png](https://mintcdn.com/langchain-5e9cc07a/dL5Sn6Cmy9pwtY0V/oss/images/parallelization.png?fit=max\&auto=format\&n=dL5Sn6Cmy9pwtY0V\&q=85\&s=8afe3c427d8cede6fed1e4b2a5107b71)
 
-<CodeGroup>
-  ```typescript Graph API theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  import { StateGraph, StateSchema, GraphNode } from "@langchain/langgraph";
-  import * as z from "zod";
+```typescript Graph API theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import { StateGraph, StateSchema, GraphNode } from "@langchain/langgraph";
+import * as z from "zod";
 
-  // Graph state
-  const State = new StateSchema({
-    topic: z.string(),
-    joke: z.string(),
-    story: z.string(),
-    poem: z.string(),
-    combinedOutput: z.string(),
-  });
+// Graph state
+const State = new StateSchema({
+  topic: z.string(),
+  joke: z.string(),
+  story: z.string(),
+  poem: z.string(),
+  combinedOutput: z.string(),
+});
 
-  // Nodes
-  // First LLM call to generate initial joke
-  const callLlm1: GraphNode<typeof State> = async (state) => {
-    const msg = await llm.invoke(`Write a joke about ${state.topic}`);
-    return { joke: msg.content };
-  };
+// Nodes
+// First LLM call to generate initial joke
+const callLlm1: GraphNode<typeof State> = async (state) => {
+  const msg = await llm.invoke(`Write a joke about ${state.topic}`);
+  return { joke: msg.content };
+};
 
-  // Second LLM call to generate story
-  const callLlm2: GraphNode<typeof State> = async (state) => {
-    const msg = await llm.invoke(`Write a story about ${state.topic}`);
-    return { story: msg.content };
-  };
+// Second LLM call to generate story
+const callLlm2: GraphNode<typeof State> = async (state) => {
+  const msg = await llm.invoke(`Write a story about ${state.topic}`);
+  return { story: msg.content };
+};
 
-  // Third LLM call to generate poem
-  const callLlm3: GraphNode<typeof State> = async (state) => {
-    const msg = await llm.invoke(`Write a poem about ${state.topic}`);
-    return { poem: msg.content };
-  };
+// Third LLM call to generate poem
+const callLlm3: GraphNode<typeof State> = async (state) => {
+  const msg = await llm.invoke(`Write a poem about ${state.topic}`);
+  return { poem: msg.content };
+};
 
-  // Combine the joke, story and poem into a single output
-  const aggregator: GraphNode<typeof State> = async (state) => {
-    const combined = `Here's a story, joke, and poem about ${state.topic}!\n\n` +
-      `STORY:\n${state.story}\n\n` +
-      `JOKE:\n${state.joke}\n\n` +
-      `POEM:\n${state.poem}`;
-    return { combinedOutput: combined };
-  };
+// Combine the joke, story and poem into a single output
+const aggregator: GraphNode<typeof State> = async (state) => {
+  const combined = `Here's a story, joke, and poem about ${state.topic}!\n\n` +
+    `STORY:\n${state.story}\n\n` +
+    `JOKE:\n${state.joke}\n\n` +
+    `POEM:\n${state.poem}`;
+  return { combinedOutput: combined };
+};
 
-  // Build workflow
-  const parallelWorkflow = new StateGraph(State)
-    .addNode("callLlm1", callLlm1)
-    .addNode("callLlm2", callLlm2)
-    .addNode("callLlm3", callLlm3)
-    .addNode("aggregator", aggregator)
-    .addEdge("__start__", "callLlm1")
-    .addEdge("__start__", "callLlm2")
-    .addEdge("__start__", "callLlm3")
-    .addEdge("callLlm1", "aggregator")
-    .addEdge("callLlm2", "aggregator")
-    .addEdge("callLlm3", "aggregator")
-    .addEdge("aggregator", "__end__")
-    .compile();
+// Build workflow
+const parallelWorkflow = new StateGraph(State)
+  .addNode("callLlm1", callLlm1)
+  .addNode("callLlm2", callLlm2)
+  .addNode("callLlm3", callLlm3)
+  .addNode("aggregator", aggregator)
+  .addEdge("__start__", "callLlm1")
+  .addEdge("__start__", "callLlm2")
+  .addEdge("__start__", "callLlm3")
+  .addEdge("callLlm1", "aggregator")
+  .addEdge("callLlm2", "aggregator")
+  .addEdge("callLlm3", "aggregator")
+  .addEdge("aggregator", "__end__")
+  .compile();
 
-  // Invoke
-  const result = await parallelWorkflow.invoke({ topic: "cats" });
-  console.log(result.combinedOutput);
-  ```
+// Invoke
+const result = await parallelWorkflow.invoke({ topic: "cats" });
+console.log(result.combinedOutput);
+```
 
-  ```typescript Functional API theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  import { task, entrypoint } from "@langchain/langgraph";
+```typescript Functional API theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import { task, entrypoint } from "@langchain/langgraph";
 
-  // Tasks
+// Tasks
 
-  // First LLM call to generate initial joke
-  const callLlm1 = task("generateJoke", async (topic: string) => {
-    const msg = await llm.invoke(`Write a joke about ${topic}`);
-    return msg.content;
-  });
+// First LLM call to generate initial joke
+const callLlm1 = task("generateJoke", async (topic: string) => {
+  const msg = await llm.invoke(`Write a joke about ${topic}`);
+  return msg.content;
+});
 
-  // Second LLM call to generate story
-  const callLlm2 = task("generateStory", async (topic: string) => {
-    const msg = await llm.invoke(`Write a story about ${topic}`);
-    return msg.content;
-  });
+// Second LLM call to generate story
+const callLlm2 = task("generateStory", async (topic: string) => {
+  const msg = await llm.invoke(`Write a story about ${topic}`);
+  return msg.content;
+});
 
-  // Third LLM call to generate poem
-  const callLlm3 = task("generatePoem", async (topic: string) => {
-    const msg = await llm.invoke(`Write a poem about ${topic}`);
-    return msg.content;
-  });
+// Third LLM call to generate poem
+const callLlm3 = task("generatePoem", async (topic: string) => {
+  const msg = await llm.invoke(`Write a poem about ${topic}`);
+  return msg.content;
+});
 
-  // Combine outputs
-  const aggregator = task("aggregator", async (params: {
-    topic: string;
-    joke: string;
-    story: string;
-    poem: string;
-  }) => {
-    const { topic, joke, story, poem } = params;
-    return `Here's a story, joke, and poem about ${topic}!\n\n` +
-      `STORY:\n${story}\n\n` +
-      `JOKE:\n${joke}\n\n` +
-      `POEM:\n${poem}`;
-  });
+// Combine outputs
+const aggregator = task("aggregator", async (params: {
+  topic: string;
+  joke: string;
+  story: string;
+  poem: string;
+}) => {
+  const { topic, joke, story, poem } = params;
+  return `Here's a story, joke, and poem about ${topic}!\n\n` +
+    `STORY:\n${story}\n\n` +
+    `JOKE:\n${joke}\n\n` +
+    `POEM:\n${poem}`;
+});
 
-  // Build workflow
-  const workflow = entrypoint(
-    "parallelWorkflow",
-    async (topic: string) => {
-      const [joke, story, poem] = await Promise.all([
-        callLlm1(topic),
-        callLlm2(topic),
-        callLlm3(topic),
-      ]);
+// Build workflow
+const workflow = entrypoint(
+  "parallelWorkflow",
+  async (topic: string) => {
+    const [joke, story, poem] = await Promise.all([
+      callLlm1(topic),
+      callLlm2(topic),
+      callLlm3(topic),
+    ]);
 
-      return aggregator({ topic, joke, story, poem });
-    }
-  );
-
-  // Invoke
-  const stream = await workflow.streamEvents("cats", { version: "v3" });
-  for await (const snapshot of stream.values) {
-    console.log(snapshot);
+    return aggregator({ topic, joke, story, poem });
   }
-  ```
-</CodeGroup>
+);
+
+// Invoke
+const stream = await workflow.streamEvents("cats", { version: "v3" });
+for await (const snapshot of stream.values) {
+  console.log(snapshot);
+}
+```
 
 ## 路由路由工作流处理输入，然后将其引导至特定于上下文的任务。这允许您为复杂任务定义专门的流程。例如，为回答产品相关问题而构建的工作流程可能首先处理问题类型，然后将请求路由到定价、退款、退货等特定流程。
 
-<img alt="routing.png" />
+![routing.png](https://mintcdn.com/langchain-5e9cc07a/dL5Sn6Cmy9pwtY0V/oss/images/routing.png?fit=max\&auto=format\&n=dL5Sn6Cmy9pwtY0V\&q=85\&s=272e0e9b681b89cd7d35d5c812c50ee6)
 
-<CodeGroup>
-  ```typescript Graph API theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  import { StateGraph, StateSchema, GraphNode, ConditionalEdgeRouter } from "@langchain/langgraph";
-  import * as z from "zod";
+```typescript Graph API theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import { StateGraph, StateSchema, GraphNode, ConditionalEdgeRouter } from "@langchain/langgraph";
+import * as z from "zod";
 
-  // Schema for structured output to use as routing logic
-  const routeSchema = z.object({
-    step: z.enum(["poem", "story", "joke"]).describe(
-      "The next step in the routing process"
-    ),
-  });
+// Schema for structured output to use as routing logic
+const routeSchema = z.object({
+  step: z.enum(["poem", "story", "joke"]).describe(
+    "The next step in the routing process"
+  ),
+});
 
-  // Augment the LLM with schema for structured output
-  const router = llm.withStructuredOutput(routeSchema);
+// Augment the LLM with schema for structured output
+const router = llm.withStructuredOutput(routeSchema);
 
-  // Graph state
-  const State = new StateSchema({
-    input: z.string(),
-    decision: z.string(),
-    output: z.string(),
-  });
+// Graph state
+const State = new StateSchema({
+  input: z.string(),
+  decision: z.string(),
+  output: z.string(),
+});
 
-  // Nodes
-  // Write a story
-  const llmCall1: GraphNode<typeof State> = async (state) => {
-    const result = await llm.invoke([{
-      role: "system",
-      content: "You are an expert storyteller.",
-    }, {
-      role: "user",
-      content: state.input
-    }]);
-    return { output: result.content };
-  };
+// Nodes
+// Write a story
+const llmCall1: GraphNode<typeof State> = async (state) => {
+  const result = await llm.invoke([{
+    role: "system",
+    content: "You are an expert storyteller.",
+  }, {
+    role: "user",
+    content: state.input
+  }]);
+  return { output: result.content };
+};
 
-  // Write a joke
-  const llmCall2: GraphNode<typeof State> = async (state) => {
-    const result = await llm.invoke([{
-      role: "system",
-      content: "You are an expert comedian.",
-    }, {
-      role: "user",
-      content: state.input
-    }]);
-    return { output: result.content };
-  };
+// Write a joke
+const llmCall2: GraphNode<typeof State> = async (state) => {
+  const result = await llm.invoke([{
+    role: "system",
+    content: "You are an expert comedian.",
+  }, {
+    role: "user",
+    content: state.input
+  }]);
+  return { output: result.content };
+};
 
-  // Write a poem
-  const llmCall3: GraphNode<typeof State> = async (state) => {
-    const result = await llm.invoke([{
-      role: "system",
-      content: "You are an expert poet.",
-    }, {
-      role: "user",
-      content: state.input
-    }]);
-    return { output: result.content };
-  };
+// Write a poem
+const llmCall3: GraphNode<typeof State> = async (state) => {
+  const result = await llm.invoke([{
+    role: "system",
+    content: "You are an expert poet.",
+  }, {
+    role: "user",
+    content: state.input
+  }]);
+  return { output: result.content };
+};
 
-  const llmCallRouter: GraphNode<typeof State> = async (state) => {
-    // Route the input to the appropriate node
-    const decision = await router.invoke([
-      {
-        role: "system",
-        content: "Route the input to story, joke, or poem based on the user's request."
-      },
-      {
-        role: "user",
-        content: state.input
-      },
-    ]);
-
-    return { decision: decision.step };
-  };
-
-  // Conditional edge function to route to the appropriate node
-  const routeDecision: ConditionalEdgeRouter<{ InputSchema: typeof State; Nodes: "llmCall1" | "llmCall2" | "llmCall3" }> = (state) => {
-    // Return the node name you want to visit next
-    if (state.decision === "story") {
-      return "llmCall1";
-    } else if (state.decision === "joke") {
-      return "llmCall2";
-    } else {
-      return "llmCall3";
-    }
-  };
-
-  // Build workflow
-  const routerWorkflow = new StateGraph(State)
-    .addNode("llmCall1", llmCall1)
-    .addNode("llmCall2", llmCall2)
-    .addNode("llmCall3", llmCall3)
-    .addNode("llmCallRouter", llmCallRouter)
-    .addEdge("__start__", "llmCallRouter")
-    .addConditionalEdges(
-      "llmCallRouter",
-      routeDecision,
-      ["llmCall1", "llmCall2", "llmCall3"],
-    )
-    .addEdge("llmCall1", "__end__")
-    .addEdge("llmCall2", "__end__")
-    .addEdge("llmCall3", "__end__")
-    .compile();
-
-  // Invoke
-  const state = await routerWorkflow.invoke({
-    input: "Write me a joke about cats"
-  });
-  console.log(state.output);
-  ```
-
-  ```typescript Functional API theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  import * as z from "zod";
-  import { task, entrypoint } from "@langchain/langgraph";
-
-  // Schema for structured output to use as routing logic
-  const routeSchema = z.object({
-    step: z.enum(["poem", "story", "joke"]).describe(
-      "The next step in the routing process"
-    ),
-  });
-
-  // Augment the LLM with schema for structured output
-  const router = llm.withStructuredOutput(routeSchema);
-
-  // Tasks
-  // Write a story
-  const llmCall1 = task("generateStory", async (input: string) => {
-    const result = await llm.invoke([{
-      role: "system",
-      content: "You are an expert storyteller.",
-    }, {
-      role: "user",
-      content: input
-    }]);
-    return result.content;
-  });
-
-  // Write a joke
-  const llmCall2 = task("generateJoke", async (input: string) => {
-    const result = await llm.invoke([{
-      role: "system",
-      content: "You are an expert comedian.",
-    }, {
-      role: "user",
-      content: input
-    }]);
-    return result.content;
-  });
-
-  // Write a poem
-  const llmCall3 = task("generatePoem", async (input: string) => {
-    const result = await llm.invoke([{
-      role: "system",
-      content: "You are an expert poet.",
-    }, {
-      role: "user",
-      content: input
-    }]);
-    return result.content;
-  });
-
+const llmCallRouter: GraphNode<typeof State> = async (state) => {
   // Route the input to the appropriate node
-  const llmCallRouter = task("router", async (input: string) => {
-    const decision = await router.invoke([
-      {
-        role: "system",
-        content: "Route the input to story, joke, or poem based on the user's request."
-      },
-      {
-        role: "user",
-        content: input
-      },
-    ]);
-    return decision.step;
-  });
+  const decision = await router.invoke([
+    {
+      role: "system",
+      content: "Route the input to story, joke, or poem based on the user's request."
+    },
+    {
+      role: "user",
+      content: state.input
+    },
+  ]);
 
-  // Build workflow
-  const workflow = entrypoint(
-    "routerWorkflow",
-    async (input: string) => {
-      const nextStep = await llmCallRouter(input);
+  return { decision: decision.step };
+};
 
-      let llmCall;
-      if (nextStep === "story") {
-        llmCall = llmCall1;
-      } else if (nextStep === "joke") {
-        llmCall = llmCall2;
-      } else if (nextStep === "poem") {
-        llmCall = llmCall3;
-      }
-
-      const finalResult = await llmCall(input);
-      return finalResult;
-    }
-  );
-
-  // Invoke
-  const stream = await workflow.streamEvents("Write me a joke about cats", { version: "v3" });
-  for await (const snapshot of stream.values) {
-    console.log(snapshot);
+// Conditional edge function to route to the appropriate node
+const routeDecision: ConditionalEdgeRouter<{ InputSchema: typeof State; Nodes: "llmCall1" | "llmCall2" | "llmCall3" }> = (state) => {
+  // Return the node name you want to visit next
+  if (state.decision === "story") {
+    return "llmCall1";
+  } else if (state.decision === "joke") {
+    return "llmCall2";
+  } else {
+    return "llmCall3";
   }
-  ```
-</CodeGroup>
+};
+
+// Build workflow
+const routerWorkflow = new StateGraph(State)
+  .addNode("llmCall1", llmCall1)
+  .addNode("llmCall2", llmCall2)
+  .addNode("llmCall3", llmCall3)
+  .addNode("llmCallRouter", llmCallRouter)
+  .addEdge("__start__", "llmCallRouter")
+  .addConditionalEdges(
+    "llmCallRouter",
+    routeDecision,
+    ["llmCall1", "llmCall2", "llmCall3"],
+  )
+  .addEdge("llmCall1", "__end__")
+  .addEdge("llmCall2", "__end__")
+  .addEdge("llmCall3", "__end__")
+  .compile();
+
+// Invoke
+const state = await routerWorkflow.invoke({
+  input: "Write me a joke about cats"
+});
+console.log(state.output);
+```
+
+```typescript Functional API theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import * as z from "zod";
+import { task, entrypoint } from "@langchain/langgraph";
+
+// Schema for structured output to use as routing logic
+const routeSchema = z.object({
+  step: z.enum(["poem", "story", "joke"]).describe(
+    "The next step in the routing process"
+  ),
+});
+
+// Augment the LLM with schema for structured output
+const router = llm.withStructuredOutput(routeSchema);
+
+// Tasks
+// Write a story
+const llmCall1 = task("generateStory", async (input: string) => {
+  const result = await llm.invoke([{
+    role: "system",
+    content: "You are an expert storyteller.",
+  }, {
+    role: "user",
+    content: input
+  }]);
+  return result.content;
+});
+
+// Write a joke
+const llmCall2 = task("generateJoke", async (input: string) => {
+  const result = await llm.invoke([{
+    role: "system",
+    content: "You are an expert comedian.",
+  }, {
+    role: "user",
+    content: input
+  }]);
+  return result.content;
+});
+
+// Write a poem
+const llmCall3 = task("generatePoem", async (input: string) => {
+  const result = await llm.invoke([{
+    role: "system",
+    content: "You are an expert poet.",
+  }, {
+    role: "user",
+    content: input
+  }]);
+  return result.content;
+});
+
+// Route the input to the appropriate node
+const llmCallRouter = task("router", async (input: string) => {
+  const decision = await router.invoke([
+    {
+      role: "system",
+      content: "Route the input to story, joke, or poem based on the user's request."
+    },
+    {
+      role: "user",
+      content: input
+    },
+  ]);
+  return decision.step;
+});
+
+// Build workflow
+const workflow = entrypoint(
+  "routerWorkflow",
+  async (input: string) => {
+    const nextStep = await llmCallRouter(input);
+
+    let llmCall;
+    if (nextStep === "story") {
+      llmCall = llmCall1;
+    } else if (nextStep === "joke") {
+      llmCall = llmCall2;
+    } else if (nextStep === "poem") {
+      llmCall = llmCall3;
+    }
+
+    const finalResult = await llmCall(input);
+    return finalResult;
+  }
+);
+
+// Invoke
+const stream = await workflow.streamEvents("Write me a joke about cats", { version: "v3" });
+for await (const snapshot of stream.values) {
+  console.log(snapshot);
+}
+```
 
 ## 协调者-工作者
 
@@ -596,97 +588,95 @@ console.log(msg.tool_calls);
 * 将子任务委派给工人
 * 将worker的输出综合成最终结果
 
-<img alt="worker.png" />
+![worker.png](https://mintcdn.com/langchain-5e9cc07a/ybiAaBfoBvFquMDz/oss/images/worker.png?fit=max\&auto=format\&n=ybiAaBfoBvFquMDz\&q=85\&s=2e423c67cd4f12e049cea9c169ff0676)
 
 Orchestrator-worker 工作流程提供了更大的灵活性，并且通常在无法像使用 [parallelization](#parallelization) 那样预定义子任务时使用。这对于编写代码或需要跨多个文件更新内容的工作流程很常见。例如，需要跨未知数量的文档更新多个 Python 库的安装说明的工作流可能会使用此模式。
 
-<CodeGroup>
-  ```typescript Graph API theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+```typescript Graph API theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 
-  type SectionSchema = {
-      name: string;
-      description: string;
+type SectionSchema = {
+    name: string;
+    description: string;
+}
+type SectionsSchema = {
+    sections: SectionSchema[];
+}
+
+// Augment the LLM with schema for structured output
+const planner = llm.withStructuredOutput(sectionsSchema);
+```
+
+```typescript Functional API theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import * as z from "zod";
+import { task, entrypoint } from "@langchain/langgraph";
+
+// Schema for structured output to use in planning
+const sectionSchema = z.object({
+  name: z.string().describe("Name for this section of the report."),
+  description: z.string().describe(
+    "Brief overview of the main topics and concepts to be covered in this section."
+  ),
+});
+
+const sectionsSchema = z.object({
+  sections: z.array(sectionSchema).describe("Sections of the report."),
+});
+
+// Augment the LLM with schema for structured output
+const planner = llm.withStructuredOutput(sectionsSchema);
+
+// Tasks
+const orchestrator = task("orchestrator", async (topic: string) => {
+  // Generate queries
+  const reportSections = await planner.invoke([
+    { role: "system", content: "Generate a plan for the report." },
+    { role: "user", content: `Here is the report topic: ${topic}` },
+  ]);
+
+  return reportSections.sections;
+});
+
+const llmCall = task("sectionWriter", async (section: z.infer<typeof sectionSchema>) => {
+  // Generate section
+  const result = await llm.invoke([
+    {
+      role: "system",
+      content: "Write a report section.",
+    },
+    {
+      role: "user",
+      content: `Here is the section name: ${section.name} and description: ${section.description}`,
+    },
+  ]);
+
+  return result.content;
+});
+
+const synthesizer = task("synthesizer", async (completedSections: string[]) => {
+  // Synthesize full report from sections
+  return completedSections.join("\n\n---\n\n");
+});
+
+// Build workflow
+const workflow = entrypoint(
+  "orchestratorWorker",
+  async (topic: string) => {
+    const sections = await orchestrator(topic);
+    const completedSections = await Promise.all(
+      sections.map((section) => llmCall(section))
+    );
+    return synthesizer(completedSections);
   }
-  type SectionsSchema = {
-      sections: SectionSchema[];
-  }
+);
 
-  // Augment the LLM with schema for structured output
-  const planner = llm.withStructuredOutput(sectionsSchema);
-  ```
+// Invoke
+const stream = await workflow.streamEvents("Create a report on LLM scaling laws", { version: "v3" });
+for await (const snapshot of stream.values) {
+  console.log(snapshot);
+}
+```
 
-  ```typescript Functional API theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  import * as z from "zod";
-  import { task, entrypoint } from "@langchain/langgraph";
-
-  // Schema for structured output to use in planning
-  const sectionSchema = z.object({
-    name: z.string().describe("Name for this section of the report."),
-    description: z.string().describe(
-      "Brief overview of the main topics and concepts to be covered in this section."
-    ),
-  });
-
-  const sectionsSchema = z.object({
-    sections: z.array(sectionSchema).describe("Sections of the report."),
-  });
-
-  // Augment the LLM with schema for structured output
-  const planner = llm.withStructuredOutput(sectionsSchema);
-
-  // Tasks
-  const orchestrator = task("orchestrator", async (topic: string) => {
-    // Generate queries
-    const reportSections = await planner.invoke([
-      { role: "system", content: "Generate a plan for the report." },
-      { role: "user", content: `Here is the report topic: ${topic}` },
-    ]);
-
-    return reportSections.sections;
-  });
-
-  const llmCall = task("sectionWriter", async (section: z.infer<typeof sectionSchema>) => {
-    // Generate section
-    const result = await llm.invoke([
-      {
-        role: "system",
-        content: "Write a report section.",
-      },
-      {
-        role: "user",
-        content: `Here is the section name: ${section.name} and description: ${section.description}`,
-      },
-    ]);
-
-    return result.content;
-  });
-
-  const synthesizer = task("synthesizer", async (completedSections: string[]) => {
-    // Synthesize full report from sections
-    return completedSections.join("\n\n---\n\n");
-  });
-
-  // Build workflow
-  const workflow = entrypoint(
-    "orchestratorWorker",
-    async (topic: string) => {
-      const sections = await orchestrator(topic);
-      const completedSections = await Promise.all(
-        sections.map((section) => llmCall(section))
-      );
-      return synthesizer(completedSections);
-    }
-  );
-
-  // Invoke
-  const stream = await workflow.streamEvents("Create a report on LLM scaling laws", { version: "v3" });
-  for await (const snapshot of stream.values) {
-    console.log(snapshot);
-  }
-  ```
-</CodeGroup>
-
-### 在LangGraph创建工人Orchestrator-worker 工作流程很常见，LangGraph 内置了对它们的支持。 `Send` API 允许您动态创建工作节点并向它们发送特定输入。每个工作人员都有自己的状态，所有工作人员输出都写入编排器图可访问的共享状态键。这使协调器可以访问所有工作人员输出，并允许将它们合成为最终输出。下面的示例迭代部分列表，并使用 `Send` API 将部分发送给每个工作人员。
+### 在LangGraph中创建工人Orchestrator-worker 工作流程很常见，LangGraph 内置了对它们的支持。 `Send` API 允许您动态创建工作节点并向它们发送特定输入。每个工作人员都有自己的状态，所有工作人员输出都写入编排器图可访问的共享状态键。这使协调器可以访问所有工作输出，并允许将它们合成为最终输出。下面的示例迭代部分列表，并使用 `Send` API 将部分发送给每个工作人员。
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { StateGraph, StateSchema, ReducedValue, GraphNode, Send } from "@langchain/langgraph";
@@ -786,158 +776,156 @@ console.log(state.finalReport);
 
 当任务有特定的成功标准，但需要迭代才能满足该标准时，通常会使用评估器-优化器工作流程。例如，在两种语言之间翻译文本时并不总是存在完美匹配。可能需要几次迭代才能生成两种语言具有相同含义的翻译。
 
-<img alt="evaluator_optimizer.png" /><CodeGroup>
-  ```typescript Graph API theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  import { StateGraph, StateSchema, GraphNode, ConditionalEdgeRouter } from "@langchain/langgraph";
-  import * as z from "zod";
+![evaluator\_optimizer.png](https://mintcdn.com/langchain-5e9cc07a/-_xGPoyjhyiDWTPJ/oss/images/evaluator_optimizer.png?fit=max\&auto=format\&n=-_xGPoyjhyiDWTPJ\&q=85\&s=9bd0474f42b6040b14ed6968a9ab4e3c)```typescript Graph API theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import { StateGraph, StateSchema, GraphNode, ConditionalEdgeRouter } from "@langchain/langgraph";
+import * as z from "zod";
 
-  // Graph state
-  const State = new StateSchema({
-    joke: z.string(),
-    topic: z.string(),
-    feedback: z.string(),
-    funnyOrNot: z.string(),
-  });
+// Graph state
+const State = new StateSchema({
+  joke: z.string(),
+  topic: z.string(),
+  feedback: z.string(),
+  funnyOrNot: z.string(),
+});
 
-  // Schema for structured output to use in evaluation
-  const feedbackSchema = z.object({
-    grade: z.enum(["funny", "not funny"]).describe(
-      "Decide if the joke is funny or not."
-    ),
-    feedback: z.string().describe(
-      "If the joke is not funny, provide feedback on how to improve it."
-    ),
-  });
+// Schema for structured output to use in evaluation
+const feedbackSchema = z.object({
+  grade: z.enum(["funny", "not funny"]).describe(
+    "Decide if the joke is funny or not."
+  ),
+  feedback: z.string().describe(
+    "If the joke is not funny, provide feedback on how to improve it."
+  ),
+});
 
-  // Augment the LLM with schema for structured output
-  const evaluator = llm.withStructuredOutput(feedbackSchema);
+// Augment the LLM with schema for structured output
+const evaluator = llm.withStructuredOutput(feedbackSchema);
 
-  // Nodes
-  const llmCallGenerator: GraphNode<typeof State> = async (state) => {
-    // LLM generates a joke
-    let msg;
-    if (state.feedback) {
-      msg = await llm.invoke(
-        `Write a joke about ${state.topic} but take into account the feedback: ${state.feedback}`
-      );
-    } else {
-      msg = await llm.invoke(`Write a joke about ${state.topic}`);
-    }
-    return { joke: msg.content };
-  };
-
-  const llmCallEvaluator: GraphNode<typeof State> = async (state) => {
-    // LLM evaluates the joke
-    const grade = await evaluator.invoke(`Grade the joke ${state.joke}`);
-    return { funnyOrNot: grade.grade, feedback: grade.feedback };
-  };
-
-  // Conditional edge function to route back to joke generator or end based upon feedback from the evaluator
-  const routeJoke: ConditionalEdgeRouter<{ InputSchema: typeof State; Nodes: "llmCallGenerator" }> = (state) => {
-    // Route back to joke generator or end based upon feedback from the evaluator
-    if (state.funnyOrNot === "funny") {
-      return "Accepted";
-    } else {
-      return "Rejected + Feedback";
-    }
-  };
-
-  // Build workflow
-  const optimizerWorkflow = new StateGraph(State)
-    .addNode("llmCallGenerator", llmCallGenerator)
-    .addNode("llmCallEvaluator", llmCallEvaluator)
-    .addEdge("__start__", "llmCallGenerator")
-    .addEdge("llmCallGenerator", "llmCallEvaluator")
-    .addConditionalEdges(
-      "llmCallEvaluator",
-      routeJoke,
-      {
-        // Name returned by routeJoke : Name of next node to visit
-        "Accepted": "__end__",
-        "Rejected + Feedback": "llmCallGenerator",
-      }
-    )
-    .compile();
-
-  // Invoke
-  const state = await optimizerWorkflow.invoke({ topic: "Cats" });
-  console.log(state.joke);
-  ```
-
-  ```typescript Functional API theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  import * as z from "zod";
-  import { task, entrypoint } from "@langchain/langgraph";
-
-  // Schema for structured output to use in evaluation
-  const feedbackSchema = z.object({
-    grade: z.enum(["funny", "not funny"]).describe(
-      "Decide if the joke is funny or not."
-    ),
-    feedback: z.string().describe(
-      "If the joke is not funny, provide feedback on how to improve it."
-    ),
-  });
-
-  // Augment the LLM with schema for structured output
-  const evaluator = llm.withStructuredOutput(feedbackSchema);
-
-  // Tasks
-  const llmCallGenerator = task("jokeGenerator", async (params: {
-    topic: string;
-    feedback?: z.infer<typeof feedbackSchema>;
-  }) => {
-    // LLM generates a joke
-    const msg = params.feedback
-      ? await llm.invoke(
-          `Write a joke about ${params.topic} but take into account the feedback: ${params.feedback.feedback}`
-        )
-      : await llm.invoke(`Write a joke about ${params.topic}`);
-    return msg.content;
-  });
-
-  const llmCallEvaluator = task("jokeEvaluator", async (joke: string) => {
-    // LLM evaluates the joke
-    return evaluator.invoke(`Grade the joke ${joke}`);
-  });
-
-  // Build workflow
-  const workflow = entrypoint(
-    "optimizerWorkflow",
-    async (topic: string) => {
-      let feedback: z.infer<typeof feedbackSchema> | undefined;
-      let joke: string;
-
-      while (true) {
-        joke = await llmCallGenerator({ topic, feedback });
-        feedback = await llmCallEvaluator(joke);
-
-        if (feedback.grade === "funny") {
-          break;
-        }
-      }
-
-      return joke;
-    }
-  );
-
-  // Invoke
-  const stream = await workflow.streamEvents("Cats", { version: "v3" });
-  for await (const snapshot of stream.values) {
-    console.log(snapshot);
-    console.log("\n");
+// Nodes
+const llmCallGenerator: GraphNode<typeof State> = async (state) => {
+  // LLM generates a joke
+  let msg;
+  if (state.feedback) {
+    msg = await llm.invoke(
+      `Write a joke about ${state.topic} but take into account the feedback: ${state.feedback}`
+    );
+  } else {
+    msg = await llm.invoke(`Write a joke about ${state.topic}`);
   }
-  ```
-</CodeGroup>
+  return { joke: msg.content };
+};
+
+const llmCallEvaluator: GraphNode<typeof State> = async (state) => {
+  // LLM evaluates the joke
+  const grade = await evaluator.invoke(`Grade the joke ${state.joke}`);
+  return { funnyOrNot: grade.grade, feedback: grade.feedback };
+};
+
+// Conditional edge function to route back to joke generator or end based upon feedback from the evaluator
+const routeJoke: ConditionalEdgeRouter<{ InputSchema: typeof State; Nodes: "llmCallGenerator" }> = (state) => {
+  // Route back to joke generator or end based upon feedback from the evaluator
+  if (state.funnyOrNot === "funny") {
+    return "Accepted";
+  } else {
+    return "Rejected + Feedback";
+  }
+};
+
+// Build workflow
+const optimizerWorkflow = new StateGraph(State)
+  .addNode("llmCallGenerator", llmCallGenerator)
+  .addNode("llmCallEvaluator", llmCallEvaluator)
+  .addEdge("__start__", "llmCallGenerator")
+  .addEdge("llmCallGenerator", "llmCallEvaluator")
+  .addConditionalEdges(
+    "llmCallEvaluator",
+    routeJoke,
+    {
+      // Name returned by routeJoke : Name of next node to visit
+      "Accepted": "__end__",
+      "Rejected + Feedback": "llmCallGenerator",
+    }
+  )
+  .compile();
+
+// Invoke
+const state = await optimizerWorkflow.invoke({ topic: "Cats" });
+console.log(state.joke);
+```
+
+```typescript Functional API theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import * as z from "zod";
+import { task, entrypoint } from "@langchain/langgraph";
+
+// Schema for structured output to use in evaluation
+const feedbackSchema = z.object({
+  grade: z.enum(["funny", "not funny"]).describe(
+    "Decide if the joke is funny or not."
+  ),
+  feedback: z.string().describe(
+    "If the joke is not funny, provide feedback on how to improve it."
+  ),
+});
+
+// Augment the LLM with schema for structured output
+const evaluator = llm.withStructuredOutput(feedbackSchema);
+
+// Tasks
+const llmCallGenerator = task("jokeGenerator", async (params: {
+  topic: string;
+  feedback?: z.infer<typeof feedbackSchema>;
+}) => {
+  // LLM generates a joke
+  const msg = params.feedback
+    ? await llm.invoke(
+        `Write a joke about ${params.topic} but take into account the feedback: ${params.feedback.feedback}`
+      )
+    : await llm.invoke(`Write a joke about ${params.topic}`);
+  return msg.content;
+});
+
+const llmCallEvaluator = task("jokeEvaluator", async (joke: string) => {
+  // LLM evaluates the joke
+  return evaluator.invoke(`Grade the joke ${joke}`);
+});
+
+// Build workflow
+const workflow = entrypoint(
+  "optimizerWorkflow",
+  async (topic: string) => {
+    let feedback: z.infer<typeof feedbackSchema> | undefined;
+    let joke: string;
+
+    while (true) {
+      joke = await llmCallGenerator({ topic, feedback });
+      feedback = await llmCallEvaluator(joke);
+
+      if (feedback.grade === "funny") {
+        break;
+      }
+    }
+
+    return joke;
+  }
+);
+
+// Invoke
+const stream = await workflow.streamEvents("Cats", { version: "v3" });
+for await (const snapshot of stream.values) {
+  console.log(snapshot);
+  console.log("\n");
+}
+```
 
 ## 代理
 
 代理通常被实现为使用 [tools](/oss/javascript/langchain/tools) 执行操作的 LLM。它们在连续反馈循环中运行，并用于问题和解决方案不可预测的情况。代理比工作流程拥有更多的自主权，可以决定他们使用的工具以及如何解决问题。您仍然可以定义可用的工具集和代理行为准则。
 
-<img alt="agent.png" />
+![agent.png](https://mintcdn.com/langchain-5e9cc07a/-_xGPoyjhyiDWTPJ/oss/images/agent.png?fit=max\&auto=format\&n=-_xGPoyjhyiDWTPJ\&q=85\&s=bd8da41dbf8b5e6fc9ea6bb10cb63e38)
 
-<Note>
-  要开始使用代理，请参阅[quickstart](/oss/javascript/langchain/quickstart)或在LangChain中阅读有关[how they work](/oss/javascript/langchain/agents)的更多信息。
-</Note>
+> [!注意]
+>
+> 要开始使用代理，请参阅 [quickstart](/oss/javascript/langchain/quickstart) 或在 LangChain 中阅读有关 [how they work](/oss/javascript/langchain/agents) 的更多信息。
 
 ```typescript Using tools theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { tool } from "@langchain/core/tools";
@@ -992,131 +980,129 @@ const toolsByName = Object.fromEntries(tools.map((tool) => [tool.name, tool]));
 const llmWithTools = llm.bindTools(tools);
 ```
 
-<CodeGroup>
-  ```typescript Graph API theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  import { StateGraph, StateSchema, MessagesValue, GraphNode, ConditionalEdgeRouter } from "@langchain/langgraph";
-  import { ToolNode } from "@langchain/langgraph/prebuilt";
-  import {
-    SystemMessage,
-    ToolMessage
-  } from "@langchain/core/messages";
+```typescript Graph API theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import { StateGraph, StateSchema, MessagesValue, GraphNode, ConditionalEdgeRouter } from "@langchain/langgraph";
+import { ToolNode } from "@langchain/langgraph/prebuilt";
+import {
+  SystemMessage,
+  ToolMessage
+} from "@langchain/core/messages";
 
-  // Graph state
-  const State = new StateSchema({
-    messages: MessagesValue,
-  });
+// Graph state
+const State = new StateSchema({
+  messages: MessagesValue,
+});
 
-  // Nodes
-  const llmCall: GraphNode<typeof State> = async (state) => {
-    // LLM decides whether to call a tool or not
-    const result = await llmWithTools.invoke([
-      {
-        role: "system",
-        content: "You are a helpful assistant tasked with performing arithmetic on a set of inputs."
-      },
-      ...state.messages
-    ]);
+// Nodes
+const llmCall: GraphNode<typeof State> = async (state) => {
+  // LLM decides whether to call a tool or not
+  const result = await llmWithTools.invoke([
+    {
+      role: "system",
+      content: "You are a helpful assistant tasked with performing arithmetic on a set of inputs."
+    },
+    ...state.messages
+  ]);
 
-    return {
-      messages: [result]
-    };
+  return {
+    messages: [result]
   };
+};
 
-  const toolNode = new ToolNode(tools);
+const toolNode = new ToolNode(tools);
 
-  // Conditional edge function to route to the tool node or end
-  const shouldContinue: ConditionalEdgeRouter<{ InputSchema: typeof State; Nodes: "toolNode" }> = (state) => {
-    const messages = state.messages;
-    const lastMessage = messages.at(-1);
+// Conditional edge function to route to the tool node or end
+const shouldContinue: ConditionalEdgeRouter<{ InputSchema: typeof State; Nodes: "toolNode" }> = (state) => {
+  const messages = state.messages;
+  const lastMessage = messages.at(-1);
 
-    // If the LLM makes a tool call, then perform an action
-    if (lastMessage?.tool_calls?.length) {
-      return "toolNode";
-    }
-    // Otherwise, we stop (reply to the user)
-    return "__end__";
-  };
+  // If the LLM makes a tool call, then perform an action
+  if (lastMessage?.tool_calls?.length) {
+    return "toolNode";
+  }
+  // Otherwise, we stop (reply to the user)
+  return "__end__";
+};
 
-  // Build workflow
-  const agentBuilder = new StateGraph(State)
-    .addNode("llmCall", llmCall)
-    .addNode("toolNode", toolNode)
-    // Add edges to connect nodes
-    .addEdge("__start__", "llmCall")
-    .addConditionalEdges(
-      "llmCall",
-      shouldContinue,
-      ["toolNode", "__end__"]
-    )
-    .addEdge("toolNode", "llmCall")
-    .compile();
+// Build workflow
+const agentBuilder = new StateGraph(State)
+  .addNode("llmCall", llmCall)
+  .addNode("toolNode", toolNode)
+  // Add edges to connect nodes
+  .addEdge("__start__", "llmCall")
+  .addConditionalEdges(
+    "llmCall",
+    shouldContinue,
+    ["toolNode", "__end__"]
+  )
+  .addEdge("toolNode", "llmCall")
+  .compile();
 
-  // Invoke
-  const messages = [{
-    role: "user",
-    content: "Add 3 and 4."
-  }];
-  const result = await agentBuilder.invoke({ messages });
-  console.log(result.messages);
-  ```
+// Invoke
+const messages = [{
+  role: "user",
+  content: "Add 3 and 4."
+}];
+const result = await agentBuilder.invoke({ messages });
+console.log(result.messages);
+```
 
-  ```typescript Functional API theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  import { task, entrypoint, addMessages } from "@langchain/langgraph";
-  import { BaseMessageLike, ToolCall } from "@langchain/core/messages";
+```typescript Functional API theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import { task, entrypoint, addMessages } from "@langchain/langgraph";
+import { BaseMessageLike, ToolCall } from "@langchain/core/messages";
 
-  const callLlm = task("llmCall", async (messages: BaseMessageLike[]) => {
-    // LLM decides whether to call a tool or not
-    return llmWithTools.invoke([
-      {
-        role: "system",
-        content: "You are a helpful assistant tasked with performing arithmetic on a set of inputs."
-      },
-      ...messages
-    ]);
-  });
+const callLlm = task("llmCall", async (messages: BaseMessageLike[]) => {
+  // LLM decides whether to call a tool or not
+  return llmWithTools.invoke([
+    {
+      role: "system",
+      content: "You are a helpful assistant tasked with performing arithmetic on a set of inputs."
+    },
+    ...messages
+  ]);
+});
 
-  const callTool = task("toolCall", async (toolCall: ToolCall) => {
-    // Performs the tool call
-    const tool = toolsByName[toolCall.name];
-    return tool.invoke(toolCall.args);
-  });
+const callTool = task("toolCall", async (toolCall: ToolCall) => {
+  // Performs the tool call
+  const tool = toolsByName[toolCall.name];
+  return tool.invoke(toolCall.args);
+});
 
-  const agent = entrypoint(
-    "agent",
-    async (messages) => {
-      let llmResponse = await callLlm(messages);
+const agent = entrypoint(
+  "agent",
+  async (messages) => {
+    let llmResponse = await callLlm(messages);
 
-      while (true) {
-        if (!llmResponse.tool_calls?.length) {
-          break;
-        }
-
-        // Execute tools
-        const toolResults = await Promise.all(
-          llmResponse.tool_calls.map((toolCall) => callTool(toolCall))
-        );
-
-        messages = addMessages(messages, [llmResponse, ...toolResults]);
-        llmResponse = await callLlm(messages);
+    while (true) {
+      if (!llmResponse.tool_calls?.length) {
+        break;
       }
 
-      messages = addMessages(messages, [llmResponse]);
-      return messages;
+      // Execute tools
+      const toolResults = await Promise.all(
+        llmResponse.tool_calls.map((toolCall) => callTool(toolCall))
+      );
+
+      messages = addMessages(messages, [llmResponse, ...toolResults]);
+      llmResponse = await callLlm(messages);
     }
-  );
 
-  // Invoke
-  const messages = [{
-    role: "user",
-    content: "Add 3 and 4."
-  }];
-
-  const stream = await agent.streamEvents([messages], { version: "v3" });
-  for await (const snapshot of stream.values) {
-    console.log(snapshot);
+    messages = addMessages(messages, [llmResponse]);
+    return messages;
   }
-  ```
-</CodeGroup>
+);
+
+// Invoke
+const messages = [{
+  role: "user",
+  content: "Add 3 and 4."
+}];
+
+const stream = await agent.streamEvents([messages], { version: "v3" });
+for await (const snapshot of stream.values) {
+  console.log(snapshot);
+}
+```
 
 ### 工具节点
 
@@ -1152,22 +1138,22 @@ const toolNode = new ToolNode([search, calculator]);
 
 #### 从工具访问图形状态和上下文
 
-由`ToolNode`执行的工具接收模型生成的参数：
+由`ToolNode`执行的工具接收模型生成的参数，如下所示
 他们的第一个论点。读取不是由生成的图端数据
 模型，使用以下选项之一：* 在Python中，从注入的状态和运行范围的上下文中读取
   [⟦T27⟧](https://reference.langchain.com/javascript/langchain/index/Runtime) 论证。
 * 在 JavaScript 中，从工具的第二个读取状态和运行范围上下文
   参数，类型为 [⟦T28⟧](https://reference.langchain.com/javascript/langchain/index/Runtime)。
 
-<Note>
-  工具只能访问传递给`ToolNode`的状态值。当
-  `ToolNode`直接添加为`StateGraph`节点，输入为当前
-  图状态。如果您从另一个节点手动调用 `ToolNode`，请传递
-  当工具需要自定义状态字段时的完整状态。例如，`tool_node.invoke(state)`
-  或 `toolNode.invoke(state, config)` 公开完整状态，同时仅传递
-  `{"messages": state["messages"]}`或`{ messages: state.messages }`仅暴露
-  `messages`。
-</Note>
+> [!注意]
+>
+> 工具只能访问传递给`ToolNode` 的状态值。当
+> `ToolNode` 直接添加为 `StateGraph` 节点，输入为当前
+> 图形状态。如果您从另一个节点手动调用 `ToolNode`，请传递
+> 当工具需要自定义状态字段时的完整状态。例如，`tool_node.invoke(state)`
+> 或 `toolNode.invoke(state, config)` 公开完整状态，同时仅传递
+> `{"messages": state["messages"]}` 或 `{ messages: state.messages }` 仅暴露
+> `messages`。
 
 ```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { AIMessage } from "@langchain/core/messages";
@@ -1239,18 +1225,12 @@ const result = await graph.invoke(
 );
 ```
 
-<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/f9a855a9-4897-4c50-ab4f-8c7db93b1894/r">
-  为此示例打开公共 LangSmith 运行。
-</Card>
+> **[View example trace](https://smith.langchain.com/public/f9a855a9-4897-4c50-ab4f-8c7db93b1894/r)**
+>
+> 为此示例打开公共 LangSmith 运行。
 
 ***
 
-<div>
-  <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
-  </Callout>
+[Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
 
-  <Callout icon="edit">
-    [Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/workflows-agents.mdx) 或 [file an issue](https://github.com/langchain-ai/docs/issues/new/choose)。
-  </Callout>
-</div>
+[Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/workflows-agents.mdx) 或 [file an issue](https://github.com/langchain-ai/docs/issues/new/choose)。

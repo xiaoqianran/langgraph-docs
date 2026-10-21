@@ -8,13 +8,11 @@
 
 代理聊天 UI 是开源的，可以根据您的应用程序需求进行调整。
 
-<Frame>
-  <iframe title="Agent Chat UI" />
-</Frame>
+[Agent Chat UI](https://www.youtube.com/embed/lInrwVnZ83o?si=Uw66mPtCERJm0EjU)
 
-<Tip>
-  您可以在代理聊天 UI 中使用生成 UI。欲了解更多信息，请参阅[Implement generative user interfaces with LangGraph](/langsmith/generative-ui-react)。
-</Tip>
+> [!提示]
+>
+> 您可以在代理聊天 UI 中使用生成 UI。有关更多信息，请参阅[Implement generative user interfaces with LangGraph](/langsmith/generative-ui-react)。
 
 ### 快速开始
 
@@ -28,50 +26,42 @@
 
 对于自定义或本地开发，您可以在本地运行代理聊天 UI：
 
-<CodeGroup>
-  ```bash Use npx theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  # Create a new Agent Chat UI project
-  npx create-agent-chat-app --project-name my-chat-ui
-  cd my-chat-ui
+```bash Use npx theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+# Create a new Agent Chat UI project
+npx create-agent-chat-app --project-name my-chat-ui
+cd my-chat-ui
 
-  # Install dependencies and start
-  pnpm install
-  pnpm dev
-  ```
+# Install dependencies and start
+pnpm install
+pnpm dev
+```
 
-  ```bash Clone repository theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  # Clone the repository
-  git clone https://github.com/langchain-ai/agent-chat-ui.git
-  cd agent-chat-ui
+```bash Clone repository theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+# Clone the repository
+git clone https://github.com/langchain-ai/agent-chat-ui.git
+cd agent-chat-ui
 
-  # Install dependencies and start
-  pnpm install
-  pnpm dev
-  ```
-</CodeGroup>
+# Install dependencies and start
+pnpm install
+pnpm dev
+```
 
 ### 连接到您的代理
 
-代理聊天 UI 可以连接到 [local](/oss/python/langgraph/studio#set-up-local-agent-server) 和 [deployed agents](/oss/python/langgraph/deploy)。启动代理聊天 UI 后，您需要将其配置为连接到您的代理：
+代理聊天 UI 可以连接到 [local](/oss/python/langgraph/studio#set-up-local-agent-server) 和 [deployed agents](/oss/python/langgraph/deploy)。
 
-1. **图表 ID**：输入您的图表名称（可在 `langgraph.json` 文件中的 `graphs` 下找到）
+启动代理聊天 UI 后，您需要将其配置为连接到您的代理：1. **图表 ID**：输入您的图表名称（可在 `langgraph.json` 文件中的 `graphs` 下找到）
 2. **部署 URL**：您的代理服务器的端点（例如，用于本地开发的`http://localhost:2024`，或您部署的代理的 URL）
 3. **LangSmith API 密钥（可选）**：添加您的 LangSmith API 密钥（如果您使用本地代理服务器则不需要）
 
 配置完成后，代理聊天 UI 将自动获取并显示代理中任何中断的线程。
 
-<Tip>
-  代理聊天 UI 对呈现工具调用和工具结果消息提供开箱即用的支持。要自定义显示的消息，请参阅[Hiding Messages in the Chat](https://github.com/langchain-ai/agent-chat-ui?tab=readme-ov-file#hiding-messages-in-the-chat)。
-</Tip>
+> [!提示]
+>
+> 代理聊天 UI 对呈现工具调用和工具结果消息提供开箱即用的支持。要自定义显示的消息，请参阅[Hiding Messages in the Chat](https://github.com/langchain-ai/agent-chat-ui?tab=readme-ov-file#hiding-messages-in-the-chat)。
 
 ***
 
-<div>
-  <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
-  </Callout>
+[Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
 
-  <Callout icon="edit">
-    [Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/ui.mdx) 或 [file an issue](https://github.com/langchain-ai/docs/issues/new/choose)。
-  </Callout>
-</div>
+[Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/ui.mdx) 或 [file an issue](https://github.com/langchain-ai/docs/issues/new/choose)。

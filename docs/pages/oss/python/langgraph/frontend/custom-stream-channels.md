@@ -15,8 +15,6 @@ The example below is a customer-support agent whose transformer redacts PII
 reaches the browser, and publishes running redaction counts on a
 `redaction-stats` channel. The side panel renders those counts live.
 
-<PatternEmbed />
-
 ## How custom channels work
 
 A custom channel has two ends. On the server, a [`StreamTransformer`](https://reference.langchain.com/python/langgraph/stream/_types/StreamTransformer) opens a
@@ -32,9 +30,9 @@ The client-side selectors (`useExtension`, `useChannel`) ship with the v1
 frontend SDK packages (`@langchain/react`, `@langchain/vue`,
 `@langchain/svelte`, `@langchain/angular`).
 
-<Note>
-  Stream transformers and `StreamChannel` require `langgraph>=1.2`.
-</Note>
+> [!NOTE]
+>
+> Stream transformers and `StreamChannel` require `langgraph>=1.2`.
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import time
@@ -105,29 +103,45 @@ type RedactionStatsEvent = {
 Wire up [`useStream`](https://reference.langchain.com/javascript/langchain-react/index/useStream) as usual. The custom-channel selectors take the same
 `stream` handle returned here.
 
-<Info>
-  The code examples use `useStream<typeof myAgent>` for type-safe stream state. See Type inference for [Python](/oss/python/langchain/frontend/overview#type-inference) or [JavaScript](/oss/javascript/langchain/frontend/overview#type-inference) backends.
-</Info>
+> [!NOTE]
+>
+> The code examples use `useStream<typeof myAgent>` for type-safe stream state. See Type inference for [Python](/oss/python/langchain/frontend/overview#type-inference) or [JavaScript](/oss/javascript/langchain/frontend/overview#type-inference) backends.
 
-<CodeGroup>
-  ```tsx React theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  import { useStream } from "@langchain/react";
+```tsx React theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import { useStream } from "@langchain/react";
 
-  const AGENT_URL = "http://localhost:2024";
+const AGENT_URL = "http://localhost:2024";
 
-  export function RedactionChat() {
-    const stream = useStream<typeof myAgent>({
-      apiUrl: AGENT_URL,
-      assistantId: "custom_stream_channel",
-    });
+export function RedactionChat() {
+  const stream = useStream<typeof myAgent>({
+    apiUrl: AGENT_URL,
+    assistantId: "custom_stream_channel",
+  });
 
-    return <RedactionStatsPanel stream={stream} />;
-  }
-  ```
+  return <RedactionStatsPanel stream={stream} />;
+}
+```
 
-  ```vue Vue theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  <script setup lang="ts">
-  import { useStream } from "@langchain/vue";
+```vue Vue theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+<script setup lang="ts">
+import { useStream } from "@langchain/vue";
+
+const AGENT_URL = "http://localhost:2024";
+
+const stream = useStream<typeof myAgent>({
+  apiUrl: AGENT_URL,
+  assistantId: "custom_stream_channel",
+});
+</script>
+
+<template>
+  <RedactionStatsPanel :stream="stream" />
+</template>
+```
+
+```svelte Svelte theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+<script lang="ts">
+  import { useStream } from "@langchain/svelte";
 
   const AGENT_URL = "http://localhost:2024";
 
@@ -135,46 +149,28 @@ Wire up [`useStream`](https://reference.langchain.com/javascript/langchain-react
     apiUrl: AGENT_URL,
     assistantId: "custom_stream_channel",
   });
-  </script>
+</script>
 
-  <template>
-    <RedactionStatsPanel :stream="stream" />
-  </template>
-  ```
+<RedactionStatsPanel {stream} />
+```
 
-  ```svelte Svelte theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  <script lang="ts">
-    import { useStream } from "@langchain/svelte";
+```ts Angular theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import { Component } from "@angular/core";
+import { injectStream } from "@langchain/angular";
 
-    const AGENT_URL = "http://localhost:2024";
+const AGENT_URL = "http://localhost:2024";
 
-    const stream = useStream<typeof myAgent>({
-      apiUrl: AGENT_URL,
-      assistantId: "custom_stream_channel",
-    });
-  </script>
-
-  <RedactionStatsPanel {stream} />
-  ```
-
-  ```ts Angular theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  import { Component } from "@angular/core";
-  import { injectStream } from "@langchain/angular";
-
-  const AGENT_URL = "http://localhost:2024";
-
-  @Component({
-    selector: "app-redaction-chat",
-    template: `<app-redaction-stats-panel [stream]="stream" />`,
-  })
-  export class RedactionChatComponent {
-    stream = injectStream<typeof myAgent>({
-      apiUrl: AGENT_URL,
-      assistantId: "custom_stream_channel",
-    });
-  }
-  ```
-</CodeGroup>
+@Component({
+  selector: "app-redaction-chat",
+  template: `<app-redaction-stats-panel [stream]="stream" />`,
+})
+export class RedactionChatComponent {
+  stream = injectStream<typeof myAgent>({
+    apiUrl: AGENT_URL,
+    assistantId: "custom_stream_channel",
+  });
+}
+```
 
 ## Read the latest payload with `useExtension`
 
@@ -185,35 +181,33 @@ counter, progress percentage, or status badge.
 
 Pass the bare channel name (`"redaction-stats"`), not the `custom:` prefix:
 
-<CodeGroup>
-  ```tsx React theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  import { useExtension } from "@langchain/react";
+```tsx React theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import { useExtension } from "@langchain/react";
 
-  const latest = useExtension<RedactionStatsEvent>(stream, "redaction-stats");
-  // latest?.total, latest?.counts.email, latest?.delta
-  ```
+const latest = useExtension<RedactionStatsEvent>(stream, "redaction-stats");
+// latest?.total, latest?.counts.email, latest?.delta
+```
 
-  ```vue Vue theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  import { useExtension } from "@langchain/vue";
+```vue Vue theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import { useExtension } from "@langchain/vue";
 
-  const latest = useExtension<RedactionStatsEvent>(stream, "redaction-stats");
-  // latest.value?.total
-  ```
+const latest = useExtension<RedactionStatsEvent>(stream, "redaction-stats");
+// latest.value?.total
+```
 
-  ```svelte Svelte theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  import { useExtension } from "@langchain/svelte";
+```svelte Svelte theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import { useExtension } from "@langchain/svelte";
 
-  const latest = useExtension<RedactionStatsEvent>(stream, "redaction-stats");
-  // latest?.total
-  ```
+const latest = useExtension<RedactionStatsEvent>(stream, "redaction-stats");
+// latest?.total
+```
 
-  ```ts Angular theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  import { injectExtension } from "@langchain/angular";
+```ts Angular theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import { injectExtension } from "@langchain/angular";
 
-  const latest = injectExtension<RedactionStatsEvent>(stream, "redaction-stats");
-  // latest()?.total
-  ```
-</CodeGroup>
+const latest = injectExtension<RedactionStatsEvent>(stream, "redaction-stats");
+// latest()?.total
+```
 
 The return value follows each framework's reactivity model: a plain value in
 React and Svelte, a `Ref` in Vue (`latest.value`), and a signal in Angular
@@ -234,33 +228,31 @@ that no higher-level selector covers.
 
 Pass the full channel id (`"custom:redaction-stats"`):
 
-<CodeGroup>
-  ```tsx React theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  import { useChannel } from "@langchain/react";
+```tsx React theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import { useChannel } from "@langchain/react";
 
-  const rawEvents = useChannel(stream, ["custom:redaction-stats"]);
-  ```
+const rawEvents = useChannel(stream, ["custom:redaction-stats"]);
+```
 
-  ```vue Vue theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  import { useChannel } from "@langchain/vue";
+```vue Vue theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import { useChannel } from "@langchain/vue";
 
-  const rawEvents = useChannel(stream, ["custom:redaction-stats"]);
-  // rawEvents.value
-  ```
+const rawEvents = useChannel(stream, ["custom:redaction-stats"]);
+// rawEvents.value
+```
 
-  ```svelte Svelte theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  import { useChannel } from "@langchain/svelte";
+```svelte Svelte theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import { useChannel } from "@langchain/svelte";
 
-  const rawEvents = useChannel(stream, ["custom:redaction-stats"]);
-  ```
+const rawEvents = useChannel(stream, ["custom:redaction-stats"]);
+```
 
-  ```ts Angular theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  import { injectChannel } from "@langchain/angular";
+```ts Angular theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import { injectChannel } from "@langchain/angular";
 
-  const rawEvents = injectChannel(stream, ["custom:redaction-stats"]);
-  // rawEvents()
-  ```
-</CodeGroup>
+const rawEvents = injectChannel(stream, ["custom:redaction-stats"]);
+// rawEvents()
+```
 
 Each entry is a raw protocol event, so the payload sits under
 `event.params.data`. Unwrap it yourself:
@@ -293,12 +285,12 @@ const rawEvents = useChannel(
 | `bufferSize` | `"default"` | Maximum number of buffered events. Older events drop once the cap is reached. |
 | `replay` | `true` | Replay events already seen on the channel when the selector mounts, instead of only live events. |
 
-<Note>
-  Prefer the higher-level selectors (`useExtension`, `useMessages`,
-  `useToolCalls`, `useValues`) for common cases. They return typed, unwrapped
-  values and track only what you render. Use `useChannel` when you specifically
-  need the raw event stream.
-</Note>
+> [!NOTE]
+>
+> Prefer the higher-level selectors (`useExtension`, `useMessages`,
+> `useToolCalls`, `useValues`) for common cases. They return typed, unwrapped
+> values and track only what you render. Use `useChannel` when you specifically
+> need the raw event stream.
 
 ## Choosing between `useExtension` and `useChannel`
 
@@ -340,12 +332,6 @@ messages, tool calls, or graph state:
 
 ***
 
-<div>
-  <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
-  </Callout>
+[Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
 
-  <Callout icon="edit">
-    [Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/frontend/custom-stream-channels.mdx) or [file an issue](https://github.com/langchain-ai/docs/issues/new/choose).
-  </Callout>
-</div>
+[Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/frontend/custom-stream-channels.mdx) or [file an issue](https://github.com/langchain-ai/docs/issues/new/choose).

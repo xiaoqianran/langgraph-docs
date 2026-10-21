@@ -10,7 +10,7 @@ LangGraph 将代理工作流程建模为图形：使用 StateGraph 定义状态�
 
 其核心是，LangGraph 将代理工作流程建模为图表。您可以使用三个关键组件来定义代理的行为：
 
-1. [⟦T47⟧](#state)：代表应用程序当前快照的共享数据结构。它可以是任何数据类型，但通常使用共享状态模式定义。
+1. [⟦T47⟧](#state)：表示应用程序当前快照的共享数据结构。它可以是任何数据类型，但通常使用共享状态模式定义。
 
 2. [⟦T48⟧](#nodes)：对代理逻辑进行编码的函数。它们接收当前状态作为输入，执行一些计算或副作用，并返回更新的状态。
 
@@ -22,7 +22,7 @@ LangGraph 将代理工作流程建模为图形：使用 StateGraph 定义状态�
 
 简而言之：*节点完成工作，边缘告诉下一步做什么*。LangGraph的底层图算法使用[message passing](https://en.wikipedia.org/wiki/Message_passing)定义通用程序。当节点完成其操作时，它会沿着一条或多条边向其他节点发送消息。然后，这些接收节点执行其功能，将结果消息传递给下一组节点，然后该过程继续。受 Google [Pregel](https://research.google/pubs/pregel-a-system-for-large-scale-graph-processing/) 系统的启发，该程序以离散的“超级步骤”进行。
 
-超级步骤可以被认为是图节点上的单次迭代。并行运行的节点是同一超级步骤的一部分，而顺序运行的节点则属于单独的超级步骤。在图执行开始时，所有节点都以 `inactive` 状态开始。当节点在其任何传入边缘（或“通道”）上接收到新消息（状态）时，该节点将变为`active`。然后，活动节点运行其功能并以更新进行响应。在每个超级步骤结束时，没有传入消息的节点通过将自己标记为`inactive`来投票给`halt`。当所有节点都为 `inactive` 并且没有消息在传输时，图执行终止。
+超级步骤可以被认为是图节点上的单次迭代。并行运行的节点是同一超级步骤的一部分，而顺序运行的节点则属于单独的超级步骤。在图执行开始时，所有节点都以 `inactive` 状态开始。当节点在其任何传入边缘（或“通道”）上接收到新消息（状态）时，它就会变成`active`。然后，活动节点运行其功能并以更新进行响应。在每个超级步骤结束时，没有传入消息的节点通过将自己标记为`inactive`来投票给`halt`。当所有节点都为 `inactive` 并且没有消息在传输时，图执行终止。
 
 ### 状态图
 
@@ -36,9 +36,9 @@ LangGraph 将代理工作流程建模为图形：使用 StateGraph 定义状态�
 graph = graph_builder.compile(...)
 ```
 
-<Warning>
-  您**必须**先编译您的图表，然后才能使用它。
-</Warning>
+> [!警告]
+>
+> 您**必须**先编译您的图表，然后才能使用它。
 
 ## 状态
 
@@ -48,9 +48,9 @@ graph = graph_builder.compile(...)
 
 默认情况下，图表将具有相同的输入和输出模式。如果你想改变这一点，你也可以直接指定显式的输入和输出模式。当您有很多键并且其中一些键明确用于输入而其他键明确用于输出时，这非常有用。请参阅[guide](/oss/python/langgraph/use-graph-api#define-input-and-output-schemas)了解更多信息。
 
-<Info>
-  `langchain` 中的更高级别[⟦T79⟧](/oss/python/langchain/agents) 工厂不支持 Pydantic 状态模式。
-</Info>
+> [!注意]
+>
+> `langchain` 中的更高级别[⟦T79⟧](/oss/python/langchain/agents) 工厂不支持 Pydantic 状态模式。
 
 #### 多个模式
 
@@ -116,9 +116,9 @@ graph.invoke({"user_input": "My"})
 # {'graph_output': 'My name is Lance'}
 ```
 
-<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/62539b5c-8df4-4dff-8de2-f365fc05983d/r">
-  为此示例打开公共 LangSmith 运行。
-</Card>
+> **[View example trace](https://smith.langchain.com/public/62539b5c-8df4-4dff-8de2-f365fc05983d/r)**
+>
+> 为此示例打开公共 LangSmith 运行。
 
 这里有两个微妙而重要的点需要注意：
 
@@ -136,40 +136,41 @@ graph.invoke({"user_input": "My"})
 
    我们可以这样做，因为只要状态模式定义存在，`_nodes`还可以声明附加状态`channels_`。在这种情况下，定义了`PrivateState`模式，因此我们可以将`bar`添加为图中的新状态通道并写入它。
 
-<Warning>
-  **私人频道在流式传输时不会被编辑。**
-
-  输入、输出和私有模式限制每个节点*读取*的内容（其输入模式）以及`invoke`*返回*（输出模式）。他们**不会**隐藏`stream`的频道。
-
-  当您使用 `stream_mode="values"` 进行流式传输时，图表默认会发出其**所有**状态通道，包括私有通道，因为值流式传输默认为完整的状态通道集而不是输出模式。这就是为什么像`bar`这样的私人频道被`invoke`隐藏但在流式传输时可见：
-
-  ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  stream = graph.stream_events({"user_input": "My"}, version="v3")
-  for snapshot in stream.values:
-      print(snapshot)
-  # {'user_input': 'My'}
-  # {'foo': 'My name', 'user_input': 'My'}
-  # {'foo': 'My name', 'user_input': 'My', 'bar': 'My name is'}        # <-- private channel
-  # {'foo': 'My name', 'user_input': 'My', 'graph_output': 'My name is Lance', 'bar': 'My name is'}
-  ```
-
-  <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/086201cf-5ed2-4a4b-aade-02848b380fad/r">
-    为此示例打开公共 LangSmith 运行。
-  </Card>
-
-  要将流式传输的值限制为一组特定的通道（例如，仅输出模式），请传递 `output_keys`：
-
-  ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  stream = graph.stream_events(
-      {"user_input": "My"},
-      version="v3",
-      output_keys=["graph_output"],  # [!code highlight]
-  )
-  for snapshot in stream.values:
-      print(snapshot)
-  # {'graph_output': 'My name is Lance'}
-  ```如果您只需要节点实际每一步产生的通道（而不是完整的累积状态），请改用`stream_mode="updates"`。
-</Warning>
+> [!警告]
+>
+> **私人频道在流式传输时不会被编辑。**
+>
+> 输入、输出和私有模式限制每个节点*读取*的内容（其输入模式）以及`invoke`*返回*（输出模式）。他们**不会**隐藏`stream`的频道。
+>
+> 当您使用 `stream_mode="values"` 进行流式传输时，图表默认会发出其**所有**状态通道，包括私有通道，因为值流式传输默认为完整的状态通道集而不是输出模式。这就是为什么像 `bar` 这样的私人频道被 `invoke` 隐藏但在流式传输时可见：
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> stream = graph.stream_events({"user_input": "My"}, version="v3")
+> for snapshot in stream.values:
+>     print(snapshot)
+> # {'user_input': 'My'}
+> # {'foo': 'My name', 'user_input': 'My'}
+> # {'foo': 'My name', 'user_input': 'My', 'bar': 'My name is'}        # <-- private channel
+> # {'foo': 'My name', 'user_input': 'My', 'graph_output': 'My name is Lance', 'bar': 'My name is'}
+> ```
+>
+>> **[View example trace](https://smith.langchain.com/public/086201cf-5ed2-4a4b-aade-02848b380fad/r)**
+>>
+>> 为此示例打开公共 LangSmith 运行。
+>
+> 要将流式传输的值限制到一组特定的通道（例如，仅输出模式），请传递 `output_keys`：
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> stream = graph.stream_events(
+>     {"user_input": "My"},
+>     version="v3",
+>     output_keys=["graph_output"],  # [!code highlight]
+> )
+> for snapshot in stream.values:
+>     print(snapshot)
+> # {'graph_output': 'My name is Lance'}
+> ```
+>> 如果您只需要节点实际每一步产生的通道（而不是完整的累积状态），请改用`stream_mode="updates"`。
 
 ### 减速器
 
@@ -248,9 +249,9 @@ class State(TypedDict):
 
 #### 覆盖
 
-<Tip>
-  在某些情况下，您可能希望绕过减速器并直接覆盖状态值。为此，LangGraph 提供了[⟦T135⟧](https://reference.langchain.com/python/langgraph/types/) 类型。 [Learn how to use ⟦T136⟧ here](/oss/python/langgraph/use-graph-api#bypass-reducers-with-overwrite)。
-</Tip>
+> [!提示]
+>
+> 在某些情况下，您可能希望绕过reducer并直接覆盖状态值。为此，LangGraph 提供了[⟦T135⟧](https://reference.langchain.com/python/langgraph/types/) 类型。 [Learn how to use ⟦T136⟧ here](/oss/python/langgraph/use-graph-api#bypass-reducers-with-overwrite)。
 
 #### 重置reducer字段
 
@@ -333,9 +334,9 @@ const State = new StateSchema({
 * 使用`guard: true`（默认）：如果多个节点在同一步骤中写入，则会抛出错误
 * 使用`guard: false`：允许多次写入，最后一个值获胜
 
-<Warning>
-  不要将 `UntrackedValue` 用于需要在中断或时间旅行中保留的数据。使用常规状态字段或`ReducedValue`来存储持久数据。
-</Warning>
+> [!警告]
+>
+> 不要将 `UntrackedValue` 用于需要在中断或时间旅行中保留的数据。使用常规状态字段或`ReducedValue`来存储持久数据。
 
 ### 类型实用程序LangGraph 提供了多种类型实用程序，以便在定义节点和条件边时实现更好的 TypeScript 类型安全性。
 
@@ -377,7 +378,7 @@ const routerNode: GraphNode<{ InputSchema: typeof State; Nodes: "process" | "don
 
 #### `State.Node` 简写
 
-每个 `StateSchema` 实例都有一个 `Node` 属性，它提供了输入节点的简写：
+每个 `StateSchema` 实例都有一个 `Node` 属性，它提供了键入节点的简写：
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 const State = new StateSchema({
@@ -392,7 +393,7 @@ const myNode2: typeof State.Node = (state) => ({ step: "done" });
 
 #### `ConditionalEdgeRouter`
 
-使用 `ConditionalEdgeRouter` 进行条件边中的路由函数（无状态更新，仅路由）：
+使用`ConditionalEdgeRouter`作为条件边中的路由函数（没有状态更新，只是路由）：
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { ConditionalEdgeRouter, END } from "@langchain/langgraph";
@@ -443,7 +444,7 @@ type MyUpdate = typeof MyStateSchema.Update;
 
 大多数现代法学硕士提供商都有一个聊天模型界面，接受消息列表作为输入。 LangChain 的 [chat model interface](/oss/python/langchain/models) 特别接受消息对象列表作为输入。这些消息有多种形式，例如[⟦T152⟧](https://reference.langchain.com/python/langchain-core/messages/human/HumanMessage)（用户输入）或[⟦T153⟧](https://reference.langchain.com/python/langchain-core/messages/ai/AIMessage)（LLM 响应）。
 
-要了解有关消息对象是什么的更多信息，请参阅[Messages conceptual guide](/oss/python/langchain/messages)。
+要了解有关消息对象的更多信息，请参阅[Messages conceptual guide](/oss/python/langchain/messages)。
 
 #### 在图表中使用消息在许多情况下，将先前的对话历史记录存储为图形状态中的消息列表会很有帮助。为此，我们可以向存储`Message`对象列表的图状态添加一个键（通道），并使用reducer函数对其进行注释（请参阅下面示例中的`messages`键）。减速器函数对于告诉图如何在每次状态更新时（例如，当节点发送更新时）更新状态中的 `Message` 对象列表至关重要。如果您不指定减速器，则每次状态更新都会用最近提供的值覆盖消息列表。如果您想简单地将消息附加到现有列表，您可以使用 `operator.add` 作为减速器。但是，您可能还想手动更新图形状态中的消息（例如人机循环）。如果您要使用`operator.add`，您发送到图表的手动状态更新将被附加到现有的消息列表中，而不是更新现有的消息。为了避免这种情况，您需要一个可以跟踪消息 ID 并覆盖现有消息（如果更新）的缩减程序。为此，您可以使用预构建的 [⟦T159⟧](https://reference.langchain.com/python/langgraph/graph/message/add_messages) 函数。对于全新的消息，它只会附加到现有列表，但它也会正确处理现有消息的更新。
 
@@ -451,7 +452,7 @@ type MyUpdate = typeof MyStateSchema.Update;
 
 除了跟踪消息 ID 之外，每当在 `messages` 通道上收到状态更新时，[⟦T160⟧](https://reference.langchain.com/python/langgraph/graph/message/add_messages) 函数还会尝试将消息反序列化为 LangChain `Message` 对象。
 
-有关更多信息，请参阅[LangChain serialization/deserialization](/oss/python/langchain/messages#serialization)。这允许以以下格式发送图形输入/状态更新：
+欲了解更多信息，请参阅[LangChain serialization/deserialization](/oss/python/langchain/messages#serialization)。这允许以以下格式发送图形输入/状态更新：
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 # this is supported
@@ -542,107 +543,105 @@ builder.add_node(my_node)
 
 **幂等性。**设计**节点**逻辑，以便重新执行不会破坏状态。如果节点插入数据库行，则运行两次不应创建重复行，除非是故意的。使用幂等性密钥、更新插入或先读后写检查。有关`interrupt()`周围的效果，请参阅[Side effects called before ⟦T190⟧ must be idempotent](/oss/python/langgraph/interrupts#side-effects-called-before-interrupt-must-be-idempotent)。
 
-**图形更改。** [Determinism](/oss/python/langgraph/functional-api#determinism) 有关代码更改的规则不适用于图形结构。您可以添加或删除**节点**和边，而不会破坏现有线程的恢复。恢复的运行使用保存的状态并执行您现在编译的任何图形。**节点内的任务和中断。** 如果 **节点** 调用 [**tasks**](/oss/python/langgraph/functional-api#task) 或 [⟦T191⟧](https://reference.langchain.com/python/langgraph/types/interrupt)，则在恢复时应用更严格的确定性规则。 LangGraph 从检查点恢复已完成的 **任务** 结果，但在恢复点之前更改代码中的 **任务** 或 [⟦T192⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 顺序可能会与缓存的值不匹配。 [Functional API](/oss/python/langgraph/functional-api) **入口点** 编译为单个 **节点**，以这种方式运行整个入口点方法。请参阅 [Determinism](/oss/python/langgraph/functional-api#determinism)、[Idempotency](/oss/python/langgraph/functional-api#idempotency) 和 [Using tasks in nodes](#using-tasks-in-nodes)。
+**图形更改。** [Determinism](/oss/python/langgraph/functional-api#determinism) 有关代码更改的规则不适用于图形结构。您可以添加或删除**节点**和边，而不会破坏现有线程的恢复。恢复的运行使用保存的状态并执行您现在编译的任何图形。**节点内部的任务和中断。** 如果 **节点** 调用 [**tasks**](/oss/python/langgraph/functional-api#task) 或 [⟦T191⟧](https://reference.langchain.com/python/langgraph/types/interrupt)，则在恢复时应用更严格的确定性规则。 LangGraph 从检查点恢复已完成的 **任务** 结果，但在恢复点之前更改代码中的 **任务** 或 [⟦T192⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 顺序可能会与缓存的值不匹配。 [Functional API](/oss/python/langgraph/functional-api) **入口点** 编译为单个 **节点**，以这种方式运行整个入口点方法。请参阅 [Determinism](/oss/python/langgraph/functional-api#determinism)、[Idempotency](/oss/python/langgraph/functional-api#idempotency) 和 [Using tasks in nodes](#using-tasks-in-nodes)。
 
 ### 在节点中使用任务
 
 如果 [node](#nodes) 包含多个操作，您可能会发现将每个操作实现为 [**task**](/oss/python/langgraph/functional-api#task) 比将逻辑拆分到多个节点更容易。当图表使用检查点时，任务结果会被设置检查点，因此恢复线程可以跳过节点内已完成的**任务**工作。
 
-<Tabs>
-  <Tab title="Original">
-    ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    from typing import NotRequired
+**原创**
 
-    import requests
-    from langchain_core.utils.uuid import uuid7
-    from langgraph.checkpoint.memory import InMemorySaver
-    from langgraph.graph import END, START, StateGraph
-    from typing_extensions import TypedDict
+```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+from typing import NotRequired
 
-
-    class State(TypedDict):
-        url: str
-        result: NotRequired[str]
+import requests
+from langchain_core.utils.uuid import uuid7
+from langgraph.checkpoint.memory import InMemorySaver
+from langgraph.graph import END, START, StateGraph
+from typing_extensions import TypedDict
 
 
-    def call_api(state: State):
-        """Example node that makes an API request."""
-        result = requests.get(state["url"]).text[:100]  # [!code highlight]
-        return {"result": result}
+class State(TypedDict):
+    url: str
+    result: NotRequired[str]
 
 
-    builder = StateGraph(State)
-    builder.add_node("call_api", call_api)
-    builder.add_edge(START, "call_api")
-    builder.add_edge("call_api", END)
-
-    checkpointer = InMemorySaver()
-    graph = builder.compile(checkpointer=checkpointer)
-
-    thread_id = str(uuid7())
-    config = {"configurable": {"thread_id": thread_id}}
-
-    graph.invoke({"url": "https://www.example.com"}, config)
-    ```
-
-    <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/3bce38d1-45db-477d-87a2-f58b0d2473d9/r">
-      为此示例打开公共 LangSmith 运行。
-    </Card>
-  </Tab>
-
-  <Tab title="With task">
-    ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    from typing import NotRequired
-
-    import requests
-    from langchain_core.utils.uuid import uuid7
-    from langgraph.checkpoint.memory import InMemorySaver
-    from langgraph.func import task
-    from langgraph.graph import END, START, StateGraph
-    from typing_extensions import TypedDict
+def call_api(state: State):
+    """Example node that makes an API request."""
+    result = requests.get(state["url"]).text[:100]  # [!code highlight]
+    return {"result": result}
 
 
-    class State(TypedDict):
-        urls: list[str]
-        results: NotRequired[list[str]]
+builder = StateGraph(State)
+builder.add_node("call_api", call_api)
+builder.add_edge(START, "call_api")
+builder.add_edge("call_api", END)
+
+checkpointer = InMemorySaver()
+graph = builder.compile(checkpointer=checkpointer)
+
+thread_id = str(uuid7())
+config = {"configurable": {"thread_id": thread_id}}
+
+graph.invoke({"url": "https://www.example.com"}, config)
+```
+
+> **[View example trace](https://smith.langchain.com/public/3bce38d1-45db-477d-87a2-f58b0d2473d9/r)**
+>
+> 为此示例打开公共 LangSmith 运行。
+
+**有任务**
+
+```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+from typing import NotRequired
+
+import requests
+from langchain_core.utils.uuid import uuid7
+from langgraph.checkpoint.memory import InMemorySaver
+from langgraph.func import task
+from langgraph.graph import END, START, StateGraph
+from typing_extensions import TypedDict
 
 
-    @task
-    def _make_request(url: str):
-        """Make a request."""
-        return requests.get(url).text[:100]  # [!code highlight]
+class State(TypedDict):
+    urls: list[str]
+    results: NotRequired[list[str]]
 
 
-    def call_api(state: State):
-        """Example node that makes API requests as checkpointed tasks."""
-        futures = [_make_request(url) for url in state["urls"]]  # [!code highlight]
-        results = [f.result() for f in futures]
-        return {"results": results}
+@task
+def _make_request(url: str):
+    """Make a request."""
+    return requests.get(url).text[:100]  # [!code highlight]
 
 
-    builder = StateGraph(State)
-    builder.add_node("call_api", call_api)
-    builder.add_edge(START, "call_api")
-    builder.add_edge("call_api", END)
+def call_api(state: State):
+    """Example node that makes API requests as checkpointed tasks."""
+    futures = [_make_request(url) for url in state["urls"]]  # [!code highlight]
+    results = [f.result() for f in futures]
+    return {"results": results}
 
-    checkpointer = InMemorySaver()
-    graph = builder.compile(checkpointer=checkpointer)
 
-    thread_id = str(uuid7())
-    config = {"configurable": {"thread_id": thread_id}}
+builder = StateGraph(State)
+builder.add_node("call_api", call_api)
+builder.add_edge(START, "call_api")
+builder.add_edge("call_api", END)
 
-    graph.invoke({"urls": ["https://www.example.com"]}, config)
-    ```
+checkpointer = InMemorySaver()
+graph = builder.compile(checkpointer=checkpointer)
 
-    <Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/906c25d1-3431-4e07-a0a5-c8f6b51bfa66/r">
-      为此示例打开公共 LangSmith 运行。
-    </Card>
-  </Tab>
-</Tabs>
+thread_id = str(uuid7())
+config = {"configurable": {"thread_id": thread_id}}
+
+graph.invoke({"urls": ["https://www.example.com"]}, config)
+```
+
+> **[View example trace](https://smith.langchain.com/public/906c25d1-3431-4e07-a0a5-c8f6b51bfa66/r)**
+>
+> 为此示例打开公共 LangSmith 运行。
 
 ### `START` 节点
 
-[⟦T194⟧](https://reference.langchain.com/python/langgraph/constants/START) 节点是一个特殊节点，表示将用户输入发送到图表的节点。引用该节点的主要目的是确定应该首先调用哪些节点。
+[⟦T194⟧](https://reference.langchain.com/python/langgraph/constants/START) 节点是一个特殊节点，表示将用户输入发送到图形的节点。引用该节点的主要目的是确定应该首先调用哪些节点。
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from langgraph.graph import START
@@ -703,16 +702,16 @@ print(graph.invoke({"x": 5}, stream_mode='updates'))    # [!code highlight]
 # [{'expensive_node': {'result': 10}, '__metadata__': {'cached': True}}]
 ```
 
-<Note>
-  `set_entry_point(node)` 定义图形将执行的第一个节点。
-  相当于`builder.add_edge(START, node)`。
-
-  `set_finish_point(node)` 定义图中的最后一个节点。
-  相当于`builder.add_edge(node, END)`。
-
-  两种方法都有效，但是`add_edge(START, ...)`和`add_edge(..., END)`
-  是推荐的现代语法。
-</Note>
+> [!注意]
+>
+> `set_entry_point(node)` 定义图形将执行的第一个节点。
+> 相当于`builder.add_edge(START, node)`。
+>
+> `set_finish_point(node)` 定义图中的最后一个节点。
+> 相当于`builder.add_edge(node, END)`。
+>
+> 两种方法都有效，但`add_edge(START, ...)`和`add_edge(..., END)`
+> 是推荐的现代语法。
 
 1. 第一次运行需要两秒钟才能运行（由于模拟的昂贵计算）。
 2、第二次运行利用缓存，返回速度快。
@@ -720,15 +719,15 @@ print(graph.invoke({"x": 5}, stream_mode='updates'))    # [!code highlight]
 ## 边缘边定义逻辑如何路由以及图形如何决定停止。这是代理如何工作以及不同节点如何相互通信的重要组成部分。有几种关键的边类型：
 
 * 普通边：直接从一个节点到下一个节点。
-* 条件边：调用函数来确定下一个要转到哪个或哪些节点。
+* 条件边：调用函数来确定下一个要转到哪个节点。
 * 入口点：当用户输入到达时首先调用哪个节点。
 * 条件入口点：调用函数来确定当用户输入到达时首先调用哪个节点。
 
 一个节点可以有多个出边。如果一个节点有多个传出边缘，则所有这些目标节点将作为下一个超级步骤的一部分并行执行。
 
-<Warning>
-  对于每个节点，选择一种路由机制：使用普通边进行静态路由，或使用条件边/[⟦T206⟧](https://reference.langchain.com/python/langgraph/types/Command)进行动态路由。不要混合来自同一节点的普通边和动态路由，因为这两条路径都可以执行并使图行为更难以推理。
-</Warning>
+> [!警告]
+>
+> 对于每个节点，选择一种路由机制：使用普通边进行静态路由，或者使用条件边/[⟦T206⟧](https://reference.langchain.com/python/langgraph/types/Command)进行动态路由。不要混合来自同一节点的普通边和动态路由，因为这两条路径都可以执行并使图行为更难以推理。
 
 ### 正常边缘
 
@@ -738,7 +737,7 @@ print(graph.invoke({"x": 5}, stream_mode='updates'))    # [!code highlight]
 graph.add_edge("node_a", "node_b")
 ```
 
-### 条件边如果您想**可选地**路由到一条或多条边（或可选地终止），则可以使用 [⟦T208⟧](https://reference.langchain.com/python/langgraph/graph/state/StateGraph/add_conditional_edges) 方法。此方法接受节点的名称和在该节点执行后调用的“路由函数”：
+### 条件边如果您想**可选地**路由到一个或多个边缘（或可选地终止），您可以使用 [⟦T208⟧](https://reference.langchain.com/python/langgraph/graph/state/StateGraph/add_conditional_edges) 方法。此方法接受节点的名称和在该节点执行后调用的“路由函数”：
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 graph.add_conditional_edges("node_a", routing_function)
@@ -754,13 +753,13 @@ graph.add_conditional_edges("node_a", routing_function)
 graph.add_conditional_edges("node_a", routing_function, {True: "node_b", False: "node_c"})
 ```
 
-<Tip>
-  如果您想将状态更新和路由合并在一个函数中，请使用 [⟦T213⟧](#command) 而不是条件边。
-</Tip>
+> [!提示]
+>
+> 如果您想将状态更新和路由合并到单个函数中，请使用[⟦T213⟧](#command)代替条件边。
 
 ### 入口点
 
-入口点是图启动时运行的第一个节点。您可以使用从虚拟[⟦T215⟧](https://reference.langchain.com/python/langgraph/constants/START)节点到第一个要执行的节点的[⟦T214⟧](https://reference.langchain.com/python/langgraph/pregel/_draw/add_edge)方法来指定从哪里进入图形。
+入口点是图启动时运行的第一个节点。您可以使用从虚拟[⟦T215⟧](https://reference.langchain.com/python/langgraph/constants/START)节点到第一个要执行的节点的[⟦T214⟧](https://reference.langchain.com/python/langgraph/pregel/_draw/add_edge)方法来指定从何处进入图形。
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from langgraph.graph import START
@@ -799,9 +798,9 @@ graph.add_conditional_edges("node_a", continue_to_jokes)
 
 ## `Command`
 
-[⟦T228⟧](https://reference.langchain.com/python/langgraph/types/Command)是一种用于控制图形执行的通用原语。它接受四个参数：* `update`：应用状态更新（类似于从节点返回更新）。
+[⟦T228⟧](https://reference.langchain.com/python/langgraph/types/Command)是用于控制图形执行的多功能原语。它接受四个参数：* `update`：应用状态更新（类似于从节点返回更新）。
 * `goto`：导航到特定节点（类似于[conditional edges](#conditional-edges)）。
-* `graph`：从[subgraphs](/oss/python/langgraph/use-subgraphs)导航时定位父图。
+* `graph`：从 [subgraphs](/oss/python/langgraph/use-subgraphs) 导航时定位父图。
 * `resume`：提供一个值以在[interrupt](/oss/python/langgraph/interrupts)之后恢复执行。
 
 `Command` 用于三种情况：
@@ -834,13 +833,13 @@ def my_node(state: State) -> Command[Literal["my_other_node"]]:
         return Command(update={"foo": "baz"}, goto="my_other_node")
 ```
 
-当您需要**同时**更新状态**和**路由到不同的节点时，请使用[⟦T244⟧](https://reference.langchain.com/python/langgraph/types/Command)。如果您只需要路由而不更新状态，请改用[conditional edges](#conditional-edges)。<Note>
-  在节点函数中返回 [⟦T245⟧](https://reference.langchain.com/python/langgraph/types/Command) 时，必须添加返回类型注释以及节点路由到的节点名称列表，例如`Command[Literal["my_other_node"]]`。这对于图形渲染是必要的，并告诉LangGraph`my_node`可以导航到`my_other_node`。
-</Note>
+当您需要**同时**更新状态**和**路由到不同的节点时，请使用[⟦T244⟧](https://reference.langchain.com/python/langgraph/types/Command)。如果您只需要路由而不更新状态，请改用[conditional edges](#conditional-edges)。> [!注意]
+>
+> 在节点函数中返回 [⟦T245⟧](https://reference.langchain.com/python/langgraph/types/Command) 时，必须添加返回类型注释以及节点路由到的节点名称列表，例如`Command[Literal["my_other_node"]]`。这对于图形渲染是必要的，并告诉LangGraph`my_node`可以导航到`my_other_node`。
 
-<Warning>
-  [⟦T249⟧](https://reference.langchain.com/python/langgraph/types/Command) 仅添加动态边 - 使用 `add_edge` / `addEdge` 定义的静态边仍然执行。例如，如果 `node_a` 返回 `Command(goto="my_other_node")` 并且您还有 `graph.add_edge("node_a", "node_b")`，则 `node_b` 和 `my_other_node` 都将运行。对于每个节点，使用 [⟦T257⟧](https://reference.langchain.com/python/langgraph/types/Command) 或静态边路由到下一个节点，而不是同时使用两者。
-</Warning>
+> [!警告]
+>
+> [⟦T249⟧](https://reference.langchain.com/python/langgraph/types/Command) 仅添加动态边 - 使用 `add_edge` / `addEdge` 定义的静态边仍然执行。例如，如果 `node_a` 返回 `Command(goto="my_other_node")` 并且您还有 `graph.add_edge("node_a", "node_b")`，则 `node_b` 和 `my_other_node` 都将运行。对于每个节点，使用 [⟦T257⟧](https://reference.langchain.com/python/langgraph/types/Command) 或静态边来路由到下一个节点，而不是同时使用两者。
 
 查看此 [how-to guide](/oss/python/langgraph/use-graph-api#combine-control-flow-and-state-updates-with-command)，了解如何使用 [⟦T258⟧](https://reference.langchain.com/python/langgraph/types/Command) 的端到端示例。
 
@@ -857,34 +856,34 @@ def my_node(state: State) -> Command[Literal["other_subgraph"]]:
     )
 ```
 
-<Note>
-  将 `graph` 设置为 `Command.PARENT` 将导航到最近的父图。
-
-  当您将父图和子图[state schemas](#schema)共享的键的更新从子图节点发送到父图节点时，您**必须**为您在父图状态中更新的键定义一个[reducer](#reducers)。参见这个[example](/oss/python/langgraph/use-graph-api#navigate-to-a-node-in-a-parent-graph)。
-</Note>
+> [!注意]
+>
+> 将 `graph` 设置为 `Command.PARENT` 将导航到最近的父图。
+>
+> 当您将父图和子图[state schemas](#schema)共享的键的更新从子图节点发送到父图节点时，您**必须**为您在父图状态中更新的键定义一个[reducer](#reducers)。请参阅此[example](/oss/python/langgraph/use-graph-api#navigate-to-a-node-in-a-parent-graph)。
 
 这在实现[multi-agent handoffs](/oss/python/langchain/multi-agent/handoffs)时特别有用。详情请查看[Navigate to a node in a parent graph](/oss/python/langgraph/use-graph-api#navigate-to-a-node-in-a-parent-graph)。### 输入`invoke`或`stream`
 
-<Warning>
-  `Command(resume=...)` 是 **唯一** `Command` 模式，旨在作为 `invoke()`/`stream()` 的输入（可以选择与 `update=...` 组合，以便在恢复时也应用状态更改）。不要单独使用`Command(update=...)`作为输入来继续多轮对话 - 因为传递任何`Command`作为输入从最新的检查点（即运行的最后一步，而不是`__start__`）恢复，如果已经完成，图表将显示为卡住。要在现有线程上继续对话，请传递一个简单的输入字典：
-
-  ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  # WRONG - graph resumes from the latest checkpoint
-  # (last step that ran), appears stuck
-  graph.invoke(Command(update={  # [!code --]
-      "messages": [{"role": "user", "content": "follow up"}]  # [!code --]
-  }), config)  # [!code --]
-
-  # CORRECT - plain dict restarts from __start__
-  graph.invoke( {  # [!code ++]
-      "messages": [{"role": "user", "content": "follow up"}]  # [!code ++]
-  }, config)  # [!code ++]
-  ```
-</Warning>
+> [!警告]
+>
+> `Command(resume=...)` 是 **唯一** `Command` 模式，旨在作为 `invoke()`/`stream()` 的输入（可以选择与 `update=...` 组合，以便在恢复时也应用状态更改）。不要单独使用`Command(update=...)`作为输入来继续多轮对话 - 因为传递任何`Command`作为输入从最新的检查点（即运行的最后一步，而不是`__start__`）恢复，如果已经完成，图表将显示为卡住。要在现有线程上继续对话，请传递一个简单的输入字典：
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> # WRONG - graph resumes from the latest checkpoint
+> # (last step that ran), appears stuck
+> graph.invoke(Command(update={  # [!code --]
+>     "messages": [{"role": "user", "content": "follow up"}]  # [!code --]
+> }), config)  # [!code --]
+>
+> # CORRECT - plain dict restarts from __start__
+> graph.invoke( {  # [!code ++]
+>     "messages": [{"role": "user", "content": "follow up"}]  # [!code ++]
+> }, config)  # [!code ++]
+> ```
 
 #### `resume`
 
-使用`Command(resume=...)`提供一个值并在[interrupt](/oss/python/langgraph/interrupts)之后恢复图形执行。传递给 `resume` 的值成为暂停节点内 `interrupt()` 调用的返回值：
+使用 `Command(resume=...)` 提供一个值并在 [interrupt](/oss/python/langgraph/interrupts) 之后恢复图形执行。传递给 `resume` 的值成为暂停节点内 `interrupt()` 调用的返回值：
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from typing import TypedDict
@@ -924,17 +923,17 @@ resumed = graph.stream_events(Command(resume="yes"), config, version="v3")
 final = resumed.output
 ```
 
-<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/b9e32d60-4cf6-44e6-b85c-60f763578a10/r">
-  为此示例打开公共 LangSmith 运行。
-</Card>
+> **[View example trace](https://smith.langchain.com/public/b9e32d60-4cf6-44e6-b85c-60f763578a10/r)**
+>
+> 为此示例打开公共 LangSmith 运行。
 
 查看 [interrupts conceptual guide](/oss/python/langgraph/interrupts) 了解中断模式的完整详细信息，包括多个中断和验证循环。
 
 ### 从工具返回
 
-您可以从工具返回[⟦T278⟧](https://reference.langchain.com/python/langgraph/types/Command)来更新图状态和控制流。使用 `update` 修改状态（例如，保存在对话期间查找的客户信息），并使用 `goto` 在工具完成后路由到特定节点。<Warning>
-  当在工具内部使用时，`goto` 添加动态边 - 调用该工具的节点上已定义的任何静态边仍将执行。对于每个节点，使用工具驱动的动态路由或静态边来路由到下一个节点，而不是同时使用两者。
-</Warning>
+您可以从工具返回[⟦T278⟧](https://reference.langchain.com/python/langgraph/types/Command)来更新图状态和控制流。使用 `update` 修改状态（例如，保存在对话期间查找的客户信息），并使用 `goto` 在工具完成后路由到特定节点。> [!警告]
+>
+> 在工具内部使用时，`goto` 添加动态边 - 调用该工具的节点上已定义的任何静态边仍将执行。对于每个节点，使用工具驱动的动态路由或静态边来路由到下一个节点，而不是同时使用两者。
 
 详情请参阅[Use inside tools](/oss/python/langgraph/use-graph-api#use-inside-tools)。
 
@@ -947,9 +946,9 @@ final = resumed.output
 * 对于修改状态，我们对添加和删除键具有完全的向后和向前兼容性
 * 重命名的状态键会丢失其在现有线程中保存的状态* 类型以不兼容方式更改的状态键目前可能会导致更改前线程状态出现问题 - 如果这是一个阻碍，请与我们联系，我们可以优先考虑解决方案。
 
-<Tip>
-  对于技术上兼容但改变业务逻辑的更改，例如重写工具集或重组对话流程，请参阅[Business compatibility](/oss/python/langgraph/backward-compatibility#business-compatibility)。该页面介绍了将行为版本固定在状态中，以便现有线程保留旧路径，而新线程则选择最新版本。
-</Tip>
+> [!提示]
+>
+> 对于技术上兼容但改变业务逻辑的更改，例如重写工具集或重组对话流程，请参阅[Business compatibility](/oss/python/langgraph/backward-compatibility#business-compatibility)。该页面介绍了将行为版本固定在状态中，以便现有线程保留旧路径，而新线程则选择最新版本。
 
 ## 运行时上下文
 
@@ -982,7 +981,7 @@ def node_a(state: State, runtime: Runtime[ContextSchema]):
 
 有关配置的完整详细信息，请参阅[Add runtime configuration](/oss/python/langgraph/use-graph-api#add-runtime-configuration)。
 
-### 递归限制递归限制设置了图在单次执行期间可以执行的最大数量 [super-steps](#graphs)。一旦达到限额，LangGraph将提高`GraphRecursionError`。从版本 1.0.6 开始，默认递归限制设置为 1000 步。递归限制可以在运行时在任何图上设置，并通过配置字典传递给`invoke`/`stream`。重要的是，`recursion_limit`是一个独立的`config`密钥，不应像所有其他用户定义的配置一样在`configurable`密钥内传递。请参阅下面的示例：
+### 递归限制递归限制设置了图在单次执行期间可以执行的最大数量[super-steps](#graphs)。一旦达到限额，LangGraph将提高`GraphRecursionError`。从版本 1.0.6 开始，默认递归限制设置为 1000 步。递归限制可以在运行时在任何图上设置，并通过配置字典传递给`invoke`/`stream`。重要的是，`recursion_limit`是一个独立的`config`密钥，不应像所有其他用户定义的配置一样在`configurable`密钥内传递。请参阅下面的示例：
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 graph.invoke(inputs, config={"recursion_limit": 5}, context={"llm": "anthropic"})
@@ -1113,7 +1112,7 @@ except GraphRecursionError as e:
 
 |方法|检测|处理|控制流程|
 | - | - | - | - |
-|主动（使用`RemainingSteps`）|达到限制之前 |通过条件路由的内部图 |图形继续完成节点 |
+|主动（使用`RemainingSteps`）|达到限制之前|通过条件路由的内部图 |图形继续完成节点 |
 |反应式（捕捉`GraphRecursionError`）|超出限制后 | try/catch 中的外部图 |图形执行终止 |
 
 **主动优势：**
@@ -1160,12 +1159,6 @@ def inspect_metadata(state: dict, config: RunnableConfig) -> dict:
 
 ***
 
-<div>
-  <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
-  </Callout>
+[Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
 
-  <Callout icon="edit">
-    [Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/graph-api.mdx) 或 [file an issue](https://github.com/langchain-ai/docs/issues/new/choose)。
-  </Callout>
-</div>
+[Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/graph-api.mdx) 或 [file an issue](https://github.com/langchain-ai/docs/issues/new/choose)。

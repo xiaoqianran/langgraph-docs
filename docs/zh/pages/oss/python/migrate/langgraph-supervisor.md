@@ -10,40 +10,38 @@
 
 本指南介绍如何从 `create_supervisor` 迁移到 [⟦T9⟧](https://reference.langchain.com/python/langchain/agents/factory/create_agent)，包括使用 [⟦T10⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 和外部 API 回调的设置。
 
-<Prompt description="Migrate from langgraph-supervisor to create_agent subagents" icon="arrow-right">
-  将此代码库从 `langgraph-supervisor` 包迁移到带有 `create_agent` 和工具包装工作线程的 LangChain 子代理模式。
+将此代码库从 `langgraph-supervisor` 包迁移到带有 `create_agent` 和工具包装工作线程的 LangChain 子代理模式。
 
-  ## 第 1 步：阅读指南
+## 第 1 步：阅读指南
 
-  获取并遵循 [https://docs.langchain.com/oss/python/migrate/langgraph-supervisor.md](https://docs.langchain.com/oss/python/migrate/langgraph-supervisor.md) 作为之前/之后模式、中断传播规则、嵌套管理程序和消息历史记录选项的事实来源。对于目标模式，还可以在需要时获取 [https://docs.langchain.com/oss/python/langchain/multi-agent/subagents.md](https://docs.langchain.com/oss/python/langchain/multi-agent/subagents.md) 和链接页面。如果代码库仍然使用 `create_react_agent`，则还要获取 [https://docs.langchain.com/oss/python/migrate/langgraph-v1.md](https://docs.langchain.com/oss/python/migrate/langgraph-v1.md)。
+获取并遵循 [https://docs.langchain.com/oss/python/migrate/langgraph-supervisor.md](https://docs.langchain.com/oss/python/migrate/langgraph-supervisor.md) 作为之前/之后模式、中断传播规则、嵌套管理程序和消息历史记录选项的事实来源。对于目标模式，还可以在需要时获取 [https://docs.langchain.com/oss/python/langchain/multi-agent/subagents.md](https://docs.langchain.com/oss/python/langchain/multi-agent/subagents.md) 和链接页面。如果代码库仍然使用 `create_react_agent`，则还要获取 [https://docs.langchain.com/oss/python/migrate/langgraph-v1.md](https://docs.langchain.com/oss/python/migrate/langgraph-v1.md)。
 
-  ## 第 2 步：更新依赖项
+## 第 2 步：更新依赖项
 
-  使用本项目中已使用的包管理器（`uv`或`pip`）删除`langgraph-supervisor`。确保项目中的LangChain和LangGraph版本支持`create_agent`、`@tool`和`interrupt`，如指南中所示。当项目已经固定版本时，首选固定当前稳定版本。
+使用本项目中已使用的包管理器（`uv`或`pip`）删除`langgraph-supervisor`。确保项目中的LangChain和LangGraph版本支持`create_agent`、`@tool`和`interrupt`，如指南中所示。当项目已经固定版本时，首选固定当前稳定版本。
 
-  ## 步骤 3：应用迁移识别从 `langgraph_supervisor` 导入或使用 `create_supervisor`、`create_handoff_tool` 或主管嵌套的每个调用站点，然后应用指南中的映射，包括：
+## 步骤 3：应用迁移识别从 `langgraph_supervisor` 导入或使用 `create_supervisor`、`create_handoff_tool` 或主管嵌套的每个调用站点，然后应用指南中的映射，包括：
 
-  * 将 `create_supervisor` 替换为主 `create_agent`，其工具包装每个工作子代理。
-  * 将切换路由 (`create_handoff_tool`) 替换为调用 `subagent.invoke(...)` 的自定义 `@tool` 函数。
-  * 在每个工具包装器内重新创建 `output_mode` 行为（`full_history` 与 `last_message`），而不是作为主管构造函数参数。
-  * 通过扁平化为一个主管，每个叶代理使用一个工具，或者在需要中间协调时通过嵌套工具包装的中间层代理来迁移嵌套主管。
+* 将 `create_supervisor` 替换为主 `create_agent`，其工具包装每个工作子代理。
+* 将切换路由 (`create_handoff_tool`) 替换为调用 `subagent.invoke(...)` 的自定义 `@tool` 函数。
+* 在每个工具包装器内重新创建 `output_mode` 行为（`full_history` 与 `last_message`），而不是作为主管构造函数参数。
+* 通过扁平化为一个主管，每个叶代理使用一个工具，或者在需要中间协调时通过嵌套工具包装的中间层代理来迁移嵌套主管。
 
-  ## 步骤 4：保留中断和恢复流程
+## 步骤 4：保留中断和恢复流程
 
-  如果工作人员使用 `interrupt` 或带有 `Command(resume=...)` 的外部回调恢复，请保留该行为并遵循指南的传播规则：仅编译带有检查点的最外层图，让子代理没有自己的检查点，并在外部 `invoke` 或 `stream_events` 调用上将 `configurable` 传递到 `thread_id`。
+如果工作人员使用 `interrupt` 或带有 `Command(resume=...)` 的外部回调恢复，请保留该行为并遵循指南的传播规则：仅编译带有检查点的最外层图，让子代理没有自己的检查点，并在外部 `invoke` 或 `stream_events` 调用上将 `configurable` 传递到 `thread_id`。
 
-  ## 步骤 5：明确处理差距如果代码库需要静态子图发现、每层检查点命名空间、级别之间共享状态键，或者指南所说属于自定义`StateGraph`的确定性和代理步骤的混合，请停止并询问用户如何继续。不要发明自定义图形布局，除非指南涵盖它。
+## 步骤 5：明确处理差距如果代码库需要静态子图发现、每层检查点命名空间、级别之间共享状态键，或者指南所说属于自定义`StateGraph`的确定性和代理步骤的混合，请停止并询问用户如何继续。不要发明自定义图形布局，除非指南涵盖它。
 
-  ## 规则
+## 规则
 
-  * 关注此迁移。不要重写不相关的代理代码。
-  * 更喜欢指南中的子代理模式而不是保留 `langgraph-supervisor`。
-  * 当指南未涵盖呼叫站点或模式时，询问而不是猜测。
-</Prompt>
+* 关注此迁移。不要重写不相关的代理代码。
+* 更喜欢指南中的子代理模式而不是保留 `langgraph-supervisor`。
+* 当指南未涵盖呼叫站点或模式时，询问而不是猜测。
 
 ## 变更摘要
 
-| langgraph-supervisor | langgraph-supervisor推荐更换 |
+| langgraph-supervisor | langgraph-supervisor推荐更换|
 | - | - |
 | `create_supervisor` 以工作代理作为图节点 | [⟦T40⟧](https://reference.langchain.com/python/langchain/agents/factory/create_agent) 与包装为 [⟦T41⟧](https://reference.langchain.com/python/langchain-core/tools/convert/tool) 函数的子代理 |
 | `output_mode` 用于消息历史记录 |在工具包装器中格式化子代理输出（请参阅[subagent outputs](/oss/python/langchain/multi-agent/subagents#subagent-outputs)）|
@@ -80,7 +78,9 @@ workflow = create_supervisor(
 app = workflow.compile(checkpointer=checkpointer)
 ```
 
-通过将每个工作人员包装为主代理上的工具来迁移到子代理模式：```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+通过将每个工作人员包装为主代理上的工具来迁移到子代理模式：
+
+```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from langchain.agents import create_agent
 from langchain.tools import tool
 from langgraph.checkpoint.memory import InMemorySaver
@@ -118,9 +118,7 @@ supervisor = create_agent(
     ),
     checkpointer=InMemorySaver(),
 )
-```
-
-有关完整演练，请参阅[Build a personal assistant with subagents](/oss/python/langchain/multi-agent/subagents-personal-assistant)。
+```有关完整演练，请参阅[Build a personal assistant with subagents](/oss/python/langchain/multi-agent/subagents-personal-assistant)。
 
 ## 迁移中断和恢复流程
 
@@ -264,12 +262,6 @@ top_supervisor = create_agent(
 
 ***
 
-<div>
-  <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时答案。
-  </Callout>
+[Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
 
-  <Callout icon="edit">
-    [Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/python/migrate/langgraph-supervisor.mdx) 或 [file an issue](https://github.com/langchain-ai/docs/issues/new/choose)。
-  </Callout>
-</div>
+[Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/python/migrate/langgraph-supervisor.mdx) 或 [file an issue](https://github.com/langchain-ai/docs/issues/new/choose)。

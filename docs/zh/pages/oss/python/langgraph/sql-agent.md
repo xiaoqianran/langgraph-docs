@@ -6,13 +6,13 @@
 
 在本教程中，我们将构建一个自定义代理，它可以使用 LangGraph 回答有关 SQL 数据库的问题。
 
-LangChain 提供内置 [agent](/oss/python/langchain/agents) 实现，使用 [LangGraph](/oss/python/langgraph/overview) 原语实现。如果需要更深入的定制，可以直接在LangGraph中实现代理。本指南演示了 SQL 代理的示例实现。实用介绍请参见[building a SQL agent using higher-level LangChain abstractions](/oss/python/langchain/sql-agent)。
+LangChain 提供内置的 [agent](/oss/python/langchain/agents) 实现，使用 [LangGraph](/oss/python/langgraph/overview) 原语实现。如果需要更深入的定制，可以直接在LangGraph中实现代理。本指南演示了 SQL 代理的示例实现。实用介绍请参见[building a SQL agent using higher-level LangChain abstractions](/oss/python/langchain/sql-agent)。
 
-<Warning>
-  构建 SQL 数据库的问答系统需要执行模型生成的 SQL 查询。这样做存在固有的风险。确保数据库连接权限的范围始终尽可能缩小，以满足代理的需求。这将减轻（但不能消除）构建模型驱动系统的风险。
-</Warning>
+> [!警告]
+>
+> 构建 SQL 数据库的问答系统需要执行模型生成的 SQL 查询。这样做存在固有的风险。确保数据库连接权限的范围始终尽可能缩小，以满足代理的需求。这将减轻（但不能消除）构建模型驱动系统的风险。
 
-[prebuilt agent](/oss/python/langchain/sql-agent)让我们快速上手，但我们依靠系统提示来限制其行为 - 例如，我们指示代理始终从“列表表”工具开始，并始终在执行查询之前运行查询检查器工具。我们可以通过定制代理来对LangGraph实施更高程度的控制。在这里，我们实现了一个简单的 ReAct-agent 设置，其中包含用于特定工具调用的专用节点。我们将使用与预构建代理相同的 \[state]。
+[prebuilt agent](/oss/python/langchain/sql-agent)让我们快速上手，但我们依靠系统提示来限制其行为 - 例如，我们指示代理始终从“列表表”工具开始，并始终在执行查询之前运行查询检查器工具。我们可以通过定制代理来在LangGraph中实施更高程度的控制。在这里，我们实现了一个简单的 ReAct-agent 设置，其中包含用于特定工具调用的专用节点。我们将使用与预构建代理相同的 \[state]。
 
 ### 概念
 
@@ -26,11 +26,9 @@ LangChain 提供内置 [agent](/oss/python/langchain/agents) 实现，使用 [La
 
 ### 安装
 
-<CodeGroup>
-  ```bash pip theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  pip install langchain langgraph
-  ```
-</CodeGroup>
+```bash pip theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+pip install langchain langgraph
+```
 
 ### LangSmith
 
@@ -45,272 +43,242 @@ export LANGSMITH_API_KEY="..."
 
 选择支持[tool-calling](/oss/python/integrations/providers/overview)的型号：
 
-<Tabs>
-  <Tab title="OpenAI">
-    👉 阅读[OpenAI chat model integration docs](/oss/python/integrations/chat/openai/)
+**OpenAI**
 
-    <CodeGroup>
-      ```bash pip theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-      pip install -U "langchain[openai]"
-      ```
+👉 阅读[OpenAI chat model integration docs](/oss/python/integrations/chat/openai/)
 
-      ```bash uv theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-      uv add "langchain[openai]"
-      ```
-    </CodeGroup>
+```bash pip theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+pip install -U "langchain[openai]"
+```
 
-    <CodeGroup>
-      ```python init_chat_model theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-      import os
-      from langchain.chat_models import init_chat_model
+```bash uv theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+uv add "langchain[openai]"
+```
 
-      os.environ["OPENAI_API_KEY"] = "sk-..."
+```python init_chat_model theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import os
+from langchain.chat_models import init_chat_model
 
-      model = init_chat_model("gpt-5.5")
-      ```
+os.environ["OPENAI_API_KEY"] = "sk-..."
 
-      ```python Model Class theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-      import os
-      from langchain_openai import ChatOpenAI
+model = init_chat_model("gpt-5.5")
+```
 
-      os.environ["OPENAI_API_KEY"] = "sk-..."
+```python Model Class theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import os
+from langchain_openai import ChatOpenAI
 
-      model = ChatOpenAI(model="gpt-5.5")
-      ```
-    </CodeGroup>
-  </Tab>
+os.environ["OPENAI_API_KEY"] = "sk-..."
 
-  <Tab title="Anthropic">
-    👉 阅读[Anthropic chat model integration docs](/oss/python/integrations/chat/anthropic/)
+model = ChatOpenAI(model="gpt-5.5")
+```
 
-    <CodeGroup>
-      ```bash pip theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-      pip install -U "langchain[anthropic]"
-      ```
+**Anthropic**
 
-      ```bash uv theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-      uv add "langchain[anthropic]"
-      ```
-    </CodeGroup>
+👉 阅读[Anthropic chat model integration docs](/oss/python/integrations/chat/anthropic/)
 
-    <CodeGroup>
-      ```python init_chat_model theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-      import os
-      from langchain.chat_models import init_chat_model
+```bash pip theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+pip install -U "langchain[anthropic]"
+```
 
-      os.environ["ANTHROPIC_API_KEY"] = "sk-..."
+```bash uv theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+uv add "langchain[anthropic]"
+```
 
-      model = init_chat_model("claude-sonnet-4-6")
-      ```
+```python init_chat_model theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import os
+from langchain.chat_models import init_chat_model
 
-      ```python Model Class theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-      import os
-      from langchain_anthropic import ChatAnthropic
+os.environ["ANTHROPIC_API_KEY"] = "sk-..."
 
-      os.environ["ANTHROPIC_API_KEY"] = "sk-..."
+model = init_chat_model("claude-sonnet-4-6")
+```
 
-      model = ChatAnthropic(model="claude-sonnet-4-6")
-      ```
-    </CodeGroup>
-  </Tab>
+```python Model Class theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import os
+from langchain_anthropic import ChatAnthropic
 
-  <Tab title="Azure">
-    👉 阅读[Azure chat model integration docs](/oss/python/integrations/chat/azure_chat_openai/)
+os.environ["ANTHROPIC_API_KEY"] = "sk-..."
 
-    <CodeGroup>
-      ```bash pip theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-      pip install -U "langchain[openai]"
-      ```
+model = ChatAnthropic(model="claude-sonnet-4-6")
+```
 
-      ```bash uv theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-      uv add "langchain[openai]"
-      ```
-    </CodeGroup>
+**天蓝色**
 
-    <CodeGroup>
-      ```python init_chat_model theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-      import os
-      from langchain.chat_models import init_chat_model
+👉 阅读[Azure chat model integration docs](/oss/python/integrations/chat/azure_chat_openai/)
 
-      os.environ["AZURE_OPENAI_API_KEY"] = "..."
-      os.environ["AZURE_OPENAI_ENDPOINT"] = "..."
-      os.environ["OPENAI_API_VERSION"] = "2025-03-01-preview"
+```bash pip theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+pip install -U "langchain[openai]"
+```
 
-      model = init_chat_model(
-          "azure_openai:gpt-5.5",
-          azure_deployment=os.environ["AZURE_OPENAI_DEPLOYMENT_NAME"],
-      )
-      ```
+```bash uv theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+uv add "langchain[openai]"
+```
 
-      ```python Model Class theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-      import os
-      from langchain_openai import AzureChatOpenAI
+```python init_chat_model theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import os
+from langchain.chat_models import init_chat_model
 
-      os.environ["AZURE_OPENAI_API_KEY"] = "..."
-      os.environ["AZURE_OPENAI_ENDPOINT"] = "..."
-      os.environ["OPENAI_API_VERSION"] = "2025-03-01-preview"
+os.environ["AZURE_OPENAI_API_KEY"] = "..."
+os.environ["AZURE_OPENAI_ENDPOINT"] = "..."
+os.environ["OPENAI_API_VERSION"] = "2025-03-01-preview"
 
-      model = AzureChatOpenAI(
-          model="gpt-5.5",
-          azure_deployment=os.environ["AZURE_OPENAI_DEPLOYMENT_NAME"]
-      )
-      ```
-    </CodeGroup>
-  </Tab>
+model = init_chat_model(
+    "azure_openai:gpt-5.5",
+    azure_deployment=os.environ["AZURE_OPENAI_DEPLOYMENT_NAME"],
+)
+```
 
-  <Tab title="Google Gemini">
-    👉 阅读[Google GenAI chat model integration docs](/oss/python/integrations/chat/google_generative_ai/)
+```python Model Class theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import os
+from langchain_openai import AzureChatOpenAI
 
-    <CodeGroup>
-      ```bash pip theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-      pip install -U "langchain[google-genai]"
-      ```
+os.environ["AZURE_OPENAI_API_KEY"] = "..."
+os.environ["AZURE_OPENAI_ENDPOINT"] = "..."
+os.environ["OPENAI_API_VERSION"] = "2025-03-01-preview"
 
-      ```bash uv theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-      uv add "langchain[google-genai]"
-      ```
-    </CodeGroup>
+model = AzureChatOpenAI(
+    model="gpt-5.5",
+    azure_deployment=os.environ["AZURE_OPENAI_DEPLOYMENT_NAME"]
+)
+```
 
-    <CodeGroup>
-      ```python init_chat_model theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-      import os
-      from langchain.chat_models import init_chat_model
+**谷歌双子座**
 
-      os.environ["GOOGLE_API_KEY"] = "..."
+👉 阅读[Google GenAI chat model integration docs](/oss/python/integrations/chat/google_generative_ai/)
 
-      model = init_chat_model("google_genai:gemini-3.7-flash")
-      ```
+```bash pip theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+pip install -U "langchain[google-genai]"
+```
 
-      ```python Model Class theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-      import os
-      from langchain_google_genai import ChatGoogleGenerativeAI
+```bash uv theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+uv add "langchain[google-genai]"
+```
 
-      os.environ["GOOGLE_API_KEY"] = "..."
+```python init_chat_model theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import os
+from langchain.chat_models import init_chat_model
 
-      model = ChatGoogleGenerativeAI(model="gemini-3.7-flash")
-      ```
-    </CodeGroup>
-  </Tab><Tab title="AWS Bedrock">
-    👉 阅读[AWS Bedrock chat model integration docs](/oss/python/integrations/chat/bedrock/)
+os.environ["GOOGLE_API_KEY"] = "..."
 
-    <CodeGroup>
-      ```bash pip theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-      pip install -U "langchain[aws]"
-      ```
+model = init_chat_model("google_genai:gemini-3.7-flash")
+```
 
-      ```bash uv theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-      uv add "langchain[aws]"
-      ```
-    </CodeGroup>
+```python Model Class theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import os
+from langchain_google_genai import ChatGoogleGenerativeAI
 
-    <CodeGroup>
-      ```python init_chat_model theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-      from langchain.chat_models import init_chat_model
+os.environ["GOOGLE_API_KEY"] = "..."
 
-      # Follow the steps here to configure your credentials:
-      # https://docs.aws.amazon.com/bedrock/latest/userguide/getting-started.html
+model = ChatGoogleGenerativeAI(model="gemini-3.7-flash")
+```
 
-      model = init_chat_model(
-          "us.anthropic.claude-sonnet-4-6",
-          model_provider="bedrock_converse",
-      )
-      ```
+**AWS 基岩**
 
-      ```python Model Class theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-      from langchain_aws import ChatBedrock
+👉 阅读[AWS Bedrock chat model integration docs](/oss/python/integrations/chat/bedrock/)
 
-      model = ChatBedrock(model="us.anthropic.claude-sonnet-4-6")
-      ```
-    </CodeGroup>
-  </Tab>
+```bash pip theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+pip install -U "langchain[aws]"
+```
 
-  <Tab title="HuggingFace">
-    👉 阅读[HuggingFace chat model integration docs](/oss/python/integrations/chat/huggingface/)
+```bash uv theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+uv add "langchain[aws]"
+```
 
-    <CodeGroup>
-      ```bash pip theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-      pip install -U "langchain[huggingface]"
-      ```
+```python init_chat_model theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+from langchain.chat_models import init_chat_model
 
-      ```bash uv theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-      uv add "langchain[huggingface]"
-      ```
-    </CodeGroup>
+# Follow the steps here to configure your credentials:
+# https://docs.aws.amazon.com/bedrock/latest/userguide/getting-started.html
 
-    <CodeGroup>
-      ```python init_chat_model theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-      import os
-      from langchain.chat_models import init_chat_model
+model = init_chat_model(
+    "us.anthropic.claude-sonnet-4-6",
+    model_provider="bedrock_converse",
+)
+```
 
-      os.environ["HUGGINGFACEHUB_API_TOKEN"] = "hf_..."
+```python Model Class theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+from langchain_aws import ChatBedrock
 
-      model = init_chat_model(
-          "microsoft/Phi-3-mini-4k-instruct",
-          model_provider="huggingface",
-          temperature=0.7,
-          max_tokens=1024,
-      )
-      ```
+model = ChatBedrock(model="us.anthropic.claude-sonnet-4-6")
+```
 
-      ```python Model Class theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-      import os
-      from langchain_huggingface import ChatHuggingFace, HuggingFaceEndpoint
+**拥抱脸**
 
-      os.environ["HUGGINGFACEHUB_API_TOKEN"] = "hf_..."
+👉 阅读[HuggingFace chat model integration docs](/oss/python/integrations/chat/huggingface/)
 
-      llm = HuggingFaceEndpoint(
-          repo_id="microsoft/Phi-3-mini-4k-instruct",
-          temperature=0.7,
-          max_length=1024,
-      )
-      model = ChatHuggingFace(llm=llm)
-      ```
-    </CodeGroup>
-  </Tab>
+```bash pip theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+pip install -U "langchain[huggingface]"
+```
 
-  <Tab title="OpenRouter">
-    👉 阅读[OpenRouter chat model integration docs](/oss/python/integrations/chat/openrouter/)
+```bash uv theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+uv add "langchain[huggingface]"
+```
 
-    <CodeGroup>
-      ```bash pip theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-      pip install -U "langchain-openrouter"
-      ```
+```python init_chat_model theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import os
+from langchain.chat_models import init_chat_model
 
-      ```bash uv theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-      uv add "langchain-openrouter"
-      ```
-    </CodeGroup>
+os.environ["HUGGINGFACEHUB_API_TOKEN"] = "hf_..."
 
-    <CodeGroup>
-      ```python init_chat_model theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-      import os
-      from langchain.chat_models import init_chat_model
+model = init_chat_model(
+    "microsoft/Phi-3-mini-4k-instruct",
+    model_provider="huggingface",
+    temperature=0.7,
+    max_tokens=1024,
+)
+```
 
-      os.environ["OPENROUTER_API_KEY"] = "sk-..."
+```python Model Class theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import os
+from langchain_huggingface import ChatHuggingFace, HuggingFaceEndpoint
 
-      model = init_chat_model(
-          "auto",
-          model_provider="openrouter",
-      )
-      ```
+os.environ["HUGGINGFACEHUB_API_TOKEN"] = "hf_..."
 
-      ```python Model Class theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-      import os
-      from langchain_openrouter import ChatOpenRouter
+llm = HuggingFaceEndpoint(
+    repo_id="microsoft/Phi-3-mini-4k-instruct",
+    temperature=0.7,
+    max_length=1024,
+)
+model = ChatHuggingFace(llm=llm)
+```
 
-      os.environ["OPENROUTER_API_KEY"] = "sk-..."
+**开放路由器**
 
-      model = ChatOpenRouter(model="auto")
-      ```
-    </CodeGroup>
-  </Tab>
-</Tabs>
+👉 阅读[OpenRouter chat model integration docs](/oss/python/integrations/chat/openrouter/)
+
+```bash pip theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+pip install -U "langchain-openrouter"
+```
+
+```bash uv theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+uv add "langchain-openrouter"
+```
+
+```python init_chat_model theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import os
+from langchain.chat_models import init_chat_model
+
+os.environ["OPENROUTER_API_KEY"] = "sk-..."
+
+model = init_chat_model(
+    "auto",
+    model_provider="openrouter",
+)
+```
+
+```python Model Class theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import os
+from langchain_openrouter import ChatOpenRouter
+
+os.environ["OPENROUTER_API_KEY"] = "sk-..."
+
+model = ChatOpenRouter(model="auto")
+```
 
 以下示例中显示的输出使用OpenAI。
 
-## 2.配置数据库
-
-您将为本教程创建一个 [SQLite database](https://www.sqlitetutorial.net/sqlite-sample-database/)。 SQLite 是一个轻量级数据库，易于设置和使用。我们将加载 `chinook` 数据库，这是代表数字媒体商店的示例数据库。
+## 2.配置数据库您将为本教程创建一个 [SQLite database](https://www.sqlitetutorial.net/sqlite-sample-database/)。 SQLite 是一个轻量级数据库，易于设置和使用。我们将加载 `chinook` 数据库，这是代表数字媒体商店的示例数据库。
 
 为了方便起见，我们将数据库 (`Chinook.db`) 托管在公共 GCS 存储桶上。
 
@@ -357,9 +325,11 @@ Available tables: ['Album', 'Artist', 'Customer', 'Employee', 'Genre', 'Invoice'
 Sample output: [(1, 'AC/DC'), (2, 'Accept'), (3, 'Aerosmith'), (4, 'Alanis Morissette'), (5, 'Alice In Chains')]
 ```
 
-## 3.添加数据库交互工具<Warning>
-  以下数据库工具是最小包装器，仅用于演示目的。它们的目的不是为了安全或在生产中使用。在执行模型生成的 SQL 之前，使用范围狭窄的数据库权限并添加特定于应用程序的验证。
-</Warning>
+## 3.添加数据库交互工具
+
+> [!警告]
+>
+> 以下数据库工具是最小包装器，仅用于演示目的。它们的目的不是为了安全或在生产中使用。在执行模型生成的 SQL 之前，使用范围狭窄的数据库权限并添加特定于应用程序的验证。
 
 我们可以使用 `langchain.tools` 中的 `@tool` 装饰器将数据库 [tools](/oss/python/langchain/tools) 实现为瘦包装器：
 
@@ -594,9 +564,7 @@ def check_query(state: MessagesState):
     return {"messages": [response]}
 ```
 
-## 5. 实现代理
-
-现在，我们可以使用 [Graph API](/oss/python/langgraph/graph-api) 将这些步骤组装到工作流程中。我们在查询生成步骤定义一个[conditional edge](/oss/python/langgraph/graph-api#conditional-edges)，如果生成了查询，它将路由到查询检查器，或者如果不存在工具调用则结束，以便LLM已交付对查询的响应。
+## 5. 实现代理我们现在可以使用 [Graph API](/oss/python/langgraph/graph-api) 将这些步骤组装到工作流程中。我们在查询生成步骤定义一个[conditional edge](/oss/python/langgraph/graph-api#conditional-edges)，如果生成了查询，它将路由到查询检查器，或者如果不存在工具调用则结束，以便LLM已交付对查询的响应。
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 def should_continue(state: MessagesState) -> Literal[END, "check_query"]:
@@ -638,7 +606,7 @@ import pathlib
 pathlib.Path("graph.png").write_bytes(agent.get_graph().draw_mermaid_png())
 ```
 
-<img alt="SQL agent graph" />
+![SQL agent graph](https://mintcdn.com/langchain-5e9cc07a/aAi4RLdXQAh8fThS/oss/images/sql-agent-langgraph.png?fit=max\&auto=format\&n=aAi4RLdXQAh8fThS\&q=85\&s=1ddd4aae369fb8c143edaccb0a09c81f)
 
 我们现在可以调用该图：
 
@@ -732,11 +700,13 @@ Name: sql_db_query
 The genre with the longest tracks on average is "Sci Fi & Fantasy," with an average track length of approximately 2,911,783 milliseconds. Other genres with relatively long tracks include "Science Fiction," "Drama," "TV Shows," and "Comedy."
 ```
 
-<Tip>
-  上述运行请参见[LangSmith trace](https://smith.langchain.com/public/94b8c9ac-12f7-4692-8706-836a1f30f1ea/r)。
-</Tip>
+> [!提示]
+>
+> 上述运行请参见[LangSmith trace](https://smith.langchain.com/public/94b8c9ac-12f7-4692-8706-836a1f30f1ea/r)。
 
-## 6. 实施人机交互审核在执行代理的 SQL 查询之前检查是否存在任何意外操作或效率低下，这可能是谨慎的做法。
+## 6. 实施人机交互审核
+
+在执行代理的 SQL 查询之前检查是否存在任何意外操作或效率低下，这可能是谨慎的做法。
 
 在这里，我们利用 LangGraph 的 [human-in-the-loop](/oss/python/langgraph/interrupts) 功能在执行 SQL 查询之前暂停运行并等待人工审核。使用LangGraph的[persistence layer](/oss/python/langgraph/persistence)，我们可以无限期地暂停运行（或者至少只要持久层还活着）。
 
@@ -781,11 +751,9 @@ def run_query_tool_with_interrupt(config: RunnableConfig, **tool_input):
 run_query_node = ToolNode([run_query_tool_with_interrupt], name="run_query")  # [!code highlight]
 ```
 
-<Note>
-  上述实现遵循更广泛的[human-in-the-loop](/oss/python/langgraph/interrupts)指南中的[tool interrupt example](/oss/python/langgraph/interrupts#interrupts-in-tools)。有关详细信息和替代方案，请参阅该指南。
-</Note>
-
-现在让我们重新组装我们的图表。我们将用人工审核取代程序检查。请注意，我们现在包含一个 [checkpointer](/oss/python/langgraph/persistence)；这是暂停和恢复运行所必需的。
+> [!注意]
+>
+> 上述实现遵循更广泛的 [human-in-the-loop](/oss/python/langgraph/interrupts) 指南中的 [tool interrupt example](/oss/python/langgraph/interrupts#interrupts-in-tools)。有关详细信息和替代方案，请参阅该指南。现在让我们重新组装我们的图表。我们将用人工审核取代程序检查。请注意，我们现在包含一个 [checkpointer](/oss/python/langgraph/persistence)；这是暂停和恢复运行所必需的。
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from langgraph.checkpoint.memory import InMemorySaver
@@ -893,14 +861,10 @@ The genre with the longest average track length is "Sci Fi & Fantasy" with an av
 
 ## 后续步骤
 
-查看 [Evaluate a graph](/langsmith/evaluate-graph) 指南，以评估 LangGraph 应用程序，包括使用 LangSmith 的 SQL 代理。***
+查看 [Evaluate a graph](/langsmith/evaluate-graph) 指南，以评估 LangGraph 应用程序，包括使用 LangSmith 的 SQL 代理。
 
-<div>
-  <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
-  </Callout>
+***
 
-  <Callout icon="edit">
-    [Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/sql-agent.mdx) 或 [file an issue](https://github.com/langchain-ai/docs/issues/new/choose)。
-  </Callout>
-</div>
+[Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
+
+[Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/sql-agent.mdx) 或 [file an issue](https://github.com/langchain-ai/docs/issues/new/choose)。

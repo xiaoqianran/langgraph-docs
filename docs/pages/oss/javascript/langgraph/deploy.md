@@ -8,69 +8,49 @@ When you are ready to deploy your LangGraph agent to production, choose a hostin
 
 You can also deploy on **JavaScript frameworks and platforms** such as Next.js, SvelteKit, Nuxt, Cloudflare Workers, and Deno Deploy using the same [Agent Streaming Protocol](https://github.com/langchain-ai/agent-protocol/tree/main/streaming).
 
-<div>
-  <div>
-    <p>Frameworks and platforms</p>
+Frameworks and platforms
 
-    <a href="/langsmith/deploy-frameworks-and-platforms">
-      View all guides
-    </a>
-  </div>
+[View all guides](/langsmith/deploy-frameworks-and-platforms)
 
-  <div>
-    <a href="/langsmith/deploy-vite-langsmith">
-      <img alt="" />
+![](https://mintcdn.com/langchain-5e9cc07a/ZPKed1feKJ8F6LVo/images/providers/light/langchain.svg?fit=max\&auto=format\&n=ZPKed1feKJ8F6LVo\&q=85\&s=b910ed9cd0b6b8adb4b6da400882e92c)
 
-      <img alt="" />
+LangSmith
 
-      <span>LangSmith</span>
-    </a>
+[Open](/langsmith/deploy-vite-langsmith)
 
-    <a href="/langsmith/deploy-nextjs">
-      <img alt="" />
+![](https://mintcdn.com/langchain-5e9cc07a/h9vvRKKSgCSjvd_Y/images/providers/light/nextjs.svg?fit=max\&auto=format\&n=h9vvRKKSgCSjvd_Y\&q=85\&s=4f3336e9534db50f25f87173a41322d5)
 
-      <img alt="" />
+Next.js
 
-      <span>Next.js</span>
-    </a>
+[Open](/langsmith/deploy-nextjs)
 
-    <a href="/langsmith/deploy-sveltekit">
-      <img alt="" />
+![](https://mintcdn.com/langchain-5e9cc07a/h9vvRKKSgCSjvd_Y/images/providers/light/svelte.svg?fit=max\&auto=format\&n=h9vvRKKSgCSjvd_Y\&q=85\&s=07e7e35c40e4522f739feea9ef3e33b7)
 
-      <img alt="" />
+SvelteKit
 
-      <span>SvelteKit</span>
-    </a>
+[Open](/langsmith/deploy-sveltekit)
 
-    <a href="/langsmith/deploy-nuxt">
-      <img alt="" />
+![](https://mintcdn.com/langchain-5e9cc07a/h9vvRKKSgCSjvd_Y/images/providers/light/nuxt.svg?fit=max\&auto=format\&n=h9vvRKKSgCSjvd_Y\&q=85\&s=5d965ed1f93f51ac604e66b935a65368)
 
-      <img alt="" />
+Nuxt
 
-      <span>Nuxt</span>
-    </a>
+[Open](/langsmith/deploy-nuxt)
 
-    <a href="/langsmith/deploy-cloudflare-workers">
-      <img alt="" />
+![](https://mintcdn.com/langchain-5e9cc07a/h9vvRKKSgCSjvd_Y/images/providers/light/cloudflare.svg?fit=max\&auto=format\&n=h9vvRKKSgCSjvd_Y\&q=85\&s=ae129fcbfc78ccaece42b1c4d3699311)
 
-      <img alt="" />
+Cloudflare
 
-      <span>Cloudflare</span>
-    </a>
+[Open](/langsmith/deploy-cloudflare-workers)
 
-    <a href="/langsmith/deploy-deno">
-      <img alt="" />
+![](https://mintcdn.com/langchain-5e9cc07a/Tz8fh3A43FeUPf69/images/providers/light/deno.svg?fit=max\&auto=format\&n=Tz8fh3A43FeUPf69\&q=85\&s=8d213b0000104542fcaa7ab160595224)
 
-      <img alt="" />
+Deno
 
-      <span>Deno</span>
-    </a>
-  </div>
-</div>
+[Open](/langsmith/deploy-deno)
 
-<Tip>
-  LangSmith offers multiple deployment options beyond Cloud, including [hybrid](/langsmith/hybrid), [standalone servers](/langsmith/deploy-standalone-server), and [self-hosted with control plane](/langsmith/deploy-with-control-plane). For more information, see the [LangSmith Deployment overview](/langsmith/deployment).
-</Tip>
+> [!TIP]
+>
+> LangSmith offers multiple deployment options beyond Cloud, including [hybrid](/langsmith/hybrid), [standalone servers](/langsmith/deploy-standalone-server), and [self-hosted with control plane](/langsmith/deploy-with-control-plane). For more information, see the [LangSmith Deployment overview](/langsmith/deployment).
 
 ## LangSmith Cloud
 
@@ -91,23 +71,21 @@ Your application's code must reside in a GitHub repository to be deployed on Lan
 
 #### 2. Deploy to LangSmith
 
-<Steps>
-  <Step title="Navigate to LangSmith Deployment">
-    Log in to [LangSmith](https://smith.langchain.com?utm_source=docs\&utm_medium=cta\&utm_campaign=langsmith-signup\&utm_content=oss-langgraph-deploy). In the left sidebar, select **Deployments**.
-  </Step>
+**1. Navigate to LangSmith Deployment**
 
-  <Step title="Create new deployment">
-    Click the **+ New Deployment** button. A pane will open where you can fill in the required fields.
-  </Step>
+Log in to [LangSmith](https://smith.langchain.com?utm_source=docs\&utm_medium=cta\&utm_campaign=langsmith-signup\&utm_content=oss-langgraph-deploy). In the left sidebar, select **Deployments**.
 
-  <Step title="Link repository">
-    If you are a first time user or adding a private repository that has not been previously connected, click the **Add new account** button and follow the instructions to connect your GitHub account.
-  </Step>
+**2. Create new deployment**
 
-  <Step title="Deploy repository">
-    Select your application's repository. Click **Submit** to deploy. This may take about 15 minutes to complete. You can check the status in the **Deployment details** view.
-  </Step>
-</Steps>
+Click the **+ New Deployment** button. A pane will open where you can fill in the required fields.
+
+**3. Link repository**
+
+If you are a first time user or adding a private repository that has not been previously connected, click the **Add new account** button and follow the instructions to connect your GitHub account.
+
+**4. Deploy repository**
+
+Select your application's repository. Click **Submit** to deploy. This may take about 15 minutes to complete. You can check the status in the **Deployment details** view.
 
 #### 3. Test your application in Studio
 
@@ -125,72 +103,64 @@ Once your application is deployed:
 
 You can now test the API:
 
-<Tabs>
-  <Tab title="TypeScript">
-    1. Install LangGraph SDK:
+**TypeScript**
 
-    ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    npm install @langchain/langgraph-sdk
-    ```
+1. Install LangGraph SDK:
 
-    2. Send a message to the agent:
+```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+npm install @langchain/langgraph-sdk
+```
 
-    ```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    import { Client } from "@langchain/langgraph-sdk";
+2. Send a message to the agent:
 
-    const client = new Client({ apiUrl: "your-deployment-url", apiKey: "your-langsmith-api-key" });
+```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import { Client } from "@langchain/langgraph-sdk";
 
-    const streamResponse = client.runs.stream(
-      null,    // Threadless run
-      "agent", // Name of agent. Defined in langgraph.json.
-      {
-        input: {
-          "messages": [
-            { "role": "user", "content": "What is LangGraph?"}
-          ]
+const client = new Client({ apiUrl: "your-deployment-url", apiKey: "your-langsmith-api-key" });
+
+const streamResponse = client.runs.stream(
+  null,    // Threadless run
+  "agent", // Name of agent. Defined in langgraph.json.
+  {
+    input: {
+      "messages": [
+        { "role": "user", "content": "What is LangGraph?"}
+      ]
+    },
+    streamMode: "messages",
+  }
+);
+
+for await (const chunk of streamResponse) {
+  console.log(`Receiving new event of type: ${chunk.event}...`);
+  console.log(JSON.stringify(chunk.data));
+  console.log("\n\n");
+}
+```
+
+**Rest API**
+
+```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+curl -s --request POST \
+    --url <DEPLOYMENT_URL>/runs/stream \
+    --header 'Content-Type: application/json' \
+    --header "X-Api-Key: <LANGSMITH API KEY> \
+    --data "{
+        \"assistant_id\": \"agent\", `# Name of agent. Defined in langgraph.json.`
+        \"input\": {
+            \"messages\": [
+                {
+                    \"role\": \"human\",
+                    \"content\": \"What is LangGraph?\"
+                }
+            ]
         },
-        streamMode: "messages",
-      }
-    );
-
-    for await (const chunk of streamResponse) {
-      console.log(`Receiving new event of type: ${chunk.event}...`);
-      console.log(JSON.stringify(chunk.data));
-      console.log("\n\n");
-    }
-    ```
-  </Tab>
-
-  <Tab title="Rest API">
-    ```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    curl -s --request POST \
-        --url <DEPLOYMENT_URL>/runs/stream \
-        --header 'Content-Type: application/json' \
-        --header "X-Api-Key: <LANGSMITH API KEY> \
-        --data "{
-            \"assistant_id\": \"agent\", `# Name of agent. Defined in langgraph.json.`
-            \"input\": {
-                \"messages\": [
-                    {
-                        \"role\": \"human\",
-                        \"content\": \"What is LangGraph?\"
-                    }
-                ]
-            },
-            \"stream_mode\": \"updates\"
-        }"
-    ```
-  </Tab>
-</Tabs>
+        \"stream_mode\": \"updates\"
+    }"
+```
 
 ***
 
-<div>
-  <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
-  </Callout>
+[Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
 
-  <Callout icon="edit">
-    [Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/deploy.mdx) or [file an issue](https://github.com/langchain-ai/docs/issues/new/choose).
-  </Callout>
-</div>
+[Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/deploy.mdx) or [file an issue](https://github.com/langchain-ai/docs/issues/new/choose).

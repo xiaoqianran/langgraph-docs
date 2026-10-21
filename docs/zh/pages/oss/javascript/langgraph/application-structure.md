@@ -8,9 +8,9 @@ LangGraph 应用程序由一个或多个图、一个配置文件 (`langgraph.jso
 
 本指南展示了应用程序的典型结构，并向您展示如何提供使用 [LangSmith Deployment](/langsmith/deployment) 部署应用程序所需的配置。
 
-<Info>
-  LangSmith Deployment 是一个托管托管平台，用于部署和扩展LangGraph 代理。它处理基础架构、扩展和操作问题，因此您可以直接从存储库部署有状态、长期运行的代理。了解更多信息[Deployment documentation](/langsmith/deployment)。
-</Info>
+> [!注意]
+>
+> LangSmith Deployment 是一个托管托管平台，用于部署和扩展 LangGraph 代理。它处理基础架构、扩展和操作问题，因此您可以直接从存储库部署有状态、长期运行的代理。了解更多信息[Deployment documentation](/langsmith/deployment)。
 
 ## 关键概念
 
@@ -36,9 +36,9 @@ my-app/
 ├── package.json # package dependencies
 ├── .env # environment variables
 └── langgraph.json # configuration file for LangGraph
-```<Note>
-  LangGraph 应用程序的目录结构可能会根据所使用的编程语言和包管理器而有所不同。
-</Note>
+```> [!注意]
+>
+> LangGraph 应用程序的目录结构可能会根据所使用的编程语言和包管理器而有所不同。
 
 ## 配置文件
 
@@ -46,9 +46,9 @@ my-app/
 
 有关 JSON 文件中所有支持的键的详细信息，请参阅 [LangGraph configuration file reference](/langsmith/cli#configuration-file)。
 
-<Tip>
-  [LangGraph CLI](/langsmith/cli) 默认使用当前目录下的配置文件`langgraph.json`。
-</Tip>
+> [!提示]
+>
+> [LangGraph CLI](/langsmith/cli) 默认使用当前目录下的配置文件`langgraph.json`。
 
 ### 示例
 
@@ -92,12 +92,6 @@ LangGraph 应用程序可能依赖于其他 TypeScript/JavaScript 库。
 
 ***
 
-<div>
-  <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
-  </Callout>
+[Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
 
-  <Callout icon="edit">
-    [Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/application-structure.mdx) 或 [file an issue](https://github.com/langchain-ai/docs/issues/new/choose)。
-  </Callout>
-</div>
+[Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/application-structure.mdx) 或 [file an issue](https://github.com/langchain-ai/docs/issues/new/choose)。

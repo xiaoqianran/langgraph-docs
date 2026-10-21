@@ -56,29 +56,29 @@ await agent.invoke(
 
 ## 登录到项目
 
-<Accordion title="Statically">
-  您可以通过设置 `LANGSMITH_PROJECT` 环境变量来为整个应用程序设置自定义项目名称：
+> **静态**
+>
+> 您可以通过设置 `LANGSMITH_PROJECT` 环境变量来为整个应用程序设置自定义项目名称：
+>
+> ```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> export LANGSMITH_PROJECT=my-agent-project
+> ```
 
-  ```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  export LANGSMITH_PROJECT=my-agent-project
-  ```
-</Accordion>
-
-<Accordion title="Dynamically">
-  您可以通过编程方式设置项目名称以进行特定操作：
-
-  ```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  import { LangChainTracer } from "@langchain/core/tracers/tracer_langchain";
-
-  const tracer = new LangChainTracer({ projectName: "email-agent-test" });
-  await agent.invoke(
-    {
-      messages: [{role: "user", content: "Send a test email to alice@example.com"}]
-    },
-    { callbacks: [tracer] }
-  );
-  ```
-</Accordion>
+> **动态**
+>
+> 您可以通过编程方式设置项目名称以进行特定操作：
+>
+> ```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import { LangChainTracer } from "@langchain/core/tracers/tracer_langchain";
+>
+> const tracer = new LangChainTracer({ projectName: "email-agent-test" });
+> await agent.invoke(
+>   {
+>     messages: [{role: "user", content: "Send a test email to alice@example.com"}]
+>   },
+>   { callbacks: [tracer] }
+> );
+> ```
 
 ## 将元数据添加到跟踪中您可以使用自定义元数据和标签来注释您的跟踪：
 
@@ -104,9 +104,9 @@ await agent.invoke(
 
 此自定义元数据和标签将附加到 LangSmith 中的跟踪。
 
-<Tip>
-  要了解有关如何使用跟踪来调试、评估和监控代理的更多信息，请参阅 [LangSmith documentation](/langsmith/observability)。
-</Tip>
+> [!提示]
+>
+> 要了解有关如何使用跟踪来调试、评估和监控代理的更多信息，请参阅 [LangSmith documentation](/langsmith/observability)。
 
 ## 使用匿名器来防止在跟踪中记录敏感数据
 
@@ -137,12 +137,6 @@ export const graph = new StateGraph(StateAnnotation)
 
 ***
 
-<div>
-  <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
-  </Callout>
+[Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
 
-  <Callout icon="edit">
-    [Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/observability.mdx) 或 [file an issue](https://github.com/langchain-ai/docs/issues/new/choose)。
-  </Callout>
-</div>
+[Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/observability.mdx) 或 [file an issue](https://github.com/langchain-ai/docs/issues/new/choose)。

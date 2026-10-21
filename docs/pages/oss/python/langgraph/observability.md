@@ -45,26 +45,26 @@ agent.invoke({"messages": [{"role": "user", "content": "Send another email"}]})
 
 ## Log to a project
 
-<Accordion title="Statically">
-  You can set a custom project name for your entire application by setting the `LANGSMITH_PROJECT` environment variable:
+> **Statically**
+>
+> You can set a custom project name for your entire application by setting the `LANGSMITH_PROJECT` environment variable:
+>
+> ```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> export LANGSMITH_PROJECT=my-agent-project
+> ```
 
-  ```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  export LANGSMITH_PROJECT=my-agent-project
-  ```
-</Accordion>
-
-<Accordion title="Dynamically">
-  You can set the project name programmatically for specific operations:
-
-  ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  import langsmith as ls
-
-  with ls.tracing_context(project_name="email-agent-test", enabled=True):
-      response = agent.invoke({
-          "messages": [{"role": "user", "content": "Send a welcome email"}]
-      })
-  ```
-</Accordion>
+> **Dynamically**
+>
+> You can set the project name programmatically for specific operations:
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import langsmith as ls
+>
+> with ls.tracing_context(project_name="email-agent-test", enabled=True):
+>     response = agent.invoke({
+>         "messages": [{"role": "user", "content": "Send a welcome email"}]
+>     })
+> ```
 
 ## Add metadata to traces
 
@@ -99,9 +99,9 @@ with ls.tracing_context(
 
 This custom metadata and tags will be attached to the trace in LangSmith.
 
-<Tip>
-  To learn more about how to use traces to debug, evaluate, and monitor your agents, see the [LangSmith documentation](/langsmith/observability).
-</Tip>
+> [!TIP]
+>
+> To learn more about how to use traces to debug, evaluate, and monitor your agents, see the [LangSmith documentation](/langsmith/observability).
 
 ## Use anonymizers to prevent logging of sensitive data in traces
 
@@ -132,12 +132,6 @@ graph = (
 
 ***
 
-<div>
-  <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
-  </Callout>
+[Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
 
-  <Callout icon="edit">
-    [Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/observability.mdx) or [file an issue](https://github.com/langchain-ai/docs/issues/new/choose).
-  </Callout>
-</div>
+[Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/observability.mdx) or [file an issue](https://github.com/langchain-ai/docs/issues/new/choose).

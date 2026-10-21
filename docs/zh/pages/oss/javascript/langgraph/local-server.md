@@ -20,38 +20,38 @@ npm install --save-dev @langchain/langgraph-cli
 
 ## 2. 创建一个LangGraph应用程序
 
-从 [⟦T14⟧ template](https://github.com/langchain-ai/new-langgraphjs-project) 创建一个新应用程序。该模板演示了您可以使用自己的逻辑进行扩展的单节点应用程序。
+从 [⟦T14⟧ template](https://github.com/langchain-ai/new-langgraphjs-project) 创建一个新应用程序。此模板演示了您可以使用自己的逻辑进行扩展的单节点应用程序。
 
 ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 npm create langgraph
 ```
 
-<Accordion title="Adding LangGraph to an existing project">
-  如果您已有包含LangGraph代理的项目，则可以使用`config`命令自动生成`langgraph.json`配置文件：
-
-  ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  npm create langgraph config
-  ```
-
-  此命令扫描项目中的 LangGraph 代理（例如 `createAgent()`、`StateGraph.compile()` 或 `workflow.compile()` 模式），并生成包含所有导出代理的配置文件。
-
-  输出示例：
-
-  ```json theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  {
-    "node_version": "24",
-    "graphs": {
-      "agent": "./src/agent.ts:agent",
-      "searchAgent": "./src/search.ts:searchAgent"
-    },
-    "env": ".env"
-  }
-  ```
-
-  <Tip>
-    配置中仅包含**导出的**代理。如果未导出代理，该命令会警告您，以便您添加 `export` 关键字。
-  </Tip>
-</Accordion>
+> **将 LangGraph 添加到现有项目**
+>
+> 如果您已有包含LangGraph代理的项目，则可以使用`config`命令自动生成`langgraph.json`配置文件：
+>
+> ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> npm create langgraph config
+> ```
+>
+> 此命令扫描您的项目中的 LangGraph 代理（例如 `createAgent()`、`StateGraph.compile()` 或 `workflow.compile()` 模式），并生成包含所有导出代理的配置文件。
+>
+> 输出示例：
+>
+> ```json theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> {
+>   "node_version": "24",
+>   "graphs": {
+>     "agent": "./src/agent.ts:agent",
+>     "searchAgent": "./src/search.ts:searchAgent"
+>   },
+>   "env": ".env"
+> }
+> ```
+>
+>> [!提示]
+>>
+>> 配置中仅包含**导出的**代理。如果未导出代理，该命令会警告您，以便您添加 `export` 关键字。
 
 ## 3.安装依赖项
 
@@ -99,7 +99,7 @@ For production use, please use LangSmith Deployment.
 
 ## 6. 在 Studio 中测试您的应用程序
 
-[Studio](/langsmith/studio) 是一个专门的 UI，您可以连接到 LangGraph API 服务器以在本地可视化、交互和调试您的应用程序。通过访问 `langgraph dev` 命令输出中提供的 URL 来测试您的图形：
+[Studio](/langsmith/studio) 是一个专用 UI，您可以连接到 LangGraph API 服务器以在本地可视化、交互和调试您的应用程序。通过访问 `langgraph dev` 命令输出中提供的 URL 来测试您的图形：
 
 ```
 >    - LangGraph Studio Web UI: https://smith.langchain.com/studio/?baseUrl=http://127.0.0.1:2024
@@ -111,69 +111,67 @@ For production use, please use LangSmith Deployment.
 https://smith.langchain.com/studio/?baseUrl=http://myhost:3000
 ```
 
-<Accordion title="Safari compatibility">
-  在命令中使用 `--tunnel` 标志来创建安全隧道，因为 Safari 在连接到本地主机服务器时有限制：
+> **Safari 兼容性**
+>
+> 在命令中使用 `--tunnel` 标志来创建安全隧道，因为 Safari 在连接到本地主机服务器时有限制：
+>
+> ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> langgraph dev --tunnel
+> ```
 
-  ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  langgraph dev --tunnel
-  ```
-</Accordion>
+## 7. 测试 API
 
-## 7. 测试 API<Tabs>
-  <Tab title="Javascript SDK">
-    1.安装LangGraphJS SDK：
-       ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-       npm install @langchain/langgraph-sdk
-       ```
-    2.向助手发送消息（无线程运行）：
+**Javascript SDK**1.安装LangGraphJS SDK：
+   ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+   npm install @langchain/langgraph-sdk
+   ```
+2.向助手发送消息（无线程运行）：
 
-    ```js theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    import { Client } from "@langchain/langgraph-sdk";
+```js theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import { Client } from "@langchain/langgraph-sdk";
 
-    // only set the apiUrl if you changed the default port when calling langgraph dev
-    const client = new Client({ apiUrl: "http://localhost:2024"});
+// only set the apiUrl if you changed the default port when calling langgraph dev
+const client = new Client({ apiUrl: "http://localhost:2024"});
 
-    const streamResponse = client.runs.stream(
-      null, // Threadless run
-      "agent", // Assistant ID
-      {
-        input: {
-          "messages": [
-            { "role": "user", "content": "What is LangGraph?"}
-          ]
+const streamResponse = client.runs.stream(
+  null, // Threadless run
+  "agent", // Assistant ID
+  {
+    input: {
+      "messages": [
+        { "role": "user", "content": "What is LangGraph?"}
+      ]
+    },
+    streamMode: "messages-tuple",
+  }
+);
+
+for await (const chunk of streamResponse) {
+  console.log(`Receiving new event of type: ${chunk.event}...`);
+  console.log(JSON.stringify(chunk.data));
+  console.log("\n\n");
+}
+```
+
+**休息API**
+
+```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+curl -s --request POST \
+    --url "http://localhost:2024/runs/stream" \
+    --header 'Content-Type: application/json' \
+    --data "{
+        \"assistant_id\": \"agent\",
+        \"input\": {
+            \"messages\": [
+                {
+                    \"role\": \"human\",
+                    \"content\": \"What is LangGraph?\"
+                }
+            ]
         },
-        streamMode: "messages-tuple",
-      }
-    );
-
-    for await (const chunk of streamResponse) {
-      console.log(`Receiving new event of type: ${chunk.event}...`);
-      console.log(JSON.stringify(chunk.data));
-      console.log("\n\n");
-    }
-    ```
-  </Tab>
-
-  <Tab title="Rest API">
-    ```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    curl -s --request POST \
-        --url "http://localhost:2024/runs/stream" \
-        --header 'Content-Type: application/json' \
-        --data "{
-            \"assistant_id\": \"agent\",
-            \"input\": {
-                \"messages\": [
-                    {
-                        \"role\": \"human\",
-                        \"content\": \"What is LangGraph?\"
-                    }
-                ]
-            },
-            \"stream_mode\": \"messages-tuple\"
-        }"
-    ```
-  </Tab>
-</Tabs>
+        \"stream_mode\": \"messages-tuple\"
+    }"
+```
 
 ## 后续步骤
 
@@ -187,12 +185,6 @@ https://smith.langchain.com/studio/?baseUrl=http://myhost:3000
 
 ***
 
-<div>
-  <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
-  </Callout>
+[Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
 
-  <Callout icon="edit">
-    [Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/local-server.mdx) 或 [file an issue](https://github.com/langchain-ai/docs/issues/new/choose)。
-  </Callout>
-</div>
+[Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/local-server.mdx) 或 [file an issue](https://github.com/langchain-ai/docs/issues/new/choose)。

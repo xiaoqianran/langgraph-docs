@@ -73,17 +73,17 @@ await graph.invoke(new Command({ resume: true }), config);
 * 节点从恢复时调用[⟦T56⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt)的节点开始重新启动，因此[⟦T57⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt)之前的任何代码都会再次运行
 * 您可以传递任何 JSON 可序列化值作为恢复值，当您指定 Zod `responseSchema` 时需要进行验证
 
-<Warning>
-  `new Command({ resume: ... })` 是**唯一** `Command` 模式，旨在作为 `invoke()`/`stream()`/`stream_events()` 的输入。其他`Command`参数（`update`、`goto`、`graph`）是为[returning from node functions](/oss/javascript/langgraph/graph-api#command)设计的。不要传递 `new Command({ update: ... })` 作为输入来继续多轮对话，而是传递一个普通的输入对象。
-</Warning>
+> [!警告]
+>
+> `new Command({ resume: ... })` 是**唯一** `Command` 模式，旨在作为 `invoke()`/`stream()`/`stream_events()` 的输入。其他`Command`参数（`update`、`goto`、`graph`）是为[returning from node functions](/oss/javascript/langgraph/graph-api#command)设计的。不要传递 `new Command({ update: ... })` 作为输入来继续多轮对话，而是传递一个普通的输入对象。
 
 ## 定义中断响应模式
 
 [⟦T70⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 的 `responseSchema` 选项描述了恢复图表时预期的输入。客户端可以使用该架构来呈现键入的输入表单。
 
-<Note>
-  中断响应模式需要 `@langchain/langgraph` 版本 1.4.16 或更高版本。
-</Note>
+> [!注意]
+>
+> 中断响应模式需要 `@langchain/langgraph` 版本 1.4.16 或更高版本。
 
 传递 Zod 架构来验证简历值。 LangGraph 将其转换为 JSON 架构，并将其包含在 `Interrupt.response_schema` 中，与中断的 `value` 负载分开。该模式可用于返回调用者的中断和检查点任务中断。此示例使用 LangGraph 中断测试的批准模式：
 
@@ -132,19 +132,19 @@ console.log(resumed.answer);
 
 Studio 将中断响应架构呈现为键入的输入字段而不是 JSON 编辑器。 Studio 组件的此预览使用带有批准、注释和数字金额字段的示例数据。
 
-<img alt="Studio interrupt form with an approval toggle, a note field, and a numeric amount set to 125.50" />
+![Studio interrupt form with an approval toggle, a note field, and a numeric amount set to 125.50](https://mintcdn.com/langchain-5e9cc07a/u62GP5wl5NeQqwjE/images/langgraph-interrupt-response-schema.png?fit=max\&auto=format\&n=u62GP5wl5NeQqwjE\&q=85\&s=b10304786d356849862616a60b74aa3d)
 
 ## 常见模式
 
-中断解锁的关键是能够暂停执行并等待外部输入。这对于各种用例都很有用，包括：* <Icon icon="circle-check" /> [Approval workflows](#approve-or-reject)：在执行关键操作（API 调用、数据库更改、金融交易）之前暂停
-* <Icon icon="link" /> [Handling multiple interrupts](#handling-multiple-interrupts)：在单次调用中恢复多个中断时，将中断 ID 与恢复值配对
-* <Icon icon="pencil" /> [Review and edit](#review-and-edit-state)：让人们在继续之前检查和修改LLM输出或工具调用
-* <Icon icon="tool" /> [Interrupting tool calls](#interrupts-in-tools)：执行工具调用前暂停，以在执行前查看和编辑工具调用
-* <Icon icon="shield-check" /> [Validating human input](#validating-human-input)：在继续下一步验证人工输入之前暂停
+中断解锁的关键是能够暂停执行并等待外部输入。这对于各种用例都很有用，包括：* [Approval workflows](#approve-or-reject)：在执行关键操作（API 调用、数据库更改、金融交易）之前暂停
+* [Handling multiple interrupts](#handling-multiple-interrupts)：在单次调用中恢复多个中断时将中断 ID 与恢复值配对
+* [Review and edit](#review-and-edit-state)：让人们在继续之前检查和修改LLM输出或工具调用
+* [Interrupting tool calls](#interrupts-in-tools)：执行工具调用前暂停，以在执行前查看和编辑工具调用
+* [Validating human input](#validating-human-input)：在继续下一步验证人工输入之前暂停
 
 ### 具有人机交互 (HITL) 中断的流
 
-当使用人机交互工作流程构建交互式代理时，您可以使用[event streaming](/oss/javascript/langgraph/event-streaming)在处理中断时同时使用消息块和状态快照。
+当使用人机交互工作流程构建交互式代理时，您可以使用[event streaming](/oss/javascript/langgraph/event-streaming)在处理中断的同时同时使用消息块和状态快照。
 
 循环使用 `graph.stream_events(..., version="v3")` 返回的类型化投影，直到运行完成：
 
@@ -183,9 +183,9 @@ while (true) {
 }
 ```
 
-<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/7ebae998-6b68-4caa-a262-38d84efc922f/r">
-  为此示例打开公共 LangSmith 运行。
-</Card>* **`stream.messages`**：聊天模型输出为内容块；迭代 `message.text` 以获得代币增量。对于嵌套子图，从`stream.subgraphs[*].messages`读取消息块。
+> **[View example trace](https://smith.langchain.com/public/7ebae998-6b68-4caa-a262-38d84efc922f/r)**
+>
+> 为此示例打开公共 LangSmith 运行。* **`stream.messages`**：聊天模型输出为内容块；迭代 `message.text` 以获得代币增量。对于嵌套子图，从`stream.subgraphs[*].messages`读取消息块。
 * **`stream.values`**：每一步后的完整状态快照
 * **`stream.interrupted` / `stream.interrupts`**：每次运行后，检查图形是否暂停；从`stream.interrupts`读取有效负载
 * **`Command(resume=...)`**：作为下一个`streamEvents`输入进行恢复；循环直到运行完成而不中断
@@ -303,56 +303,56 @@ await graph.invoke(new Command({ resume: true }), config);
 await graph.invoke(new Command({ resume: false }), config);
 ```
 
-<Accordion title="Full example">
-  ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  import {
-    Command,
-    MemorySaver,
-    START,
-    END,
-    StateGraph,
-    StateSchema,
-    interrupt,
-  } from "@langchain/langgraph";
-  import * as z from "zod";
-
-  const State = new StateSchema({
-    actionDetails: z.string(),
-    status: z.enum(["pending", "approved", "rejected"]).nullable(),
-  });
-
-  const graphBuilder = new StateGraph(State)
-    .addNode("approval", async (state) => {
-      // Expose details so the caller can render them in a UI
-      const decision = interrupt({
-        question: "Approve this action?",
-        details: state.actionDetails,
-      });
-      return new Command({ goto: decision ? "proceed" : "cancel" });
-    }, { ends: ['proceed', 'cancel'] })
-    .addNode("proceed", () => ({ status: "approved" }))
-    .addNode("cancel", () => ({ status: "rejected" }))
-    .addEdge(START, "approval")
-    .addEdge("proceed", END)
-    .addEdge("cancel", END);
-
-  // Use a more durable checkpointer in production
-  const checkpointer = new MemorySaver();
-  const graph = graphBuilder.compile({ checkpointer });
-
-  const config = { configurable: { thread_id: "approval-123" } };
-  const initial = await graph.invoke(
-    { actionDetails: "Transfer $500", status: "pending" },
-    config,
-  );
-  console.log(initial.__interrupt__);
-  // [{ value: { question: ..., details: ... } }]
-
-  // Resume with the decision; true routes to proceed, false to cancel
-  const resumed = await graph.invoke(new Command({ resume: true }), config);
-  console.log(resumed.status); // -> "approved"
-  ```
-</Accordion>
+> **完整示例**
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import {
+>   Command,
+>   MemorySaver,
+>   START,
+>   END,
+>   StateGraph,
+>   StateSchema,
+>   interrupt,
+> } from "@langchain/langgraph";
+> import * as z from "zod";
+>
+> const State = new StateSchema({
+>   actionDetails: z.string(),
+>   status: z.enum(["pending", "approved", "rejected"]).nullable(),
+> });
+>
+> const graphBuilder = new StateGraph(State)
+>   .addNode("approval", async (state) => {
+>     // Expose details so the caller can render them in a UI
+>     const decision = interrupt({
+>       question: "Approve this action?",
+>       details: state.actionDetails,
+>     });
+>     return new Command({ goto: decision ? "proceed" : "cancel" });
+>   }, { ends: ['proceed', 'cancel'] })
+>   .addNode("proceed", () => ({ status: "approved" }))
+>   .addNode("cancel", () => ({ status: "rejected" }))
+>   .addEdge(START, "approval")
+>   .addEdge("proceed", END)
+>   .addEdge("cancel", END);
+>
+> // Use a more durable checkpointer in production
+> const checkpointer = new MemorySaver();
+> const graph = graphBuilder.compile({ checkpointer });
+>
+> const config = { configurable: { thread_id: "approval-123" } };
+> const initial = await graph.invoke(
+>   { actionDetails: "Transfer $500", status: "pending" },
+>   config,
+> );
+> console.log(initial.__interrupt__);
+> // [{ value: { question: ..., details: ... } }]
+>
+> // Resume with the decision; true routes to proceed, false to cancel
+> const resumed = await graph.invoke(new Command({ resume: true }), config);
+> console.log(resumed.status); // -> "approved"
+> ```
 
 ### 查看和编辑状态有时，您希望在继续之前让人工检查并编辑部分图形状态。这对于纠正法学硕士、添加缺失的信息或进行调整非常有用。
 
@@ -380,51 +380,51 @@ await graph.invoke(
 );
 ```
 
-<Accordion title="Full example">
-  ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  import {
-    Command,
-    MemorySaver,
-    START,
-    END,
-    StateGraph,
-    StateSchema,
-    interrupt,
-  } from "@langchain/langgraph";
-  import * as z from "zod";
-
-  const State = new StateSchema({
-    generatedText: z.string(),
-  });
-
-  const builder = new StateGraph(State)
-    .addNode("review", async (state) => {
-      // Ask a reviewer to edit the generated content
-      const updated = interrupt({
-        instruction: "Review and edit this content",
-        content: state.generatedText,
-      });
-      return { generatedText: updated };
-    })
-    .addEdge(START, "review")
-    .addEdge("review", END);
-
-  const checkpointer = new MemorySaver();
-  const graph = builder.compile({ checkpointer });
-
-  const config = { configurable: { thread_id: "review-42" } };
-  const initial = await graph.invoke({ generatedText: "Initial draft" }, config);
-  console.log(initial.__interrupt__);
-  // [{ value: { instruction: ..., content: ... } }]
-
-  // Resume with the edited text from the reviewer
-  const finalState = await graph.invoke(
-    new Command({ resume: "Improved draft after review" }),
-    config,
-  );
-  console.log(finalState.generatedText); // -> "Improved draft after review"
-  ```
-</Accordion>
+> **完整示例**
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import {
+>   Command,
+>   MemorySaver,
+>   START,
+>   END,
+>   StateGraph,
+>   StateSchema,
+>   interrupt,
+> } from "@langchain/langgraph";
+> import * as z from "zod";
+>
+> const State = new StateSchema({
+>   generatedText: z.string(),
+> });
+>
+> const builder = new StateGraph(State)
+>   .addNode("review", async (state) => {
+>     // Ask a reviewer to edit the generated content
+>     const updated = interrupt({
+>       instruction: "Review and edit this content",
+>       content: state.generatedText,
+>     });
+>     return { generatedText: updated };
+>   })
+>   .addEdge(START, "review")
+>   .addEdge("review", END);
+>
+> const checkpointer = new MemorySaver();
+> const graph = builder.compile({ checkpointer });
+>
+> const config = { configurable: { thread_id: "review-42" } };
+> const initial = await graph.invoke({ generatedText: "Initial draft" }, config);
+> console.log(initial.__interrupt__);
+> // [{ value: { instruction: ..., content: ... } }]
+>
+> // Resume with the edited text from the reviewer
+> const finalState = await graph.invoke(
+>   new Command({ resume: "Improved draft after review" }),
+>   config,
+> );
+> console.log(finalState.generatedText); // -> "Improved draft after review"
+> ```
 
 ### 工具中断
 
@@ -471,101 +471,101 @@ const sendEmailTool = tool(
 
 当您希望批准逻辑与工具本身一起存在时，这种方法非常有用，使其可以在图表的不同部分中重复使用。 LLM 可以自然地调用该工具，每当调用该工具时中断就会暂停执行，允许您批准、编辑或取消操作。
 
-<Accordion title="Full example">
-  ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  import { tool } from "@langchain/core/tools";
-  import { ChatAnthropic } from "@langchain/anthropic";
-  import {
-    Command,
-    MemorySaver,
-    START,
-    END,
-    StateGraph,
-    StateSchema,
-    MessagesValue,
-    GraphNode,
-    interrupt,
-  } from "@langchain/langgraph";
-  import * as z from "zod";
-
-  const sendEmailTool = tool(
-    async ({ to, subject, body }) => {
-      // Pause before sending; payload surfaces in result.__interrupt__
-      const response = interrupt({
-        action: "send_email",
-        to,
-        subject,
-        body,
-        message: "Approve sending this email?",
-      });
-
-      if (response?.action === "approve") {
-        const finalTo = response.to ?? to;
-        const finalSubject = response.subject ?? subject;
-        const finalBody = response.body ?? body;
-        console.log("[sendEmailTool]", finalTo, finalSubject, finalBody);
-        return `Email sent to ${finalTo}`;
-      }
-      return "Email cancelled by user";
-    },
-    {
-      name: "send_email",
-      description: "Send an email to a recipient",
-      schema: z.object({
-        to: z.string(),
-        subject: z.string(),
-        body: z.string(),
-      }),
-    },
-  );
-
-  const model = new ChatAnthropic({ model: "claude-sonnet-4-6" }).bindTools([sendEmailTool]);
-
-  const State = new StateSchema({
-    messages: MessagesValue,
-  });
-
-  const agent: typeof State.Node = async (state) => {
-    // LLM may decide to call the tool; interrupt pauses before sending
-    const response = await model.invoke(state.messages);
-    return { messages: [response] };
-  };
-
-  const graphBuilder = new StateGraph(State)
-    .addNode("agent", agent)
-    .addEdge(START, "agent")
-    .addEdge("agent", END);
-
-  const checkpointer = new MemorySaver();
-  const graph = graphBuilder.compile({ checkpointer });
-
-  const config = { configurable: { thread_id: "email-workflow" } };
-  const initial = await graph.invoke(
-    {
-      messages: [
-        { role: "user", content: "Send an email to alice@example.com about the meeting" },
-      ],
-    },
-    config,
-  );
-  console.log(initial.__interrupt__); // -> [{ value: { action: 'send_email', ... } }]
-
-  // Resume with approval and optionally edited arguments
-  const resumed = await graph.invoke(
-    new Command({
-      resume: { action: "approve", subject: "Updated subject" },
-    }),
-    config,
-  );
-  console.log(resumed.messages.at(-1)); // -> Tool result returned by send_email
-  ```
-</Accordion>
+> **完整示例**
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import { tool } from "@langchain/core/tools";
+> import { ChatAnthropic } from "@langchain/anthropic";
+> import {
+>   Command,
+>   MemorySaver,
+>   START,
+>   END,
+>   StateGraph,
+>   StateSchema,
+>   MessagesValue,
+>   GraphNode,
+>   interrupt,
+> } from "@langchain/langgraph";
+> import * as z from "zod";
+>
+> const sendEmailTool = tool(
+>   async ({ to, subject, body }) => {
+>     // Pause before sending; payload surfaces in result.__interrupt__
+>     const response = interrupt({
+>       action: "send_email",
+>       to,
+>       subject,
+>       body,
+>       message: "Approve sending this email?",
+>     });
+>
+>     if (response?.action === "approve") {
+>       const finalTo = response.to ?? to;
+>       const finalSubject = response.subject ?? subject;
+>       const finalBody = response.body ?? body;
+>       console.log("[sendEmailTool]", finalTo, finalSubject, finalBody);
+>       return `Email sent to ${finalTo}`;
+>     }
+>     return "Email cancelled by user";
+>   },
+>   {
+>     name: "send_email",
+>     description: "Send an email to a recipient",
+>     schema: z.object({
+>       to: z.string(),
+>       subject: z.string(),
+>       body: z.string(),
+>     }),
+>   },
+> );
+>
+> const model = new ChatAnthropic({ model: "claude-sonnet-4-6" }).bindTools([sendEmailTool]);
+>
+> const State = new StateSchema({
+>   messages: MessagesValue,
+> });
+>
+> const agent: typeof State.Node = async (state) => {
+>   // LLM may decide to call the tool; interrupt pauses before sending
+>   const response = await model.invoke(state.messages);
+>   return { messages: [response] };
+> };
+>
+> const graphBuilder = new StateGraph(State)
+>   .addNode("agent", agent)
+>   .addEdge(START, "agent")
+>   .addEdge("agent", END);
+>
+> const checkpointer = new MemorySaver();
+> const graph = graphBuilder.compile({ checkpointer });
+>
+> const config = { configurable: { thread_id: "email-workflow" } };
+> const initial = await graph.invoke(
+>   {
+>     messages: [
+>       { role: "user", content: "Send an email to alice@example.com about the meeting" },
+>     ],
+>   },
+>   config,
+> );
+> console.log(initial.__interrupt__); // -> [{ value: { action: 'send_email', ... } }]
+>
+> // Resume with approval and optionally edited arguments
+> const resumed = await graph.invoke(
+>   new Command({
+>     resume: { action: "approve", subject: "Updated subject" },
+>   }),
+>   config,
+> );
+> console.log(resumed.messages.at(-1)); // -> Tool result returned by send_email
+> ```
 
 ### 验证人工输入有时您需要验证人类的输入并重新提示该值是否无效。推荐的方法是调用`interrupt()` **每次节点调用一次**，从状态中存储错误消息的节点返回，并使用**条件边**循环回节点，直到提供有效值。
 
-<Warning>
-  **避免 `while True` + `interrupt()` 在单个节点内循环。** 因为节点在每次恢复时都从头重新运行（请参阅 [Rules of interrupts](#rules-of-interrupts)），所以多次调用 `interrupt()` 的循环会导致每个恢复重播所有先前的迭代：第一个恢复重播 1 次迭代，第二次重播 2 次迭代，依此类推。结果是循环体内任何代码的指数重新执行。
-</Warning>
+> [!警告]
+>
+> **避免 `while True` + `interrupt()` 在单个节点内循环。** 因为节点在每次恢复时都从头重新运行（请参阅 [Rules of interrupts](#rules-of-interrupts)），所以多次调用 `interrupt()` 的循环会导致每个恢复重播所有先前的迭代：第一个恢复重播 1 次迭代，第二次重播 2 次迭代，依此类推。结果是循环体内任何代码的指数重新执行。
 
 正确的模式：
 
@@ -594,103 +594,101 @@ const getAgeNode: typeof State.Node = (state) => {
 // );
 ```
 
-<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/9e6a7db8-1fa3-4f6f-91cc-3b48fcf5e6ec/r">
-  为此示例打开公共 LangSmith 运行。
-</Card>每个恢复调用 `getAgeNode` 一次，运行 `interrupt()` 调用一次，然后退出。当答案无效时，条件边沿循环返回，并且下一个中断会重新提示更新的问题。
+> **[View example trace](https://smith.langchain.com/public/9e6a7db8-1fa3-4f6f-91cc-3b48fcf5e6ec/r)**
+>
+> 为此示例打开公共 LangSmith 运行。每个恢复调用 `getAgeNode` 一次，运行 `interrupt()` 调用一次，然后退出。当答案无效时，条件边沿循环返回，并且下一个中断会重新提示更新的问题。
 
-<Accordion title="Full example">
-  ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  import {
-    Command,
-    MemorySaver,
-    START,
-    END,
-    StateGraph,
-    StateSchema,
-    interrupt,
-  } from "@langchain/langgraph";
-  import * as z from "zod";
-
-  const State = new StateSchema({
-    age: z.number().nullable(),
-    pendingQuestion: z.string().nullable(),
-  });
-
-  const builder = new StateGraph(State)
-    .addNode("collectAge", (state) => {
-      const question = state.pendingQuestion ?? "What is your age?";
-      const answer = interrupt(question); // called exactly once per invocation
-
-      if (typeof answer === "number" && answer > 0) {
-        return { age: answer, pendingQuestion: null };
-      }
-      return { pendingQuestion: `'${answer}' is not a valid age. Please enter a positive number.` };
-    })
-    .addEdge(START, "collectAge")
-    .addConditionalEdges("collectAge", (state) =>
-      state.age !== null ? END : "collectAge"
-    );
-
-  const checkpointer = new MemorySaver();
-  const graph = builder.compile({ checkpointer });
-
-  const config = { configurable: { thread_id: "form-1" } };
-  const first = await graph.invoke({ age: null, pendingQuestion: null }, config);
-  console.log(first.__interrupt__); // -> [{ value: "What is your age?", ... }]
-
-  // Provide invalid data; the node re-prompts via the conditional edge
-  const retry = await graph.invoke(new Command({ resume: "thirty" }), config);
-  console.log(retry.__interrupt__); // -> [{ value: "'thirty' is not a valid age...", ... }]
-
-  // Provide valid data; route returns END and the graph finishes
-  const final = await graph.invoke(new Command({ resume: 30 }), config);
-  console.log(final.age); // -> 30
-  ```
-</Accordion>
+> **完整示例**
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import {
+>   Command,
+>   MemorySaver,
+>   START,
+>   END,
+>   StateGraph,
+>   StateSchema,
+>   interrupt,
+> } from "@langchain/langgraph";
+> import * as z from "zod";
+>
+> const State = new StateSchema({
+>   age: z.number().nullable(),
+>   pendingQuestion: z.string().nullable(),
+> });
+>
+> const builder = new StateGraph(State)
+>   .addNode("collectAge", (state) => {
+>     const question = state.pendingQuestion ?? "What is your age?";
+>     const answer = interrupt(question); // called exactly once per invocation
+>
+>     if (typeof answer === "number" && answer > 0) {
+>       return { age: answer, pendingQuestion: null };
+>     }
+>     return { pendingQuestion: `'${answer}' is not a valid age. Please enter a positive number.` };
+>   })
+>   .addEdge(START, "collectAge")
+>   .addConditionalEdges("collectAge", (state) =>
+>     state.age !== null ? END : "collectAge"
+>   );
+>
+> const checkpointer = new MemorySaver();
+> const graph = builder.compile({ checkpointer });
+>
+> const config = { configurable: { thread_id: "form-1" } };
+> const first = await graph.invoke({ age: null, pendingQuestion: null }, config);
+> console.log(first.__interrupt__); // -> [{ value: "What is your age?", ... }]
+>
+> // Provide invalid data; the node re-prompts via the conditional edge
+> const retry = await graph.invoke(new Command({ resume: "thirty" }), config);
+> console.log(retry.__interrupt__); // -> [{ value: "'thirty' is not a valid age...", ... }]
+>
+> // Provide valid data; route returns END and the graph finishes
+> const final = await graph.invoke(new Command({ resume: 30 }), config);
+> console.log(final.age); // -> 30
+> ```
 
 ## 中断规则
 
-当您在节点内调用 [⟦T113⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 时，LangGraph 会引发异常，指示运行时暂停，从而暂停执行。该异常通过调用堆栈向上传播并被运行时捕获，通知图保存当前状态并等待外部输入。
+当您在节点内调用 [⟦T113⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 时，LangGraph 通过引发异常来通知运行时暂停，从而暂停执行。该异常通过调用堆栈向上传播并被运行时捕获，通知图保存当前状态并等待外部输入。
 
-当执行恢复时（在您提供请求的输入之后），运行时会从头开始重新启动整个节点 - 它不会从调用 [⟦T114⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 的确切行恢复。这意味着在 [⟦T115⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 之前运行的任何代码都将再次执行。因此，在处理中断时需要遵循一些重要规则，以确保它们按预期运行。
+当执行恢复时（在提供请求的输入之后），运行时会从头开始重新启动整个节点 - 它不会从调用 [⟦T114⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 的确切行恢复。这意味着在 [⟦T115⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 之前运行的任何代码都将再次执行。因此，在处理中断时需要遵循一些重要规则，以确保它们按预期运行。
 
 ### 不要将 `interrupt` 调用包装在 try/catch 中
 
 [⟦T117⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 在调用点暂停执行的方法是抛出一个特殊的异常。如果将 [⟦T118⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 调用包装在 try/catch 块中，您将捕获此异常，并且中断将不会传递回图表。* ✅ 将 [⟦T119⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 调用与容易出错的代码分开
 * ✅ 如果需要有条件地捕获错误
 
-<CodeGroup>
-  ```typescript Separating logic theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  const nodeA: GraphNode<typeof State> = async (state) => {
-    // ✅ Good: interrupting first, then handling error conditions separately
+```typescript Separating logic theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+const nodeA: GraphNode<typeof State> = async (state) => {
+  // ✅ Good: interrupting first, then handling error conditions separately
+  const name = interrupt("What's your name?");
+  try {
+    await fetchData(); // This can fail
+  } catch (err) {
+    console.error(error);
+  }
+  return state;
+}
+```
+
+```typescript Conditionally handling errors theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+const nodeA: GraphNode<typeof State> = async (state) => {
+  // ✅ Good: re-throwing the exception will
+  // allow the interrupt to be passed back to
+  // the graph
+  try {
     const name = interrupt("What's your name?");
-    try {
-      await fetchData(); // This can fail
-    } catch (err) {
+    await fetchData(); // This can fail
+  } catch (err) {
+    if (error instanceof NetworkError) {
       console.error(error);
     }
-    return state;
+    throw error;
   }
-  ```
-
-  ```typescript Conditionally handling errors theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  const nodeA: GraphNode<typeof State> = async (state) => {
-    // ✅ Good: re-throwing the exception will
-    // allow the interrupt to be passed back to
-    // the graph
-    try {
-      const name = interrupt("What's your name?");
-      await fetchData(); // This can fail
-    } catch (err) {
-      if (error instanceof NetworkError) {
-        console.error(error);
-      }
-      throw error;
-    }
-    return state;
-  }
-  ```
-</CodeGroup>
+  return state;
+}
+```
 
 * 🔴 不要将 [⟦T120⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 调用包装在裸露的 try/catch 块中
 
@@ -730,206 +728,196 @@ async function nodeA(state: State) {
 ```
 
 * 🔴 不要有条件地跳过节点内的 [⟦T123⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 调用
-* 🔴 不要使用跨执行不确定的逻辑来循环 [⟦T124⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 调用，包括 `while True` 验证循环。使用条件边代替（参见 [Validating human input](#validating-human-input)）
+* 🔴 不要使用跨执行不确定的逻辑来循环 [⟦T124⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 调用，包括 `while True` 验证循环。使用条件边（参见[Validating human input](#validating-human-input)）
 
-<CodeGroup>
-  ```typescript Skipping interrupts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  const nodeA: GraphNode<typeof State> = async (state) => {
-    // ❌ Bad: conditionally skipping interrupts changes the order
-    const name = interrupt("What's your name?");
+```typescript Skipping interrupts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+const nodeA: GraphNode<typeof State> = async (state) => {
+  // ❌ Bad: conditionally skipping interrupts changes the order
+  const name = interrupt("What's your name?");
 
-    // On first run, this might skip the interrupt
-    // On resume, it might not skip it - causing index mismatch
-    if (state.needsAge) {
-      const age = interrupt("What's your age?");
-    }
-
-    const city = interrupt("What's your city?");
-
-    return { name, city };
+  // On first run, this might skip the interrupt
+  // On resume, it might not skip it - causing index mismatch
+  if (state.needsAge) {
+    const age = interrupt("What's your age?");
   }
-  ```
 
-  ```typescript Looping interrupts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  const nodeA: GraphNode<typeof State> = async (state) => {
-    // ❌ Bad: looping based on non-deterministic data
-    // The number of interrupts changes between executions
-    const results = [];
-    for (const item of state.dynamicList || []) {  // List might change between runs
-      const result = interrupt(`Approve ${item}?`);
-      results.push(result);
-    }
+  const city = interrupt("What's your city?");
 
-    return { results };
+  return { name, city };
+}
+```
+
+```typescript Looping interrupts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+const nodeA: GraphNode<typeof State> = async (state) => {
+  // ❌ Bad: looping based on non-deterministic data
+  // The number of interrupts changes between executions
+  const results = [];
+  for (const item of state.dynamicList || []) {  // List might change between runs
+    const result = interrupt(`Approve ${item}?`);
+    results.push(result);
   }
-  ```
-</CodeGroup>
+
+  return { results };
+}
+```
 
 ### 不要在 `interrupt` 调用中返回复数值根据使用的检查指针，复杂值可能无法序列化（例如，您无法序列化函数）。为了使您的图表适应任何部署，最佳实践是仅使用可以合理序列化的值。
 
 * ✅ 将简单的 JSON 可序列化类型传递给 [⟦T127⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt)
 * ✅ 传递具有简单值的字典/对象
 
-<CodeGroup>
-  ```typescript Simple values theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  const nodeA: GraphNode<typeof State> = async (state) => {
-    // ✅ Good: passing simple types that are serializable
-    const name = interrupt("What's your name?");
-    const count = interrupt(42);
-    const approved = interrupt(true);
+```typescript Simple values theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+const nodeA: GraphNode<typeof State> = async (state) => {
+  // ✅ Good: passing simple types that are serializable
+  const name = interrupt("What's your name?");
+  const count = interrupt(42);
+  const approved = interrupt(true);
 
-    return { name, count, approved };
-  }
-  ```
+  return { name, count, approved };
+}
+```
 
-  ```typescript Structured data theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  const nodeA: GraphNode<typeof State> = async (state) => {
-    // ✅ Good: passing objects with simple values
-    const response = interrupt({
-      question: "Enter user details",
-      fields: ["name", "email", "age"],
-      currentValues: state.user || {}
-    });
+```typescript Structured data theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+const nodeA: GraphNode<typeof State> = async (state) => {
+  // ✅ Good: passing objects with simple values
+  const response = interrupt({
+    question: "Enter user details",
+    fields: ["name", "email", "age"],
+    currentValues: state.user || {}
+  });
 
-    return { user: response };
-  }
-  ```
-</CodeGroup>
+  return { user: response };
+}
+```
 
 * 🔴不要将函数、类实例或其他复杂对象传递给[⟦T128⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt)
 
-<CodeGroup>
-  ```typescript Functions theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  function validateInput(value: string): boolean {
-      return value.length > 0;
-  }
+```typescript Functions theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+function validateInput(value: string): boolean {
+    return value.length > 0;
+}
 
-  const nodeA: GraphNode<typeof State> = async (state) => {
-    // ❌ Bad: passing a function to interrupt
-    // The function cannot be serialized
-    const response = interrupt({
-      question: "What's your name?",
-      validator: validateInput  // This will fail
-    });
-    return { name: response };
-  }
-  ```
+const nodeA: GraphNode<typeof State> = async (state) => {
+  // ❌ Bad: passing a function to interrupt
+  // The function cannot be serialized
+  const response = interrupt({
+    question: "What's your name?",
+    validator: validateInput  // This will fail
+  });
+  return { name: response };
+}
+```
 
-  ```typescript Class instances theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  class DataProcessor {
-      constructor(private config: any) {}
-  }
+```typescript Class instances theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+class DataProcessor {
+    constructor(private config: any) {}
+}
 
-  const nodeA: GraphNode<typeof State> = async (state) => {
-    const processor = new DataProcessor({ mode: "strict" });
+const nodeA: GraphNode<typeof State> = async (state) => {
+  const processor = new DataProcessor({ mode: "strict" });
 
-    // ❌ Bad: passing a class instance to interrupt
-    // The instance cannot be serialized
-    const response = interrupt({
-      question: "Enter data to process",
-      processor: processor  // This will fail
-    });
-    return { result: response };
-  }
-  ```
-</CodeGroup>
+  // ❌ Bad: passing a class instance to interrupt
+  // The instance cannot be serialized
+  const response = interrupt({
+    question: "Enter data to process",
+    processor: processor  // This will fail
+  });
+  return { result: response };
+}
+```
 
 ### 在`interrupt`之前调用的副作用必须是幂等的
 
 因为中断是通过重新运行调用它们的节点来工作的，所以在 [⟦T130⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 之前调用的副作用应该（理想情况下）是幂等的。对于上下文来说，幂等性意味着可以多次应用相同的操作，而不会改变初始执行之外的结果。
 
-例如，您可能有一个 API 调用来更新节点内的记录。如果在调用之后调用[⟦T131⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt)，则当节点恢复时它将重新运行多次，可能会覆盖初始更新或创建重复记录。* ✅ 在[⟦T132⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt)之前使用幂等操作
+例如，您可能有一个 API 调用来更新节点内的记录。如果在调用之后调用[⟦T131⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt)，则当节点恢复时它将重新运行多次，可能会覆盖初始更新或创建重复记录。
+
+* ✅ 在[⟦T132⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt)之前使用幂等操作
 * ✅ 在 [⟦T133⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 调用之后放置副作用
-* ✅ 如果可能，将副作用分离到单独的节点中
+* ✅尽可能将副作用分离到单独的节点中```typescript Idempotent operations theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+const nodeA: GraphNode<typeof State> = async (state) => {
+  // ✅ Good: using upsert operation which is idempotent
+  // Running this multiple times will have the same result
+  await db.upsertUser({
+    userId: state.userId,
+    status: "pending_approval"
+  });
 
-<CodeGroup>
-  ```typescript Idempotent operations theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  const nodeA: GraphNode<typeof State> = async (state) => {
-    // ✅ Good: using upsert operation which is idempotent
-    // Running this multiple times will have the same result
-    await db.upsertUser({
+  const approved = interrupt("Approve this change?");
+
+  return { approved };
+}
+```
+
+```typescript Side effects after interrupt theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+const nodeA: GraphNode<typeof State> = async (state) => {
+  // ✅ Good: placing side effect after the interrupt
+  // This ensures it only runs once after approval is received
+  const approved = interrupt("Approve this change?");
+
+  if (approved) {
+    await db.createAuditLog({
       userId: state.userId,
-      status: "pending_approval"
+      action: "approved"
     });
-
-    const approved = interrupt("Approve this change?");
-
-    return { approved };
-  }
-  ```
-
-  ```typescript Side effects after interrupt theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  const nodeA: GraphNode<typeof State> = async (state) => {
-    // ✅ Good: placing side effect after the interrupt
-    // This ensures it only runs once after approval is received
-    const approved = interrupt("Approve this change?");
-
-    if (approved) {
-      await db.createAuditLog({
-        userId: state.userId,
-        action: "approved"
-      });
-    }
-
-    return { approved };
-  }
-  ```
-
-  ```typescript Separating into different nodes theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  const approvalNode: GraphNode<typeof State> = async (state) => {
-    // ✅ Good: only handling the interrupt in this node
-    const approved = interrupt("Approve this change?");
-
-    return { approved };
   }
 
-  const notificationNode: GraphNode<typeof State> = async (state) => {
-    // ✅ Good: side effect happens in a separate node
-    // This runs after approval, so it only executes once
-    if (state.approved) {
-      await sendNotification({
-        userId: state.userId,
-        status: "approved",
-      });
-    }
+  return { approved };
+}
+```
 
-    return state;
+```typescript Separating into different nodes theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+const approvalNode: GraphNode<typeof State> = async (state) => {
+  // ✅ Good: only handling the interrupt in this node
+  const approved = interrupt("Approve this change?");
+
+  return { approved };
+}
+
+const notificationNode: GraphNode<typeof State> = async (state) => {
+  // ✅ Good: side effect happens in a separate node
+  // This runs after approval, so it only executes once
+  if (state.approved) {
+    await sendNotification({
+      userId: state.userId,
+      status: "approved",
+    });
   }
-  ```
-</CodeGroup>
+
+  return state;
+}
+```
 
 * 🔴[⟦T134⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt)之前不要进行非幂等操作
-* 🔴 在未检查新记录是否存在的情况下不要创建新记录
+* 🔴 在未检查记录是否存在的情况下不要创建新记录
 
-<CodeGroup>
-  ```typescript Creating records theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  const nodeA: GraphNode<typeof State> = async (state) => {
-    // ❌ Bad: creating a new record before interrupt
-    // This will create duplicate records on each resume
-    const auditId = await db.createAuditLog({
-      userId: state.userId,
-      action: "pending_approval",
-      timestamp: new Date()
-    });
+```typescript Creating records theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+const nodeA: GraphNode<typeof State> = async (state) => {
+  // ❌ Bad: creating a new record before interrupt
+  // This will create duplicate records on each resume
+  const auditId = await db.createAuditLog({
+    userId: state.userId,
+    action: "pending_approval",
+    timestamp: new Date()
+  });
 
-    const approved = interrupt("Approve this change?");
+  const approved = interrupt("Approve this change?");
 
-    return { approved, auditId };
-  }
-  ```
+  return { approved, auditId };
+}
+```
 
-  ```typescript Appending to arrays theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  const nodeA: GraphNode<typeof State> = async (state) => {
-    // ❌ Bad: appending to an array before interrupt
-    // This will add duplicate entries on each resume
-    await db.appendToHistory(state.userId, "approval_requested");
+```typescript Appending to arrays theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+const nodeA: GraphNode<typeof State> = async (state) => {
+  // ❌ Bad: appending to an array before interrupt
+  // This will add duplicate entries on each resume
+  await db.appendToHistory(state.userId, "approval_requested");
 
-    const approved = interrupt("Approve this change?");
+  const approved = interrupt("Approve this change?");
 
-    return { approved };
-  }
-  ```
-</CodeGroup>
+  return { approved };
+}
+```
 
 ## 与称为函数的子图一起使用
 
@@ -953,79 +941,71 @@ async function nodeInSubgraph(state: State) {
 
 ## 使用中断进行调试
 
-要调试和测试图表，您可以使用静态中断作为断点，一次单步执行一个节点的图表执行。静态中断在节点执行之前或之后的定义点触发。您可以在编译图表时通过指定 `interruptBefore` 和 `interruptAfter` 来设置这些。
+要调试和测试图形，您可以使用静态中断作为断点，一次单步执行一个节点的图形执行。静态中断在节点执行之前或之后的定义点触发。您可以在编译图表时通过指定 `interruptBefore` 和 `interruptAfter` 来设置这些。
 
-<Note>
-  **不**建议将静态中断用于人机交互工作流程。请改用 [⟦T139⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 函数。
-</Note>
+> [!注意]
+>
+> **不**建议将静态中断用于人机交互工作流程。请改用 [⟦T139⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 函数。
 
-<Tabs>
-  <Tab title="At compile time">
-    ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    const graph = builder.compile({
-        interruptBefore: ["node_a"],  // [!code highlight]
-        interruptAfter: ["node_b", "node_c"],  // [!code highlight]
-        checkpointer,
-    });
+**编译时**
 
-    // Pass a thread ID to the graph
-    const config = {
-        configurable: {
-            thread_id: "some_thread"
-        }
-    };
+```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+const graph = builder.compile({
+    interruptBefore: ["node_a"],  // [!code highlight]
+    interruptAfter: ["node_b", "node_c"],  // [!code highlight]
+    checkpointer,
+});
 
-    // Run the graph until the breakpoint
-    await graph.invoke(inputs, config);# [!code highlight]
+// Pass a thread ID to the graph
+const config = {
+    configurable: {
+        thread_id: "some_thread"
+    }
+};
 
-    await graph.invoke(null, config);  # [!code highlight]
-    ```1. 断点设置在`compile`时间内。
-    2. `interruptBefore` 指定执行该节点之前应暂停执行的节点。
-    3. `interruptAfter` 指定该节点执行完毕后应暂停执行的节点。
-    4. 需要一个检查点来启用断点。
-    5. 运行图表直到遇到第一个断点。
-    6. 通过传入 `null` 作为输入来恢复图表。这将运行图表直到遇到下一个断点。
-  </Tab>
+// Run the graph until the breakpoint
+await graph.invoke(inputs, config);# [!code highlight]
 
-  <Tab title="At run time">
-    ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    // Run the graph until the breakpoint
-    graph.invoke(inputs, {
-        interruptBefore: ["node_a"],  // [!code highlight]
-        interruptAfter: ["node_b", "node_c"],  // [!code highlight]
-        configurable: {
-            thread_id: "some_thread"
-        }
-    });
+await graph.invoke(null, config);  # [!code highlight]
+```1. 断点设置在`compile`时间内。
+2. `interruptBefore` 指定执行该节点之前应暂停执行的节点。
+3. `interruptAfter` 指定该节点执行完毕后应暂停执行的节点。
+4. 需要一个检查点来启用断点。
+5. 运行图表直到遇到第一个断点。
+6. 通过传入 `null` 作为输入来恢复图表。这将运行图表直到遇到下一个断点。
 
-    // Resume the graph
-    await graph.invoke(null, config);  // [!code highlight]
-    ```
+**运行时**
 
-    1. 使用`interruptBefore`和`interruptAfter`参数调用`graph.invoke`。这是一个运行时配置，可以针对每次调用进行更改。
-    2. `interruptBefore` 指定执行该节点之前应暂停执行的节点。
-    3. `interruptAfter` 指定该节点执行完毕后应暂停执行的节点。
-    4. 运行图表直到遇到第一个断点。
-    5. 通过传入 `null` 作为输入来恢复图表。这将运行图表直到遇到下一个断点。
-  </Tab>
-</Tabs>
+```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+// Run the graph until the breakpoint
+graph.invoke(inputs, {
+    interruptBefore: ["node_a"],  // [!code highlight]
+    interruptAfter: ["node_b", "node_c"],  // [!code highlight]
+    configurable: {
+        thread_id: "some_thread"
+    }
+});
 
-<Tip>
-  要调试中断，请使用[LangSmith](/langsmith/observability)。
-</Tip>
+// Resume the graph
+await graph.invoke(null, config);  // [!code highlight]
+```
+
+1. 使用`interruptBefore`和`interruptAfter`参数调用`graph.invoke`。这是一个运行时配置，可以针对每次调用进行更改。
+2. `interruptBefore` 指定执行该节点之前应暂停执行的节点。
+3. `interruptAfter` 指定该节点执行完毕后应暂停执行的节点。
+4. 运行图表直至遇到第一个断点。
+5. 通过传入 `null` 作为输入来恢复图表。这将运行图表直到遇到下一个断点。
+
+> [!提示]
+>
+> 要调试中断，请使用[LangSmith](/langsmith/observability)。
 
 ### 使用LangSmith Studio在运行图表之前，您可以使用 [LangSmith Studio](/langsmith/studio) 在 UI 中的图表中设置静态中断。您还可以使用 UI 在执行过程中的任意时刻检查图形状态。
 
-<img alt="image" />
+![image](https://mintcdn.com/langchain-5e9cc07a/dL5Sn6Cmy9pwtY0V/oss/images/static-interrupt.png?fit=max\&auto=format\&n=dL5Sn6Cmy9pwtY0V\&q=85\&s=5aa4e7cea2ab147cef5b4e210dd6c4a1)
 
 ***
 
-<div>
-  <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
-  </Callout>
+[Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
 
-  <Callout icon="edit">
-    [Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/interrupts.mdx) 或 [file an issue](https://github.com/langchain-ai/docs/issues/new/choose)。
-  </Callout>
-</div>
+[Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/interrupts.mdx) 或 [file an issue](https://github.com/langchain-ai/docs/issues/new/choose)。

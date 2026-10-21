@@ -6,7 +6,7 @@
 
 LangGraph 的持久层通过检查点为代理提供短期记忆，并通过存储为代理提供长期记忆。
 
-持久性让 LangGraph 应用程序能够在单个图形运行之外保留有用的信息。当代理需要继续对话、中断后恢复、从故障中恢复或记住交互过程中的信息时，这一点很重要。
+持久性让 LangGraph 应用程序在单个图形运行之外保留有用的信息。当代理需要继续对话、中断后恢复、从故障中恢复或记住交互过程中的信息时，这一点很重要。
 
 LangGraph提供了两个互补的持久化系统：
 
@@ -31,17 +31,17 @@ const result = await graph.invoke(
   { messages: [{ role: "user", content: "Hi, my name is Bob." }] },
   { configurable: { thread_id: "thread-1" } }
 );
-```<Info>
-  **代理服务器自动处理持久性**
-  使用[Agent Server](/langsmith/agent-server)时，您不需要手动实现或配置检查点或存储。服务器在幕后处理持久性基础设施。
-</Info>
+```> [!注意]
+>
+> **代理服务器自动处理持久性**
+> 使用[Agent Server](/langsmith/agent-server)时，您不需要手动实现或配置检查点或存储。服务器在幕后处理持久性基础设施。
 
 ## 检查点与存储
 
 | |检查点|商店 |
 | - | - | - |
 |坚持 |图状态快照 |应用程序定义的键值数据 |
-|范围 |单线程|跨线程 |
+|范围 |单线程|跨线程|
 |内存类型|短期、线程范围内存 |长期、跨线程内存|
 |用于|对话连续性、人机交互、时间旅行和容错 |用户偏好、事实和共享知识 |
 |访问模式|在图形配置中传递 `thread_id` |从节点或应用程序代码读取和写入项目 |
@@ -55,20 +55,20 @@ const result = await graph.invoke(
 
 **修复：** 将 `thread_id` 值保持在 255 个字符以下。如果需要确定性 ID，请使用 UUID 或哈希：
 
-### `MemorySaver` 在重新启动之间不会持续存在`MemorySaver`和`InMemorySaver`将检查点存储在RAM中。当进程重新启动时，所有检查点都会丢失。
+### `MemorySaver` 在重新启动之间不会持续存在`MemorySaver` and `InMemorySaver` store checkpoints in RAM.当进程重新启动时，所有检查点都会丢失。
 
 **修复：** 使用持久检查点进行生产：
 
-* `PostgresSaver`：具有异步支持的 PostgreSQL
+* `PostgresSaver`: PostgreSQL with async support
 * `SqliteSaver`：用于开发的基于本地文件的存储
 
-### 检查点无限增长
+### Checkpoints growing unboundedly
 
-经过长时间的对话，检查点会不断积累。这会增加延迟和存储成本。
+经过长时间的对话，检查点会不断积累。 This can increase latency and storage costs.
 
 **修复：** 定期修剪旧检查点或设置保留策略：
 
-### 从父图到子图的状态访问
+### State access from parent graph to subgraph
 
 当子图更新状态时，父图可能不会立即看到更改。这是因为每个子图管理自己的检查点名称空间。
 
@@ -76,17 +76,11 @@ const result = await graph.invoke(
 
 ## 后续步骤
 
-* [Use checkpointers](/oss/javascript/langgraph/checkpointers) 保存并检查线程状态。
+* [Use checkpointers](/oss/javascript/langgraph/checkpointers) to persist and inspect thread state.
 * [Use stores](/oss/javascript/langgraph/stores) 跨线程持久保存数据。
 
 ***
 
-<div>
-  <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
-  </Callout>
+[Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
 
-  <Callout icon="edit">
-    [Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/persistence.mdx) 或 [file an issue](https://github.com/langchain-ai/docs/issues/new/choose)。
-  </Callout>
-</div>
+[Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/persistence.mdx) 或 [file an issue](https://github.com/langchain-ai/docs/issues/new/choose)。

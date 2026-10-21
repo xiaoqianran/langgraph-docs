@@ -24,32 +24,32 @@ Create a new app from the [`new-langgraph-project-js` template](https://github.c
 npm create langgraph
 ```
 
-<Accordion title="Adding LangGraph to an existing project">
-  If you have an existing project with LangGraph agents, you can automatically generate a `langgraph.json` configuration file using the `config` command:
-
-  ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  npm create langgraph config
-  ```
-
-  This command scans your project for LangGraph agents (such as `createAgent()`, `StateGraph.compile()`, or `workflow.compile()` patterns) and generates a configuration file with all exported agents.
-
-  Example output:
-
-  ```json theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  {
-    "node_version": "24",
-    "graphs": {
-      "agent": "./src/agent.ts:agent",
-      "searchAgent": "./src/search.ts:searchAgent"
-    },
-    "env": ".env"
-  }
-  ```
-
-  <Tip>
-    Only **exported** agents are included in the configuration. If an agent is not exported, the command will warn you so you can add the `export` keyword.
-  </Tip>
-</Accordion>
+> **Adding LangGraph to an existing project**
+>
+> If you have an existing project with LangGraph agents, you can automatically generate a `langgraph.json` configuration file using the `config` command:
+>
+> ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> npm create langgraph config
+> ```
+>
+> This command scans your project for LangGraph agents (such as `createAgent()`, `StateGraph.compile()`, or `workflow.compile()` patterns) and generates a configuration file with all exported agents.
+>
+> Example output:
+>
+> ```json theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> {
+>   "node_version": "24",
+>   "graphs": {
+>     "agent": "./src/agent.ts:agent",
+>     "searchAgent": "./src/search.ts:searchAgent"
+>   },
+>   "env": ".env"
+> }
+> ```
+>
+> > [!TIP]
+> >
+> > Only **exported** agents are included in the configuration. If an agent is not exported, the command will warn you so you can add the `export` keyword.
 
 ## 3. Install dependencies
 
@@ -111,71 +111,69 @@ For an Agent Server running on a custom host/port, update the `baseUrl` query pa
 https://smith.langchain.com/studio/?baseUrl=http://myhost:3000
 ```
 
-<Accordion title="Safari compatibility">
-  Use the `--tunnel` flag with your command to create a secure tunnel, as Safari has limitations when connecting to localhost servers:
-
-  ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  langgraph dev --tunnel
-  ```
-</Accordion>
+> **Safari compatibility**
+>
+> Use the `--tunnel` flag with your command to create a secure tunnel, as Safari has limitations when connecting to localhost servers:
+>
+> ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> langgraph dev --tunnel
+> ```
 
 ## 7. Test the API
 
-<Tabs>
-  <Tab title="Javascript SDK">
-    1. Install the LangGraph JS SDK:
-       ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-       npm install @langchain/langgraph-sdk
-       ```
-    2. Send a message to the assistant (threadless run):
+**Javascript SDK**
 
-    ```js theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    import { Client } from "@langchain/langgraph-sdk";
+1. Install the LangGraph JS SDK:
+   ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+   npm install @langchain/langgraph-sdk
+   ```
+2. Send a message to the assistant (threadless run):
 
-    // only set the apiUrl if you changed the default port when calling langgraph dev
-    const client = new Client({ apiUrl: "http://localhost:2024"});
+```js theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import { Client } from "@langchain/langgraph-sdk";
 
-    const streamResponse = client.runs.stream(
-      null, // Threadless run
-      "agent", // Assistant ID
-      {
-        input: {
-          "messages": [
-            { "role": "user", "content": "What is LangGraph?"}
-          ]
+// only set the apiUrl if you changed the default port when calling langgraph dev
+const client = new Client({ apiUrl: "http://localhost:2024"});
+
+const streamResponse = client.runs.stream(
+  null, // Threadless run
+  "agent", // Assistant ID
+  {
+    input: {
+      "messages": [
+        { "role": "user", "content": "What is LangGraph?"}
+      ]
+    },
+    streamMode: "messages-tuple",
+  }
+);
+
+for await (const chunk of streamResponse) {
+  console.log(`Receiving new event of type: ${chunk.event}...`);
+  console.log(JSON.stringify(chunk.data));
+  console.log("\n\n");
+}
+```
+
+**Rest API**
+
+```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+curl -s --request POST \
+    --url "http://localhost:2024/runs/stream" \
+    --header 'Content-Type: application/json' \
+    --data "{
+        \"assistant_id\": \"agent\",
+        \"input\": {
+            \"messages\": [
+                {
+                    \"role\": \"human\",
+                    \"content\": \"What is LangGraph?\"
+                }
+            ]
         },
-        streamMode: "messages-tuple",
-      }
-    );
-
-    for await (const chunk of streamResponse) {
-      console.log(`Receiving new event of type: ${chunk.event}...`);
-      console.log(JSON.stringify(chunk.data));
-      console.log("\n\n");
-    }
-    ```
-  </Tab>
-
-  <Tab title="Rest API">
-    ```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    curl -s --request POST \
-        --url "http://localhost:2024/runs/stream" \
-        --header 'Content-Type: application/json' \
-        --data "{
-            \"assistant_id\": \"agent\",
-            \"input\": {
-                \"messages\": [
-                    {
-                        \"role\": \"human\",
-                        \"content\": \"What is LangGraph?\"
-                    }
-                ]
-            },
-            \"stream_mode\": \"messages-tuple\"
-        }"
-    ```
-  </Tab>
-</Tabs>
+        \"stream_mode\": \"messages-tuple\"
+    }"
+```
 
 ## Next steps
 
@@ -189,12 +187,6 @@ Now that you have a LangGraph app running locally, take your journey further by 
 
 ***
 
-<div>
-  <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
-  </Callout>
+[Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
 
-  <Callout icon="edit">
-    [Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/local-server.mdx) or [file an issue](https://github.com/langchain-ai/docs/issues/new/choose).
-  </Callout>
-</div>
+[Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/local-server.mdx) or [file an issue](https://github.com/langchain-ai/docs/issues/new/choose).

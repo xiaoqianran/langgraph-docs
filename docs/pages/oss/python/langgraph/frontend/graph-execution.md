@@ -16,8 +16,6 @@ structure into product UX. Instead of treating the run as a single assistant
 response, you can expose the same checkpoints, node names, state keys, and
 stream metadata that LangGraph uses internally.
 
-<PatternEmbed />
-
 ## How graph nodes map to UI cards
 
 A LangGraph graph defines a series of nodes, each responsible for a specific
@@ -59,35 +57,61 @@ Wire up [`useStream`](https://reference.langchain.com/javascript/langchain-react
 current run). Pass each discovered subgraph snapshot to a selector to read the
 messages scoped to that node.
 
-<Info>
-  The code examples use `useStream<typeof myAgent>` for type-safe stream state. See Type inference for [Python](/oss/python/langchain/frontend/overview#type-inference) or [JavaScript](/oss/javascript/langchain/frontend/overview#type-inference) backends.
-</Info>
+> [!NOTE]
+>
+> The code examples use `useStream<typeof myAgent>` for type-safe stream state. See Type inference for [Python](/oss/python/langchain/frontend/overview#type-inference) or [JavaScript](/oss/javascript/langchain/frontend/overview#type-inference) backends.
 
-<CodeGroup>
-  ```tsx React theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  import { useStream } from "@langchain/react";
+```tsx React theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import { useStream } from "@langchain/react";
 
-  const AGENT_URL = "http://localhost:2024";
+const AGENT_URL = "http://localhost:2024";
 
-  export function PipelineChat() {
-    const stream = useStream<typeof myAgent>({
-      apiUrl: AGENT_URL,
-      assistantId: "graph_execution_cards",
-    });
-    const graphNodes = [...stream.subgraphs.values()];
+export function PipelineChat() {
+  const stream = useStream<typeof myAgent>({
+    apiUrl: AGENT_URL,
+    assistantId: "graph_execution_cards",
+  });
+  const graphNodes = [...stream.subgraphs.values()];
 
-    return (
-      <div>
-        <PipelineProgress nodes={graphNodes} isLoading={stream.isLoading} />
-        <NodeCardList nodes={graphNodes} stream={stream} isLoading={stream.isLoading} />
-      </div>
-    );
-  }
-  ```
+  return (
+    <div>
+      <PipelineProgress nodes={graphNodes} isLoading={stream.isLoading} />
+      <NodeCardList nodes={graphNodes} stream={stream} isLoading={stream.isLoading} />
+    </div>
+  );
+}
+```
 
-  ```vue Vue theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  <script setup lang="ts">
-  import { useStream } from "@langchain/vue";
+```vue Vue theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+<script setup lang="ts">
+import { useStream } from "@langchain/vue";
+
+const AGENT_URL = "http://localhost:2024";
+
+const stream = useStream<typeof myAgent>({
+  apiUrl: AGENT_URL,
+  assistantId: "graph_execution_cards",
+});
+</script>
+
+<template>
+  <div>
+    <PipelineProgress
+      :nodes="[...stream.subgraphs.value.values()]"
+      :is-loading="stream.isLoading.value"
+    />
+    <NodeCardList
+      :nodes="[...stream.subgraphs.value.values()]"
+      :stream="stream"
+      :is-loading="stream.isLoading.value"
+    />
+  </div>
+</template>
+```
+
+```svelte Svelte theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+<script lang="ts">
+  import { useStream } from "@langchain/svelte";
 
   const AGENT_URL = "http://localhost:2024";
 
@@ -95,77 +119,49 @@ messages scoped to that node.
     apiUrl: AGENT_URL,
     assistantId: "graph_execution_cards",
   });
-  </script>
+</script>
 
-  <template>
+<div>
+  <PipelineProgress nodes={[...stream.subgraphs.values()]} isLoading={stream.isLoading} />
+  <NodeCardList
+    nodes={[...stream.subgraphs.values()]}
+    {stream}
+    isLoading={stream.isLoading}
+  />
+</div>
+```
+
+```ts Angular theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import { Component, computed } from "@angular/core";
+import { injectStream } from "@langchain/angular";
+
+const AGENT_URL = "http://localhost:2024";
+
+@Component({
+  selector: "app-pipeline-chat",
+  template: `
     <div>
-      <PipelineProgress
-        :nodes="[...stream.subgraphs.value.values()]"
-        :is-loading="stream.isLoading.value"
+      <app-pipeline-progress
+        [nodes]="graphNodes()"
+        [isLoading]="stream.isLoading()"
       />
-      <NodeCardList
-        :nodes="[...stream.subgraphs.value.values()]"
-        :stream="stream"
-        :is-loading="stream.isLoading.value"
+      <app-node-card-list
+        [nodes]="graphNodes()"
+        [stream]="stream"
+        [isLoading]="stream.isLoading()"
       />
     </div>
-  </template>
-  ```
+  `,
+})
+export class PipelineChatComponent {
+  stream = injectStream<typeof myAgent>({
+    apiUrl: AGENT_URL,
+    assistantId: "graph_execution_cards",
+  });
 
-  ```svelte Svelte theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  <script lang="ts">
-    import { useStream } from "@langchain/svelte";
-
-    const AGENT_URL = "http://localhost:2024";
-
-    const stream = useStream<typeof myAgent>({
-      apiUrl: AGENT_URL,
-      assistantId: "graph_execution_cards",
-    });
-  </script>
-
-  <div>
-    <PipelineProgress nodes={[...stream.subgraphs.values()]} isLoading={stream.isLoading} />
-    <NodeCardList
-      nodes={[...stream.subgraphs.values()]}
-      {stream}
-      isLoading={stream.isLoading}
-    />
-  </div>
-  ```
-
-  ```ts Angular theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  import { Component, computed } from "@angular/core";
-  import { injectStream } from "@langchain/angular";
-
-  const AGENT_URL = "http://localhost:2024";
-
-  @Component({
-    selector: "app-pipeline-chat",
-    template: `
-      <div>
-        <app-pipeline-progress
-          [nodes]="graphNodes()"
-          [isLoading]="stream.isLoading()"
-        />
-        <app-node-card-list
-          [nodes]="graphNodes()"
-          [stream]="stream"
-          [isLoading]="stream.isLoading()"
-        />
-      </div>
-    `,
-  })
-  export class PipelineChatComponent {
-    stream = injectStream<typeof myAgent>({
-      apiUrl: AGENT_URL,
-      assistantId: "graph_execution_cards",
-    });
-
-    graphNodes = computed(() => [...this.stream.subgraphs().values()]);
-  }
-  ```
-</CodeGroup>
+  graphNodes = computed(() => [...this.stream.subgraphs().values()]);
+}
+```
 
 ## Routing streaming tokens to nodes
 
@@ -334,11 +330,11 @@ function NodeContent({ stream, node }: { stream: AnyStream; node: SubgraphDiscov
 }
 ```
 
-<Tip>
-  Streaming content may include partial tokens or markdown that hasn't been
-  fully formed yet. If you render markdown, make sure your renderer handles
-  incomplete syntax gracefully (e.g., an unclosed bold marker `**`).
-</Tip>
+> [!TIP]
+>
+> Streaming content may include partial tokens or markdown that hasn't been
+> fully formed yet. If you render markdown, make sure your renderer handles
+> incomplete syntax gracefully (e.g., an unclosed bold marker `**`).
 
 ## Putting it all together
 
@@ -398,12 +394,12 @@ const activeNodes = [...stream.subgraphs.values()];
 This ensures your UI only shows cards for nodes that are relevant to the
 current execution, avoiding empty placeholder cards.
 
-<Info>
-  If your graph has conditional branching (e.g., skip "Research" for simple
-  factual queries), skipped nodes will not appear in `stream.subgraphs`. Your
-  pipeline progress bar can render discovered nodes only or dim expected nodes
-  that have no matching snapshot.
-</Info>
+> [!NOTE]
+>
+> If your graph has conditional branching (e.g., skip "Research" for simple
+> factual queries), skipped nodes will not appear in `stream.subgraphs`. Your
+> pipeline progress bar can render discovered nodes only or dim expected nodes
+> that have no matching snapshot.
 
 ## Best practices
 
@@ -427,12 +423,6 @@ current execution, avoiding empty placeholder cards.
 
 ***
 
-<div>
-  <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
-  </Callout>
+[Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
 
-  <Callout icon="edit">
-    [Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/frontend/graph-execution.mdx) or [file an issue](https://github.com/langchain-ai/docs/issues/new/choose).
-  </Callout>
-</div>
+[Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/frontend/graph-execution.mdx) or [file an issue](https://github.com/langchain-ai/docs/issues/new/choose).

@@ -6,20 +6,19 @@ LangSmith Deployment's **Agent Server** offers an API for creating and managing 
 
 Use Agent Server to create and manage:
 
-<CardGroup cols={4}>
-  <Card title="Assistants" icon="robot" href="/langsmith/assistants" />
+> **[Assistants](/langsmith/assistants)**
 
-  <Card title="Threads" icon="messages" href="/langsmith/use-threads" />
+> **[Threads](/langsmith/use-threads)**
 
-  <Card title="Runs" icon="player-play" href="/langsmith/runs" />
+> **[Runs](/langsmith/runs)**
 
-  <Card title="Cron jobs" icon="clock" href="/langsmith/cron-jobs" />
-</CardGroup>
+> **[Cron jobs](/langsmith/cron-jobs)**
 
-<Tip>
-  **API reference**<br />
-  For detailed information on the API endpoints and data models, refer to the [Agent Server API reference](/langsmith/server-api-ref).
-</Tip>
+> [!TIP]
+>
+> **API reference**\\
+>
+> For detailed information on the API endpoints and data models, refer to the [Agent Server API reference](/langsmith/server-api-ref).
 
 ## Application structure
 
@@ -27,9 +26,9 @@ To deploy an Agent Server application, you need to specify the graph(s) you want
 
 Read the [application structure](/langsmith/application-structure) guide to learn how to structure your LangGraph application for deployment.
 
-<Note>
-  [LangSmith cloud](/langsmith/cloud) manages the database for you. If you're deploying on your [own infrastructure](/langsmith/self-hosted), you'll need to set it up yourself.
-</Note>
+> [!NOTE]
+>
+> [LangSmith cloud](/langsmith/cloud) manages the database for you. If you're deploying on your [own infrastructure](/langsmith/self-hosted), you'll need to set it up yourself.
 
 ## Parts of a deployment
 
@@ -50,9 +49,9 @@ How and when your graph is compiled depends on how you register it in your [appl
 1. **Compiled graph** (recommended): Export an already-compiled `CompiledGraph` instance. The server loads it once at container startup and reuses it for every run—no compilation overhead per request.
 2. **Factory function**: Export an agent factory function that the server invokes each time it needs the graph. Use this only when you need per-run graph customization (for example, choosing different models or tools based on the assistant config). Keep factory functions lightweight, since they run on every invocation.
 
-<Tip>
-  Use a compiled graph unless you specifically need per-run customization. Factory functions add overhead on every invocation; compiled graphs do not.
-</Tip>
+> [!TIP]
+>
+> Use a compiled graph unless you specifically need per-run customization. Factory functions add overhead on every invocation; compiled graphs do not.
 
 In both cases, the server automatically injects the checkpointer and memory store configured for that deployment at runtime. **Do not configure these in your graph code** because the server needs to manage them for other operations.
 
@@ -156,12 +155,6 @@ Each worker executes up to [`N_JOBS_PER_WORKER`](/langsmith/env-var-self-hosted)
 
 ***
 
-<div className="source-links">
-  <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
-  </Callout>
+[Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
 
-  <Callout icon="edit">
-    [Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/langsmith/agent-server.mdx) or [file an issue](https://github.com/langchain-ai/docs/issues/new/choose).
-  </Callout>
-</div>
+[Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/langsmith/agent-server.mdx) or [file an issue](https://github.com/langchain-ai/docs/issues/new/choose).

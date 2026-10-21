@@ -6,9 +6,9 @@ Deploy LangGraph agents to production with LangSmith Cloud or JavaScript framewo
 
 When you are ready to deploy your LangGraph agent to production, choose a hosting model that fits your stack. **[LangSmith Cloud](/langsmith/deploy-to-cloud)** provides fully managed infrastructure for stateful, long-running agents with persistent state and background execution.
 
-<Tip>
-  LangSmith offers multiple deployment options beyond Cloud, including [hybrid](/langsmith/hybrid), [standalone servers](/langsmith/deploy-standalone-server), and [self-hosted with control plane](/langsmith/deploy-with-control-plane). For more information, see the [LangSmith Deployment overview](/langsmith/deployment).
-</Tip>
+> [!TIP]
+>
+> LangSmith offers multiple deployment options beyond Cloud, including [hybrid](/langsmith/hybrid), [standalone servers](/langsmith/deploy-standalone-server), and [self-hosted with control plane](/langsmith/deploy-with-control-plane). For more information, see the [LangSmith Deployment overview](/langsmith/deployment).
 
 ## LangSmith Cloud
 
@@ -29,23 +29,21 @@ Your application's code must reside in a GitHub repository to be deployed on Lan
 
 #### 2. Deploy to LangSmith
 
-<Steps>
-  <Step title="Navigate to LangSmith Deployment">
-    Log in to [LangSmith](https://smith.langchain.com?utm_source=docs\&utm_medium=cta\&utm_campaign=langsmith-signup\&utm_content=oss-langgraph-deploy). In the left sidebar, select **Deployments**.
-  </Step>
+**1. Navigate to LangSmith Deployment**
 
-  <Step title="Create new deployment">
-    Click the **+ New Deployment** button. A pane will open where you can fill in the required fields.
-  </Step>
+Log in to [LangSmith](https://smith.langchain.com?utm_source=docs\&utm_medium=cta\&utm_campaign=langsmith-signup\&utm_content=oss-langgraph-deploy). In the left sidebar, select **Deployments**.
 
-  <Step title="Link repository">
-    If you are a first time user or adding a private repository that has not been previously connected, click the **Add new account** button and follow the instructions to connect your GitHub account.
-  </Step>
+**2. Create new deployment**
 
-  <Step title="Deploy repository">
-    Select your application's repository. Click **Submit** to deploy. This may take about 15 minutes to complete. You can check the status in the **Deployment details** view.
-  </Step>
-</Steps>
+Click the **+ New Deployment** button. A pane will open where you can fill in the required fields.
+
+**3. Link repository**
+
+If you are a first time user or adding a private repository that has not been previously connected, click the **Add new account** button and follow the instructions to connect your GitHub account.
+
+**4. Deploy repository**
+
+Select your application's repository. Click **Submit** to deploy. This may take about 15 minutes to complete. You can check the status in the **Deployment details** view.
 
 #### 3. Test your application in Studio
 
@@ -63,68 +61,60 @@ Once your application is deployed:
 
 You can now test the API:
 
-<Tabs>
-  <Tab title="Python">
-    1. Install LangGraph SDK:
+**Python**
 
-    ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    pip install langgraph-sdk
-    ```
+1. Install LangGraph SDK:
 
-    2. Send a message to the agent:
+```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+pip install langgraph-sdk
+```
 
-    ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    from langgraph_sdk import get_sync_client # or get_client for async
+2. Send a message to the agent:
 
-    client = get_sync_client(url="your-deployment-url", api_key="your-langsmith-api-key")
+```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+from langgraph_sdk import get_sync_client # or get_client for async
 
-    for chunk in client.runs.stream(
-        None,    # Threadless run
-        "agent", # Name of agent. Defined in langgraph.json.
-        input={
-            "messages": [{
-                "role": "human",
-                "content": "What is LangGraph?",
-            }],
+client = get_sync_client(url="your-deployment-url", api_key="your-langsmith-api-key")
+
+for chunk in client.runs.stream(
+    None,    # Threadless run
+    "agent", # Name of agent. Defined in langgraph.json.
+    input={
+        "messages": [{
+            "role": "human",
+            "content": "What is LangGraph?",
+        }],
+    },
+    stream_mode="updates",
+):
+    print(f"Receiving new event of type: {chunk.event}...")
+    print(chunk.data)
+    print("\n\n")
+```
+
+**Rest API**
+
+```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+curl -s --request POST \
+    --url <DEPLOYMENT_URL>/runs/stream \
+    --header 'Content-Type: application/json' \
+    --header "X-Api-Key: <LANGSMITH API KEY> \
+    --data "{
+        \"assistant_id\": \"agent\", `# Name of agent. Defined in langgraph.json.`
+        \"input\": {
+            \"messages\": [
+                {
+                    \"role\": \"human\",
+                    \"content\": \"What is LangGraph?\"
+                }
+            ]
         },
-        stream_mode="updates",
-    ):
-        print(f"Receiving new event of type: {chunk.event}...")
-        print(chunk.data)
-        print("\n\n")
-    ```
-  </Tab>
-
-  <Tab title="Rest API">
-    ```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    curl -s --request POST \
-        --url <DEPLOYMENT_URL>/runs/stream \
-        --header 'Content-Type: application/json' \
-        --header "X-Api-Key: <LANGSMITH API KEY> \
-        --data "{
-            \"assistant_id\": \"agent\", `# Name of agent. Defined in langgraph.json.`
-            \"input\": {
-                \"messages\": [
-                    {
-                        \"role\": \"human\",
-                        \"content\": \"What is LangGraph?\"
-                    }
-                ]
-            },
-            \"stream_mode\": \"updates\"
-        }"
-    ```
-  </Tab>
-</Tabs>
+        \"stream_mode\": \"updates\"
+    }"
+```
 
 ***
 
-<div>
-  <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
-  </Callout>
+[Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
 
-  <Callout icon="edit">
-    [Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/deploy.mdx) or [file an issue](https://github.com/langchain-ai/docs/issues/new/choose).
-  </Callout>
-</div>
+[Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/deploy.mdx) or [file an issue](https://github.com/langchain-ai/docs/issues/new/choose).

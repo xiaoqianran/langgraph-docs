@@ -6,9 +6,9 @@
 
 [**Functional API**](/oss/python/langgraph/functional-api) 允许您将 LangGraph 的主要功能（[persistence](/oss/python/langgraph/persistence)、[memory](/oss/python/langgraph/add-memory)、[human-in-the-loop](/oss/python/langgraph/interrupts) 和 [streaming](/oss/python/langgraph/streaming)）添加到您的应用程序中，只需对现有代码进行最少的更改。
 
-<Tip>
-  有关函数式 API 的概念信息，请参阅[Functional API](/oss/python/langgraph/functional-api)。
-</Tip>
+> [!提示]
+>
+> 有关函数式 API 的概念信息，请参阅[Functional API](/oss/python/langgraph/functional-api)。
 
 ## 创建一个简单的工作流程
 
@@ -24,73 +24,74 @@ def my_workflow(inputs: dict) -> int:
 my_workflow.invoke({"value": 1, "another_value": 2})
 ```
 
-<Accordion title="Extended example: simple workflow">
-  ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  from langchain_core.utils.uuid import uuid7
-  from langgraph.func import entrypoint, task
-  from langgraph.checkpoint.memory import InMemorySaver
+> **扩展示例：简单的工作流程**
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> from langchain_core.utils.uuid import uuid7
+> from langgraph.func import entrypoint, task
+> from langgraph.checkpoint.memory import InMemorySaver
+>
+> # Task that checks if a number is even
+> @task
+> def is_even(number: int) -> bool:
+>     return number % 2 == 0
+>
+> # Task that formats a message
+> @task
+> def format_message(is_even: bool) -> str:
+>     return "The number is even." if is_even else "The number is odd."
+>
+> # Create a checkpointer for persistence
+> checkpointer = InMemorySaver()
+>
+> @entrypoint(checkpointer=checkpointer)
+> def workflow(inputs: dict) -> str:
+>     """Simple workflow to classify a number."""
+>     even = is_even(inputs["number"]).result()
+>     return format_message(even).result()
+>
+> # Run the workflow with a unique thread ID
+> config = {"configurable": {"thread_id": str(uuid7())}}
+> result = workflow.invoke({"number": 7}, config=config)
+> print(result)
+> ```
 
-  # Task that checks if a number is even
-  @task
-  def is_even(number: int) -> bool:
-      return number % 2 == 0
-
-  # Task that formats a message
-  @task
-  def format_message(is_even: bool) -> str:
-      return "The number is even." if is_even else "The number is odd."
-
-  # Create a checkpointer for persistence
-  checkpointer = InMemorySaver()
-
-  @entrypoint(checkpointer=checkpointer)
-  def workflow(inputs: dict) -> str:
-      """Simple workflow to classify a number."""
-      even = is_even(inputs["number"]).result()
-      return format_message(even).result()
-
-  # Run the workflow with a unique thread ID
-  config = {"configurable": {"thread_id": str(uuid7())}}
-  result = workflow.invoke({"number": 7}, config=config)
-  print(result)
-  ```
-</Accordion>
-
-<Accordion title="Extended example: Compose an essay with an LLM">
-  此示例演示如何使用 `@task` 和 `@entrypoint` 装饰器
-  从句法上来说。鉴于提供了检查点，工作流程结果将
-  被持久化在检查点中。
-
-  ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  from langchain.chat_models import init_chat_model
-  from langgraph.func import entrypoint, task
-  from langgraph.checkpoint.memory import InMemorySaver
-
-  model = init_chat_model('gpt-3.5-turbo')
-
-  # Task: generate essay using an LLM
-  @task
-  def compose_essay(topic: str) -> str:
-      """Generate an essay about the given topic."""
-      return model.invoke([
-          {"role": "system", "content": "You are a helpful assistant that writes essays."},
-          {"role": "user", "content": f"Write an essay about {topic}."}
-      ]).content
-
-  # Create a checkpointer for persistence
-  checkpointer = InMemorySaver()
-
-  @entrypoint(checkpointer=checkpointer)
-  def workflow(topic: str) -> str:
-      """Simple workflow that generates an essay with an LLM."""
-      return compose_essay(topic).result()
-
-  # Execute the workflow
-  config = {"configurable": {"thread_id": str(uuid7())}}
-  result = workflow.invoke("the history of flight", config=config)
-  print(result)
-  ```
-</Accordion>
+> **扩展示例：以法学硕士撰写论文**
+>
+> 这个例子演示了如何使用 `@task` 和 `@entrypoint` 装饰器
+> 从语法上来说。鉴于提供了检查点，工作流程结果将
+> 保留在检查点中。
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> from langchain_core.utils.uuid import uuid7
+> from langchain.chat_models import init_chat_model
+> from langgraph.func import entrypoint, task
+> from langgraph.checkpoint.memory import InMemorySaver
+>
+> model = init_chat_model('gpt-3.5-turbo')
+>
+> # Task: generate essay using an LLM
+> @task
+> def compose_essay(topic: str) -> str:
+>     """Generate an essay about the given topic."""
+>     return model.invoke([
+>         {"role": "system", "content": "You are a helpful assistant that writes essays."},
+>         {"role": "user", "content": f"Write an essay about {topic}."}
+>     ]).content
+>
+> # Create a checkpointer for persistence
+> checkpointer = InMemorySaver()
+>
+> @entrypoint(checkpointer=checkpointer)
+> def workflow(topic: str) -> str:
+>     """Simple workflow that generates an essay with an LLM."""
+>     return compose_essay(topic).result()
+>
+> # Execute the workflow
+> config = {"configurable": {"thread_id": str(uuid7())}}
+> result = workflow.invoke("the history of flight", config=config)
+> print(result)
+> ```
 
 ## 并行执行
 
@@ -105,44 +106,45 @@ def add_one(number: int) -> int:
 def graph(numbers: list[int]) -> list[str]:
     futures = [add_one(i) for i in numbers]
     return [f.result() for f in futures]
-```
-
-<Accordion title="Extended example: parallel LLM calls">
-  此示例演示如何使用 `@task` 并行运行多个 LLM 调用。每次调用都会生成关于不同主题的段落，并将结果合并到单个文本输出中。
-
-  ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  from langchain.chat_models import init_chat_model
-  from langgraph.func import entrypoint, task
-  from langgraph.checkpoint.memory import InMemorySaver
-
-  # Initialize the LLM model
-  model = init_chat_model("gpt-3.5-turbo")
-
-  # Task that generates a paragraph about a given topic
-  @task
-  def generate_paragraph(topic: str) -> str:
-      response = model.invoke([
-          {"role": "system", "content": "You are a helpful assistant that writes educational paragraphs."},
-          {"role": "user", "content": f"Write a paragraph about {topic}."}
-      ])
-      return response.content
-
-  # Create a checkpointer for persistence
-  checkpointer = InMemorySaver()
-
-  @entrypoint(checkpointer=checkpointer)
-  def workflow(topics: list[str]) -> str:
-      """Generates multiple paragraphs in parallel and combines them."""
-      futures = [generate_paragraph(topic) for topic in topics]
-      paragraphs = [f.result() for f in futures]
-      return "\n\n".join(paragraphs)
-
-  # Run the workflow
-  config = {"configurable": {"thread_id": str(uuid7())}}
-  result = workflow.invoke(["quantum computing", "climate change", "history of aviation"], config=config)
-  print(result)
-  ```此示例使用 LangGraph 的并发模型来缩短执行时间，特别是当任务涉及 I/O（如 LLM 完成）时。
-</Accordion>
+```> **扩展示例：并行 LLM 调用**
+>
+> 此示例演示如何使用 `@task` 并行运行多个 LLM 调用。每次调用都会生成关于不同主题的段落，并将结果合并到单个文本输出中。
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> from langchain_core.utils.uuid import uuid7
+> from langchain.chat_models import init_chat_model
+> from langgraph.func import entrypoint, task
+> from langgraph.checkpoint.memory import InMemorySaver
+>
+> # Initialize the LLM model
+> model = init_chat_model("gpt-3.5-turbo")
+>
+> # Task that generates a paragraph about a given topic
+> @task
+> def generate_paragraph(topic: str) -> str:
+>     response = model.invoke([
+>         {"role": "system", "content": "You are a helpful assistant that writes educational paragraphs."},
+>         {"role": "user", "content": f"Write a paragraph about {topic}."}
+>     ])
+>     return response.content
+>
+> # Create a checkpointer for persistence
+> checkpointer = InMemorySaver()
+>
+> @entrypoint(checkpointer=checkpointer)
+> def workflow(topics: list[str]) -> str:
+>     """Generates multiple paragraphs in parallel and combines them."""
+>     futures = [generate_paragraph(topic) for topic in topics]
+>     paragraphs = [f.result() for f in futures]
+>     return "\n\n".join(paragraphs)
+>
+> # Run the workflow
+> config = {"configurable": {"thread_id": str(uuid7())}}
+> result = workflow.invoke(["quantum computing", "climate change", "history of aviation"], config=config)
+> print(result)
+> ```
+>
+> 此示例使用 LangGraph 的并发模型来缩短执行时间，特别是当任务涉及 I/O（如 LLM 完成）时。
 
 ## 调用图表
 
@@ -168,40 +170,41 @@ def some_workflow(some_input: dict) -> int:
     }
 ```
 
-<Accordion title="Extended example: calling a simple graph from the functional API">
-  ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  from typing import TypedDict
-  from langgraph.func import entrypoint
-  from langgraph.checkpoint.memory import InMemorySaver
-  from langgraph.graph import StateGraph
-
-  # Define the shared state type
-  class State(TypedDict):
-      foo: int
-
-  # Define a simple transformation node
-  def double(state: State) -> State:
-      return {"foo": state["foo"] * 2}
-
-  # Build the graph using the Graph API
-  builder = StateGraph(State)
-  builder.add_node("double", double)
-  builder.set_entry_point("double")
-  graph = builder.compile()
-
-  # Define the functional API workflow
-  checkpointer = InMemorySaver()
-
-  @entrypoint(checkpointer=checkpointer)
-  def workflow(x: int) -> dict:
-      result = graph.invoke({"foo": x})
-      return {"bar": result["foo"]}
-
-  # Execute the workflow
-  config = {"configurable": {"thread_id": str(uuid7())}}
-  print(workflow.invoke(5, config=config))  # Output: {'bar': 10}
-  ```
-</Accordion>
+> **扩展示例：从函数式 API 调用简单图**
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> from langchain_core.utils.uuid import uuid7
+> from typing import TypedDict
+> from langgraph.func import entrypoint
+> from langgraph.checkpoint.memory import InMemorySaver
+> from langgraph.graph import StateGraph
+>
+> # Define the shared state type
+> class State(TypedDict):
+>     foo: int
+>
+> # Define a simple transformation node
+> def double(state: State) -> State:
+>     return {"foo": state["foo"] * 2}
+>
+> # Build the graph using the Graph API
+> builder = StateGraph(State)
+> builder.add_node("double", double)
+> builder.set_entry_point("double")
+> graph = builder.compile()
+>
+> # Define the functional API workflow
+> checkpointer = InMemorySaver()
+>
+> @entrypoint(checkpointer=checkpointer)
+> def workflow(x: int) -> dict:
+>     result = graph.invoke({"foo": x})
+>     return {"bar": result["foo"]}
+>
+> # Execute the workflow
+> config = {"configurable": {"thread_id": str(uuid7())}}
+> print(workflow.invoke(5, config=config))  # Output: {'bar': 10}
+> ```
 
 ## 调用其他入口点
 
@@ -218,30 +221,31 @@ def my_workflow(inputs: dict) -> int:
     return value
 ```
 
-<Accordion title="Extended example: calling another entrypoint">
-  ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  from langgraph.func import entrypoint
-  from langgraph.checkpoint.memory import InMemorySaver
-
-  # Initialize a checkpointer
-  checkpointer = InMemorySaver()
-
-  # A reusable sub-workflow that multiplies a number
-  @entrypoint()
-  def multiply(inputs: dict) -> int:
-      return inputs["a"] * inputs["b"]
-
-  # Main workflow that invokes the sub-workflow
-  @entrypoint(checkpointer=checkpointer)
-  def main(inputs: dict) -> dict:
-      result = multiply.invoke({"a": inputs["x"], "b": inputs["y"]})
-      return {"product": result}
-
-  # Execute the main workflow
-  config = {"configurable": {"thread_id": str(uuid7())}}
-  print(main.invoke({"x": 6, "y": 7}, config=config))  # Output: {'product': 42}
-  ```
-</Accordion>
+> **扩展示例：调用另一个入口点**
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> from langchain_core.utils.uuid import uuid7
+> from langgraph.func import entrypoint
+> from langgraph.checkpoint.memory import InMemorySaver
+>
+> # Initialize a checkpointer
+> checkpointer = InMemorySaver()
+>
+> # A reusable sub-workflow that multiplies a number
+> @entrypoint()
+> def multiply(inputs: dict) -> int:
+>     return inputs["a"] * inputs["b"]
+>
+> # Main workflow that invokes the sub-workflow
+> @entrypoint(checkpointer=checkpointer)
+> def main(inputs: dict) -> dict:
+>     result = multiply.invoke({"a": inputs["x"], "b": inputs["y"]})
+>     return {"product": result}
+>
+> # Execute the main workflow
+> config = {"configurable": {"thread_id": str(uuid7())}}
+> print(main.invoke({"x": 6, "y": 7}, config=config))  # Output: {'product': 42}
+> ```
 
 ## 流媒体
 
@@ -259,24 +263,28 @@ for mode, chunk in stream.interleave("values"):
 # values: 10
 ```
 
-<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/6a1d451c-0e3a-4a7b-8e6f-b5cedae52a15/r">
-  为此示例打开公共 LangSmith 运行。
-</Card>
-
-1. 从`langgraph.config`导入[⟦T34⟧](https://reference.langchain.com/python/langgraph/config/get_stream_writer)。
+> **[View example trace](https://smith.langchain.com/public/6a1d451c-0e3a-4a7b-8e6f-b5cedae52a15/r)**
+>
+> 为此示例打开公共 LangSmith 运行。1. 从`langgraph.config`导入[⟦T34⟧](https://reference.langchain.com/python/langgraph/config/get_stream_writer)。
 2. 获取入口点内的流写入器实例。
 3. 在计算开始之前发出自定义数据。
 4. 计算结果后发出另一条自定义消息。
 5. 使用`stream_events()`处理流式输出。
 6. 迭代`interleave("values")` 中的`(mode, chunk)` 对。
 
-<Warning>
-  **与 Python 异步 \< 3.11**
-  If using Python \< 3.11 and writing async code, using ⟦T78⟧ will not work. Instead please
-  use the ⟦T40⟧ class directly. See ⟦T79⟧ for more details.
-
-  ⟦T10⟧
-</Warning>
+> [!警告]
+>
+> **与 Python 异步 \< 3.11**
+> 如果使用 Python \< 3.11 and writing async code, using ⟦T79⟧ will not work. Instead please
+> 直接使用 `StreamWriter` 类。更多详情请参见[Async with Python \< 3.11](/oss/python/langgraph/streaming#async)。
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> from langgraph.types import StreamWriter
+>
+> @entrypoint(checkpointer=checkpointer)
+> async def main(inputs: dict, writer: StreamWriter) -> int:  # [!code highlight]
+> ...
+> ```
 
 ## 重试策略
 
@@ -321,7 +329,9 @@ main.invoke({'any_input': 'foobar'}, config=config)
 'OK'
 ```
 
-## 设置任务和入口点超时将 `timeout` 参数与 `@task` 或 `@entrypoint` 一起使用来限制单个异步尝试可以运行的时间。提供以秒为单位的超时或作为 `datetime.timedelta`。
+## 设置任务和入口点超时
+
+将 `timeout` 参数与 `@task` 或 `@entrypoint` 一起使用来限制单个异步尝试可以运行的时间。提供以秒为单位的超时或作为 `datetime.timedelta`。
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import asyncio
@@ -382,9 +392,7 @@ for snapshot in stream.values:
     print(snapshot)
 ```
 
-1. `ttl` 以秒为单位指定。过了这个时间，缓存就会失效。
-
-## 错误后恢复
+1. `ttl` 以秒为单位指定。过了这个时间，缓存就会失效。## 错误后恢复
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import time
@@ -497,7 +505,7 @@ def step_3(input_query):
     return f"{input_query} qux"
 ```
 
-我们现在可以在 [entrypoint](/oss/python/langgraph/functional-api#entrypoint) 中编写这些任务：
+我们现在可以在 [entrypoint](/oss/python/langgraph/functional-api#entrypoint) 中组合这些任务：
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from langgraph.checkpoint.memory import InMemorySaver
@@ -512,7 +520,9 @@ def graph(input_query):
     result_3 = step_3(result_2).result()
 
     return result_3
-```[interrupt()](/oss/python/langgraph/interrupts#pause-using-interrupt) 在任务内部调用，使人们能够查看和编辑前一个任务的输出。先前任务的结果（在本例中为 `step_1`）将被保留，以便它们不会在 [⟦T57⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 之后再次运行。
+```
+
+[interrupt()](/oss/python/langgraph/interrupts#pause-using-interrupt) 在任务内部调用，使人们能够查看和编辑前一个任务的输出。先前任务的结果（在本例中为 `step_1`）将被保留，以便它们不会在 [⟦T57⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 之后再次运行。
 
 让我们发送一个查询字符串：
 
@@ -537,9 +547,7 @@ for message in stream.messages:
 
 恢复后，运行将继续执行剩余步骤并按预期终止。
 
-### 查看工具调用
-
-为了在执行前检查工具调用，我们添加了一个调用 [⟦T63⟧](/oss/python/langgraph/interrupts#pause-using-interrupt) 的 `review_tool_call` 函数。当调用此函数时，执行将暂停，直到我们发出命令来恢复它。
+### 查看工具调用为了在执行前检查工具调用，我们添加了一个调用 [⟦T63⟧](/oss/python/langgraph/interrupts#pause-using-interrupt) 的 `review_tool_call` 函数。当调用此函数时，执行将暂停，直到我们发出命令来恢复它。
 
 给定一个工具调用，我们的函数将[⟦T64⟧](https://reference.langchain.com/python/langgraph/types/interrupt)进行人工审查。那时我们可以：
 
@@ -569,7 +577,9 @@ def review_tool_call(tool_call: ToolCall) -> Union[ToolCall, ToolMessage]:
         return ToolMessage(
             content=review_data, name=tool_call["name"], tool_call_id=tool_call["id"]
         )
-```我们现在可以更新 [entrypoint](/oss/python/langgraph/functional-api#entrypoint) 来查看生成的工具调用。如果工具调用被接受或修改，我们将以与以前相同的方式执行。否则，我们只需附加人类提供的[⟦T65⟧](https://reference.langchain.com/python/langchain-core/messages/tool/ToolMessage)。先前任务的结果（在本例中为初始模型调用）将被保留，以便它们不会在 [⟦T66⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 之后再次运行。
+```
+
+我们现在可以更新 [entrypoint](/oss/python/langgraph/functional-api#entrypoint) 来查看生成的工具调用。如果工具调用被接受或修改，我们将以与以前相同的方式执行。否则，我们只需附加人类提供的[⟦T65⟧](https://reference.langchain.com/python/langchain-core/messages/tool/ToolMessage)。先前任务的结果（在本例中为初始模型调用）将被保留，以便它们不会在 [⟦T66⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 之后再次运行。
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from langgraph.checkpoint.memory import InMemorySaver
@@ -737,9 +747,7 @@ list(graph.get_state_history(config))  # [!code highlight]
 ]
 ```
 
-### 将返回值与保存的值分离
-
-使用 `entrypoint.final` 将返回给调用者的内容与检查点中保存的内容解耦。这在以下情况下很有用：
+### 将返回值与保存的值分离使用 `entrypoint.final` 将返回给调用者的内容与检查点中保存的内容解耦。这在以下情况下很有用：
 
 * 您想要返回计算结果（例如摘要或状态），但保存不同的内部值以供下次调用使用。
 * 您需要控制下次运行时传递给前一个参数的内容。
@@ -766,7 +774,9 @@ print(accumulate.invoke(3, config=config))  # 3
 
 ### 聊天机器人示例
 
-使用功能 API 和 [⟦T68⟧](https://reference.langchain.com/python/langgraph/checkpoints/#langgraph.checkpoint.memory.InMemorySaver) 检查点的简单聊天机器人示例。机器人能够记住之前的对话并从中断的地方继续。
+使用功能 API 和 [⟦T68⟧](https://reference.langchain.com/python/langgraph/checkpoints/#langgraph.checkpoint.memory.InMemorySaver) 检查点的简单聊天机器人示例。
+
+机器人能够记住之前的对话并从中断的地方继续。
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from langchain.messages import BaseMessage
@@ -818,12 +828,6 @@ for snapshot in stream.values:
 
 ***
 
-<div>
-  <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
-  </Callout>
+[Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
 
-  <Callout icon="edit">
-    [Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/use-functional-api.mdx) 或 [file an issue](https://github.com/langchain-ai/docs/issues/new/choose)。
-  </Callout>
-</div>
+[Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/use-functional-api.mdx) 或 [file an issue](https://github.com/langchain-ai/docs/issues/new/choose)。

@@ -11,10 +11,10 @@
 ## 课程
 
 - [⟦T0⟧](https://reference.langchain.com/python/langgraph.checkpoint.postgres/PostgresSaver)
-- [⟦T1⟧](https://reference.langchain.com/python/langgraph.checkpoint.postgres/aio/AsyncPostgresSaver)
-- [⟦T2⟧](https://reference.langchain.com/python/langgraph.checkpoint.postgres/shallow/ShallowPostgresSaver)
-- [⟦T3⟧](https://reference.langchain.com/python/langgraph.checkpoint.postgres/shallow/AsyncShallowPostgresSaver)
-- [⟦T4⟧](https://reference.langchain.com/python/langgraph.checkpoint.postgres/base/BasePostgresSaver)
+- [⟦T1⟧](https://reference.langchain.com/python/langgraph.checkpoint.postgres/shallow/ShallowPostgresSaver)
+- [⟦T2⟧](https://reference.langchain.com/python/langgraph.checkpoint.postgres/shallow/AsyncShallowPostgresSaver)
+- [⟦T3⟧](https://reference.langchain.com/python/langgraph.checkpoint.postgres/base/BasePostgresSaver)
+- [⟦T4⟧](https://reference.langchain.com/python/langgraph.checkpoint.postgres/aio/AsyncPostgresSaver)
 
 ## 函数
 
@@ -24,5 +24,5 @@
 ## 类型
 
 - [⟦T7⟧](https://reference.langchain.com/python/langgraph.checkpoint.postgres/_internal/Conn)
-- [⟦T8⟧](https://reference.langchain.com/python/langgraph.checkpoint.postgres/_ainternal/Conn)
-- [⟦T9⟧](https://reference.langchain.com/python/langgraph.checkpoint.postgres/base/MetadataInput)
+- [⟦T8⟧](https://reference.langchain.com/python/langgraph.checkpoint.postgres/base/MetadataInput)
+- [⟦T9⟧](https://reference.langchain.com/python/langgraph.checkpoint.postgres/_ainternal/Conn)

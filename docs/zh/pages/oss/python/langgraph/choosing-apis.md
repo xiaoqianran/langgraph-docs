@@ -28,7 +28,7 @@ LangGraph 提供了两种不同的 API 来构建代理工作流程：**Graph API
 
 ## 详细比较
 
-### 何时使用图形 API[Graph API](/oss/python/langgraph/graph-api) 使用声明性方法，您可以定义节点、边和共享状态来创建可视化图形结构。
+### 何时使用图形 API[Graph API](/oss/python/langgraph/graph-api) 使用声明式方法，您可以定义节点、边和共享状态来创建可视化图形结构。
 
 **1.复杂的决策树和分支逻辑**
 
@@ -303,16 +303,10 @@ def simple_workflow(input_data: str) -> str:
 
 当您需要显式控制工作流结构、复杂分支、并行处理或团队协作优势时，请选择 **Graph API**。
 
-当您想要以最小的更改向现有代码添加 LangGraph 功能、具有简单的线性工作流程或需要快速原型设计功能时，请选择 **函数式 API**。这两个 API 都提供相同的核心 LangGraph 功能（持久性、流式传输、人机交互、内存），但将它们封装在不同的范例中，以适应不同的开发风格和用例。
+当您想要以最小的更改向现有代码添加 LangGraph 功能、具有简单的线性工作流程或需要快速原型设计功能时，请选择 **Functional API**。这两个 API 都提供相同的核心 LangGraph 功能（持久性、流式传输、人机交互、内存），但将它们封装在不同的范例中，以适应不同的开发风格和用例。
 
 ***
 
-<div>
-  <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
-  </Callout>
+[Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
 
-  <Callout icon="edit">
-    [Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/choosing-apis.mdx) 或 [file an issue](https://github.com/langchain-ai/docs/issues/new/choose)。
-  </Callout>
-</div>
+[Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/choosing-apis.mdx) 或 [file an issue](https://github.com/langchain-ai/docs/issues/new/choose)。

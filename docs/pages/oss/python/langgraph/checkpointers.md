@@ -6,16 +6,16 @@ LangGraph checkpointers save graph state as checkpoints at each step, enabling p
 
 A checkpointer saves a snapshot of graph state at each super-step, organized into **threads**. Compile a graph with a checkpointer to enable human-in-the-loop workflows, time travel debugging, fault-tolerant execution, and conversational memory.
 
-<img alt="Checkpoints" />
+![Checkpoints](https://mintcdn.com/langchain-5e9cc07a/-_xGPoyjhyiDWTPJ/oss/images/checkpoints.jpg?fit=max\&auto=format\&n=-_xGPoyjhyiDWTPJ\&q=85\&s=966566aaae853ed4d240c2d0d067467c)
 
-<Info>
-  **Agent Server handles checkpointing automatically**
-  When using the [Agent Server](/langsmith/agent-server), you do not need to implement or configure checkpointers manually. The server handles all persistence infrastructure for you behind the scenes.
-</Info>
+> [!NOTE]
+>
+> **Agent Server handles checkpointing automatically**
+> When using the [Agent Server](/langsmith/agent-server), you do not need to implement or configure checkpointers manually. The server handles all persistence infrastructure for you behind the scenes.
 
-<Tip>
-  Trace checkpointed state and debug how your agent resumes across sessions with [LangSmith](https://smith.langchain.com?utm_source=docs\&utm_medium=cta\&utm_campaign=langsmith-signup\&utm_content=oss-langgraph-checkpointers). Follow the [tracing quickstart](/langsmith/trace-with-langgraph) to get set up.
-</Tip>
+> [!TIP]
+>
+> Trace checkpointed state and debug how your agent resumes across sessions with [LangSmith](https://smith.langchain.com?utm_source=docs\&utm_medium=cta\&utm_campaign=langsmith-signup\&utm_content=oss-langgraph-checkpointers). Follow the [tracing quickstart](/langsmith/trace-with-langgraph) to get set up.
 
 ## Why use checkpointers
 
@@ -215,7 +215,7 @@ In this example, the output of [`get_state_history`](https://reference.langchain
 ]
 ```
 
-<img alt="State" />
+![State](https://mintcdn.com/langchain-5e9cc07a/-_xGPoyjhyiDWTPJ/oss/images/get_state.jpg?fit=max\&auto=format\&n=-_xGPoyjhyiDWTPJ\&q=85\&s=38ffff52be4d8806b287836295a3c058)
 
 #### Find a specific checkpoint
 
@@ -246,7 +246,7 @@ Replay re-executes steps from a prior checkpoint. Invoke the graph with a prior 
 
 See [Time travel](/oss/python/langgraph/use-time-travel) for full details and code examples on replaying past executions.
 
-<img alt="Replay" />
+![Replay](https://mintcdn.com/langchain-5e9cc07a/dL5Sn6Cmy9pwtY0V/oss/images/re_play.png?fit=max\&auto=format\&n=dL5Sn6Cmy9pwtY0V\&q=85\&s=d7b34b85c106e55d181ae1f4afb50251)
 
 ### Update state
 
@@ -254,7 +254,7 @@ You can edit the graph state using [`update_state`](https://reference.langchain.
 
 You can optionally specify `as_node` to control which node the update is treated as coming from, which affects which node executes next. See [Time travel: `as_node`](/oss/python/langgraph/use-time-travel#from-a-specific-node) for details.
 
-<img alt="Update" />
+![Update](https://mintcdn.com/langchain-5e9cc07a/-_xGPoyjhyiDWTPJ/oss/images/checkpoints_full_story.jpg?fit=max\&auto=format\&n=-_xGPoyjhyiDWTPJ\&q=85\&s=a52016b2c44b57bd395d6e1eac47aa36)
 
 ## Durability modes
 
@@ -279,17 +279,17 @@ By default, LangGraph checkpoints write the full value of every state channel at
 
 [`DeltaChannel`](https://reference.langchain.com/python/langgraph/channels/delta/DeltaChannel) stores only incremental deltas instead of the full accumulated value, substantially reducing checkpoint size for append-heavy channels. See [DeltaChannel](/oss/python/langgraph/pregel#deltachannel) for usage and the storage-vs-latency tradeoff.
 
-<Warning>
-  `DeltaChannel` requires `langgraph>=1.2` and is currently in beta. The API may change in future releases.
-</Warning>
+> [!WARNING]
+>
+> `DeltaChannel` requires `langgraph>=1.2` and is currently in beta. The API may change in future releases.
 
 ## Checkpointer libraries
 
 Under the hood, checkpointing is powered by checkpointer objects that conform to [`BaseCheckpointSaver`](https://reference.langchain.com/python/langgraph/checkpoints/#langgraph.checkpoint.base.BaseCheckpointSaver) interface. LangGraph provides several checkpointer implementations, all implemented via standalone, installable libraries.
 
-<Note>
-  See [checkpointer integrations](/oss/python/integrations/checkpointers/index) for available providers.
-</Note>
+> [!NOTE]
+>
+> See [checkpointer integrations](/oss/python/integrations/checkpointers/index) for available providers.
 
 * `langgraph-checkpoint`: The base interface for checkpointer savers ([`BaseCheckpointSaver`](https://reference.langchain.com/python/langgraph/checkpoints/#langgraph.checkpoint.base.BaseCheckpointSaver)) and serialization/deserialization interface ([`SerializerProtocol`](https://reference.langchain.com/python/langgraph/checkpoints/#langgraph.checkpoint.serde.base.SerializerProtocol)). Includes in-memory checkpointer implementation ([`InMemorySaver`](https://reference.langchain.com/python/langgraph/checkpoints/#langgraph.checkpoint.memory.InMemorySaver)) for experimentation. LangGraph comes with `langgraph-checkpoint` included.
 * `langgraph-checkpoint-sqlite`: An implementation of LangGraph checkpointer that uses SQLite database ([`SqliteSaver`](https://reference.langchain.com/python/langgraph/checkpoints/#langgraph.checkpoint.sqlite.SqliteSaver) / [`AsyncSqliteSaver`](https://reference.langchain.com/python/langgraph/checkpoints/#langgraph.checkpoint.sqlite.aio.AsyncSqliteSaver)). Ideal for experimentation and local workflows. Needs to be installed separately.
@@ -308,9 +308,9 @@ Each checkpointer conforms to [`BaseCheckpointSaver`](https://reference.langchai
 
 If the checkpointer is used with asynchronous graph execution (i.e. executing the graph via `.ainvoke`, `.astream`, `.abatch`), asynchronous versions of the above methods will be used (`.aput`, `.aput_writes`, `.aget_tuple`, `.alist`).
 
-<Note>
-  For running your graph asynchronously, you can use [`InMemorySaver`](https://reference.langchain.com/python/langgraph/checkpoints/#langgraph.checkpoint.memory.InMemorySaver), or async versions of Sqlite/Postgres checkpointers -- [`AsyncSqliteSaver`](https://reference.langchain.com/python/langgraph/checkpoints/#langgraph.checkpoint.sqlite.aio.AsyncSqliteSaver) / [`AsyncPostgresSaver`](https://reference.langchain.com/python/langgraph/checkpoints/#langgraph.checkpoint.postgres.aio.AsyncPostgresSaver) checkpointers.
-</Note>
+> [!NOTE]
+>
+> For running your graph asynchronously, you can use [`InMemorySaver`](https://reference.langchain.com/python/langgraph/checkpoints/#langgraph.checkpoint.memory.InMemorySaver), or async versions of Sqlite/Postgres checkpointers -- [`AsyncSqliteSaver`](https://reference.langchain.com/python/langgraph/checkpoints/#langgraph.checkpoint.sqlite.aio.AsyncSqliteSaver) / [`AsyncPostgresSaver`](https://reference.langchain.com/python/langgraph/checkpoints/#langgraph.checkpoint.postgres.aio.AsyncPostgresSaver) checkpointers.
 
 ### Serializer
 
@@ -362,9 +362,9 @@ When running on LangSmith, encryption is automatically enabled whenever `LANGGRA
 
 ## Build a custom checkpointer
 
-<Tip>
-  Validate your implementation as you build using the [conformance test suite](#testing-with-the-conformance-suite). It covers all five base methods and extended capabilities including delta channels. Run it in CI before shipping.
-</Tip>
+> [!TIP]
+>
+> Validate your implementation as you build using the [conformance test suite](#testing-with-the-conformance-suite). It covers all five base methods and extended capabilities including delta channels. Run it in CI before shipping.
 
 This section covers implementing `BaseCheckpointSaver` from scratch for a custom storage backend. If you already have a working checkpointer and only need to add delta channel support, jump to [Delta channel support](#delta-channel-support).
 
@@ -557,9 +557,9 @@ async def aget_tuple(self, config):
     )
 ```
 
-<Warning>
-  **Row key / index design matters for the specific-id lookup.** If your storage uses a time-ordered key (e.g., a reversed timestamp) that does not embed `checkpoint_id`, you cannot do a direct row read by id. You must either encode `checkpoint_id` in the row key, or build a secondary index. A scan with a value filter on every lookup works but does not scale.
-</Warning>
+> [!WARNING]
+>
+> **Row key / index design matters for the specific-id lookup.** If your storage uses a time-ordered key (e.g., a reversed timestamp) that does not embed `checkpoint_id`, you cannot do a direct row read by id. You must either encode `checkpoint_id` in the row key, or build a secondary index. A scan with a value filter on every lookup works but does not scale.
 
 #### list / alist
 
@@ -631,9 +631,9 @@ Agent Server auto-detects which capabilities your checkpointer implements at sta
 
 ### Delta channel support
 
-<Info>
-  **DeltaChannel is in beta.** The API and on-disk representation may change while the design stabilizes.
-</Info>
+> [!NOTE]
+>
+> **DeltaChannel is in beta.** The API and on-disk representation may change while the design stabilizes.
 
 `DeltaChannel` is a reducer channel that stores only a sentinel (`MISSING`) in checkpoint blobs instead of the full channel value. State is reconstructed by replaying ancestor writes through the reducer. This makes checkpoint blobs O(1) per step instead of O(N) for channels like `messages` that accumulate over time.
 
@@ -802,12 +802,6 @@ The suite auto-detects which extended capabilities your checkpointer implements 
 
 ***
 
-<div>
-  <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
-  </Callout>
+[Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
 
-  <Callout icon="edit">
-    [Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/checkpointers.mdx) or [file an issue](https://github.com/langchain-ai/docs/issues/new/choose).
-  </Callout>
-</div>
+[Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/checkpointers.mdx) or [file an issue](https://github.com/langchain-ai/docs/issues/new/choose).

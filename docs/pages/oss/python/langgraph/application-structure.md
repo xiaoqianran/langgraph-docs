@@ -6,9 +6,9 @@ A LangGraph application consists of one or more graphs, a configuration file (`l
 
 This guide shows a typical structure of an application and shows you how to provide the required configuration to deploy an application with [LangSmith Deployment](/langsmith/deployment).
 
-<Info>
-  LangSmith Deployment is a managed hosting platform for deploying and scaling LangGraph agents. It handles the infrastructure, scaling, and operational concerns so you can deploy your stateful, long-running agents directly from your repository. Learn more in the [Deployment documentation](/langsmith/deployment).
-</Info>
+> [!NOTE]
+>
+> LangSmith Deployment is a managed hosting platform for deploying and scaling LangGraph agents. It handles the infrastructure, scaling, and operational concerns so you can deploy your stateful, long-running agents directly from your repository. Learn more in the [Deployment documentation](/langsmith/deployment).
 
 ## Key concepts
 
@@ -23,45 +23,43 @@ To deploy using LangSmith, the following information should be provided:
 
 Below are examples of directory structures for applications:
 
-<Tabs>
-  <Tab title="Python (requirements.txt)">
-    ```plaintext theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    my-app/
-    ├── my_agent # all project code lies within here
-    │   ├── utils # utilities for your graph
-    │   │   ├── __init__.py
-    │   │   ├── tools.py # tools for your graph
-    │   │   ├── nodes.py # node functions for your graph
-    │   │   └── state.py # state definition of your graph
-    │   ├── __init__.py
-    │   └── agent.py # code for constructing your graph
-    ├── .env # environment variables
-    ├── requirements.txt # package dependencies
-    └── langgraph.json # configuration file for LangGraph
-    ```
-  </Tab>
+**Python (requirements.txt)**
 
-  <Tab title="Python (pyproject.toml)">
-    ```plaintext theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    my-app/
-    ├── my_agent # all project code lies within here
-    │   ├── utils # utilities for your graph
-    │   │   ├── __init__.py
-    │   │   ├── tools.py # tools for your graph
-    │   │   ├── nodes.py # node functions for your graph
-    │   │   └── state.py # state definition of your graph
-    │   ├── __init__.py
-    │   └── agent.py # code for constructing your graph
-    ├── .env # environment variables
-    ├── langgraph.json  # configuration file for LangGraph
-    └── pyproject.toml # dependencies for your project
-    ```
-  </Tab>
-</Tabs>
+```plaintext theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+my-app/
+├── my_agent # all project code lies within here
+│   ├── utils # utilities for your graph
+│   │   ├── __init__.py
+│   │   ├── tools.py # tools for your graph
+│   │   ├── nodes.py # node functions for your graph
+│   │   └── state.py # state definition of your graph
+│   ├── __init__.py
+│   └── agent.py # code for constructing your graph
+├── .env # environment variables
+├── requirements.txt # package dependencies
+└── langgraph.json # configuration file for LangGraph
+```
 
-<Note>
-  The directory structure of a LangGraph application can vary depending on the programming language and the package manager used.
-</Note>
+**Python (pyproject.toml)**
+
+```plaintext theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+my-app/
+├── my_agent # all project code lies within here
+│   ├── utils # utilities for your graph
+│   │   ├── __init__.py
+│   │   ├── tools.py # tools for your graph
+│   │   ├── nodes.py # node functions for your graph
+│   │   └── state.py # state definition of your graph
+│   ├── __init__.py
+│   └── agent.py # code for constructing your graph
+├── .env # environment variables
+├── langgraph.json  # configuration file for LangGraph
+└── pyproject.toml # dependencies for your project
+```
+
+> [!NOTE]
+>
+> The directory structure of a LangGraph application can vary depending on the programming language and the package manager used.
 
 ## Configuration file
 
@@ -69,9 +67,9 @@ The `langgraph.json` file is a JSON file that specifies the dependencies, graphs
 
 See the [LangGraph configuration file reference](/langsmith/cli#configuration-file) for details on all supported keys in the JSON file.
 
-<Tip>
-  The [LangGraph CLI](/langsmith/cli) defaults to using the configuration file `langgraph.json` in the current directory.
-</Tip>
+> [!TIP]
+>
+> The [LangGraph CLI](/langsmith/cli) defaults to using the configuration file `langgraph.json` in the current directory.
 
 ### Examples
 
@@ -115,12 +113,6 @@ For a production deployment, you will typically want to configure the environmen
 
 ***
 
-<div>
-  <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
-  </Callout>
+[Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
 
-  <Callout icon="edit">
-    [Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/application-structure.mdx) or [file an issue](https://github.com/langchain-ai/docs/issues/new/choose).
-  </Callout>
-</div>
+[Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/application-structure.mdx) or [file an issue](https://github.com/langchain-ai/docs/issues/new/choose).

@@ -14,9 +14,9 @@ There are three categories of compatibility issues to watch for, in roughly the 
 2. [Business compatibility](#business-compatibility): Less common; existing runs should keep following the old business logic even though the code has changed.
 3. [Non-determinism](#non-determinism): Only applies to the [Functional API](/oss/javascript/langgraph/functional-api).
 
-<Tip>
-  For a short summary of which graph topology and state changes the runtime supports by default, see [Graph migrations](/oss/javascript/langgraph/graph-api#graph-migrations). The rest of this page covers the patterns you can apply when a change falls outside that supported set.
-</Tip>
+> [!TIP]
+>
+> For a short summary of which graph topology and state changes the runtime supports by default, see [Graph migrations](/oss/javascript/langgraph/graph-api#graph-migrations). The rest of this page covers the patterns you can apply when a change falls outside that supported set.
 
 ## Technical compatibility
 
@@ -35,7 +35,7 @@ Edge topology itself is *not* persisted in the checkpoint. Adding, removing, or 
 * Mark new state fields as optional (`z.string().optional()` or `.nullish()`) so old checkpoints still validate.
 * Treat removals as deprecations: keep the field on the schema for at least one drain cycle so existing checkpoints continue to load.
 * Rename via add-then-remove: add the new field or node alongside the old one, dual-write or route to both for a deprecation window, then remove the old one once no in-flight thread depends on it.
-* Use [time travel](/oss/javascript/langgraph/use-time-travel) and [`graph.getState`](https://reference.langchain.com/javascript/classes/_langchain_langgraph.pregel.Pregel.html#getState) to spot-check existing threads against the new code in a staging deployment before rolling out.
+* Use [time travel](/oss/javascript/langgraph/use-time-travel) and [`graph.getState`](https://reference.langchain.com/javascript/langchain-langgraph/pregel/Pregel/getState) to spot-check existing threads against the new code in a staging deployment before rolling out.
 
 ### Detecting in-flight threads
 
@@ -47,8 +47,8 @@ Before you remove a node, rename a State key, or otherwise make a change that ol
 
 **When you already have a `thread_id`.** Inspect that single thread directly:
 
-* [`graph.getState(config)`](https://reference.langchain.com/javascript/classes/_langchain_langgraph.pregel.Pregel.html#getState) returns the latest checkpoint, including which node the thread is paused at and any pending interrupts.
-* [`graph.getStateHistory(config)`](https://reference.langchain.com/javascript/classes/_langchain_langgraph.pregel.Pregel.html#getStateHistory) returns the full chronological list of checkpoints for the thread.
+* [`graph.getState(config)`](https://reference.langchain.com/javascript/langchain-langgraph/pregel/Pregel/getState) returns the latest checkpoint, including which node the thread is paused at and any pending interrupts.
+* [`graph.getStateHistory(config)`](https://reference.langchain.com/javascript/langchain-langgraph/pregel/Pregel/getStateHistory) returns the full chronological list of checkpoints for the thread.
 
 When in doubt, keep the deprecated node or field in place until both the Agent Server thread list and tracing show no further activity on it.
 
@@ -86,12 +86,6 @@ If you need to make non-trivial code changes to an `@entrypoint` that has in-fli
 
 ***
 
-<div>
-  <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
-  </Callout>
+[Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
 
-  <Callout icon="edit">
-    [Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/backward-compatibility.mdx) or [file an issue](https://github.com/langchain-ai/docs/issues/new/choose).
-  </Callout>
-</div>
+[Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/backward-compatibility.mdx) or [file an issue](https://github.com/langchain-ai/docs/issues/new/choose).

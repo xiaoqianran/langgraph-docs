@@ -6,31 +6,27 @@
 
 It's designed to work hand-in-hand with [LangChain v1](/oss/python/releases/langchain-v1) (whose `create_agent` is built on LangGraph) so you can start high-level and drop down to granular control when needed.
 
-<CardGroup>
-  <Card title="Stable core APIs" icon="sitemap">
-    Graph primitives (state, nodes, edges) and the execution/runtime model are unchanged, making upgrades straightforward.
-  </Card>
+> **Stable core APIs**
+>
+> Graph primitives (state, nodes, edges) and the execution/runtime model are unchanged, making upgrades straightforward.
 
-  <Card title="Reliability, by default" icon="database">
-    Durable execution with checkpointing, persistence, streaming, and human-in-the-loop continues to be first-class.
-  </Card>
+> **Reliability, by default**
+>
+> Durable execution with checkpointing, persistence, streaming, and human-in-the-loop continues to be first-class.
 
-  <Card title="Seamless with LangChain v1" icon="link">
-    LangChain's `create_agent` runs on LangGraph. Use LangChain for a fast start; drop to LangGraph for custom orchestration.
-  </Card>
-</CardGroup>
+> **Seamless with LangChain v1**
+>
+> LangChain's `create_agent` runs on LangGraph. Use LangChain for a fast start; drop to LangGraph for custom orchestration.
 
 To upgrade,
 
-<CodeGroup>
-  ```bash pip theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  pip install -U langgraph
-  ```
+```bash pip theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+pip install -U langgraph
+```
 
-  ```bash uv theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  uv add langgraph
-  ```
-</CodeGroup>
+```bash uv theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+uv add langgraph
+```
 
 ## Deprecation of `create_react_agent`
 
@@ -45,31 +41,29 @@ Please report any issues discovered with 1.0 on [GitHub](https://github.com/lang
 
 ## Additional resources
 
-<CardGroup>
-  <Card title="LangGraph 1.0" icon="rocket" href="https://blog.langchain.com/langchain-langchain-1-0-alpha-releases/">
-    Read the announcement
-  </Card>
+> **[LangGraph 1.0](https://blog.langchain.com/langchain-langchain-1-0-alpha-releases/)**
+>
+> Read the announcement
 
-  <Card title="Overview" icon="book" href="/oss/python/langgraph/overview">
-    What LangGraph is and when to use it
-  </Card>
+> **[Overview](/oss/python/langgraph/overview)**
+>
+> What LangGraph is and when to use it
 
-  <Card title="Graph API" icon="sitemap" href="/oss/python/langgraph/graph-api">
-    Build graphs with state, nodes, and edges
-  </Card>
+> **[Graph API](/oss/python/langgraph/graph-api)**
+>
+> Build graphs with state, nodes, and edges
 
-  <Card title="LangChain Agents" icon="robot" href="/oss/python/langchain/agents">
-    High-level agents built on LangGraph
-  </Card>
+> **[LangChain Agents](/oss/python/langchain/agents)**
+>
+> High-level agents built on LangGraph
 
-  <Card title="Migration guide" icon="arrows-exchange" href="/oss/python/migrate/langgraph-v1">
-    How to migrate to LangGraph v1
-  </Card>
+> **[Migration guide](/oss/python/migrate/langgraph-v1)**
+>
+> How to migrate to LangGraph v1
 
-  <Card title="GitHub" icon="brand-github" href="https://github.com/langchain-ai/langgraph">
-    Report issues or contribute
-  </Card>
-</CardGroup>
+> **[GitHub](https://github.com/langchain-ai/langgraph)**
+>
+> Report issues or contribute
 
 ## See also
 
@@ -78,12 +72,6 @@ Please report any issues discovered with 1.0 on [GitHub](https://github.com/lang
 
 ***
 
-<div>
-  <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
-  </Callout>
+[Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
 
-  <Callout icon="edit">
-    [Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/python/releases/langgraph-v1.mdx) or [file an issue](https://github.com/langchain-ai/docs/issues/new/choose).
-  </Callout>
-</div>
+[Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/python/releases/langgraph-v1.mdx) or [file an issue](https://github.com/langchain-ai/docs/issues/new/choose).

@@ -4,7 +4,7 @@
 
 # 功能 API 概述
 
-**函数式 API** 允许您将 LangGraph 的关键功能（[persistence](/oss/javascript/langgraph/persistence)、[memory](/oss/javascript/langgraph/add-memory)、[human-in-the-loop](/oss/javascript/langgraph/interrupts) 和 [streaming](/oss/javascript/langgraph/streaming)）添加到您的应用程序，只需对现有代码进行最少的更改。
+**功能 API** 允许您将 LangGraph 的关键功能（[persistence](/oss/javascript/langgraph/persistence)、[memory](/oss/javascript/langgraph/add-memory)、[human-in-the-loop](/oss/javascript/langgraph/interrupts) 和 [streaming](/oss/javascript/langgraph/streaming)）添加到您的应用程序中，只需对现有代码进行最少的更改。
 
 它旨在将这些功能集成到现有代码中，这些代码可以使用标准语言原语进行分支和控制流，例如`if`语句、`for`循环和函数调用。与许多需要将代码重组为显式管道或 DAG 的数据编排框架不同，功能 API 允许您合并这些功能，而无需强制执行严格的执行模型。
 
@@ -15,9 +15,9 @@
 
 这为构建具有状态管理和流的工作流提供了最小的抽象。
 
-<Tip>
-  有关如何使用函数式 API 的信息，请参阅[Use Functional API](/oss/javascript/langgraph/use-functional-api)。
-</Tip>## 函数式 API 与图形 API
+> [!提示]
+>
+> 有关如何使用函数式 API 的信息，请参阅[Use Functional API](/oss/javascript/langgraph/use-functional-api)。## 函数式 API 与图形 API
 
 对于喜欢更具声明性方法的用户，LangGraph 的 [Graph API](/oss/javascript/langgraph/graph-api) 允许您使用图形范例定义工作流程。这两个 API 共享相同的底层运行时，因此您可以在同一应用程序中一起使用它们。
 
@@ -62,87 +62,87 @@ const workflow = entrypoint(
 );
 ```
 
-<Accordion title="Detailed Explanation">
-  此工作流程将写一篇有关“猫”主题的文章，然后暂停以获取人类的评论。工作流程可以无限期中断，直到提供审核。
-
-  当工作流恢复时，它会从头开始执行，但由于`writeEssay`任务的结果已经保存，因此任务结果将从检查点加载，而不是重新计算。
-
-  ```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  import { MemorySaver, entrypoint, interrupt, task } from "@langchain/langgraph";
-
-  const writeEssay = task("writeEssay", async (topic: string) => {
-    // This is a placeholder for a long-running task.
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    return `An essay about topic: ${topic}`;
-  });
-
-  const workflow = entrypoint(
-    { checkpointer: new MemorySaver(), name: "workflow" },
-    async (_topic: string) => {
-      const essay = await writeEssay("cat");
-      const isApproved = interrupt({
-        // Any json-serializable payload provided to interrupt as argument.
-        // It will be surfaced on the client side as an Interrupt when streaming data
-        // from the workflow.
-        essay, // The essay we want reviewed.
-        // We can add any additional information that we need.
-        // For example, introduce a key called "action" with some instructions.
-        action: "Please approve/reject the essay",
-      });
-
-      return {
-        essay, // The essay that was generated
-        isApproved, // Response from HIL
-      };
-    },
-  );
-
-  const threadId = "functional-api-thread";
-  const config = {
-    configurable: {
-      thread_id: threadId,
-    },
-  };
-
-  const stream = await workflow.streamEvents("cat", { ...config, version: "v2" });
-  const initialChunks: Record<string, unknown>[] = [];
-  for await (const event of stream) {
-    const chunk = event.data?.chunk;
-    if (chunk && typeof chunk === "object") {
-      console.log(chunk);
-      initialChunks.push(chunk as Record<string, unknown>);
-    }
-  }
-  // { writeEssay: "An essay about topic: cat" }
-  // { __interrupt__: [Interrupt(...)] }
-  ```
-
-  一篇论文已经写好，准备供审阅。一旦提供审核，我们就可以恢复工作流程：
-
-  ```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  import { Command } from "@langchain/langgraph";
-
-  // Get review from a user (e.g., via a UI)
-  // In this case, we're using a bool, but this can be any json-serializable value.
-  const humanReview = true;
-
-  const resumedStream = await workflow.streamEvents(
-    new Command({ resume: humanReview }),
-    { ...config, version: "v2" },
-  );
-  const resumedChunks: Record<string, unknown>[] = [];
-  for await (const event of resumedStream) {
-    const chunk = event.data?.chunk;
-    if (chunk && typeof chunk === "object") {
-      console.log(chunk);
-      resumedChunks.push(chunk as Record<string, unknown>);
-    }
-  }
-  // { essay: "An essay about topic: cat", isApproved: true }
-  ```
-
-  工作流程已完成，评论已添加到论文中。
-</Accordion>
+> **详细说明**
+>
+> 此工作流程将写一篇关于“猫”主题的文章，然后暂停以获取人类的评论。工作流程可以无限期中断，直到提供审核。
+>
+> 当工作流恢复时，会从头开始执行，但由于`writeEssay`任务的结果已经保存，所以任务结果将从检查点加载，而不是重新计算。
+>
+> ```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import { MemorySaver, entrypoint, interrupt, task } from "@langchain/langgraph";
+>
+> const writeEssay = task("writeEssay", async (topic: string) => {
+>   // This is a placeholder for a long-running task.
+>   await new Promise((resolve) => setTimeout(resolve, 1000));
+>   return `An essay about topic: ${topic}`;
+> });
+>
+> const workflow = entrypoint(
+>   { checkpointer: new MemorySaver(), name: "workflow" },
+>   async (_topic: string) => {
+>     const essay = await writeEssay("cat");
+>     const isApproved = interrupt({
+>       // Any json-serializable payload provided to interrupt as argument.
+>       // It will be surfaced on the client side as an Interrupt when streaming data
+>       // from the workflow.
+>       essay, // The essay we want reviewed.
+>       // We can add any additional information that we need.
+>       // For example, introduce a key called "action" with some instructions.
+>       action: "Please approve/reject the essay",
+>     });
+>
+>     return {
+>       essay, // The essay that was generated
+>       isApproved, // Response from HIL
+>     };
+>   },
+> );
+>
+> const threadId = "functional-api-thread";
+> const config = {
+>   configurable: {
+>     thread_id: threadId,
+>   },
+> };
+>
+> const stream = await workflow.streamEvents("cat", { ...config, version: "v2" });
+> const initialChunks: Record<string, unknown>[] = [];
+> for await (const event of stream) {
+>   const chunk = event.data?.chunk;
+>   if (chunk && typeof chunk === "object") {
+>     console.log(chunk);
+>     initialChunks.push(chunk as Record<string, unknown>);
+>   }
+> }
+> // { writeEssay: "An essay about topic: cat" }
+> // { __interrupt__: [Interrupt(...)] }
+> ```
+>
+> 一篇文章已写好，可供审阅。一旦提供审核，我们就可以恢复工作流程：
+>
+> ```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import { Command } from "@langchain/langgraph";
+>
+> // Get review from a user (e.g., via a UI)
+> // In this case, we're using a bool, but this can be any json-serializable value.
+> const humanReview = true;
+>
+> const resumedStream = await workflow.streamEvents(
+>   new Command({ resume: humanReview }),
+>   { ...config, version: "v2" },
+> );
+> const resumedChunks: Record<string, unknown>[] = [];
+> for await (const event of resumedStream) {
+>   const chunk = event.data?.chunk;
+>   if (chunk && typeof chunk === "object") {
+>     console.log(chunk);
+>     resumedChunks.push(chunk as Record<string, unknown>);
+>   }
+> }
+> // { essay: "An essay about topic: cat", isApproved: true }
+> ```
+>
+> 工作流程已完成，评论已添加到论文中。
 
 ## 入口点[⟦T25⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/entrypoint) 函数可用于从函数创建工作流。它封装了工作流逻辑并管理执行流，包括处理*长时间运行的任务*和[interrupts](/oss/javascript/langgraph/interrupts)。
 
@@ -169,86 +169,82 @@ const myWorkflow = entrypoint(
 );
 ```
 
-<Warning>
-  **序列化**
-  入口点的 **输入** 和 **输出** 必须是 JSON 可序列化的才能支持检查点。更多详情请参阅[serialization](#serialization)部分。
-</Warning>
+> [!警告]
+>
+> **序列化**
+> 入口点的 **输入** 和 **输出** 必须是 JSON 可序列化的以支持检查点。更多详情请参阅[serialization](#serialization)部分。
 
 ### 执行中
 
 使用 [⟦T28⟧](#entrypoint) 函数将返回一个可以使用 `invoke` 和 `stream` 方法执行的对象。
 
-<Tabs>
-  <Tab title="Invoke">
-    ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    const config = {
-      configurable: {
-        thread_id: "some_thread_id"
-      }
-    };
-    await myWorkflow.invoke(someInput, config); // Wait for the result
-    ```
-  </Tab>
+**调用**
 
-  <Tab title="Stream">
-    ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    const config = {
-      configurable: {
-        thread_id: "some_thread_id"
-      }
-    };
+```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+const config = {
+  configurable: {
+    thread_id: "some_thread_id"
+  }
+};
+await myWorkflow.invoke(someInput, config); // Wait for the result
+```
 
-    const stream = await myWorkflow.streamEvents(someInput, config, { version: "v3" });
-    for await (const message of stream.messages) {
-      for await (const token of message.text) {
-        process.stdout.write(token);
-      }
-    }
-    ```
-  </Tab>
-</Tabs>
+**流**
+
+```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+const config = {
+  configurable: {
+    thread_id: "some_thread_id"
+  }
+};
+
+const stream = await myWorkflow.streamEvents(someInput, config, { version: "v3" });
+for await (const message of stream.messages) {
+  for await (const token of message.text) {
+    process.stdout.write(token);
+  }
+}
+```
 
 ### 恢复在 [interrupt](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 之后恢复执行可以通过将 **resume** 值传递给 [⟦T31⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/Command) 原语来完成。
 
-<Tabs>
-  <Tab title="Invoke">
-    ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    import { Command } from "@langchain/langgraph";
+**调用**
 
-    const config = {
-      configurable: {
-        thread_id: "some_thread_id"
-      }
-    };
+```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import { Command } from "@langchain/langgraph";
 
-    await myWorkflow.invoke(new Command({ resume: someResumeValue }), config);
-    ```
-  </Tab>
+const config = {
+  configurable: {
+    thread_id: "some_thread_id"
+  }
+};
 
-  <Tab title="Stream">
-    ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    import { Command } from "@langchain/langgraph";
+await myWorkflow.invoke(new Command({ resume: someResumeValue }), config);
+```
 
-    const config = {
-      configurable: {
-        thread_id: "some_thread_id"
-      }
-    };
+**流**
 
-    const stream = await myWorkflow.streamEvents(
-      new Command({ resume: someResumableValue }),
-      config,
-      { version: "v3" },
-    );
+```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import { Command } from "@langchain/langgraph";
 
-    for await (const message of stream.messages) {
-      for await (const token of message.text) {
-        process.stdout.write(token);
-      }
-    }
-    ```
-  </Tab>
-</Tabs>
+const config = {
+  configurable: {
+    thread_id: "some_thread_id"
+  }
+};
+
+const stream = await myWorkflow.streamEvents(
+  new Command({ resume: someResumableValue }),
+  config,
+  { version: "v3" },
+);
+
+for await (const message of stream.messages) {
+  for await (const token of message.text) {
+    process.stdout.write(token);
+  }
+}
+```
 
 **发生错误后恢复**
 
@@ -256,36 +252,34 @@ const myWorkflow = entrypoint(
 
 这假设底层的**错误**已得到解决并且执行可以成功进行。
 
-<Tabs>
-  <Tab title="Invoke">
-    ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    const config = {
-      configurable: {
-        thread_id: "some_thread_id"
-      }
-    };
+**调用**
 
-    await myWorkflow.invoke(null, config);
-    ```
-  </Tab>
+```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+const config = {
+  configurable: {
+    thread_id: "some_thread_id"
+  }
+};
 
-  <Tab title="Stream">
-    ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    const config = {
-      configurable: {
-        thread_id: "some_thread_id"
-      }
-    };
+await myWorkflow.invoke(null, config);
+```
 
-    const stream = await myWorkflow.streamEvents(null, config, { version: "v3" });
-    for await (const message of stream.messages) {
-      for await (const token of message.text) {
-        process.stdout.write(token);
-      }
-    }
-    ```
-  </Tab>
-</Tabs>
+**流**
+
+```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+const config = {
+  configurable: {
+    thread_id: "some_thread_id"
+  }
+};
+
+const stream = await myWorkflow.streamEvents(null, config, { version: "v3" });
+for await (const message of stream.messages) {
+  for await (const token of message.text) {
+    process.stdout.write(token);
+  }
+}
+```
 
 ### 短期记忆
 
@@ -318,7 +312,7 @@ await myWorkflow.invoke(2, config); // 3 (previous was 1 from the previous invoc
 
 #### `entrypoint.final`
 
-[⟦T39⟧](https://reference.langchain.com/javascript/functions/_langchain_langgraph.index.entrypoint.html#final) 是一个特殊的原语，可以从入口点返回，并允许将检查点中保存的值与入口点的返回值**解耦**。
+[⟦T39⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/entrypoint/final) 是一个特殊的原语，可以从入口点返回，并允许将检查点中保存的值与入口点的返回值**解耦**。
 
 第一个值是入口点的返回值，第二个值是将保存在检查点中的值。
 
@@ -349,9 +343,9 @@ await myWorkflow.invoke(3, config); // 0 (previous was undefined)
 await myWorkflow.invoke(1, config); // 6 (previous was 3 * 2 from the previous invocation)
 ```
 
-## 任务**任务**代表一个离散的工作单元，例如 API 调用或数据处理步骤。它有两个关键特征：
+## 任务
 
-* **异步执行**：任务被设计为异步执行，允许多个操作同时运行而不会阻塞。
+**任务**代表一个离散的工作单元，例如 API 调用或数据处理步骤。它有两个关键特征：* **异步执行**：任务被设计为异步执行，允许多个操作同时运行而不会阻塞。
 * **检查点**：任务结果保存到检查点，从而可以从上次保存的状态恢复工作流程。 （更多详情请参见[persistence](/oss/javascript/langgraph/persistence)）。
 
 ### 定义
@@ -367,10 +361,10 @@ const slowComputation = task("slowComputation", async (inputValue: any) => {
 });
 ```
 
-<Warning>
-  **序列化**
-  任务的 **输出** 必须是 JSON 可序列化的以支持检查点。
-</Warning>
+> [!警告]
+>
+> **序列化**
+> 任务的 **输出** 必须可 JSON 序列化以支持检查点。
 
 ### 执行
 
@@ -412,7 +406,7 @@ LangGraph 中的序列化有两个关键方面：
 
 当您恢复工作流运行时，代码**不会**从执行停止的**同一行代码**恢复。执行返回到检查点边界，并且工作流向前**重播**，直到再次达到暂停为止。
 
-对于功能 API，重播从 **入口点** 的开头开始，而 LangGraph 则从检查指针恢复已完成的 [**task**](/oss/javascript/langgraph/functional-api#task) 和 [**subgraph**](/oss/javascript/langgraph/use-subgraphs) 结果，而不是重新计算它们。这保留了暂停期间记录的步骤顺序，包括长时间运行或不确定的**任务**输出。要使用**人机交互**等功能，您必须将非确定性工作（例如随机值）和副作用（例如文件写入或 API 调用）放入 [**tasks**](/oss/javascript/langgraph/functional-api#task) 中。
+对于功能 API，重播从 **入口点** 的开头开始，而 LangGraph 则从检查点恢复已完成的 [**task**](/oss/javascript/langgraph/functional-api#task) 和 [**subgraph**](/oss/javascript/langgraph/use-subgraphs) 结果，而不是重新计算它们。这保留了暂停期间记录的步骤顺序，包括长时间运行或不确定的**任务**输出。要使用**人机交互**等功能，您必须将非确定性工作（例如随机值）和副作用（例如文件写入或 API 调用）放入 [**tasks**](/oss/javascript/langgraph/functional-api#task) 中。
 
 工作流的不同运行可能会产生不同的结果，但恢复**特定**线程应该重播相同的持久**任务**和**子图**结果。
 
@@ -432,50 +426,48 @@ LangGraph 中的序列化有两个关键方面：
 
 将副作用（例如，写入文件、发送电子邮件）封装在任务中，以确保在恢复工作流程时不会多次执行它们。
 
-<Tabs>
-  <Tab title="Incorrect">
-    在本例中，副作用（写入文件）直接包含在工作流中，因此在恢复工作流时将第二次执行。
+**不正确**
 
-    ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    import { entrypoint, interrupt } from "@langchain/langgraph";
-    import fs from "fs";
+在本例中，副作用（写入文件）直接包含在工作流中，因此在恢复工作流时将再次执行。
 
-    const myWorkflow = entrypoint(
-      { checkpointer, name: "workflow },
-      async (inputs: Record<string, any>) => {
-        // This code will be executed a second time when resuming the workflow.
-        // Which is likely not what you want.
-        fs.writeFileSync("output.txt", "Side effect executed");
-        const value = interrupt("question");
-        return value;
-      }
-    );
-    ```
-  </Tab>
+```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import { entrypoint, interrupt } from "@langchain/langgraph";
+import fs from "fs";
 
-  <Tab title="Correct">
-    在此示例中，副作用被封装在任务中，确保恢复时执行的一致性。```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    import { entrypoint, task, interrupt } from "@langchain/langgraph";
-    import * as fs from "fs";
+const myWorkflow = entrypoint(
+  { checkpointer, name: "workflow },
+  async (inputs: Record<string, any>) => {
+    // This code will be executed a second time when resuming the workflow.
+    // Which is likely not what you want.
+    fs.writeFileSync("output.txt", "Side effect executed");
+    const value = interrupt("question");
+    return value;
+  }
+);
+```
 
-    const writeToFile = task("writeToFile", async () => {
-      fs.writeFileSync("output.txt", "Side effect executed");
-    });
+**正确**
 
-    const myWorkflow = entrypoint(
-      { checkpointer, name: "workflow" },
-      async (inputs: Record<string, any>) => {
-        // The side effect is now encapsulated in a task.
-        await writeToFile();
-        const value = interrupt("question");
-        return value;
-      }
-    );
-    ```
-  </Tab>
-</Tabs>
+在此示例中，副作用被封装在任务中，确保恢复时执行的一致性。
 
-### 非确定性控制流
+```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import { entrypoint, task, interrupt } from "@langchain/langgraph";
+import * as fs from "fs";
+
+const writeToFile = task("writeToFile", async () => {
+  fs.writeFileSync("output.txt", "Side effect executed");
+});
+
+const myWorkflow = entrypoint(
+  { checkpointer, name: "workflow" },
+  async (inputs: Record<string, any>) => {
+    // The side effect is now encapsulated in a task.
+    await writeToFile();
+    const value = interrupt("question");
+    return value;
+  }
+);
+```### 非确定性控制流
 
 每次可能给出不同结果的操作（例如获取当前时间或随机数）应封装在任务中，以确保在恢复时返回相同的结果。
 
@@ -486,63 +478,61 @@ LangGraph 中的序列化有两个关键方面：
 
 如果恢复时不保持执行顺序，则一次[⟦T43⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt)调用可能会与错误的`resume`值匹配，从而导致不正确的结果。
 
-请阅读[determinism](#determinism)部分了解更多详情。<Tabs>
-  <Tab title="Incorrect">
-    在此示例中，工作流使用当前时间来确定要执行哪个任务。这是不确定的，因为工作流的结果取决于它的执行时间。
+请阅读[determinism](#determinism)部分了解更多详情。
 
-    ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    import { entrypoint, interrupt } from "@langchain/langgraph";
+**不正确**
 
-    const myWorkflow = entrypoint(
-      { checkpointer, name: "workflow" },
-      async (inputs: { t0: number }) => {
-        const t1 = Date.now();
+在此示例中，工作流使用当前时间来确定要执行哪个任务。这是不确定的，因为工作流的结果取决于它的执行时间。
 
-        const deltaT = t1 - inputs.t0;
+```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import { entrypoint, interrupt } from "@langchain/langgraph";
 
-        if (deltaT > 1000) {
-          const result = await slowTask(1);
-          const value = interrupt("question");
-          return { result, value };
-        } else {
-          const result = await slowTask(2);
-          const value = interrupt("question");
-          return { result, value };
-        }
-      }
-    );
-    ```
-  </Tab>
+const myWorkflow = entrypoint(
+  { checkpointer, name: "workflow" },
+  async (inputs: { t0: number }) => {
+    const t1 = Date.now();
 
-  <Tab title="Correct">
-    在此示例中，工作流使用输入 `t0` 来确定要执行哪个任务。这是确定性的，因为工作流的结果仅取决于输入。
+    const deltaT = t1 - inputs.t0;
 
-    ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    import { entrypoint, task, interrupt } from "@langchain/langgraph";
+    if (deltaT > 1000) {
+      const result = await slowTask(1);
+      const value = interrupt("question");
+      return { result, value };
+    } else {
+      const result = await slowTask(2);
+      const value = interrupt("question");
+      return { result, value };
+    }
+  }
+);
+```
 
-    const getTime = task("getTime", () => Date.now());
+**正确**在此示例中，工作流使用输入 `t0` 来确定要执行哪个任务。这是确定性的，因为工作流的结果仅取决于输入。
 
-    const myWorkflow = entrypoint(
-      { checkpointer, name: "workflow" },
-      async (inputs: { t0: number }): Promise<any> => {
-        const t1 = await getTime();
+```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import { entrypoint, task, interrupt } from "@langchain/langgraph";
 
-        const deltaT = t1 - inputs.t0;
+const getTime = task("getTime", () => Date.now());
 
-        if (deltaT > 1000) {
-          const result = await slowTask(1);
-          const value = interrupt("question");
-          return { result, value };
-        } else {
-          const result = await slowTask(2);
-          const value = interrupt("question");
-          return { result, value };
-        }
-      }
-    );
-    ```
-  </Tab>
-</Tabs>
+const myWorkflow = entrypoint(
+  { checkpointer, name: "workflow" },
+  async (inputs: { t0: number }): Promise<any> => {
+    const t1 = await getTime();
+
+    const deltaT = t1 - inputs.t0;
+
+    if (deltaT > 1000) {
+      const result = await slowTask(1);
+      const value = interrupt("question");
+      return { result, value };
+    } else {
+      const result = await slowTask(2);
+      const value = interrupt("question");
+      return { result, value };
+    }
+  }
+);
+```
 
 ## 了解更多
 
@@ -552,12 +542,6 @@ LangGraph 中的序列化有两个关键方面：
 
 ***
 
-<div>
-  <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
-  </Callout>
+[Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
 
-  <Callout icon="edit">
-    [Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/functional-api.mdx) 或 [file an issue](https://github.com/langchain-ai/docs/issues/new/choose)。
-  </Callout>
-</div>
+[Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/functional-api.mdx) 或 [file an issue](https://github.com/langchain-ai/docs/issues/new/choose)。

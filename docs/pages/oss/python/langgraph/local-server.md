@@ -12,17 +12,15 @@ Before you begin, ensure you have the following:
 
 ## 1. Install the LangGraph CLI
 
-<CodeGroup>
-  ```bash pip theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  # Python >= 3.11 is required.
-  pip install -U "langgraph-cli[inmem]"
-  ```
+```bash pip theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+# Python >= 3.11 is required.
+pip install -U "langgraph-cli[inmem]"
+```
 
-  ```bash uv theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  # Python >= 3.11 is required.
-  uv add "langgraph-cli[inmem]"
-  ```
-</CodeGroup>
+```bash uv theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+# Python >= 3.11 is required.
+uv add "langgraph-cli[inmem]"
+```
 
 ## 2. Create a LangGraph app
 
@@ -32,26 +30,24 @@ Create a new app from the [`new-langgraph-project-python` template](https://gith
 langgraph new path/to/your/app --template new-langgraph-project-python
 ```
 
-<Tip>
-  **Additional templates**
-  If you use `langgraph new` without specifying a template, you will be presented with an interactive menu that will allow you to choose from a list of available templates.
-</Tip>
+> [!TIP]
+>
+> **Additional templates**
+> If you use `langgraph new` without specifying a template, you will be presented with an interactive menu that will allow you to choose from a list of available templates.
 
 ## 3. Install dependencies
 
 In the root of your new LangGraph app, install the dependencies in `edit` mode so your local changes are used by the server:
 
-<CodeGroup>
-  ```bash pip theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  cd path/to/your/app
-  pip install -e .
-  ```
+```bash pip theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+cd path/to/your/app
+pip install -e .
+```
 
-  ```bash uv theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  cd path/to/your/app
-  uv sync
-  ```
-</CodeGroup>
+```bash uv theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+cd path/to/your/app
+uv sync
+```
 
 ## 4. Create a `.env` file
 
@@ -104,96 +100,94 @@ For an Agent Server running on a custom host/port, update the `baseUrl` query pa
 https://smith.langchain.com/studio/?baseUrl=http://myhost:3000
 ```
 
-<Accordion title="Safari compatibility">
-  Use the `--tunnel` flag with your command to create a secure tunnel, as Safari has limitations when connecting to localhost servers:
-
-  ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  langgraph dev --tunnel
-  ```
-</Accordion>
+> **Safari compatibility**
+>
+> Use the `--tunnel` flag with your command to create a secure tunnel, as Safari has limitations when connecting to localhost servers:
+>
+> ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> langgraph dev --tunnel
+> ```
 
 ## 7. Test the API
 
-<Tabs>
-  <Tab title="Python SDK (async)">
-    1. Install the LangGraph Python SDK:
-       ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-       pip install langgraph-sdk
-       ```
-    2. Send a message to the assistant (threadless run):
-       ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-       from langgraph_sdk import get_client
-       import asyncio
+**Python SDK (async)**
 
-       client = get_client(url="http://localhost:2024")
+1. Install the LangGraph Python SDK:
+   ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+   pip install langgraph-sdk
+   ```
+2. Send a message to the assistant (threadless run):
+   ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+   from langgraph_sdk import get_client
+   import asyncio
 
-       async def main():
-           async for chunk in client.runs.stream(
-               None,  # Threadless run
-               "agent", # Name of assistant. Defined in langgraph.json.
-               input={
-               "messages": [{
-                   "role": "human",
-                   "content": "What is LangGraph?",
-                   }],
-               },
-           ):
-               print(f"Receiving new event of type: {chunk.event}...")
-               print(chunk.data)
-               print("\n\n")
+   client = get_client(url="http://localhost:2024")
 
-       asyncio.run(main())
-       ```
-  </Tab>
-
-  <Tab title="Python SDK (sync)">
-    1. Install the LangGraph Python SDK:
-       ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-       pip install langgraph-sdk
-       ```
-    2. Send a message to the assistant (threadless run):
-       ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-       from langgraph_sdk import get_sync_client
-
-       client = get_sync_client(url="http://localhost:2024")
-
-       for chunk in client.runs.stream(
+   async def main():
+       async for chunk in client.runs.stream(
            None,  # Threadless run
            "agent", # Name of assistant. Defined in langgraph.json.
            input={
-               "messages": [{
-                   "role": "human",
-                   "content": "What is LangGraph?",
+           "messages": [{
+               "role": "human",
+               "content": "What is LangGraph?",
                }],
            },
-           stream_mode="messages-tuple",
        ):
            print(f"Receiving new event of type: {chunk.event}...")
            print(chunk.data)
            print("\n\n")
-       ```
-  </Tab>
 
-  <Tab title="Rest API">
-    ```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    curl -s --request POST \
-        --url "http://localhost:2024/runs/stream" \
-        --header 'Content-Type: application/json' \
-        --data "{
-            \"assistant_id\": \"agent\",
-            \"input\": {
-                \"messages\": [
-                    {
-                        \"role\": \"human\",
-                        \"content\": \"What is LangGraph?\"
-                    }
-                ]
-            },
-            \"stream_mode\": \"messages-tuple\"
-        }"
-    ```
-  </Tab>
-</Tabs>
+   asyncio.run(main())
+   ```
+
+**Python SDK (sync)**
+
+1. Install the LangGraph Python SDK:
+   ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+   pip install langgraph-sdk
+   ```
+2. Send a message to the assistant (threadless run):
+   ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+   from langgraph_sdk import get_sync_client
+
+   client = get_sync_client(url="http://localhost:2024")
+
+   for chunk in client.runs.stream(
+       None,  # Threadless run
+       "agent", # Name of assistant. Defined in langgraph.json.
+       input={
+           "messages": [{
+               "role": "human",
+               "content": "What is LangGraph?",
+           }],
+       },
+       stream_mode="messages-tuple",
+   ):
+       print(f"Receiving new event of type: {chunk.event}...")
+       print(chunk.data)
+       print("\n\n")
+   ```
+
+**Rest API**
+
+```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+curl -s --request POST \
+    --url "http://localhost:2024/runs/stream" \
+    --header 'Content-Type: application/json' \
+    --data "{
+        \"assistant_id\": \"agent\",
+        \"input\": {
+            \"messages\": [
+                {
+                    \"role\": \"human\",
+                    \"content\": \"What is LangGraph?\"
+                }
+            ]
+        },
+        \"stream_mode\": \"messages-tuple\"
+    }"
+```
 
 ## Next steps
 
@@ -207,12 +201,6 @@ Now that you have a LangGraph app running locally, take your journey further by 
 
 ***
 
-<div>
-  <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
-  </Callout>
+[Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
 
-  <Callout icon="edit">
-    [Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/local-server.mdx) or [file an issue](https://github.com/langchain-ai/docs/issues/new/choose).
-  </Callout>
-</div>
+[Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/local-server.mdx) or [file an issue](https://github.com/langchain-ai/docs/issues/new/choose).

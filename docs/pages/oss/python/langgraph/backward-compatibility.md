@@ -14,9 +14,9 @@ There are three categories of compatibility issues to watch for, in roughly the 
 2. [Business compatibility](#business-compatibility): Less common; existing runs should keep following the old business logic even though the code has changed.
 3. [Non-determinism](#non-determinism): Only applies to the [Functional API](/oss/python/langgraph/functional-api).
 
-<Tip>
-  For a short summary of which graph topology and state changes the runtime supports by default, see [Graph migrations](/oss/python/langgraph/graph-api#graph-migrations). The rest of this page covers the patterns you can apply when a change falls outside that supported set.
-</Tip>
+> [!TIP]
+>
+> For a short summary of which graph topology and state changes the runtime supports by default, see [Graph migrations](/oss/python/langgraph/graph-api#graph-migrations). The rest of this page covers the patterns you can apply when a change falls outside that supported set.
 
 ## Technical compatibility
 
@@ -144,12 +144,6 @@ If you need to make non-trivial code changes to an `@entrypoint` that has in-fli
 
 ***
 
-<div>
-  <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
-  </Callout>
+[Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
 
-  <Callout icon="edit">
-    [Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/backward-compatibility.mdx) or [file an issue](https://github.com/langchain-ai/docs/issues/new/choose).
-  </Callout>
-</div>
+[Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/backward-compatibility.mdx) or [file an issue](https://github.com/langchain-ai/docs/issues/new/choose).

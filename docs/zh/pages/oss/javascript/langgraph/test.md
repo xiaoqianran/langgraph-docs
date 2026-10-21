@@ -18,7 +18,7 @@ $ npm install -D vitest
 
 ## 开始使用
 
-由于许多 LangGraph 代理依赖于状态，因此一种有用的模式是在使用图形的每个测试之前创建图形，然后使用新的检查点实例在测试中对其进行编译。
+由于许多 LangGraph 代理依赖于状态，因此一种有用的模式是在每次使用图之前创建图，然后在测试中使用新的检查点实例对其进行编译。
 
 下面的示例展示了这是如何使用一个简单的线性图来实现的，该图通过`node1`和`node2`进行。每个节点更新单个状态密钥`my_key`：
 
@@ -165,12 +165,6 @@ test('partial execution from node2 to node3', async () => {
 
 ***
 
-<div>
-  <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
-  </Callout>
+[Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
 
-  <Callout icon="edit">
-    [Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/test.mdx) 或 [file an issue](https://github.com/langchain-ai/docs/issues/new/choose)。
-  </Callout>
-</div>
+[Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/test.mdx) 或 [file an issue](https://github.com/langchain-ai/docs/issues/new/choose)。

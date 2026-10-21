@@ -8,39 +8,35 @@
 
 它旨在与 [LangChain v1](/oss/javascript/releases/langchain-v1)（其 `createAgent` 构建于 LangGraph 之上）协同工作，因此您可以从高层开始，并在需要时下降到精细控制。
 
-<CardGroup>
-  <Card title="Stable core APIs" icon="sitemap">
-    图基元（状态、节点、边）和执行/运行时模型保持不变，使升级变得简单。
-  </Card>
+> **稳定的核心API**
+>
+> 图基元（状态、节点、边）和执行/运行时模型保持不变，使升级变得简单。
 
-  <Card title="Reliability, by default" icon="database">
-    具有检查点、持久性、流式传输和人机交互的持久执行仍然是一流的。
-  </Card>
+> **默认可靠性**
+>
+> 具有检查点、持久性、流式传输和人机交互的持久执行仍然是一流的。
 
-  <Card title="Seamless with LangChain v1" icon="link">
-    LangChain 的 `createAgent` 在 LangGraph 上运行。使用LangChain快速启动；下降到LangGraph进行自定义编排。
-  </Card>
-</CardGroup>
+> **与 LangChain v1 无缝连接**
+>
+> LangChain 的 `createAgent` 在 LangGraph 上运行。使用LangChain快速启动；下降到 LangGraph 进行自定义编排。
 
 要升级，
 
-<CodeGroup>
-  ```bash npm theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  npm install @langchain/langgraph @langchain/core
-  ```
+```bash npm theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+npm install @langchain/langgraph @langchain/core
+```
 
-  ```bash pnpm theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  pnpm add @langchain/langgraph @langchain/core
-  ```
+```bash pnpm theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+pnpm add @langchain/langgraph @langchain/core
+```
 
-  ```bash yarn theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  yarn add @langchain/langgraph @langchain/core
-  ```
+```bash yarn theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+yarn add @langchain/langgraph @langchain/core
+```
 
-  ```bash bun theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  bun add @langchain/langgraph @langchain/core
-  ```
-</CodeGroup>
+```bash bun theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+bun add @langchain/langgraph @langchain/core
+```
 
 有关更改的完整列表，请参阅 [migration guide](/oss/javascript/migrate/langgraph-v1)。
 
@@ -121,31 +117,29 @@ const stream = useStream({
 
 请使用 [⟦T20⟧ label](https://github.com/langchain-ai/langgraphjs/issues?q=state%3Aopen%20label%3Av1) 在 [GitHub](https://github.com/langchain-ai/langgraphjs/issues) 报告 1.0 中发现的任何问题。
 
-## 其他资源<CardGroup>
-  <Card title="LangGraph 1.0" icon="rocket" href="https://blog.langchain.com/langchain-langchain-1-0-alpha-releases/">
-    阅读公告
-  </Card>
+## 其他资源> **[LangGraph 1.0](https://blog.langchain.com/langchain-langchain-1-0-alpha-releases/)**
+>
+> 阅读公告
 
-  <Card title="Overview" icon="book" href="/oss/javascript/langgraph/overview">
-    LangGraph是什么以及何时使用它
-  </Card>
+> **[Overview](/oss/javascript/langgraph/overview)**
+>
+> LangGraph是什么以及何时使用它
 
-  <Card title="Graph API" icon="sitemap" href="/oss/javascript/langgraph/graph-api">
-    使用状态、节点和边构建图
-  </Card>
+> **[Graph API](/oss/javascript/langgraph/graph-api)**
+>
+> 使用状态、节点和边构建图
 
-  <Card title="LangChain Agents" icon="robot" href="/oss/javascript/langchain/agents">
-    基于LangGraph构建的高级代理
-  </Card>
+> **[LangChain Agents](/oss/javascript/langchain/agents)**
+>
+> 基于LangGraph构建的高级代理
 
-  <Card title="Migration guide" icon="arrows-exchange" href="/oss/javascript/migrate/langgraph-v1">
-    如何迁移到LangGraph v1
-  </Card>
+> **[Migration guide](/oss/javascript/migrate/langgraph-v1)**
+>
+> 如何迁移到LangGraph v1
 
-  <Card title="GitHub" icon="brand-github" href="https://github.com/langchain-ai/langgraphjs">
-    报告问题或贡献
-  </Card>
-</CardGroup>
+> **[GitHub](https://github.com/langchain-ai/langgraphjs)**
+>
+> 报告问题或贡献
 
 ## 另请参阅
 
@@ -154,12 +148,6 @@ const stream = useStream({
 
 ***
 
-<div>
-  <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
-  </Callout>
+[Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
 
-  <Callout icon="edit">
-    [Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/javascript/releases/langgraph-v1.mdx) 或 [file an issue](https://github.com/langchain-ai/docs/issues/new/choose)。
-  </Callout>
-</div>
+[Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/javascript/releases/langgraph-v1.mdx) 或 [file an issue](https://github.com/langchain-ai/docs/issues/new/choose)。

@@ -65,15 +65,15 @@ total = BinaryOperatorAggregate(int, operator.add)
 
 ### DeltaChannel
 
-<Warning>
-  `DeltaChannel` requires `langgraph>=1.2` and is currently in **beta**. The API may change in future releases.
-</Warning>
+> [!WARNING]
+>
+> `DeltaChannel` requires `langgraph>=1.2` and is currently in **beta**. The API may change in future releases.
 
 [`DeltaChannel`](https://reference.langchain.com/python/langgraph/channels/delta/DeltaChannel) stores only the incremental delta at each step rather than the full accumulated value. This is most useful for channels that are written frequently and accumulate large values over time—for example, a conversation message list in a long-running thread. Without delta storage, the full list is re-serialized into every checkpoint; with `DeltaChannel`, only the new messages written at each step are stored.
 
-<Tip>
-  Consider `DeltaChannel` when a channel is both written to frequently and grows large over time. A good signal: if you notice checkpoint sizes growing linearly with thread length for a particular channel, `DeltaChannel` is likely a good fit.
-</Tip>
+> [!TIP]
+>
+> Consider `DeltaChannel` when a channel is both written to frequently and grows large over time. A good signal: if you notice checkpoint sizes growing linearly with thread length for a particular channel, `DeltaChannel` is likely a good fit.
 
 Use `DeltaChannel` in an `Annotated` type annotation the same way you would use a plain reducer:
 
@@ -98,25 +98,25 @@ class State(TypedDict):
 
 The `reducer` passed to `DeltaChannel` is a **bulk reducer**: it receives the current state and a *sequence* of all writes from the current step in a single call—not pairwise like a standard reducer. This differs from the per-key reducers used with `Annotated` in a `StateGraph`, where the reducer is called once per update.
 
-<Warning>
-  The bulk reducer **must be associative** (batching-invariant):
+> [!WARNING]
+>
+> The bulk reducer **must be associative** (batching-invariant):
+>
+> ```
+> reducer(reducer(state, [xs]), [ys]) == reducer(state, [xs, ys])
+> ```
+>
+> If your reducer is not associative, the reconstructed state may differ depending on how LangGraph batches writes across steps, producing inconsistent behavior.
 
-  ```
-  reducer(reducer(state, [xs]), [ys]) == reducer(state, [xs, ys])
-  ```
-
-  If your reducer is not associative, the reconstructed state may differ depending on how LangGraph batches writes across steps, producing inconsistent behavior.
-</Warning>
-
-<Warning>
-  **The reducer runs on reconstruction, not on write.** Unlike a [`BinaryOperatorAggregate`](https://reference.langchain.com/python/langgraph/channels/binop/BinaryOperatorAggregate), whose reducer is invoked at write time so the combined value is what gets serialized into the checkpoint, a `DeltaChannel` reducer is invoked when the channel value is *rebuilt* from its persisted writes. The raw per-step writes are what get serialized; the reducer is only called when the value is materialized—on the next read, on the next step's actors, or when replaying history.
-
-  Practical consequences when designing a reducer:
-
-  * **Make it a pure function of `(state, writes)`.** Any side effects, randomness, or wall-clock reads (e.g., `uuid.uuid4()`, `datetime.now()`) execute every time the value is reconstructed and produce different results on each replay. They are *not* baked into the persisted writes.
-  * **Do not rely on mutations to incoming writes being persisted.** If your reducer mutates a write object (for example, assigning a stable ID to an item that arrived without one), that mutation lives only in the reconstructed value. The stored write still has the original shape, so the next reconstruction will see the un-mutated input again.
-  * **Attach identity and other stable metadata upstream.** If downstream code needs to reference an item by ID across turns (e.g., to update or remove it later), assign that ID before the value is written to the channel—not inside the reducer.
-</Warning>
+> [!WARNING]
+>
+> **The reducer runs on reconstruction, not on write.** Unlike a [`BinaryOperatorAggregate`](https://reference.langchain.com/python/langgraph/channels/binop/BinaryOperatorAggregate), whose reducer is invoked at write time so the combined value is what gets serialized into the checkpoint, a `DeltaChannel` reducer is invoked when the channel value is *rebuilt* from its persisted writes. The raw per-step writes are what get serialized; the reducer is only called when the value is materialized—on the next read, on the next step's actors, or when replaying history.
+>
+> Practical consequences when designing a reducer:
+>
+> * **Make it a pure function of `(state, writes)`.** Any side effects, randomness, or wall-clock reads (e.g., `uuid.uuid4()`, `datetime.now()`) execute every time the value is reconstructed and produce different results on each replay. They are *not* baked into the persisted writes.
+> * **Do not rely on mutations to incoming writes being persisted.** If your reducer mutates a write object (for example, assigning a stable ID to an item that arrived without one), that mutation lives only in the reconstructed value. The stored write still has the original shape, so the next reconstruction will see the un-mutated input again.
+> * **Attach identity and other stable metadata upstream.** If downstream code needs to reference an item by ID across turns (e.g., to update or remove it later), assign that ID before the value is written to the channel—not inside the reducer.
 
 Here are bulk reducers for the two most common cases:
 
@@ -160,11 +160,11 @@ Higher values of `snapshot_frequency` reduce storage overhead but increase read 
 
 #### Version compatibility and rollbacks
 
-<Warning>
-  Changing a persisted channel from `DeltaChannel` to a non-delta channel is not recommended. Checkpoints encode these channel types differently, so changing the type for an existing thread can cause incomplete or incorrect state reconstruction. Keep channel definitions stable for the lifetime of a thread. Before changing a channel type, migrate affected threads to the new representation, or discard them and start new threads.
-
-  **Rolling back to a version without `DeltaChannel` support is not supported.** `langgraph>=1.2` writes delta channel checkpoints in a new format that earlier versions cannot read. Once a thread has used `DeltaChannel`, downgrading LangGraph leaves those checkpoints unreadable as older runtimes do not understand the delta format and cannot reconstruct channel state. If you need to roll back, use the [delta-channel-dump recovery script](https://github.com/langchain-ai/langgraph/tree/main/examples/delta-channel-dump) to migrate affected threads, or discard them, before downgrading.
-</Warning>
+> [!WARNING]
+>
+> Changing a persisted channel from `DeltaChannel` to a non-delta channel is not recommended. Checkpoints encode these channel types differently, so changing the type for an existing thread can cause incomplete or incorrect state reconstruction. Keep channel definitions stable for the lifetime of a thread. Before changing a channel type, migrate affected threads to the new representation, or discard them and start new threads.
+>
+> **Rolling back to a version without `DeltaChannel` support is not supported.** `langgraph>=1.2` writes delta channel checkpoints in a new format that earlier versions cannot read. Once a thread has used `DeltaChannel`, downgrading LangGraph leaves those checkpoints unreadable as older runtimes do not understand the delta format and cannot reconstruct channel state. If you need to roll back, use the [delta-channel-dump recovery script](https://github.com/langchain-ai/langgraph/tree/main/examples/delta-channel-dump) to migrate affected threads, or discard them, before downgrading.
 
 ## Examples
 
@@ -172,310 +172,300 @@ While most users will interact with Pregel through the [StateGraph](https://refe
 
 Below are a few different examples to give you a sense of the Pregel API.
 
-<Tabs>
-  <Tab title="Single node">
-    ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    from langgraph.channels import EphemeralValue
-    from langgraph.pregel import Pregel, NodeBuilder
+**Single node**
 
-    node1 = (
-        NodeBuilder().subscribe_only("a")
-        .do(lambda x: x + x)
-        .write_to("b")
-    )
+```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+from langgraph.channels import EphemeralValue
+from langgraph.pregel import Pregel, NodeBuilder
 
-    app = Pregel(
-        nodes={"node1": node1},
-        channels={
-            "a": EphemeralValue(str),
-            "b": EphemeralValue(str),
-        },
-        input_channels=["a"],
-        output_channels=["b"],
-    )
+node1 = (
+    NodeBuilder().subscribe_only("a")
+    .do(lambda x: x + x)
+    .write_to("b")
+)
 
-    app.invoke({"a": "foo"})
-    ```
+app = Pregel(
+    nodes={"node1": node1},
+    channels={
+        "a": EphemeralValue(str),
+        "b": EphemeralValue(str),
+    },
+    input_channels=["a"],
+    output_channels=["b"],
+)
 
-    ```con theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    {'b': 'foofoo'}
-    ```
-  </Tab>
+app.invoke({"a": "foo"})
+```
 
-  <Tab title="Multiple nodes">
-    ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    from langgraph.channels import LastValue, EphemeralValue
-    from langgraph.pregel import Pregel, NodeBuilder
+```con theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+{'b': 'foofoo'}
+```
 
-    node1 = (
-        NodeBuilder().subscribe_only("a")
-        .do(lambda x: x + x)
-        .write_to("b")
-    )
+**Multiple nodes**
 
-    node2 = (
-        NodeBuilder().subscribe_only("b")
-        .do(lambda x: x + x)
-        .write_to("c")
-    )
+```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+from langgraph.channels import LastValue, EphemeralValue
+from langgraph.pregel import Pregel, NodeBuilder
 
+node1 = (
+    NodeBuilder().subscribe_only("a")
+    .do(lambda x: x + x)
+    .write_to("b")
+)
 
-    app = Pregel(
-        nodes={"node1": node1, "node2": node2},
-        channels={
-            "a": EphemeralValue(str),
-            "b": LastValue(str),
-            "c": EphemeralValue(str),
-        },
-        input_channels=["a"],
-        output_channels=["b", "c"],
-    )
-
-    app.invoke({"a": "foo"})
-    ```
-
-    ```con theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    {'b': 'foofoo', 'c': 'foofoofoofoo'}
-    ```
-  </Tab>
-
-  <Tab title="Topic">
-    ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    from langgraph.channels import EphemeralValue, Topic
-    from langgraph.pregel import Pregel, NodeBuilder
-
-    node1 = (
-        NodeBuilder().subscribe_only("a")
-        .do(lambda x: x + x)
-        .write_to("b", "c")
-    )
-
-    node2 = (
-        NodeBuilder().subscribe_to("b")
-        .do(lambda x: x["b"] + x["b"])
-        .write_to("c")
-    )
-
-    app = Pregel(
-        nodes={"node1": node1, "node2": node2},
-        channels={
-            "a": EphemeralValue(str),
-            "b": EphemeralValue(str),
-            "c": Topic(str, accumulate=True),
-        },
-        input_channels=["a"],
-        output_channels=["c"],
-    )
-
-    app.invoke({"a": "foo"})
-    ```
-
-    ```pycon theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    {'c': ['foofoo', 'foofoofoofoo']}
-    ```
-  </Tab>
-
-  <Tab title="BinaryOperatorAggregate">
-    This example demonstrates how to use the [`BinaryOperatorAggregate`](https://reference.langchain.com/python/langgraph/channels/binop/BinaryOperatorAggregate) channel to implement a reducer.
-
-    ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    from langgraph.channels import EphemeralValue, BinaryOperatorAggregate
-    from langgraph.pregel import Pregel, NodeBuilder
+node2 = (
+    NodeBuilder().subscribe_only("b")
+    .do(lambda x: x + x)
+    .write_to("c")
+)
 
 
-    node1 = (
-        NodeBuilder().subscribe_only("a")
-        .do(lambda x: x + x)
-        .write_to("b", "c")
-    )
+app = Pregel(
+    nodes={"node1": node1, "node2": node2},
+    channels={
+        "a": EphemeralValue(str),
+        "b": LastValue(str),
+        "c": EphemeralValue(str),
+    },
+    input_channels=["a"],
+    output_channels=["b", "c"],
+)
 
-    node2 = (
-        NodeBuilder().subscribe_only("b")
-        .do(lambda x: x + x)
-        .write_to("c")
-    )
+app.invoke({"a": "foo"})
+```
 
-    def reducer(current, update):
-        if current:
-            return current + " | " + update
-        else:
-            return update
+```con theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+{'b': 'foofoo', 'c': 'foofoofoofoo'}
+```
 
-    app = Pregel(
-        nodes={"node1": node1, "node2": node2},
-        channels={
-            "a": EphemeralValue(str),
-            "b": EphemeralValue(str),
-            "c": BinaryOperatorAggregate(str, operator=reducer),
-        },
-        input_channels=["a"],
-        output_channels=["c"],
-    )
+**Topic**
 
-    app.invoke({"a": "foo"})
-    ```
+```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+from langgraph.channels import EphemeralValue, Topic
+from langgraph.pregel import Pregel, NodeBuilder
 
-    ```console theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    { 'c': 'foofoo | foofoofoofoo' }
-    ```
-  </Tab>
+node1 = (
+    NodeBuilder().subscribe_only("a")
+    .do(lambda x: x + x)
+    .write_to("b", "c")
+)
 
-  <Tab title="Cycle">
-    This example demonstrates how to introduce a cycle in the graph, by having
-    a chain write to a channel it subscribes to. Execution will continue
-    until a `None` value is written to the channel.
+node2 = (
+    NodeBuilder().subscribe_to("b")
+    .do(lambda x: x["b"] + x["b"])
+    .write_to("c")
+)
 
-    ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    from langgraph.channels import EphemeralValue
-    from langgraph.pregel import Pregel, NodeBuilder, ChannelWriteEntry
+app = Pregel(
+    nodes={"node1": node1, "node2": node2},
+    channels={
+        "a": EphemeralValue(str),
+        "b": EphemeralValue(str),
+        "c": Topic(str, accumulate=True),
+    },
+    input_channels=["a"],
+    output_channels=["c"],
+)
 
-    example_node = (
-        NodeBuilder().subscribe_only("value")
-        .do(lambda x: x + x if len(x) < 10 else None)
-        .write_to(ChannelWriteEntry("value", skip_none=True))
-    )
+app.invoke({"a": "foo"})
+```
 
-    app = Pregel(
-        nodes={"example_node": example_node},
-        channels={
-            "value": EphemeralValue(str),
-        },
-        input_channels=["value"],
-        output_channels=["value"],
-    )
+```pycon theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+{'c': ['foofoo', 'foofoofoofoo']}
+```
 
-    app.invoke({"value": "a"})
-    ```
+**BinaryOperatorAggregate**
 
-    ```pycon theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    {'value': 'aaaaaaaaaaaaaaaa'}
-    ```
-  </Tab>
-</Tabs>
+This example demonstrates how to use the [`BinaryOperatorAggregate`](https://reference.langchain.com/python/langgraph/channels/binop/BinaryOperatorAggregate) channel to implement a reducer.
+
+```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+from langgraph.channels import EphemeralValue, BinaryOperatorAggregate
+from langgraph.pregel import Pregel, NodeBuilder
+
+
+node1 = (
+    NodeBuilder().subscribe_only("a")
+    .do(lambda x: x + x)
+    .write_to("b", "c")
+)
+
+node2 = (
+    NodeBuilder().subscribe_only("b")
+    .do(lambda x: x + x)
+    .write_to("c")
+)
+
+def reducer(current, update):
+    if current:
+        return current + " | " + update
+    else:
+        return update
+
+app = Pregel(
+    nodes={"node1": node1, "node2": node2},
+    channels={
+        "a": EphemeralValue(str),
+        "b": EphemeralValue(str),
+        "c": BinaryOperatorAggregate(str, operator=reducer),
+    },
+    input_channels=["a"],
+    output_channels=["c"],
+)
+
+app.invoke({"a": "foo"})
+```
+
+```console theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+{ 'c': 'foofoo | foofoofoofoo' }
+```
+
+**Cycle**
+
+This example demonstrates how to introduce a cycle in the graph, by having
+a chain write to a channel it subscribes to. Execution will continue
+until a `None` value is written to the channel.
+
+```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+from langgraph.channels import EphemeralValue
+from langgraph.pregel import Pregel, NodeBuilder, ChannelWriteEntry
+
+example_node = (
+    NodeBuilder().subscribe_only("value")
+    .do(lambda x: x + x if len(x) < 10 else None)
+    .write_to(ChannelWriteEntry("value", skip_none=True))
+)
+
+app = Pregel(
+    nodes={"example_node": example_node},
+    channels={
+        "value": EphemeralValue(str),
+    },
+    input_channels=["value"],
+    output_channels=["value"],
+)
+
+app.invoke({"value": "a"})
+```
+
+```pycon theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+{'value': 'aaaaaaaaaaaaaaaa'}
+```
 
 ## High-level API
 
 LangGraph provides two high-level APIs for creating a Pregel application: the [StateGraph (Graph API)](/oss/python/langgraph/graph-api) and the [Functional API](/oss/python/langgraph/functional-api).
 
-<Tabs>
-  <Tab title="StateGraph (Graph API)">
-    The [StateGraph (Graph API)](https://reference.langchain.com/python/langgraph/graph/state/StateGraph) is a higher-level abstraction that simplifies the creation of Pregel applications. It allows you to define a graph of nodes and edges. When you compile the graph, the StateGraph API automatically creates the Pregel application for you.
+**StateGraph (Graph API)**
 
-    ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    from typing import TypedDict
+The [StateGraph (Graph API)](https://reference.langchain.com/python/langgraph/graph/state/StateGraph) is a higher-level abstraction that simplifies the creation of Pregel applications. It allows you to define a graph of nodes and edges. When you compile the graph, the StateGraph API automatically creates the Pregel application for you.
 
-    from langgraph.constants import START
-    from langgraph.graph import StateGraph
+```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+from typing import TypedDict
 
-    class Essay(TypedDict):
-        topic: str
-        content: str | None
-        score: float | None
+from langgraph.constants import START
+from langgraph.graph import StateGraph
 
-    def write_essay(essay: Essay):
-        return {
-            "content": f"Essay about {essay['topic']}",
-        }
+class Essay(TypedDict):
+    topic: str
+    content: str | None
+    score: float | None
 
-    def score_essay(essay: Essay):
-        return {
-            "score": 10
-        }
+def write_essay(essay: Essay):
+    return {
+        "content": f"Essay about {essay['topic']}",
+    }
 
-    builder = StateGraph(Essay)
-    builder.add_node(write_essay)
-    builder.add_node(score_essay)
-    builder.add_edge(START, "write_essay")
-    builder.add_edge("write_essay", "score_essay")
+def score_essay(essay: Essay):
+    return {
+        "score": 10
+    }
 
-    # Compile the graph.
-    # This will return a Pregel instance.
-    graph = builder.compile()
-    ```
+builder = StateGraph(Essay)
+builder.add_node(write_essay)
+builder.add_node(score_essay)
+builder.add_edge(START, "write_essay")
+builder.add_edge("write_essay", "score_essay")
 
-    The compiled Pregel instance will be associated with a list of nodes and channels. You can inspect the nodes and channels by printing them.
+# Compile the graph.
+# This will return a Pregel instance.
+graph = builder.compile()
+```
 
-    ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    print(graph.nodes)
-    ```
+The compiled Pregel instance will be associated with a list of nodes and channels. You can inspect the nodes and channels by printing them.
 
-    You will see something like this:
+```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+print(graph.nodes)
+```
 
-    ```pycon theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    {'__start__': <langgraph.pregel.read.PregelNode at 0x7d05e3ba1810>,
-     'write_essay': <langgraph.pregel.read.PregelNode at 0x7d05e3ba14d0>,
-     'score_essay': <langgraph.pregel.read.PregelNode at 0x7d05e3ba1710>}
-    ```
+You will see something like this:
 
-    ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    print(graph.channels)
-    ```
+```pycon theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+{'__start__': <langgraph.pregel.read.PregelNode at 0x7d05e3ba1810>,
+ 'write_essay': <langgraph.pregel.read.PregelNode at 0x7d05e3ba14d0>,
+ 'score_essay': <langgraph.pregel.read.PregelNode at 0x7d05e3ba1710>}
+```
 
-    You should see something like this
+```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+print(graph.channels)
+```
 
-    ```pycon theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    {'topic': <langgraph.channels.last_value.LastValue at 0x7d05e3294d80>,
-     'content': <langgraph.channels.last_value.LastValue at 0x7d05e3295040>,
-     'score': <langgraph.channels.last_value.LastValue at 0x7d05e3295980>,
-     '__start__': <langgraph.channels.ephemeral_value.EphemeralValue at 0x7d05e3297e00>,
-     'write_essay': <langgraph.channels.ephemeral_value.EphemeralValue at 0x7d05e32960c0>,
-     'score_essay': <langgraph.channels.ephemeral_value.EphemeralValue at 0x7d05e2d8ab80>,
-     'branch:__start__:__self__:write_essay': <langgraph.channels.ephemeral_value.EphemeralValue at 0x7d05e32941c0>,
-     'branch:__start__:__self__:score_essay': <langgraph.channels.ephemeral_value.EphemeralValue at 0x7d05e2d88800>,
-     'branch:write_essay:__self__:write_essay': <langgraph.channels.ephemeral_value.EphemeralValue at 0x7d05e3295ec0>,
-     'branch:write_essay:__self__:score_essay': <langgraph.channels.ephemeral_value.EphemeralValue at 0x7d05e2d8ac00>,
-     'branch:score_essay:__self__:write_essay': <langgraph.channels.ephemeral_value.EphemeralValue at 0x7d05e2d89700>,
-     'branch:score_essay:__self__:score_essay': <langgraph.channels.ephemeral_value.EphemeralValue at 0x7d05e2d8b400>,
-     'start:write_essay': <langgraph.channels.ephemeral_value.EphemeralValue at 0x7d05e2d8b280>}
-    ```
-  </Tab>
+You should see something like this
 
-  <Tab title="Functional API">
-    In the [Functional API](/oss/python/langgraph/functional-api), you can use an [`@entrypoint`](https://reference.langchain.com/python/langgraph/func/entrypoint) to create a Pregel application. The `entrypoint` decorator allows you to define a function that takes input and returns output.
+```pycon theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+{'topic': <langgraph.channels.last_value.LastValue at 0x7d05e3294d80>,
+ 'content': <langgraph.channels.last_value.LastValue at 0x7d05e3295040>,
+ 'score': <langgraph.channels.last_value.LastValue at 0x7d05e3295980>,
+ '__start__': <langgraph.channels.ephemeral_value.EphemeralValue at 0x7d05e3297e00>,
+ 'write_essay': <langgraph.channels.ephemeral_value.EphemeralValue at 0x7d05e32960c0>,
+ 'score_essay': <langgraph.channels.ephemeral_value.EphemeralValue at 0x7d05e2d8ab80>,
+ 'branch:__start__:__self__:write_essay': <langgraph.channels.ephemeral_value.EphemeralValue at 0x7d05e32941c0>,
+ 'branch:__start__:__self__:score_essay': <langgraph.channels.ephemeral_value.EphemeralValue at 0x7d05e2d88800>,
+ 'branch:write_essay:__self__:write_essay': <langgraph.channels.ephemeral_value.EphemeralValue at 0x7d05e3295ec0>,
+ 'branch:write_essay:__self__:score_essay': <langgraph.channels.ephemeral_value.EphemeralValue at 0x7d05e2d8ac00>,
+ 'branch:score_essay:__self__:write_essay': <langgraph.channels.ephemeral_value.EphemeralValue at 0x7d05e2d89700>,
+ 'branch:score_essay:__self__:score_essay': <langgraph.channels.ephemeral_value.EphemeralValue at 0x7d05e2d8b400>,
+ 'start:write_essay': <langgraph.channels.ephemeral_value.EphemeralValue at 0x7d05e2d8b280>}
+```
 
-    ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    from typing import TypedDict
+**Functional API**
 
-    from langgraph.checkpoint.memory import InMemorySaver
-    from langgraph.func import entrypoint
+In the [Functional API](/oss/python/langgraph/functional-api), you can use an [`@entrypoint`](https://reference.langchain.com/python/langgraph/func/entrypoint) to create a Pregel application. The `entrypoint` decorator allows you to define a function that takes input and returns output.
 
-    class Essay(TypedDict):
-        topic: str
-        content: str | None
-        score: float | None
+```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+from typing import TypedDict
+
+from langgraph.checkpoint.memory import InMemorySaver
+from langgraph.func import entrypoint
+
+class Essay(TypedDict):
+    topic: str
+    content: str | None
+    score: float | None
 
 
-    checkpointer = InMemorySaver()
+checkpointer = InMemorySaver()
 
-    @entrypoint(checkpointer=checkpointer)
-    def write_essay(essay: Essay):
-        return {
-            "content": f"Essay about {essay['topic']}",
-        }
+@entrypoint(checkpointer=checkpointer)
+def write_essay(essay: Essay):
+    return {
+        "content": f"Essay about {essay['topic']}",
+    }
 
-    print("Nodes: ")
-    print(write_essay.nodes)
-    print("Channels: ")
-    print(write_essay.channels)
-    ```
+print("Nodes: ")
+print(write_essay.nodes)
+print("Channels: ")
+print(write_essay.channels)
+```
 
-    ```pycon theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    Nodes:
-    {'write_essay': <langgraph.pregel.read.PregelNode object at 0x7d05e2f9aad0>}
-    Channels:
-    {'__start__': <langgraph.channels.ephemeral_value.EphemeralValue object at 0x7d05e2c906c0>, '__end__': <langgraph.channels.last_value.LastValue object at 0x7d05e2c90c40>, '__previous__': <langgraph.channels.last_value.LastValue object at 0x7d05e1007280>}
-    ```
-  </Tab>
-</Tabs>
+```pycon theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+Nodes:
+{'write_essay': <langgraph.pregel.read.PregelNode object at 0x7d05e2f9aad0>}
+Channels:
+{'__start__': <langgraph.channels.ephemeral_value.EphemeralValue object at 0x7d05e2c906c0>, '__end__': <langgraph.channels.last_value.LastValue object at 0x7d05e2c90c40>, '__previous__': <langgraph.channels.last_value.LastValue object at 0x7d05e1007280>}
+```
 
 ***
 
-<div>
-  <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
-  </Callout>
+[Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
 
-  <Callout icon="edit">
-    [Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/pregel.mdx) or [file an issue](https://github.com/langchain-ai/docs/issues/new/choose).
-  </Callout>
-</div>
+[Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/pregel.mdx) or [file an issue](https://github.com/langchain-ai/docs/issues/new/choose).

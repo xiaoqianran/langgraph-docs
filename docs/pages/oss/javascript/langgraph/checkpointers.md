@@ -6,16 +6,16 @@ LangGraph checkpointers save graph state as checkpoints at each step, enabling p
 
 A checkpointer saves a snapshot of graph state at each super-step, organized into **threads**. Compile a graph with a checkpointer to enable human-in-the-loop workflows, time travel debugging, fault-tolerant execution, and conversational memory.
 
-<img alt="Checkpoints" />
+![Checkpoints](https://mintcdn.com/langchain-5e9cc07a/-_xGPoyjhyiDWTPJ/oss/images/checkpoints.jpg?fit=max\&auto=format\&n=-_xGPoyjhyiDWTPJ\&q=85\&s=966566aaae853ed4d240c2d0d067467c)
 
-<Info>
-  **Agent Server handles checkpointing automatically**
-  When using the [Agent Server](/langsmith/agent-server), you do not need to implement or configure checkpointers manually. The server handles all persistence infrastructure for you behind the scenes.
-</Info>
+> [!NOTE]
+>
+> **Agent Server handles checkpointing automatically**
+> When using the [Agent Server](/langsmith/agent-server), you do not need to implement or configure checkpointers manually. The server handles all persistence infrastructure for you behind the scenes.
 
-<Tip>
-  Trace checkpointed state and debug how your agent resumes across sessions with [LangSmith](https://smith.langchain.com?utm_source=docs\&utm_medium=cta\&utm_campaign=langsmith-signup\&utm_content=oss-langgraph-checkpointers). Follow the [tracing quickstart](/langsmith/trace-with-langgraph) to get set up.
-</Tip>
+> [!TIP]
+>
+> Trace checkpointed state and debug how your agent resumes across sessions with [LangSmith](https://smith.langchain.com?utm_source=docs\&utm_medium=cta\&utm_campaign=langsmith-signup\&utm_content=oss-langgraph-checkpointers). Follow the [tracing quickstart](/langsmith/trace-with-langgraph) to get set up.
 
 ## Why use checkpointers
 
@@ -322,7 +322,7 @@ In this example, the output of `getStateHistory` will look like this:
 ]
 ```
 
-<img alt="State" />
+![State](https://mintcdn.com/langchain-5e9cc07a/-_xGPoyjhyiDWTPJ/oss/images/get_state.jpg?fit=max\&auto=format\&n=-_xGPoyjhyiDWTPJ\&q=85\&s=38ffff52be4d8806b287836295a3c058)
 
 #### Find a specific checkpoint
 
@@ -355,7 +355,7 @@ Replay re-executes steps from a prior checkpoint. Invoke the graph with a prior 
 
 See [Time travel](/oss/javascript/langgraph/use-time-travel) for full details and code examples on replaying past executions.
 
-<img alt="Replay" />
+![Replay](https://mintcdn.com/langchain-5e9cc07a/dL5Sn6Cmy9pwtY0V/oss/images/re_play.png?fit=max\&auto=format\&n=dL5Sn6Cmy9pwtY0V\&q=85\&s=d7b34b85c106e55d181ae1f4afb50251)
 
 ### Update state
 
@@ -363,7 +363,7 @@ You can edit the graph state using `graph.updateState()`. This creates a new che
 
 You can optionally specify `asNode` to control which node the update is treated as coming from, which affects which node executes next. See [Time travel: `asNode`](/oss/javascript/langgraph/use-time-travel#from-a-specific-node) for details.
 
-<img alt="Update" />
+![Update](https://mintcdn.com/langchain-5e9cc07a/-_xGPoyjhyiDWTPJ/oss/images/checkpoints_full_story.jpg?fit=max\&auto=format\&n=-_xGPoyjhyiDWTPJ\&q=85\&s=a52016b2c44b57bd395d6e1eac47aa36)
 
 ## Durability modes
 
@@ -407,12 +407,6 @@ Each checkpointer conforms to the [`BaseCheckpointSaver`](https://reference.lang
 
 ***
 
-<div>
-  <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
-  </Callout>
+[Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
 
-  <Callout icon="edit">
-    [Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/checkpointers.mdx) or [file an issue](https://github.com/langchain-ai/docs/issues/new/choose).
-  </Callout>
-</div>
+[Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/checkpointers.mdx) or [file an issue](https://github.com/langchain-ai/docs/issues/new/choose).

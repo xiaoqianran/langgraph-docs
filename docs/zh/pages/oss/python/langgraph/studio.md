@@ -14,13 +14,13 @@ Studio 连接到本地运行的代理，向您显示代理执行的每个步骤�
 
 在开始之前，请确保您具备以下条件：
 
-* **LangSmith帐户**：注册（免费）或登录[smith.langchain.com](https://smith.langchain.com?utm_source=docs\&utm_medium=cta\&utm_campaign=langsmith-signup\&utm_content=oss-langgraph-studio)。
+* **LangSmith帐户**：注册（免费）或在[smith.langchain.com](https://smith.langchain.com?utm_source=docs\&utm_medium=cta\&utm_campaign=langsmith-signup\&utm_content=oss-langgraph-studio)登录。
 * **A LangSmith API 密钥**：遵循 [Create an API key](/langsmith/create-account-api-key) 指南。
 * 如果您不需要数据 [traced](/langsmith/observability-concepts#traces) 至 LangSmith，请在应用程序的 `.env` 文件中设置 `LANGSMITH_TRACING=false`。禁用跟踪后，没有数据离开您的本地服务器。
 
 ## 设置本地Agent服务器
 
-### 1.安装LangGraphCLI
+### 1.安装LangGraph CLI
 
 [LangGraph CLI](/langsmith/cli) 提供本地开发服务器（也称为 [Agent Server](/langsmith/agent-server)），将您的代理连接到 Studio。
 
@@ -56,9 +56,9 @@ agent = create_agent(
 
 Studio 需要 LangSmith API 密钥来连接您的本地代理。在项目的根目录中创建一个 `.env` 文件，并从 [LangSmith](https://smith.langchain.com/settings) 添加 API 密钥。
 
-<Warning>
-  确保您的 `.env` 文件未提交给版本控制，例如 Git。
-</Warning>
+> [!警告]
+>
+> 确保您的 `.env` 文件未提交给版本控制，例如 Git。
 
 ```bash .env theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 LANGSMITH_API_KEY=lsv2...
@@ -66,7 +66,7 @@ LANGSMITH_API_KEY=lsv2...
 
 ### 4.创建LangGraph配置文件
 
-LangGraph CLI 使用配置文件来定位您的代理并管理依赖项。在应用程序目录中创建一个 `langgraph.json` 文件：
+LangGraph CLI 使用配置文件来查找代理并管理依赖项。在应用程序目录中创建一个 `langgraph.json` 文件：
 
 ```json title="langgraph.json" theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 {
@@ -80,9 +80,9 @@ LangGraph CLI 使用配置文件来定位您的代理并管理依赖项。在应
 
 [⟦T13⟧](https://reference.langchain.com/python/langchain/agents/factory/create_agent) 函数自动返回编译后的 LangGraph 图，这正是 `graphs` 键在配置文件中所期望的。
 
-<Info>
-  配置文件JSON对象中各个key的详细解释，请参考[LangGraph configuration file reference](/langsmith/cli#configuration-file)。
-</Info>
+> [!注意]
+>
+> 配置文件的JSON对象中各个key的详细解释请参考[LangGraph configuration file reference](/langsmith/cli#configuration-file)。
 
 此时，项目结构将如下所示：
 
@@ -98,15 +98,13 @@ my-app/
 
 从根目录安装项目依赖项：
 
-<CodeGroup>
-  ```shell pip theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  pip install langchain langchain-openai
-  ```
+```shell pip theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+pip install langchain langchain-openai
+```
 
-  ```shell uv theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  uv add langchain langchain-openai
-  ```
-</CodeGroup>
+```shell uv theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+uv add langchain langchain-openai
+```
 
 ### 6. 在 Studio 中查看您的代理
 
@@ -114,21 +112,19 @@ my-app/
 
 ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 langgraph dev
-```<Warning>
-  Safari 阻止 `localhost` 与 Studio 的连接。要解决此问题，请使用 `--tunnel` 运行上述命令，以通过安全隧道访问 Studio。您需要通过单击 Studio UI 中的 **连接到本地服务器** 来手动将隧道 URL 添加到允许的源。步骤请参阅[troubleshooting guide](/langsmith/troubleshooting-studio#safari-connection-issues)。
-</Warning>
+```> [!警告]
+>
+> Safari 阻止 `localhost` 与 Studio 的连接。要解决此问题，请使用 `--tunnel` 运行上述命令，以通过安全隧道访问 Studio。您需要通过单击 Studio UI 中的 **连接到本地服务器** 来手动将隧道 URL 添加到允许的源。步骤请参阅[troubleshooting guide](/langsmith/troubleshooting-studio#safari-connection-issues)。
 
 服务器运行后，您的代理可以通过 `http://127.0.0.1:2024` 的 API 和 `https://smith.langchain.com/studio/?baseUrl=http://127.0.0.1:2024` 的 Studio UI 访问：
 
-<Frame>
-  <img alt="Agent view in the Studio UI" />
-</Frame>
+![Agent view in the Studio UI](https://mintcdn.com/langchain-5e9cc07a/TCDks4pdsHdxWmuJ/oss/images/studio_create-agent.png?fit=max\&auto=format\&n=TCDks4pdsHdxWmuJ\&q=85\&s=ebd259e9fa24af7d011dfcc568f74be2)
 
 通过 Studio 连接到本地代理，您可以快速迭代代理的行为。运行测试输入，检查完整的执行跟踪，包括提示、工具参数、返回值和[LangSmith](/langsmith/observability-studio)中的令牌/延迟指标。当出现问题时，Studio 会捕获周围状态的异常，以帮助您了解发生的情况。
 
 开发服务器支持热重载——对代码中的提示或工具签名进行更改，Studio 会立即反映它们。从任何步骤重新运行对话线程以测试您的更改，而无需重新开始。该工作流程从简单的单工具代理扩展到复杂的多节点图。
 
-有关如何运行 Studio 的更多信息，请参阅 [LangSmith docs](/langsmith/observability) 中的以下指南：* [Run application](/langsmith/use-studio#run-application)
+有关如何运行 Studio 的更多信息，请参阅[LangSmith docs](/langsmith/observability)中的以下指南：* [Run application](/langsmith/use-studio#run-application)
 * [Manage assistants](/langsmith/use-studio#manage-assistants)
 * [Manage threads](/langsmith/use-studio#manage-threads)
 * [Iterate on prompts](/langsmith/observability-studio)
@@ -137,18 +133,10 @@ langgraph dev
 
 ## 视频指南
 
-<Frame>
-  <iframe title="Studio" />
-</Frame>
+[Studio](https://www.youtube.com/embed/Mi1gSlHwZLM?si=zA47TNuTC5aH0ahd)
 
 ***
 
-<div>
-  <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
-  </Callout>
+[Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
 
-  <Callout icon="edit">
-    [Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/studio.mdx) 或 [file an issue](https://github.com/langchain-ai/docs/issues/new/choose)。
-  </Callout>
-</div>
+[Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/studio.mdx) 或 [file an issue](https://github.com/langchain-ai/docs/issues/new/choose)。

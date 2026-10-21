@@ -2,42 +2,38 @@
 
 # LangGraph v1 migration guide
 
-<Prompt description="Migrate a codebase to LangGraph v1." icon="arrow-right">
-  Migrate this codebase to LangGraph v1 (requires `@langchain/langgraph` and `@langchain/core` at v1, plus `langchain` at v1 when migrating from `createReactAgent`, and Node.js 22+).
+Migrate this codebase to LangGraph v1 (requires `@langchain/langgraph` and `@langchain/core` at v1, plus `langchain` at v1 when migrating from `createReactAgent`, and Node.js 22+).
 
-  Key changes:
+Key changes:
 
-  1. **Upgrade packages**: install `@langchain/langgraph@latest` and `@langchain/core@latest`. If you use `createReactAgent`, also install `langchain@latest`.
-  2. **`createReactAgent` → `createAgent`**: replace `import { createReactAgent } from "@langchain/langgraph/prebuilts"` with `import { createAgent } from "langchain"`. Rename `prompt` to `systemPrompt`.
-  3. **Typed interrupts**: define interrupt types at graph construction via an `interrupts` config on `StateGraph`.
-  4. **`toLangGraphEventStream` removed**: use `graph.stream` with an `encoding` option (for example `"text/event-stream"`) instead of `toLangGraphEventStream` / `toLangGraphEventStreamResponse`.
-  5. **`useStream`**: supports custom transports.
-  6. **Build outputs**: do not import from package `dist/` paths; use the public module exports.
+1. **Upgrade packages**: install `@langchain/langgraph@latest` and `@langchain/core@latest`. If you use `createReactAgent`, also install `langchain@latest`.
+2. **`createReactAgent` → `createAgent`**: replace `import { createReactAgent } from "@langchain/langgraph/prebuilts"` with `import { createAgent } from "langchain"`. Rename `prompt` to `systemPrompt`.
+3. **Typed interrupts**: define interrupt types at graph construction via an `interrupts` config on `StateGraph`.
+4. **`toLangGraphEventStream` removed**: use `graph.stream` with an `encoding` option (for example `"text/event-stream"`) instead of `toLangGraphEventStream` / `toLangGraphEventStreamResponse`.
+5. **`useStream`**: supports custom transports.
+6. **Build outputs**: do not import from package `dist/` paths; use the public module exports.
 
-  Search the codebase for `createReactAgent`, `toLangGraphEventStream`, `toLangGraphEventStreamResponse`, and `@langchain/langgraph/prebuilts`, and apply the necessary changes. Flag anything that cannot be migrated automatically.
-</Prompt>
+Search the codebase for `createReactAgent`, `toLangGraphEventStream`, `toLangGraphEventStreamResponse`, and `@langchain/langgraph/prebuilts`, and apply the necessary changes. Flag anything that cannot be migrated automatically.
 
 This guide outlines changes in LangGraph v1 and how to migrate from previous versions. For a high-level overview of what's new, see the [release notes](/oss/javascript/releases/langgraph-v1).
 
 To upgrade,
 
-<CodeGroup>
-  ```bash npm theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  npm install @langchain/langgraph@latest @langchain/core@latest
-  ```
+```bash npm theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+npm install @langchain/langgraph@latest @langchain/core@latest
+```
 
-  ```bash pnpm theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  pnpm add @langchain/langgraph@latest @langchain/core@latest
-  ```
+```bash pnpm theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+pnpm add @langchain/langgraph@latest @langchain/core@latest
+```
 
-  ```bash yarn theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  yarn add @langchain/langgraph@latest @langchain/core@latest
-  ```
+```bash yarn theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+yarn add @langchain/langgraph@latest @langchain/core@latest
+```
 
-  ```bash bun theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  bun add @langchain/langgraph@latest @langchain/core@latest
-  ```
-</CodeGroup>
+```bash bun theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+bun add @langchain/langgraph@latest @langchain/core@latest
+```
 
 ## Summary of changes
 
@@ -59,27 +55,25 @@ See the LangChain v1 docs for details:
 * [Release notes](/oss/javascript/releases/langchain-v1#createagent)
 * [Migration guide](/oss/javascript/migrate/langchain-v1#createagent)
 
-<CodeGroup>
-  ```typescript v1 (new) theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  import { createAgent } from "langchain";
+```typescript v1 (new) theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import { createAgent } from "langchain";
 
-  const agent = createAgent({
-    model,
-    tools,
-    systemPrompt: "You are a helpful assistant.", // [!code highlight]
-  });
-  ```
+const agent = createAgent({
+  model,
+  tools,
+  systemPrompt: "You are a helpful assistant.", // [!code highlight]
+});
+```
 
-  ```typescript v0 (old) theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  import { createReactAgent } from "@langchain/langgraph/prebuilts";
+```typescript v0 (old) theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import { createReactAgent } from "@langchain/langgraph/prebuilts";
 
-  const agent = createReactAgent({
-    model,
-    tools,
-    prompt: "You are a helpful assistant.", // [!code highlight]
-  });
-  ```
-</CodeGroup>
+const agent = createReactAgent({
+  model,
+  tools,
+  prompt: "You are a helpful assistant.", // [!code highlight]
+});
+```
 
 ***
 
@@ -87,38 +81,36 @@ See the LangChain v1 docs for details:
 
 You can now define interrupt types at graph construction to strictly type the values passed to and received from interrupts.
 
-<CodeGroup>
-  ```typescript v1 (new) theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  import { StateGraph, interrupt } from "@langchain/langgraph";
-  import * as z from "zod";
+```typescript v1 (new) theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import { StateGraph, interrupt } from "@langchain/langgraph";
+import * as z from "zod";
 
-  const State = z.object({ foo: z.string() });
+const State = z.object({ foo: z.string() });
 
-  const graphConfig = {
-    interrupts: {
-      approve: interrupt<{ reason: string }, { messages: string[] }>(),
-    },
-  }
+const graphConfig = {
+  interrupts: {
+    approve: interrupt<{ reason: string }, { messages: string[] }>(),
+  },
+}
 
-  const graph = new StateGraph(State, graphConfig)
-    .addNode("node", async (state, runtime) => {
-      const value = runtime.interrupt.approve({ reason: "review" }); // [!code highlight]
-      return { foo: value };
-    })
-    .compile();
-  ```
+const graph = new StateGraph(State, graphConfig)
+  .addNode("node", async (state, runtime) => {
+    const value = runtime.interrupt.approve({ reason: "review" }); // [!code highlight]
+    return { foo: value };
+  })
+  .compile();
+```
 
-  ```typescript v0 (old) theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  import { StateGraph } from "@langchain/langgraph";
+```typescript v0 (old) theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import { StateGraph } from "@langchain/langgraph";
 
-  const graph = new StateGraph(State)
-    .addNode("node", async (state, runtime) => {
-      const value = runtime.interrupt.approve({ reason: "review" }); // [!code highlight]
-      return state;
-    })
-    .compile();
-  ```
-</CodeGroup>
+const graph = new StateGraph(State)
+  .addNode("node", async (state, runtime) => {
+    const value = runtime.interrupt.approve({ reason: "review" }); // [!code highlight]
+    return state;
+  })
+  .compile();
+```
 
 See [Interrupts](/oss/javascript/langgraph/interrupts) to learn more.
 
@@ -128,27 +120,25 @@ See [Interrupts](/oss/javascript/langgraph/interrupts) to learn more.
 
 The low-level `toLangGraphEventStream` helper is removed. Streaming responses are handled by the SDK; when using low-level clients, select the wire format via an `encoding` option passed to `graph.stream`.
 
-<CodeGroup>
-  ```typescript v1 (new) theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  const stream = await graph.stream(input, {
-    encoding: "text/event-stream",
+```typescript v1 (new) theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+const stream = await graph.stream(input, {
+  encoding: "text/event-stream",
+  streamMode: ["values", "messages"],
+});
+
+return new Response(stream, {
+  headers: { "Content-Type": "text/event-stream" }, // [!code highlight]
+});
+```
+
+```typescript v0 (old) theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+return toLangGraphEventStreamResponse({
+  stream: graph.streamEvents(input, {
+    version: "v2",
     streamMode: ["values", "messages"],
-  });
-
-  return new Response(stream, {
-    headers: { "Content-Type": "text/event-stream" }, // [!code highlight]
-  });
-  ```
-
-  ```typescript v0 (old) theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  return toLangGraphEventStreamResponse({
-    stream: graph.streamEvents(input, {
-      version: "v2",
-      streamMode: ["values", "messages"],
-    }),
-  });
-  ```
-</CodeGroup>
+  }),
+});
+```
 
 ***
 
@@ -164,12 +154,6 @@ Builds for all langgraph packages now use a bundler based approach instead of us
 
 ***
 
-<div>
-  <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
-  </Callout>
+[Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
 
-  <Callout icon="edit">
-    [Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/javascript/migrate/langgraph-v1.mdx) or [file an issue](https://github.com/langchain-ai/docs/issues/new/choose).
-  </Callout>
-</div>
+[Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/javascript/migrate/langgraph-v1.mdx) or [file an issue](https://github.com/langchain-ai/docs/issues/new/choose).

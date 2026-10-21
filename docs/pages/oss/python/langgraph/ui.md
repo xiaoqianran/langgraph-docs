@@ -6,13 +6,11 @@
 
 Agent Chat UI is open source and can be adapted to your application needs.
 
-<Frame>
-  <iframe title="Agent Chat UI" />
-</Frame>
+[Agent Chat UI](https://www.youtube.com/embed/lInrwVnZ83o?si=Uw66mPtCERJm0EjU)
 
-<Tip>
-  You can use generative UI in the Agent Chat UI. For more information, see [Implement generative user interfaces with LangGraph](/langsmith/generative-ui-react).
-</Tip>
+> [!TIP]
+>
+> You can use generative UI in the Agent Chat UI. For more information, see [Implement generative user interfaces with LangGraph](/langsmith/generative-ui-react).
 
 ### Quick start
 
@@ -26,27 +24,25 @@ The fastest way to get started is using the hosted version:
 
 For customization or local development, you can run Agent Chat UI locally:
 
-<CodeGroup>
-  ```bash Use npx theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  # Create a new Agent Chat UI project
-  npx create-agent-chat-app --project-name my-chat-ui
-  cd my-chat-ui
+```bash Use npx theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+# Create a new Agent Chat UI project
+npx create-agent-chat-app --project-name my-chat-ui
+cd my-chat-ui
 
-  # Install dependencies and start
-  pnpm install
-  pnpm dev
-  ```
+# Install dependencies and start
+pnpm install
+pnpm dev
+```
 
-  ```bash Clone repository theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  # Clone the repository
-  git clone https://github.com/langchain-ai/agent-chat-ui.git
-  cd agent-chat-ui
+```bash Clone repository theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+# Clone the repository
+git clone https://github.com/langchain-ai/agent-chat-ui.git
+cd agent-chat-ui
 
-  # Install dependencies and start
-  pnpm install
-  pnpm dev
-  ```
-</CodeGroup>
+# Install dependencies and start
+pnpm install
+pnpm dev
+```
 
 ### Connect to your agent
 
@@ -60,18 +56,12 @@ After starting Agent Chat UI, you'll need to configure it to connect to your age
 
 Once configured, Agent Chat UI will automatically fetch and display any interrupted threads from your agent.
 
-<Tip>
-  Agent Chat UI has out-of-the-box support for rendering tool calls and tool result messages. To customize what messages are shown, see [Hiding Messages in the Chat](https://github.com/langchain-ai/agent-chat-ui?tab=readme-ov-file#hiding-messages-in-the-chat).
-</Tip>
+> [!TIP]
+>
+> Agent Chat UI has out-of-the-box support for rendering tool calls and tool result messages. To customize what messages are shown, see [Hiding Messages in the Chat](https://github.com/langchain-ai/agent-chat-ui?tab=readme-ov-file#hiding-messages-in-the-chat).
 
 ***
 
-<div>
-  <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
-  </Callout>
+[Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
 
-  <Callout icon="edit">
-    [Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/ui.mdx) or [file an issue](https://github.com/langchain-ai/docs/issues/new/choose).
-  </Callout>
-</div>
+[Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/ui.mdx) or [file an issue](https://github.com/langchain-ai/docs/issues/new/choose).

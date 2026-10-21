@@ -77,17 +77,17 @@ await graph.invoke(new Command({ resume: true }), config);
 * The node restarts from the beginning of the node where the [`interrupt`](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) was called when resumed, so any code before the [`interrupt`](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) runs again
 * You can pass any JSON-serializable value as the resume value, subject to validation when you specify a Zod `responseSchema`
 
-<Warning>
-  `new Command({ resume: ... })` is the **only** `Command` pattern intended as input to `invoke()`/`stream()`/`stream_events()`. The other `Command` parameters (`update`, `goto`, `graph`) are designed for [returning from node functions](/oss/javascript/langgraph/graph-api#command). Do not pass `new Command({ update: ... })` as input to continue multi-turn conversations—pass a plain input object instead.
-</Warning>
+> [!WARNING]
+>
+> `new Command({ resume: ... })` is the **only** `Command` pattern intended as input to `invoke()`/`stream()`/`stream_events()`. The other `Command` parameters (`update`, `goto`, `graph`) are designed for [returning from node functions](/oss/javascript/langgraph/graph-api#command). Do not pass `new Command({ update: ... })` as input to continue multi-turn conversations—pass a plain input object instead.
 
 ## Define an interrupt response schema
 
 The `responseSchema` option to [`interrupt`](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) describes the input expected when you resume the graph. Clients can use the schema to render typed input forms.
 
-<Note>
-  Interrupt response schemas require `@langchain/langgraph` version 1.4.16 or later.
-</Note>
+> [!NOTE]
+>
+> Interrupt response schemas require `@langchain/langgraph` version 1.4.16 or later.
 
 Pass a Zod schema to validate resume values. LangGraph converts it to JSON Schema and includes it in `Interrupt.response_schema`, separately from the interrupt's `value` payload. The schema is available on interrupts returned to the caller and in checkpoint task interrupts.
 
@@ -138,17 +138,17 @@ You can also pass a JSON Schema object as `responseSchema`. LangGraph exposes th
 
 Studio renders interrupt response schemas as typed input fields instead of a JSON editor. This preview of the Studio component uses example data with approval, note, and numeric amount fields.
 
-<img src="https://mintcdn.com/langchain-5e9cc07a/u62GP5wl5NeQqwjE/images/langgraph-interrupt-response-schema.png?fit=max&auto=format&n=u62GP5wl5NeQqwjE&q=85&s=b10304786d356849862616a60b74aa3d" alt="Studio interrupt form with an approval toggle, a note field, and a numeric amount set to 125.50" width="900" height="800" data-path="images/langgraph-interrupt-response-schema.png" />
+![Studio interrupt form with an approval toggle, a note field, and a numeric amount set to 125.50](https://mintcdn.com/langchain-5e9cc07a/u62GP5wl5NeQqwjE/images/langgraph-interrupt-response-schema.png?fit=max\&auto=format\&n=u62GP5wl5NeQqwjE\&q=85\&s=b10304786d356849862616a60b74aa3d)
 
 ## Common patterns
 
 The key thing that interrupts unlock is the ability to pause execution and wait for external input. This is useful for a variety of use cases, including:
 
-* <Icon icon="circle-check" /> [Approval workflows](#approve-or-reject): Pause before executing critical actions (API calls, database changes, financial transactions)
-* <Icon icon="link" /> [Handling multiple interrupts](#handling-multiple-interrupts): Pair interrupt IDs with resume values when resuming multiple interrupts in a single invocation
-* <Icon icon="pencil" /> [Review and edit](#review-and-edit-state): Let humans review and modify LLM outputs or tool calls before continuing
-* <Icon icon="tool" /> [Interrupting tool calls](#interrupts-in-tools): Pause before executing tool calls to review and edit the tool call before execution
-* <Icon icon="shield-check" /> [Validating human input](#validating-human-input): Pause before proceeding to the next step to validate human input
+* &#x20;[Approval workflows](#approve-or-reject): Pause before executing critical actions (API calls, database changes, financial transactions)
+* &#x20;[Handling multiple interrupts](#handling-multiple-interrupts): Pair interrupt IDs with resume values when resuming multiple interrupts in a single invocation
+* &#x20;[Review and edit](#review-and-edit-state): Let humans review and modify LLM outputs or tool calls before continuing
+* &#x20;[Interrupting tool calls](#interrupts-in-tools): Pause before executing tool calls to review and edit the tool call before execution
+* &#x20;[Validating human input](#validating-human-input): Pause before proceeding to the next step to validate human input
 
 ### Stream with human-in-the-loop (HITL) interrupts
 
@@ -191,9 +191,9 @@ while (true) {
 }
 ```
 
-<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/7ebae998-6b68-4caa-a262-38d84efc922f/r" arrow horizontal>
-  Open a public LangSmith run for this example.
-</Card>
+> **[View example trace](https://smith.langchain.com/public/7ebae998-6b68-4caa-a262-38d84efc922f/r)**
+>
+> Open a public LangSmith run for this example.
 
 * **`stream.messages`**: Chat-model output as content blocks; iterate `message.text` for token deltas. For nested subgraphs, read message chunks from `stream.subgraphs[*].messages`.
 * **`stream.values`**: Full state snapshots after each step
@@ -313,56 +313,56 @@ await graph.invoke(new Command({ resume: true }), config);
 await graph.invoke(new Command({ resume: false }), config);
 ```
 
-<Accordion title="Full example">
-  ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  import {
-    Command,
-    MemorySaver,
-    START,
-    END,
-    StateGraph,
-    StateSchema,
-    interrupt,
-  } from "@langchain/langgraph";
-  import * as z from "zod";
-
-  const State = new StateSchema({
-    actionDetails: z.string(),
-    status: z.enum(["pending", "approved", "rejected"]).nullable(),
-  });
-
-  const graphBuilder = new StateGraph(State)
-    .addNode("approval", async (state) => {
-      // Expose details so the caller can render them in a UI
-      const decision = interrupt({
-        question: "Approve this action?",
-        details: state.actionDetails,
-      });
-      return new Command({ goto: decision ? "proceed" : "cancel" });
-    }, { ends: ['proceed', 'cancel'] })
-    .addNode("proceed", () => ({ status: "approved" }))
-    .addNode("cancel", () => ({ status: "rejected" }))
-    .addEdge(START, "approval")
-    .addEdge("proceed", END)
-    .addEdge("cancel", END);
-
-  // Use a more durable checkpointer in production
-  const checkpointer = new MemorySaver();
-  const graph = graphBuilder.compile({ checkpointer });
-
-  const config = { configurable: { thread_id: "approval-123" } };
-  const initial = await graph.invoke(
-    { actionDetails: "Transfer $500", status: "pending" },
-    config,
-  );
-  console.log(initial.__interrupt__);
-  // [{ value: { question: ..., details: ... } }]
-
-  // Resume with the decision; true routes to proceed, false to cancel
-  const resumed = await graph.invoke(new Command({ resume: true }), config);
-  console.log(resumed.status); // -> "approved"
-  ```
-</Accordion>
+> **Full example**
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import {
+>   Command,
+>   MemorySaver,
+>   START,
+>   END,
+>   StateGraph,
+>   StateSchema,
+>   interrupt,
+> } from "@langchain/langgraph";
+> import * as z from "zod";
+>
+> const State = new StateSchema({
+>   actionDetails: z.string(),
+>   status: z.enum(["pending", "approved", "rejected"]).nullable(),
+> });
+>
+> const graphBuilder = new StateGraph(State)
+>   .addNode("approval", async (state) => {
+>     // Expose details so the caller can render them in a UI
+>     const decision = interrupt({
+>       question: "Approve this action?",
+>       details: state.actionDetails,
+>     });
+>     return new Command({ goto: decision ? "proceed" : "cancel" });
+>   }, { ends: ['proceed', 'cancel'] })
+>   .addNode("proceed", () => ({ status: "approved" }))
+>   .addNode("cancel", () => ({ status: "rejected" }))
+>   .addEdge(START, "approval")
+>   .addEdge("proceed", END)
+>   .addEdge("cancel", END);
+>
+> // Use a more durable checkpointer in production
+> const checkpointer = new MemorySaver();
+> const graph = graphBuilder.compile({ checkpointer });
+>
+> const config = { configurable: { thread_id: "approval-123" } };
+> const initial = await graph.invoke(
+>   { actionDetails: "Transfer $500", status: "pending" },
+>   config,
+> );
+> console.log(initial.__interrupt__);
+> // [{ value: { question: ..., details: ... } }]
+>
+> // Resume with the decision; true routes to proceed, false to cancel
+> const resumed = await graph.invoke(new Command({ resume: true }), config);
+> console.log(resumed.status); // -> "approved"
+> ```
 
 ### Review and edit state
 
@@ -392,51 +392,51 @@ await graph.invoke(
 );
 ```
 
-<Accordion title="Full example">
-  ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  import {
-    Command,
-    MemorySaver,
-    START,
-    END,
-    StateGraph,
-    StateSchema,
-    interrupt,
-  } from "@langchain/langgraph";
-  import * as z from "zod";
-
-  const State = new StateSchema({
-    generatedText: z.string(),
-  });
-
-  const builder = new StateGraph(State)
-    .addNode("review", async (state) => {
-      // Ask a reviewer to edit the generated content
-      const updated = interrupt({
-        instruction: "Review and edit this content",
-        content: state.generatedText,
-      });
-      return { generatedText: updated };
-    })
-    .addEdge(START, "review")
-    .addEdge("review", END);
-
-  const checkpointer = new MemorySaver();
-  const graph = builder.compile({ checkpointer });
-
-  const config = { configurable: { thread_id: "review-42" } };
-  const initial = await graph.invoke({ generatedText: "Initial draft" }, config);
-  console.log(initial.__interrupt__);
-  // [{ value: { instruction: ..., content: ... } }]
-
-  // Resume with the edited text from the reviewer
-  const finalState = await graph.invoke(
-    new Command({ resume: "Improved draft after review" }),
-    config,
-  );
-  console.log(finalState.generatedText); // -> "Improved draft after review"
-  ```
-</Accordion>
+> **Full example**
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import {
+>   Command,
+>   MemorySaver,
+>   START,
+>   END,
+>   StateGraph,
+>   StateSchema,
+>   interrupt,
+> } from "@langchain/langgraph";
+> import * as z from "zod";
+>
+> const State = new StateSchema({
+>   generatedText: z.string(),
+> });
+>
+> const builder = new StateGraph(State)
+>   .addNode("review", async (state) => {
+>     // Ask a reviewer to edit the generated content
+>     const updated = interrupt({
+>       instruction: "Review and edit this content",
+>       content: state.generatedText,
+>     });
+>     return { generatedText: updated };
+>   })
+>   .addEdge(START, "review")
+>   .addEdge("review", END);
+>
+> const checkpointer = new MemorySaver();
+> const graph = builder.compile({ checkpointer });
+>
+> const config = { configurable: { thread_id: "review-42" } };
+> const initial = await graph.invoke({ generatedText: "Initial draft" }, config);
+> console.log(initial.__interrupt__);
+> // [{ value: { instruction: ..., content: ... } }]
+>
+> // Resume with the edited text from the reviewer
+> const finalState = await graph.invoke(
+>   new Command({ resume: "Improved draft after review" }),
+>   config,
+> );
+> console.log(finalState.generatedText); // -> "Improved draft after review"
+> ```
 
 ### Interrupts in tools
 
@@ -483,103 +483,103 @@ const sendEmailTool = tool(
 
 This approach is useful when you want the approval logic to live with the tool itself, making it reusable across different parts of your graph. The LLM can call the tool naturally, and the interrupt will pause execution whenever the tool is invoked, allowing you to approve, edit, or cancel the action.
 
-<Accordion title="Full example">
-  ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  import { tool } from "@langchain/core/tools";
-  import { ChatAnthropic } from "@langchain/anthropic";
-  import {
-    Command,
-    MemorySaver,
-    START,
-    END,
-    StateGraph,
-    StateSchema,
-    MessagesValue,
-    GraphNode,
-    interrupt,
-  } from "@langchain/langgraph";
-  import * as z from "zod";
-
-  const sendEmailTool = tool(
-    async ({ to, subject, body }) => {
-      // Pause before sending; payload surfaces in result.__interrupt__
-      const response = interrupt({
-        action: "send_email",
-        to,
-        subject,
-        body,
-        message: "Approve sending this email?",
-      });
-
-      if (response?.action === "approve") {
-        const finalTo = response.to ?? to;
-        const finalSubject = response.subject ?? subject;
-        const finalBody = response.body ?? body;
-        console.log("[sendEmailTool]", finalTo, finalSubject, finalBody);
-        return `Email sent to ${finalTo}`;
-      }
-      return "Email cancelled by user";
-    },
-    {
-      name: "send_email",
-      description: "Send an email to a recipient",
-      schema: z.object({
-        to: z.string(),
-        subject: z.string(),
-        body: z.string(),
-      }),
-    },
-  );
-
-  const model = new ChatAnthropic({ model: "claude-sonnet-4-6" }).bindTools([sendEmailTool]);
-
-  const State = new StateSchema({
-    messages: MessagesValue,
-  });
-
-  const agent: typeof State.Node = async (state) => {
-    // LLM may decide to call the tool; interrupt pauses before sending
-    const response = await model.invoke(state.messages);
-    return { messages: [response] };
-  };
-
-  const graphBuilder = new StateGraph(State)
-    .addNode("agent", agent)
-    .addEdge(START, "agent")
-    .addEdge("agent", END);
-
-  const checkpointer = new MemorySaver();
-  const graph = graphBuilder.compile({ checkpointer });
-
-  const config = { configurable: { thread_id: "email-workflow" } };
-  const initial = await graph.invoke(
-    {
-      messages: [
-        { role: "user", content: "Send an email to alice@example.com about the meeting" },
-      ],
-    },
-    config,
-  );
-  console.log(initial.__interrupt__); // -> [{ value: { action: 'send_email', ... } }]
-
-  // Resume with approval and optionally edited arguments
-  const resumed = await graph.invoke(
-    new Command({
-      resume: { action: "approve", subject: "Updated subject" },
-    }),
-    config,
-  );
-  console.log(resumed.messages.at(-1)); // -> Tool result returned by send_email
-  ```
-</Accordion>
+> **Full example**
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import { tool } from "@langchain/core/tools";
+> import { ChatAnthropic } from "@langchain/anthropic";
+> import {
+>   Command,
+>   MemorySaver,
+>   START,
+>   END,
+>   StateGraph,
+>   StateSchema,
+>   MessagesValue,
+>   GraphNode,
+>   interrupt,
+> } from "@langchain/langgraph";
+> import * as z from "zod";
+>
+> const sendEmailTool = tool(
+>   async ({ to, subject, body }) => {
+>     // Pause before sending; payload surfaces in result.__interrupt__
+>     const response = interrupt({
+>       action: "send_email",
+>       to,
+>       subject,
+>       body,
+>       message: "Approve sending this email?",
+>     });
+>
+>     if (response?.action === "approve") {
+>       const finalTo = response.to ?? to;
+>       const finalSubject = response.subject ?? subject;
+>       const finalBody = response.body ?? body;
+>       console.log("[sendEmailTool]", finalTo, finalSubject, finalBody);
+>       return `Email sent to ${finalTo}`;
+>     }
+>     return "Email cancelled by user";
+>   },
+>   {
+>     name: "send_email",
+>     description: "Send an email to a recipient",
+>     schema: z.object({
+>       to: z.string(),
+>       subject: z.string(),
+>       body: z.string(),
+>     }),
+>   },
+> );
+>
+> const model = new ChatAnthropic({ model: "claude-sonnet-4-6" }).bindTools([sendEmailTool]);
+>
+> const State = new StateSchema({
+>   messages: MessagesValue,
+> });
+>
+> const agent: typeof State.Node = async (state) => {
+>   // LLM may decide to call the tool; interrupt pauses before sending
+>   const response = await model.invoke(state.messages);
+>   return { messages: [response] };
+> };
+>
+> const graphBuilder = new StateGraph(State)
+>   .addNode("agent", agent)
+>   .addEdge(START, "agent")
+>   .addEdge("agent", END);
+>
+> const checkpointer = new MemorySaver();
+> const graph = graphBuilder.compile({ checkpointer });
+>
+> const config = { configurable: { thread_id: "email-workflow" } };
+> const initial = await graph.invoke(
+>   {
+>     messages: [
+>       { role: "user", content: "Send an email to alice@example.com about the meeting" },
+>     ],
+>   },
+>   config,
+> );
+> console.log(initial.__interrupt__); // -> [{ value: { action: 'send_email', ... } }]
+>
+> // Resume with approval and optionally edited arguments
+> const resumed = await graph.invoke(
+>   new Command({
+>     resume: { action: "approve", subject: "Updated subject" },
+>   }),
+>   config,
+> );
+> console.log(resumed.messages.at(-1)); // -> Tool result returned by send_email
+> ```
 
 ### Validating human input
 
 Sometimes you need to validate input from humans and re-prompt if the value is invalid. The recommended approach is to call `interrupt()` **once per node invocation**, return from the node with the error message stored in state, and use a **conditional edge** to loop back to the node until a valid value is provided.
 
-<Warning>
-  **Avoid `while True` + `interrupt()` loops inside a single node.** Because the node re-runs from the beginning on every resume (see [Rules of interrupts](#rules-of-interrupts)), a loop that calls `interrupt()` multiple times causes each resume to replay all previous iterations: the first resume replays 1 iteration, the second replays 2, and so on. The result is exponential re-execution of any code inside the loop body.
-</Warning>
+> [!WARNING]
+>
+> **Avoid `while True` + `interrupt()` loops inside a single node.** Because the node re-runs from the beginning on every resume (see [Rules of interrupts](#rules-of-interrupts)), a loop that calls `interrupt()` multiple times causes each resume to replay all previous iterations: the first resume replays 1 iteration, the second replays 2, and so on. The result is exponential re-execution of any code inside the loop body.
 
 The correct pattern:
 
@@ -608,61 +608,61 @@ const getAgeNode: typeof State.Node = (state) => {
 // );
 ```
 
-<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/9e6a7db8-1fa3-4f6f-91cc-3b48fcf5e6ec/r" arrow horizontal>
-  Open a public LangSmith run for this example.
-</Card>
+> **[View example trace](https://smith.langchain.com/public/9e6a7db8-1fa3-4f6f-91cc-3b48fcf5e6ec/r)**
+>
+> Open a public LangSmith run for this example.
 
 Each resume invokes `getAgeNode` exactly once, runs the `interrupt()` call once, and exits. When the answer is invalid, the conditional edge loops back and the next interrupt re-prompts with the updated question.
 
-<Accordion title="Full example">
-  ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  import {
-    Command,
-    MemorySaver,
-    START,
-    END,
-    StateGraph,
-    StateSchema,
-    interrupt,
-  } from "@langchain/langgraph";
-  import * as z from "zod";
-
-  const State = new StateSchema({
-    age: z.number().nullable(),
-    pendingQuestion: z.string().nullable(),
-  });
-
-  const builder = new StateGraph(State)
-    .addNode("collectAge", (state) => {
-      const question = state.pendingQuestion ?? "What is your age?";
-      const answer = interrupt(question); // called exactly once per invocation
-
-      if (typeof answer === "number" && answer > 0) {
-        return { age: answer, pendingQuestion: null };
-      }
-      return { pendingQuestion: `'${answer}' is not a valid age. Please enter a positive number.` };
-    })
-    .addEdge(START, "collectAge")
-    .addConditionalEdges("collectAge", (state) =>
-      state.age !== null ? END : "collectAge"
-    );
-
-  const checkpointer = new MemorySaver();
-  const graph = builder.compile({ checkpointer });
-
-  const config = { configurable: { thread_id: "form-1" } };
-  const first = await graph.invoke({ age: null, pendingQuestion: null }, config);
-  console.log(first.__interrupt__); // -> [{ value: "What is your age?", ... }]
-
-  // Provide invalid data; the node re-prompts via the conditional edge
-  const retry = await graph.invoke(new Command({ resume: "thirty" }), config);
-  console.log(retry.__interrupt__); // -> [{ value: "'thirty' is not a valid age...", ... }]
-
-  // Provide valid data; route returns END and the graph finishes
-  const final = await graph.invoke(new Command({ resume: 30 }), config);
-  console.log(final.age); // -> 30
-  ```
-</Accordion>
+> **Full example**
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import {
+>   Command,
+>   MemorySaver,
+>   START,
+>   END,
+>   StateGraph,
+>   StateSchema,
+>   interrupt,
+> } from "@langchain/langgraph";
+> import * as z from "zod";
+>
+> const State = new StateSchema({
+>   age: z.number().nullable(),
+>   pendingQuestion: z.string().nullable(),
+> });
+>
+> const builder = new StateGraph(State)
+>   .addNode("collectAge", (state) => {
+>     const question = state.pendingQuestion ?? "What is your age?";
+>     const answer = interrupt(question); // called exactly once per invocation
+>
+>     if (typeof answer === "number" && answer > 0) {
+>       return { age: answer, pendingQuestion: null };
+>     }
+>     return { pendingQuestion: `'${answer}' is not a valid age. Please enter a positive number.` };
+>   })
+>   .addEdge(START, "collectAge")
+>   .addConditionalEdges("collectAge", (state) =>
+>     state.age !== null ? END : "collectAge"
+>   );
+>
+> const checkpointer = new MemorySaver();
+> const graph = builder.compile({ checkpointer });
+>
+> const config = { configurable: { thread_id: "form-1" } };
+> const first = await graph.invoke({ age: null, pendingQuestion: null }, config);
+> console.log(first.__interrupt__); // -> [{ value: "What is your age?", ... }]
+>
+> // Provide invalid data; the node re-prompts via the conditional edge
+> const retry = await graph.invoke(new Command({ resume: "thirty" }), config);
+> console.log(retry.__interrupt__); // -> [{ value: "'thirty' is not a valid age...", ... }]
+>
+> // Provide valid data; route returns END and the graph finishes
+> const final = await graph.invoke(new Command({ resume: 30 }), config);
+> console.log(final.age); // -> 30
+> ```
 
 ## Rules of interrupts
 
@@ -677,38 +677,36 @@ The way that [`interrupt`](https://reference.langchain.com/javascript/langchain-
 * ✅ Separate [`interrupt`](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) calls from error-prone code
 * ✅ Conditionally catch errors if needed
 
-<CodeGroup>
-  ```typescript Separating logic theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  const nodeA: GraphNode<typeof State> = async (state) => {
-    // ✅ Good: interrupting first, then handling error conditions separately
+```typescript Separating logic theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+const nodeA: GraphNode<typeof State> = async (state) => {
+  // ✅ Good: interrupting first, then handling error conditions separately
+  const name = interrupt("What's your name?");
+  try {
+    await fetchData(); // This can fail
+  } catch (err) {
+    console.error(error);
+  }
+  return state;
+}
+```
+
+```typescript Conditionally handling errors theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+const nodeA: GraphNode<typeof State> = async (state) => {
+  // ✅ Good: re-throwing the exception will
+  // allow the interrupt to be passed back to
+  // the graph
+  try {
     const name = interrupt("What's your name?");
-    try {
-      await fetchData(); // This can fail
-    } catch (err) {
+    await fetchData(); // This can fail
+  } catch (err) {
+    if (error instanceof NetworkError) {
       console.error(error);
     }
-    return state;
+    throw error;
   }
-  ```
-
-  ```typescript Conditionally handling errors theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  const nodeA: GraphNode<typeof State> = async (state) => {
-    // ✅ Good: re-throwing the exception will
-    // allow the interrupt to be passed back to
-    // the graph
-    try {
-      const name = interrupt("What's your name?");
-      await fetchData(); // This can fail
-    } catch (err) {
-      if (error instanceof NetworkError) {
-        console.error(error);
-      }
-      throw error;
-    }
-    return state;
-  }
-  ```
-</CodeGroup>
+  return state;
+}
+```
 
 * 🔴 Do not wrap [`interrupt`](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) calls in bare try/catch blocks
 
@@ -750,38 +748,36 @@ async function nodeA(state: State) {
 * 🔴 Do not conditionally skip [`interrupt`](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) calls within a node
 * 🔴 Do not loop [`interrupt`](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) calls using logic that isn't deterministic across executions, including `while True` validation loops. Use a conditional edge instead (see [Validating human input](#validating-human-input))
 
-<CodeGroup>
-  ```typescript Skipping interrupts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  const nodeA: GraphNode<typeof State> = async (state) => {
-    // ❌ Bad: conditionally skipping interrupts changes the order
-    const name = interrupt("What's your name?");
+```typescript Skipping interrupts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+const nodeA: GraphNode<typeof State> = async (state) => {
+  // ❌ Bad: conditionally skipping interrupts changes the order
+  const name = interrupt("What's your name?");
 
-    // On first run, this might skip the interrupt
-    // On resume, it might not skip it - causing index mismatch
-    if (state.needsAge) {
-      const age = interrupt("What's your age?");
-    }
-
-    const city = interrupt("What's your city?");
-
-    return { name, city };
+  // On first run, this might skip the interrupt
+  // On resume, it might not skip it - causing index mismatch
+  if (state.needsAge) {
+    const age = interrupt("What's your age?");
   }
-  ```
 
-  ```typescript Looping interrupts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  const nodeA: GraphNode<typeof State> = async (state) => {
-    // ❌ Bad: looping based on non-deterministic data
-    // The number of interrupts changes between executions
-    const results = [];
-    for (const item of state.dynamicList || []) {  // List might change between runs
-      const result = interrupt(`Approve ${item}?`);
-      results.push(result);
-    }
+  const city = interrupt("What's your city?");
 
-    return { results };
+  return { name, city };
+}
+```
+
+```typescript Looping interrupts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+const nodeA: GraphNode<typeof State> = async (state) => {
+  // ❌ Bad: looping based on non-deterministic data
+  // The number of interrupts changes between executions
+  const results = [];
+  for (const item of state.dynamicList || []) {  // List might change between runs
+    const result = interrupt(`Approve ${item}?`);
+    results.push(result);
   }
-  ```
-</CodeGroup>
+
+  return { results };
+}
+```
 
 ### Do not return complex values in `interrupt` calls
 
@@ -790,69 +786,65 @@ Depending on which checkpointer is used, complex values may not be serializable 
 * ✅ Pass simple, JSON-serializable types to [`interrupt`](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt)
 * ✅ Pass dictionaries/objects with simple values
 
-<CodeGroup>
-  ```typescript Simple values theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  const nodeA: GraphNode<typeof State> = async (state) => {
-    // ✅ Good: passing simple types that are serializable
-    const name = interrupt("What's your name?");
-    const count = interrupt(42);
-    const approved = interrupt(true);
+```typescript Simple values theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+const nodeA: GraphNode<typeof State> = async (state) => {
+  // ✅ Good: passing simple types that are serializable
+  const name = interrupt("What's your name?");
+  const count = interrupt(42);
+  const approved = interrupt(true);
 
-    return { name, count, approved };
-  }
-  ```
+  return { name, count, approved };
+}
+```
 
-  ```typescript Structured data theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  const nodeA: GraphNode<typeof State> = async (state) => {
-    // ✅ Good: passing objects with simple values
-    const response = interrupt({
-      question: "Enter user details",
-      fields: ["name", "email", "age"],
-      currentValues: state.user || {}
-    });
+```typescript Structured data theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+const nodeA: GraphNode<typeof State> = async (state) => {
+  // ✅ Good: passing objects with simple values
+  const response = interrupt({
+    question: "Enter user details",
+    fields: ["name", "email", "age"],
+    currentValues: state.user || {}
+  });
 
-    return { user: response };
-  }
-  ```
-</CodeGroup>
+  return { user: response };
+}
+```
 
 * 🔴 Do not pass functions, class instances, or other complex objects to [`interrupt`](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt)
 
-<CodeGroup>
-  ```typescript Functions theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  function validateInput(value: string): boolean {
-      return value.length > 0;
-  }
+```typescript Functions theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+function validateInput(value: string): boolean {
+    return value.length > 0;
+}
 
-  const nodeA: GraphNode<typeof State> = async (state) => {
-    // ❌ Bad: passing a function to interrupt
-    // The function cannot be serialized
-    const response = interrupt({
-      question: "What's your name?",
-      validator: validateInput  // This will fail
-    });
-    return { name: response };
-  }
-  ```
+const nodeA: GraphNode<typeof State> = async (state) => {
+  // ❌ Bad: passing a function to interrupt
+  // The function cannot be serialized
+  const response = interrupt({
+    question: "What's your name?",
+    validator: validateInput  // This will fail
+  });
+  return { name: response };
+}
+```
 
-  ```typescript Class instances theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  class DataProcessor {
-      constructor(private config: any) {}
-  }
+```typescript Class instances theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+class DataProcessor {
+    constructor(private config: any) {}
+}
 
-  const nodeA: GraphNode<typeof State> = async (state) => {
-    const processor = new DataProcessor({ mode: "strict" });
+const nodeA: GraphNode<typeof State> = async (state) => {
+  const processor = new DataProcessor({ mode: "strict" });
 
-    // ❌ Bad: passing a class instance to interrupt
-    // The instance cannot be serialized
-    const response = interrupt({
-      question: "Enter data to process",
-      processor: processor  // This will fail
-    });
-    return { result: response };
-  }
-  ```
-</CodeGroup>
+  // ❌ Bad: passing a class instance to interrupt
+  // The instance cannot be serialized
+  const response = interrupt({
+    question: "Enter data to process",
+    processor: processor  // This will fail
+  });
+  return { result: response };
+}
+```
 
 ### Side effects called before `interrupt` must be idempotent
 
@@ -864,94 +856,90 @@ As an example, you might have an API call to update a record inside of a node. I
 * ✅ Place side effects after [`interrupt`](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) calls
 * ✅ Separate side effects into separate nodes when possible
 
-<CodeGroup>
-  ```typescript Idempotent operations theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  const nodeA: GraphNode<typeof State> = async (state) => {
-    // ✅ Good: using upsert operation which is idempotent
-    // Running this multiple times will have the same result
-    await db.upsertUser({
+```typescript Idempotent operations theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+const nodeA: GraphNode<typeof State> = async (state) => {
+  // ✅ Good: using upsert operation which is idempotent
+  // Running this multiple times will have the same result
+  await db.upsertUser({
+    userId: state.userId,
+    status: "pending_approval"
+  });
+
+  const approved = interrupt("Approve this change?");
+
+  return { approved };
+}
+```
+
+```typescript Side effects after interrupt theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+const nodeA: GraphNode<typeof State> = async (state) => {
+  // ✅ Good: placing side effect after the interrupt
+  // This ensures it only runs once after approval is received
+  const approved = interrupt("Approve this change?");
+
+  if (approved) {
+    await db.createAuditLog({
       userId: state.userId,
-      status: "pending_approval"
+      action: "approved"
     });
-
-    const approved = interrupt("Approve this change?");
-
-    return { approved };
-  }
-  ```
-
-  ```typescript Side effects after interrupt theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  const nodeA: GraphNode<typeof State> = async (state) => {
-    // ✅ Good: placing side effect after the interrupt
-    // This ensures it only runs once after approval is received
-    const approved = interrupt("Approve this change?");
-
-    if (approved) {
-      await db.createAuditLog({
-        userId: state.userId,
-        action: "approved"
-      });
-    }
-
-    return { approved };
-  }
-  ```
-
-  ```typescript Separating into different nodes theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  const approvalNode: GraphNode<typeof State> = async (state) => {
-    // ✅ Good: only handling the interrupt in this node
-    const approved = interrupt("Approve this change?");
-
-    return { approved };
   }
 
-  const notificationNode: GraphNode<typeof State> = async (state) => {
-    // ✅ Good: side effect happens in a separate node
-    // This runs after approval, so it only executes once
-    if (state.approved) {
-      await sendNotification({
-        userId: state.userId,
-        status: "approved",
-      });
-    }
+  return { approved };
+}
+```
 
-    return state;
+```typescript Separating into different nodes theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+const approvalNode: GraphNode<typeof State> = async (state) => {
+  // ✅ Good: only handling the interrupt in this node
+  const approved = interrupt("Approve this change?");
+
+  return { approved };
+}
+
+const notificationNode: GraphNode<typeof State> = async (state) => {
+  // ✅ Good: side effect happens in a separate node
+  // This runs after approval, so it only executes once
+  if (state.approved) {
+    await sendNotification({
+      userId: state.userId,
+      status: "approved",
+    });
   }
-  ```
-</CodeGroup>
+
+  return state;
+}
+```
 
 * 🔴 Do not perform non-idempotent operations before [`interrupt`](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt)
 * 🔴 Do not create new records without checking if they exist
 
-<CodeGroup>
-  ```typescript Creating records theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  const nodeA: GraphNode<typeof State> = async (state) => {
-    // ❌ Bad: creating a new record before interrupt
-    // This will create duplicate records on each resume
-    const auditId = await db.createAuditLog({
-      userId: state.userId,
-      action: "pending_approval",
-      timestamp: new Date()
-    });
+```typescript Creating records theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+const nodeA: GraphNode<typeof State> = async (state) => {
+  // ❌ Bad: creating a new record before interrupt
+  // This will create duplicate records on each resume
+  const auditId = await db.createAuditLog({
+    userId: state.userId,
+    action: "pending_approval",
+    timestamp: new Date()
+  });
 
-    const approved = interrupt("Approve this change?");
+  const approved = interrupt("Approve this change?");
 
-    return { approved, auditId };
-  }
-  ```
+  return { approved, auditId };
+}
+```
 
-  ```typescript Appending to arrays theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  const nodeA: GraphNode<typeof State> = async (state) => {
-    // ❌ Bad: appending to an array before interrupt
-    // This will add duplicate entries on each resume
-    await db.appendToHistory(state.userId, "approval_requested");
+```typescript Appending to arrays theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+const nodeA: GraphNode<typeof State> = async (state) => {
+  // ❌ Bad: appending to an array before interrupt
+  // This will add duplicate entries on each resume
+  await db.appendToHistory(state.userId, "approval_requested");
 
-    const approved = interrupt("Approve this change?");
+  const approved = interrupt("Approve this change?");
 
-    return { approved };
-  }
-  ```
-</CodeGroup>
+  return { approved };
+}
+```
 
 ## Using with subgraphs called as functions
 
@@ -977,81 +965,73 @@ async function nodeInSubgraph(state: State) {
 
 To debug and test a graph, you can use static interrupts as breakpoints to step through the graph execution one node at a time. Static interrupts are triggered at defined points either before or after a node executes. You can set these by specifying `interruptBefore` and `interruptAfter` when compiling the graph.
 
-<Note>
-  Static interrupts are **not** recommended for human-in-the-loop workflows. Use the [`interrupt`](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) function instead.
-</Note>
+> [!NOTE]
+>
+> Static interrupts are **not** recommended for human-in-the-loop workflows. Use the [`interrupt`](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) function instead.
 
-<Tabs>
-  <Tab title="At compile time">
-    ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    const graph = builder.compile({
-        interruptBefore: ["node_a"],  // [!code highlight]
-        interruptAfter: ["node_b", "node_c"],  // [!code highlight]
-        checkpointer,
-    });
+**At compile time**
 
-    // Pass a thread ID to the graph
-    const config = {
-        configurable: {
-            thread_id: "some_thread"
-        }
-    };
+```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+const graph = builder.compile({
+    interruptBefore: ["node_a"],  // [!code highlight]
+    interruptAfter: ["node_b", "node_c"],  // [!code highlight]
+    checkpointer,
+});
 
-    // Run the graph until the breakpoint
-    await graph.invoke(inputs, config);# [!code highlight]
+// Pass a thread ID to the graph
+const config = {
+    configurable: {
+        thread_id: "some_thread"
+    }
+};
 
-    await graph.invoke(null, config);  # [!code highlight]
-    ```
+// Run the graph until the breakpoint
+await graph.invoke(inputs, config);# [!code highlight]
 
-    1. The breakpoints are set during `compile` time.
-    2. `interruptBefore` specifies the nodes where execution should pause before the node is executed.
-    3. `interruptAfter` specifies the nodes where execution should pause after the node is executed.
-    4. A checkpointer is required to enable breakpoints.
-    5. The graph is run until the first breakpoint is hit.
-    6. The graph is resumed by passing in `null` for the input. This will run the graph until the next breakpoint is hit.
-  </Tab>
+await graph.invoke(null, config);  # [!code highlight]
+```
 
-  <Tab title="At run time">
-    ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    // Run the graph until the breakpoint
-    graph.invoke(inputs, {
-        interruptBefore: ["node_a"],  // [!code highlight]
-        interruptAfter: ["node_b", "node_c"],  // [!code highlight]
-        configurable: {
-            thread_id: "some_thread"
-        }
-    });
+1. The breakpoints are set during `compile` time.
+2. `interruptBefore` specifies the nodes where execution should pause before the node is executed.
+3. `interruptAfter` specifies the nodes where execution should pause after the node is executed.
+4. A checkpointer is required to enable breakpoints.
+5. The graph is run until the first breakpoint is hit.
+6. The graph is resumed by passing in `null` for the input. This will run the graph until the next breakpoint is hit.
 
-    // Resume the graph
-    await graph.invoke(null, config);  // [!code highlight]
-    ```
+**At run time**
 
-    1. `graph.invoke` is called with the `interruptBefore` and `interruptAfter` parameters. This is a run-time configuration and can be changed for every invocation.
-    2. `interruptBefore` specifies the nodes where execution should pause before the node is executed.
-    3. `interruptAfter` specifies the nodes where execution should pause after the node is executed.
-    4. The graph is run until the first breakpoint is hit.
-    5. The graph is resumed by passing in `null` for the input. This will run the graph until the next breakpoint is hit.
-  </Tab>
-</Tabs>
+```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+// Run the graph until the breakpoint
+graph.invoke(inputs, {
+    interruptBefore: ["node_a"],  // [!code highlight]
+    interruptAfter: ["node_b", "node_c"],  // [!code highlight]
+    configurable: {
+        thread_id: "some_thread"
+    }
+});
 
-<Tip>
-  To debug your interrupts, use [LangSmith](/langsmith/observability).
-</Tip>
+// Resume the graph
+await graph.invoke(null, config);  // [!code highlight]
+```
+
+1. `graph.invoke` is called with the `interruptBefore` and `interruptAfter` parameters. This is a run-time configuration and can be changed for every invocation.
+2. `interruptBefore` specifies the nodes where execution should pause before the node is executed.
+3. `interruptAfter` specifies the nodes where execution should pause after the node is executed.
+4. The graph is run until the first breakpoint is hit.
+5. The graph is resumed by passing in `null` for the input. This will run the graph until the next breakpoint is hit.
+
+> [!TIP]
+>
+> To debug your interrupts, use [LangSmith](/langsmith/observability).
 
 ### Using LangSmith Studio
 
 You can use [LangSmith Studio](/langsmith/studio) to set static interrupts in your graph in the UI before running the graph. You can also use the UI to inspect the graph state at any point in the execution.
 
-<img src="https://mintcdn.com/langchain-5e9cc07a/dL5Sn6Cmy9pwtY0V/oss/images/static-interrupt.png?fit=max&auto=format&n=dL5Sn6Cmy9pwtY0V&q=85&s=5aa4e7cea2ab147cef5b4e210dd6c4a1" alt="image" width="1252" height="1040" data-path="oss/images/static-interrupt.png" />
+![image](https://mintcdn.com/langchain-5e9cc07a/dL5Sn6Cmy9pwtY0V/oss/images/static-interrupt.png?fit=max\&auto=format\&n=dL5Sn6Cmy9pwtY0V\&q=85\&s=5aa4e7cea2ab147cef5b4e210dd6c4a1)
 
 ***
 
-<div className="source-links">
-  <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
-  </Callout>
+[Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
 
-  <Callout icon="edit">
-    [Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/interrupts.mdx) or [file an issue](https://github.com/langchain-ai/docs/issues/new/choose).
-  </Callout>
-</div>
+[Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/interrupts.mdx) or [file an issue](https://github.com/langchain-ai/docs/issues/new/choose).

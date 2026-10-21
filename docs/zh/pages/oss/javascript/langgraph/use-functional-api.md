@@ -4,11 +4,11 @@
 
 # 使用函数式API
 
-[**Functional API**](/oss/javascript/langgraph/functional-api) 允许您将 LangGraph 的主要功能（[persistence](/oss/javascript/langgraph/persistence)、[memory](/oss/javascript/langgraph/add-memory)、[human-in-the-loop](/oss/javascript/langgraph/interrupts) 和 [streaming](/oss/javascript/langgraph/streaming)）添加到您的应用程序中，只需对现有代码进行最少的更改。
+[**Functional API**](/oss/javascript/langgraph/functional-api) 允许您将 LangGraph 的关键功能（[persistence](/oss/javascript/langgraph/persistence)、[memory](/oss/javascript/langgraph/add-memory)、[human-in-the-loop](/oss/javascript/langgraph/interrupts) 和 [streaming](/oss/javascript/langgraph/streaming)）添加到您的应用程序中，只需对现有代码进行最少的更改。
 
-<Tip>
-  有关函数式 API 的概念信息，请参阅[Functional API](/oss/javascript/langgraph/functional-api)。
-</Tip>
+> [!提示]
+>
+> 有关函数式 API 的概念信息，请参阅[Functional API](/oss/javascript/langgraph/functional-api)。
 
 ## 创建一个简单的工作流程
 
@@ -29,79 +29,79 @@ const myWorkflow = entrypoint(
 await myWorkflow.invoke({ value: 1, anotherValue: 2 });
 ```
 
-<Accordion title="Extended example: simple workflow">
-  ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  import { v7 as uuid7 } from "uuid";
-  import { entrypoint, task, MemorySaver } from "@langchain/langgraph";
+> **扩展示例：简单的工作流程**
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import { v7 as uuid7 } from "uuid";
+> import { entrypoint, task, MemorySaver } from "@langchain/langgraph";
+>
+> // Task that checks if a number is even
+> const isEven = task("isEven", async (number: number) => {
+>   return number % 2 === 0;
+> });
+>
+> // Task that formats a message
+> const formatMessage = task("formatMessage", async (isEven: boolean) => {
+>   return isEven ? "The number is even." : "The number is odd.";
+> });
+>
+> // Create a checkpointer for persistence
+> const checkpointer = new MemorySaver();
+>
+> const workflow = entrypoint(
+>   { checkpointer, name: "workflow" },
+>   async (inputs: { number: number }) => {
+>     // Simple workflow to classify a number
+>     const even = await isEven(inputs.number);
+>     return await formatMessage(even);
+>   }
+> );
+>
+> // Run the workflow with a unique thread ID
+> const config = { configurable: { thread_id: uuid7() } };
+> const result = await workflow.invoke({ number: 7 }, config);
+> console.log(result);
+> ```
 
-  // Task that checks if a number is even
-  const isEven = task("isEven", async (number: number) => {
-    return number % 2 === 0;
-  });
-
-  // Task that formats a message
-  const formatMessage = task("formatMessage", async (isEven: boolean) => {
-    return isEven ? "The number is even." : "The number is odd.";
-  });
-
-  // Create a checkpointer for persistence
-  const checkpointer = new MemorySaver();
-
-  const workflow = entrypoint(
-    { checkpointer, name: "workflow" },
-    async (inputs: { number: number }) => {
-      // Simple workflow to classify a number
-      const even = await isEven(inputs.number);
-      return await formatMessage(even);
-    }
-  );
-
-  // Run the workflow with a unique thread ID
-  const config = { configurable: { thread_id: uuid7() } };
-  const result = await workflow.invoke({ number: 7 }, config);
-  console.log(result);
-  ```
-</Accordion>
-
-<Accordion title="Extended example: Compose an essay with an LLM">
-  此示例演示如何使用 `@task` 和 `@entrypoint` 装饰器
-  从句法上来说。鉴于提供了检查点，工作流程结果将
-  被持久化在检查点中。
-
-  ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  import { v7 as uuid7 } from "uuid";
-  import { ChatOpenAI } from "@langchain/openai";
-  import { entrypoint, task, MemorySaver } from "@langchain/langgraph";
-
-  const model = new ChatOpenAI({ model: "gpt-3.5-turbo" });
-
-  // Task: generate essay using an LLM
-  const composeEssay = task("composeEssay", async (topic: string) => {
-    // Generate an essay about the given topic
-    const response = await model.invoke([
-      { role: "system", content: "You are a helpful assistant that writes essays." },
-      { role: "user", content: `Write an essay about ${topic}.` }
-    ]);
-    return response.content as string;
-  });
-
-  // Create a checkpointer for persistence
-  const checkpointer = new MemorySaver();
-
-  const workflow = entrypoint(
-    { checkpointer, name: "workflow" },
-    async (topic: string) => {
-      // Simple workflow that generates an essay with an LLM
-      return await composeEssay(topic);
-    }
-  );
-
-  // Execute the workflow
-  const config = { configurable: { thread_id: uuid7() } };
-  const result = await workflow.invoke("the history of flight", config);
-  console.log(result);
-  ```
-</Accordion>
+> **扩展示例：以法学硕士撰写论文**
+>
+> 这个例子演示了如何使用 `@task` 和 `@entrypoint` 装饰器
+> 从语法上来说。鉴于提供了检查点，工作流程结果将
+> 保留在检查点中。
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import { v7 as uuid7 } from "uuid";
+> import { ChatOpenAI } from "@langchain/openai";
+> import { entrypoint, task, MemorySaver } from "@langchain/langgraph";
+>
+> const model = new ChatOpenAI({ model: "gpt-3.5-turbo" });
+>
+> // Task: generate essay using an LLM
+> const composeEssay = task("composeEssay", async (topic: string) => {
+>   // Generate an essay about the given topic
+>   const response = await model.invoke([
+>     { role: "system", content: "You are a helpful assistant that writes essays." },
+>     { role: "user", content: `Write an essay about ${topic}.` }
+>   ]);
+>   return response.content as string;
+> });
+>
+> // Create a checkpointer for persistence
+> const checkpointer = new MemorySaver();
+>
+> const workflow = entrypoint(
+>   { checkpointer, name: "workflow" },
+>   async (topic: string) => {
+>     // Simple workflow that generates an essay with an LLM
+>     return await composeEssay(topic);
+>   }
+> );
+>
+> // Execute the workflow
+> const config = { configurable: { thread_id: uuid7() } };
+> const result = await workflow.invoke("the history of flight", config);
+> console.log(result);
+> ```
 
 ## 并行执行
 
@@ -118,46 +118,46 @@ const graph = entrypoint(
     return await Promise.all(numbers.map(addOne));
   }
 );
-```
-
-<Accordion title="Extended example: parallel LLM calls">
-  此示例演示如何使用 `@task` 并行运行多个 LLM 调用。每次调用都会生成关于不同主题的段落，并将结果合并到单个文本输出中。
-
-  ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  import { v7 as uuid7 } from "uuid";
-  import { ChatOpenAI } from "@langchain/openai";
-  import { entrypoint, task, MemorySaver } from "@langchain/langgraph";
-
-  // Initialize the LLM model
-  const model = new ChatOpenAI({ model: "gpt-3.5-turbo" });
-
-  // Task that generates a paragraph about a given topic
-  const generateParagraph = task("generateParagraph", async (topic: string) => {
-    const response = await model.invoke([
-      { role: "system", content: "You are a helpful assistant that writes educational paragraphs." },
-      { role: "user", content: `Write a paragraph about ${topic}.` }
-    ]);
-    return response.content as string;
-  });
-
-  // Create a checkpointer for persistence
-  const checkpointer = new MemorySaver();
-
-  const workflow = entrypoint(
-    { checkpointer, name: "workflow" },
-    async (topics: string[]) => {
-      // Generates multiple paragraphs in parallel and combines them
-      const paragraphs = await Promise.all(topics.map(generateParagraph));
-      return paragraphs.join("\n\n");
-    }
-  );
-
-  // Run the workflow
-  const config = { configurable: { thread_id: uuid7() } };
-  const result = await workflow.invoke(["quantum computing", "climate change", "history of aviation"], config);
-  console.log(result);
-  ```此示例使用 LangGraph 的并发模型来缩短执行时间，特别是当任务涉及 I/O（如 LLM 完成）时。
-</Accordion>
+```> **扩展示例：并行 LLM 调用**
+>
+> 此示例演示如何使用 `@task` 并行运行多个 LLM 调用。每次调用都会生成关于不同主题的段落，并将结果合并到单个文本输出中。
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import { v7 as uuid7 } from "uuid";
+> import { ChatOpenAI } from "@langchain/openai";
+> import { entrypoint, task, MemorySaver } from "@langchain/langgraph";
+>
+> // Initialize the LLM model
+> const model = new ChatOpenAI({ model: "gpt-3.5-turbo" });
+>
+> // Task that generates a paragraph about a given topic
+> const generateParagraph = task("generateParagraph", async (topic: string) => {
+>   const response = await model.invoke([
+>     { role: "system", content: "You are a helpful assistant that writes educational paragraphs." },
+>     { role: "user", content: `Write a paragraph about ${topic}.` }
+>   ]);
+>   return response.content as string;
+> });
+>
+> // Create a checkpointer for persistence
+> const checkpointer = new MemorySaver();
+>
+> const workflow = entrypoint(
+>   { checkpointer, name: "workflow" },
+>   async (topics: string[]) => {
+>     // Generates multiple paragraphs in parallel and combines them
+>     const paragraphs = await Promise.all(topics.map(generateParagraph));
+>     return paragraphs.join("\n\n");
+>   }
+> );
+>
+> // Run the workflow
+> const config = { configurable: { thread_id: uuid7() } };
+> const result = await workflow.invoke(["quantum computing", "climate change", "history of aviation"], config);
+> console.log(result);
+> ```
+>
+> 此示例使用 LangGraph 的并发模型来缩短执行时间，特别是当任务涉及 I/O（如 LLM 完成）时。
 
 ## 调用图表
 
@@ -186,41 +186,41 @@ const someWorkflow = entrypoint(
 );
 ```
 
-<Accordion title="Extended example: calling a simple graph from the functional API">
-  ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  import { v7 as uuid7 } from "uuid";
-  import { entrypoint, MemorySaver, StateGraph, StateSchema } from "@langchain/langgraph";
-  import * as z from "zod";
-
-  // Define the shared state type
-  const State = new StateSchema({
-    foo: z.number(),
-  });
-
-  // Build the graph using the Graph API
-  const builder = new StateGraph(State)
-    .addNode("double", (state) => {
-      return { foo: state.foo * 2 };
-    })
-    .addEdge("__start__", "double");
-  const graph = builder.compile();
-
-  // Define the functional API workflow
-  const checkpointer = new MemorySaver();
-
-  const workflow = entrypoint(
-    { checkpointer, name: "workflow" },
-    async (x: number) => {
-      const result = await graph.invoke({ foo: x });
-      return { bar: result.foo };
-    }
-  );
-
-  // Execute the workflow
-  const config = { configurable: { thread_id: uuid7() } };
-  console.log(await workflow.invoke(5, config)); // Output: { bar: 10 }
-  ```
-</Accordion>
+> **扩展示例：从函数式 API 调用简单图**
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import { v7 as uuid7 } from "uuid";
+> import { entrypoint, MemorySaver, StateGraph, StateSchema } from "@langchain/langgraph";
+> import * as z from "zod";
+>
+> // Define the shared state type
+> const State = new StateSchema({
+>   foo: z.number(),
+> });
+>
+> // Build the graph using the Graph API
+> const builder = new StateGraph(State)
+>   .addNode("double", (state) => {
+>     return { foo: state.foo * 2 };
+>   })
+>   .addEdge("__start__", "double");
+> const graph = builder.compile();
+>
+> // Define the functional API workflow
+> const checkpointer = new MemorySaver();
+>
+> const workflow = entrypoint(
+>   { checkpointer, name: "workflow" },
+>   async (x: number) => {
+>     const result = await graph.invoke({ foo: x });
+>     return { bar: result.foo };
+>   }
+> );
+>
+> // Execute the workflow
+> const config = { configurable: { thread_id: uuid7() } };
+> console.log(await workflow.invoke(5, config)); // Output: { bar: 10 }
+> ```
 
 ## 调用其他入口点
 
@@ -244,36 +244,36 @@ const myWorkflow = entrypoint(
 );
 ```
 
-<Accordion title="Extended example: calling another entrypoint">
-  ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  import { v7 as uuid7 } from "uuid";
-  import { entrypoint, MemorySaver } from "@langchain/langgraph";
-
-  // Initialize a checkpointer
-  const checkpointer = new MemorySaver();
-
-  // A reusable sub-workflow that multiplies a number
-  const multiply = entrypoint(
-    { name: "multiply" },
-    async (inputs: { a: number; b: number }) => {
-      return inputs.a * inputs.b;
-    }
-  );
-
-  // Main workflow that invokes the sub-workflow
-  const main = entrypoint(
-    { checkpointer, name: "main" },
-    async (inputs: { x: number; y: number }) => {
-      const result = await multiply.invoke({ a: inputs.x, b: inputs.y });
-      return { product: result };
-    }
-  );
-
-  // Execute the main workflow
-  const config = { configurable: { thread_id: uuid7() } };
-  console.log(await main.invoke({ x: 6, y: 7 }, config)); // Output: { product: 42 }
-  ```
-</Accordion>
+> **扩展示例：调用另一个入口点**
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import { v7 as uuid7 } from "uuid";
+> import { entrypoint, MemorySaver } from "@langchain/langgraph";
+>
+> // Initialize a checkpointer
+> const checkpointer = new MemorySaver();
+>
+> // A reusable sub-workflow that multiplies a number
+> const multiply = entrypoint(
+>   { name: "multiply" },
+>   async (inputs: { a: number; b: number }) => {
+>     return inputs.a * inputs.b;
+>   }
+> );
+>
+> // Main workflow that invokes the sub-workflow
+> const main = entrypoint(
+>   { checkpointer, name: "main" },
+>   async (inputs: { x: number; y: number }) => {
+>     const result = await multiply.invoke({ a: inputs.x, b: inputs.y });
+>     return { product: result };
+>   }
+> );
+>
+> // Execute the main workflow
+> const config = { configurable: { thread_id: uuid7() } };
+> console.log(await main.invoke({ x: 6, y: 7 }, config)); // Output: { product: 42 }
+> ```
 
 ## 流媒体
 
@@ -294,11 +294,9 @@ for await (const chunk of stream.values) {
 // 10
 ```
 
-<Card title="View example trace" icon="chart-line" href="https://smith.langchain.com/public/a8e1b6e9-202c-4541-8faa-5cbc0d8abde3/r">
-  为此示例打开公共 LangSmith 运行。
-</Card>
-
-1. 在计算开始之前发出自定义数据。
+> **[View example trace](https://smith.langchain.com/public/a8e1b6e9-202c-4541-8faa-5cbc0d8abde3/r)**
+>
+> 为此示例打开公共 LangSmith 运行。1. 在计算开始之前发出自定义数据。
 2. 计算结果后发出另一条自定义消息。
 3. 使用`streamEvents()`处理流式输出。
 4. 迭代`stream.values`以接收值快照。
@@ -461,7 +459,9 @@ try {
 } catch (err) {
   // Handle the failure gracefully
 }
-```当我们恢复执行时，我们不需要重新运行`slowTask`，因为它的结果已经保存在检查点中。
+```
+
+当我们恢复执行时，我们不需要重新运行`slowTask`，因为它的结果已经保存在检查点中。
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 await main.invoke(null, config);
@@ -535,9 +535,7 @@ for await (const message of stream.messages) {
     process.stdout.write(token);
   }
 }
-```
-
-请注意，我们在 `step_1` 之后暂停了 [⟦T42⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt)。中断提供恢复运行的指令。为了继续，我们发出一个 [⟦T44⟧](/oss/javascript/langgraph/interrupts#resuming-interrupts)，其中包含 `human_feedback` 任务所需的数据。
+```请注意，我们在 `step_1` 之后暂停了 [⟦T42⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt)。中断提供恢复运行的指令。为了继续，我们发出一个 [⟦T44⟧](/oss/javascript/langgraph/interrupts#resuming-interrupts)，其中包含 `human_feedback` 任务所需的数据。
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 // Continue execution
@@ -557,7 +555,9 @@ for await (const message of stream.messages) {
 
 ### 查看工具调用
 
-为了在执行前检查工具调用，我们添加了一个调用 [⟦T47⟧](/oss/javascript/langgraph/interrupts#pause-using-interrupt) 的 `review_tool_call` 函数。当调用此函数时，执行将暂停，直到我们发出命令来恢复它。给定一个工具调用，我们的函数将[⟦T48⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt)进行人工审查。那时我们可以：
+为了在执行前检查工具调用，我们添加了一个调用 [⟦T47⟧](/oss/javascript/langgraph/interrupts#pause-using-interrupt) 的 `review_tool_call` 函数。当调用此函数时，执行将暂停，直到我们发出命令来恢复它。
+
+给定一个工具调用，我们的函数将[⟦T48⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt)进行人工审查。那时我们可以：
 
 * 接受工具调用
 * 修改工具调用并继续
@@ -664,9 +664,7 @@ const agent = entrypoint(
 );
 ```
 
-## 短期记忆
-
-短期记忆允许跨同一**线程 ID**的不同**调用**存储信息。更多详情请参见[short-term memory](/oss/javascript/langgraph/functional-api#short-term-memory)。
+## 短期记忆短期记忆允许跨同一**线程 ID**的不同**调用**存储信息。更多详情请参见[short-term memory](/oss/javascript/langgraph/functional-api#short-term-memory)。
 
 ### 管理检查点
 
@@ -751,7 +749,9 @@ for await (const state of graph.getStateHistory(config)) {
 
 ### 将返回值与保存的值分离
 
-使用 `entrypoint.final` 将返回给调用者的内容与检查点中保存的内容解耦。这在以下情况下很有用：* 您想要返回计算结果（例如摘要或状态），但保存不同的内部值以供下次调用使用。
+使用 `entrypoint.final` 将返回给调用者的内容与检查点中保存的内容解耦。这在以下情况下很有用：
+
+* 您想要返回计算结果（例如摘要或状态），但保存不同的内部值以供下次调用使用。
 * 您需要控制下次运行时传递给前一个参数的内容。
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
@@ -778,7 +778,7 @@ console.log(await accumulate.invoke(3, config)); // 3
 
 ### 聊天机器人示例
 
-使用功能 API 和 [⟦T52⟧](https://reference.langchain.com/javascript/classes/_langchain_langgraph-checkpoint.MemorySaver.html) 检查点的简单聊天机器人示例。
+使用功能 API 和 [⟦T52⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/index/MemorySaver) 检查点的简单聊天机器人示例。
 
 机器人能够记住之前的对话并从中断的地方继续。
 
@@ -842,9 +842,7 @@ for await (const snapshot of stream2.values) {
 
 [long-term memory](/oss/javascript/concepts/memory#long-term-memory) 允许跨不同**线程 id** 存储信息。这对于在一个对话中了解有关给定用户的信息并在另一个对话中使用它可能很有用。
 
-## 工作流程
-
-* [Workflows and agent](/oss/javascript/langgraph/workflows-agents) 指南，了解如何使用功能 API 构建工作流程的更多示例。
+## 工作流程* [Workflows and agent](/oss/javascript/langgraph/workflows-agents) 指南，了解如何使用功能 API 构建工作流程的更多示例。
 
 ## 与其他库集成
 
@@ -852,12 +850,6 @@ for await (const snapshot of stream2.values) {
 
 ***
 
-<div>
-  <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
-  </Callout>
+[Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
 
-  <Callout icon="edit">
-    [Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/use-functional-api.mdx) 或 [file an issue](https://github.com/langchain-ai/docs/issues/new/choose)。
-  </Callout>
-</div>
+[Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/use-functional-api.mdx) 或 [file an issue](https://github.com/langchain-ai/docs/issues/new/choose)。

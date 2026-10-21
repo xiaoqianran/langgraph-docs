@@ -6,20 +6,20 @@ LangGraph stores provide cross-thread long-term memory, complementing per-thread
 
 Stores let agents persist information across threads, including user preferences, accumulated knowledge, and facts that should survive beyond a single conversation. Unlike [checkpointers](/oss/python/langgraph/checkpointers), which save the full graph state scoped to one thread, stores hold arbitrary key-value data accessible from any thread.
 
-<img alt="Model of shared state" />
+![Model of shared state](https://mintcdn.com/langchain-5e9cc07a/dL5Sn6Cmy9pwtY0V/oss/images/shared_state.png?fit=max\&auto=format\&n=dL5Sn6Cmy9pwtY0V\&q=85\&s=354526fb48c5eb11b4b2684a2df40d6c)
 
-<Info>
-  **Agent Server handles stores automatically**
-  When using the [Agent Server](/langsmith/agent-server), you do not need to implement or configure stores manually. The API handles all storage infrastructure for you behind the scenes.
-</Info>
+> [!NOTE]
+>
+> **Agent Server handles stores automatically**
+> When using the [Agent Server](/langsmith/agent-server), you do not need to implement or configure stores manually. The API handles all storage infrastructure for you behind the scenes.
 
-<Note>
-  [InMemoryStore](https://reference.langchain.com/python/langchain-core/stores/InMemoryStore) is suitable for development and testing. For production, use a persistent store like `PostgresStore`, `MongoDBStore`, `RedisStore`, or `UpstashStore`. All implementations extend [BaseStore](https://reference.langchain.com/python/langchain-core/stores/BaseStore), which is the type annotation to use in node function signatures.
-</Note>
+> [!NOTE]
+>
+> [InMemoryStore](https://reference.langchain.com/python/langchain-core/stores/InMemoryStore) is suitable for development and testing. For production, use a persistent store like `PostgresStore`, `MongoDBStore`, `RedisStore`, or `UpstashStore`. All implementations extend [BaseStore](https://reference.langchain.com/python/langchain-core/stores/BaseStore), which is the type annotation to use in node function signatures.
 
-<Note>
-  See [store integrations](/oss/python/integrations/long-term-memory/index) for the full list of available providers.
-</Note>
+> [!NOTE]
+>
+> See [store integrations](/oss/python/integrations/long-term-memory/index) for the full list of available providers.
 
 ## Basic usage
 
@@ -67,9 +67,9 @@ The attributes it has are:
 
 * `namespace`: A tuple of strings, the namespace of this memory type
 
-  <Note>
-    While the type is `tuple[str, ...]`, it may be serialized as a list when converted to JSON (for example, `['1', 'memories']`).
-  </Note>
+  > [!NOTE]
+  >
+  > While the type is `tuple[str, ...]`, it may be serialized as a list when converted to JSON (for example, `['1', 'memories']`).
 
 * `created_at`: Timestamp for when this memory was created
 
@@ -408,12 +408,6 @@ async def test_search_prefix(store, reference):
 
 ***
 
-<div>
-  <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
-  </Callout>
+[Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
 
-  <Callout icon="edit">
-    [Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/stores.mdx) or [file an issue](https://github.com/langchain-ai/docs/issues/new/choose).
-  </Callout>
-</div>
+[Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/stores.mdx) or [file an issue](https://github.com/langchain-ai/docs/issues/new/choose).

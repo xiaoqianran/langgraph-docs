@@ -10,21 +10,19 @@
 
 安装`langgraph`：
 
-<CodeGroup>
-  ```bash pip theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  pip install -U langgraph
-  ```
+```bash pip theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+pip install -U langgraph
+```
 
-  ```bash uv theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  uv add langgraph
-  ```
-</CodeGroup>
+```bash uv theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+uv add langgraph
+```
 
-<Tip>
-  **设置LangSmith以更好地调试**
-
-  注册 [LangSmith](https://smith.langchain.com?utm_source=docs\&utm_medium=cta\&utm_campaign=langsmith-signup\&utm_content=oss-langgraph-use-graph-api) 可以快速发现问题并提高 LangGraph 项目的性能。 LangSmith 允许您使用跟踪数据来调试、测试和监控使用 LangGraph 构建的 LLM 应用程序 — 在 [docs](/langsmith/observability) 中了解有关如何开始的更多信息。
-</Tip>
+> [!提示]
+>
+> **设置LangSmith以更好地调试**
+>
+> 注册 [LangSmith](https://smith.langchain.com?utm_source=docs\&utm_medium=cta\&utm_campaign=langsmith-signup\&utm_content=oss-langgraph-use-graph-api) 快速发现问题并提高 LangGraph 项目的性能。 LangSmith 允许您使用跟踪数据来调试、测试和监控使用 LangGraph 构建的 LLM 应用程序 — 在 [docs](/langsmith/observability) 中了解有关如何开始的更多信息。
 
 ## 定义和更新状态
 
@@ -65,9 +63,9 @@ def node(state: State):
 
 该节点只是将一条消息附加到我们的消息列表中，并填充一个额外的字段。
 
-<Warning>
-  节点应该直接返回状态更新，而不是改变状态。
-</Warning>
+> [!警告]
+>
+> 节点应该直接返回状态更新，而不是改变状态。
 
 接下来让我们定义一个包含该节点的简单图。我们使用[⟦T145⟧](/oss/python/langgraph/graph-api#stategraph)来定义一个在此状态上运行的图。然后我们使用 [⟦T146⟧](/oss/python/langgraph/graph-api#nodes) 填充我们的图表。
 
@@ -80,7 +78,7 @@ builder.set_entry_point("node")
 graph = builder.compile()
 ```
 
-LangGraph 提供用于可视化图表的内置实用程序。让我们检查一下我们的图表。有关可视化的详细信息，请参阅[Visualize your graph](#visualize-your-graph)​​。
+LangGraph 提供用于可视化图表的内置实用程序。让我们检查一下我们的图表。有关可视化的详细信息，请参阅[Visualize your graph](#visualize-your-graph)。
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from IPython.display import Image, display
@@ -88,7 +86,7 @@ from IPython.display import Image, display
 display(Image(graph.get_graph().draw_mermaid_png()))
 ```
 
-<img alt="Simple graph with single node" />在这种情况下，我们的图仅执行单个节点。让我们继续进行一个简单的调用：
+![Simple graph with single node](https://mintcdn.com/langchain-5e9cc07a/-_xGPoyjhyiDWTPJ/oss/images/graph_api_image_1.png?fit=max\&auto=format\&n=-_xGPoyjhyiDWTPJ\&q=85\&s=cf3d978b707847e166d5ed15bc7cbbe4)在这种情况下，我们的图仅执行单个节点。让我们继续进行一个简单的调用：
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from langchain.messages import HumanMessage
@@ -209,7 +207,7 @@ Hi
 Hello!
 ```
 
-对于涉及[chat models](https://python.langchain.com/docs/concepts/chat_models/)的应用程序来说，这是一种通用的状态表示。为了方便起见，LangGraph 包含一个预置的 `MessagesState`，这样我们就可以：
+对于涉及[chat models](https://python.langchain.com/docs/concepts/chat_models/)的应用程序来说，这是一种通用的状态表示。为了方便起见，LangGraph 包含一个预建的 `MessagesState`，这样我们就可以：
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from langgraph.graph import MessagesState
@@ -264,9 +262,9 @@ def replace_messages(state: State):
     return {"messages": {"__overwrite__": ["replacement message"]}}
 ```
 
-<Warning>
-  当节点并行执行时，只有一个节点可以在给定超级步骤中的同一状态键上使用`Overwrite`。如果多个节点尝试在同一个超级步骤中覆盖相同的密钥，则会引发`InvalidUpdateError`。
-</Warning>
+> [!警告]
+>
+> 当节点并行执行时，只有一个节点可以在给定超级步骤中的同一状态键上使用`Overwrite`。如果多个节点尝试在同一个超级步骤中覆盖相同的密钥，则会引发`InvalidUpdateError`。
 
 ### 定义输入和输出模式默认情况下，`StateGraph` 使用单个模式运行，并且所有节点都应使用该模式进行通信。但是，也可以为图定义不同的输入和输出模式。
 
@@ -385,18 +383,18 @@ Output of graph invocation: {'a': 'set by node_3'}
 
 [StateGraph](https://reference.langchain.com/python/langgraph/graph/state/StateGraph) 在初始化时接受 [⟦T158⟧](https://reference.langchain.com/python/langchain/middleware/#langchain.agents.middleware.AgentMiddleware.state_schema) 参数，该参数指定图中的节点可以访问和更新的状态的“形状”。
 
-在我们的示例中，我们通常使用 python 原生 `TypedDict` 或 [⟦T160⟧](https://docs.python.org/3/library/dataclasses.html) 来表示 `state_schema`，但 [⟦T162⟧](https://reference.langchain.com/python/langchain/middleware/#langchain.agents.middleware.AgentMiddleware.state_schema) 可以是任何 [type](https://docs.python.org/3/library/stdtypes.html#type-objects)。
+在我们的示例中，我们通常使用 python 原生 `TypedDict` 或 [⟦T160⟧](https://docs.python.org/3/library/dataclasses.html) 来代替 `state_schema`，但 [⟦T162⟧](https://reference.langchain.com/python/langchain/middleware/#langchain.agents.middleware.AgentMiddleware.state_schema) 可以是任何 [type](https://docs.python.org/3/library/stdtypes.html#type-objects)。
 
 在这里，我们将了解如何将 [Pydantic BaseModel](https://docs.pydantic.dev/latest/api/base_model/) 用于 [⟦T163⟧](https://reference.langchain.com/python/langchain/middleware/#langchain.agents.middleware.AgentMiddleware.state_schema) 以在 **输入** 上添加运行时验证。
 
-<Note>
-  **已知限制**
-
-  * 目前，图表的输出**不是** pydantic 模型的实例。
-  * 运行时验证仅发生在图中第一个节点的输入上，而不发生在后续节点或输出上。
-  * pydantic 的验证错误跟踪不显示错误出现在哪个节点。
-  * Pydantic 的递归验证可能很慢。对于性能敏感的应用程序，您可能需要考虑使用`dataclass`。
-</Note>
+> [!注意]
+>
+> **已知限制**
+>
+> * 目前，图表的输出**不是** pydantic 模型的实例。
+> * 运行时验证仅发生在图中第一个节点的输入上，而不发生在后续节点或输出上。
+> * pydantic 的验证错误跟踪不显示错误出现在哪个节点。
+> * Pydantic 的递归验证可能很慢。对于性能敏感的应用程序，您可能需要考虑使用`dataclass`。
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from langgraph.graph import StateGraph, START, END
@@ -439,127 +437,127 @@ a
 
 有关 Pydantic 模型状态的其他功能，请参阅下文：
 
-<Accordion title="Serialization Behavior">
-  当使用 Pydantic 模型作为状态模式时，了解序列化的工作原理非常重要，尤其是在以下情况下：
+> **序列化行为**
+>
+> 当使用 Pydantic 模型作为状态模式时，了解序列化的工作原理非常重要，尤其是在以下情况下：
+>
+> * 将 Pydantic 对象作为输入传递
+> * 接收图表的输出
+> * 使用嵌套 Pydantic 模型
+>
+> 让我们看看这些行为的实际效果。
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> from langgraph.graph import StateGraph, START, END
+> from pydantic import BaseModel
+>
+> class NestedModel(BaseModel):
+>     value: str
+>
+> class ComplexState(BaseModel):
+>     text: str
+>     count: int
+>     nested: NestedModel
+>
+> def process_node(state: ComplexState):
+>     # Node receives a validated Pydantic object
+>     print(f"Input state type: {type(state)}")
+>     print(f"Nested type: {type(state.nested)}")
+>     # Return a dictionary update
+>     return {"text": state.text + " processed", "count": state.count + 1}
+>
+> # Build the graph
+> builder = StateGraph(ComplexState)
+> builder.add_node("process", process_node)
+> builder.add_edge(START, "process")
+> builder.add_edge("process", END)
+> graph = builder.compile()
+>
+> # Create a Pydantic instance for input
+> input_state = ComplexState(text="hello", count=0, nested=NestedModel(value="test"))
+> print(f"Input object type: {type(input_state)}")
+>
+> # Invoke graph with a Pydantic instance
+> result = graph.invoke(input_state)
+> print(f"Output type: {type(result)}")
+> print(f"Output content: {result}")
+>
+> # Convert back to Pydantic model if needed
+> output_model = ComplexState(**result)
+> print(f"Converted back to Pydantic: {type(output_model)}")
+> ```
 
-  * 传递 Pydantic 对象作为输入
-  * 接收图表的输出
-  * 使用嵌套 Pydantic 模型
+> **运行时类型强制**
+>
+> Pydantic 对某些数据类型执行运行时类型强制。这可能会有所帮助，但如果您没有意识到，也会导致意外行为。
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> from langgraph.graph import StateGraph, START, END
+> from pydantic import BaseModel
+>
+> class CoercionExample(BaseModel):
+>     # Pydantic will coerce string numbers to integers
+>     number: int
+>     # Pydantic will parse string booleans to bool
+>     flag: bool
+>
+> def inspect_node(state: CoercionExample):
+>     print(f"number: {state.number} (type: {type(state.number)})")
+>     print(f"flag: {state.flag} (type: {type(state.flag)})")
+>     return {}
+>
+> builder = StateGraph(CoercionExample)
+> builder.add_node("inspect", inspect_node)
+> builder.add_edge(START, "inspect")
+> builder.add_edge("inspect", END)
+> graph = builder.compile()
+>
+> # Demonstrate coercion with string inputs that will be converted
+> result = graph.invoke({"number": "42", "flag": "true"})
+>
+> # This would fail with a validation error
+> try:
+>     graph.invoke({"number": "not-a-number", "flag": "true"})
+> except Exception as e:
+>     print(f"\nExpected validation error: {e}")
+> ```
 
-  让我们看看这些行为的实际效果。
-
-  ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  from langgraph.graph import StateGraph, START, END
-  from pydantic import BaseModel
-
-  class NestedModel(BaseModel):
-      value: str
-
-  class ComplexState(BaseModel):
-      text: str
-      count: int
-      nested: NestedModel
-
-  def process_node(state: ComplexState):
-      # Node receives a validated Pydantic object
-      print(f"Input state type: {type(state)}")
-      print(f"Nested type: {type(state.nested)}")
-      # Return a dictionary update
-      return {"text": state.text + " processed", "count": state.count + 1}
-
-  # Build the graph
-  builder = StateGraph(ComplexState)
-  builder.add_node("process", process_node)
-  builder.add_edge(START, "process")
-  builder.add_edge("process", END)
-  graph = builder.compile()
-
-  # Create a Pydantic instance for input
-  input_state = ComplexState(text="hello", count=0, nested=NestedModel(value="test"))
-  print(f"Input object type: {type(input_state)}")
-
-  # Invoke graph with a Pydantic instance
-  result = graph.invoke(input_state)
-  print(f"Output type: {type(result)}")
-  print(f"Output content: {result}")
-
-  # Convert back to Pydantic model if needed
-  output_model = ComplexState(**result)
-  print(f"Converted back to Pydantic: {type(output_model)}")
-  ```
-</Accordion>
-
-<Accordion title="Runtime Type Coercion">
-  Pydantic 对某些数据类型执行运行时类型强制。这可能会有所帮助，但如果您没有意识到，也会导致意外行为。
-
-  ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  from langgraph.graph import StateGraph, START, END
-  from pydantic import BaseModel
-
-  class CoercionExample(BaseModel):
-      # Pydantic will coerce string numbers to integers
-      number: int
-      # Pydantic will parse string booleans to bool
-      flag: bool
-
-  def inspect_node(state: CoercionExample):
-      print(f"number: {state.number} (type: {type(state.number)})")
-      print(f"flag: {state.flag} (type: {type(state.flag)})")
-      return {}
-
-  builder = StateGraph(CoercionExample)
-  builder.add_node("inspect", inspect_node)
-  builder.add_edge(START, "inspect")
-  builder.add_edge("inspect", END)
-  graph = builder.compile()
-
-  # Demonstrate coercion with string inputs that will be converted
-  result = graph.invoke({"number": "42", "flag": "true"})
-
-  # This would fail with a validation error
-  try:
-      graph.invoke({"number": "not-a-number", "flag": "true"})
-  except Exception as e:
-      print(f"\nExpected validation error: {e}")
-  ```
-</Accordion>
-
-<Accordion title="Working with Message Models">
-  在状态模式中使用 LangChain 消息类型时，序列化有一些重要的注意事项。当通过网络使用消息对象时，您应该使用 `AnyMessage` （而不是 `BaseMessage`）进行正确的序列化/反序列化。
-
-  ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  from langgraph.graph import StateGraph, START, END
-  from pydantic import BaseModel
-  from langchain.messages import HumanMessage, AIMessage, AnyMessage
-  from typing import List
-
-  class ChatState(BaseModel):
-      messages: List[AnyMessage]
-      context: str
-
-  def add_message(state: ChatState):
-      return {"messages": state.messages + [AIMessage(content="Hello there!")]}
-
-  builder = StateGraph(ChatState)
-  builder.add_node("add_message", add_message)
-  builder.add_edge(START, "add_message")
-  builder.add_edge("add_message", END)
-  graph = builder.compile()
-
-  # Create input with a message
-  initial_state = ChatState(
-      messages=[HumanMessage(content="Hi")], context="Customer support chat"
-  )
-
-  result = graph.invoke(initial_state)
-  print(f"Output: {result}")
-
-  # Convert back to Pydantic model to see message types
-  output_model = ChatState(**result)
-  for i, msg in enumerate(output_model.messages):
-      print(f"Message {i}: {type(msg).__name__} - {msg.content}")
-  ```
-</Accordion>
+> **使用消息模型**
+>
+> 在状态模式中使用 LangChain 消息类型时，序列化有重要的注意事项。当通过网络使用消息对象时，您应该使用 `AnyMessage` （而不是 `BaseMessage`）进行正确的序列化/反序列化。
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> from langgraph.graph import StateGraph, START, END
+> from pydantic import BaseModel
+> from langchain.messages import HumanMessage, AIMessage, AnyMessage
+> from typing import List
+>
+> class ChatState(BaseModel):
+>     messages: List[AnyMessage]
+>     context: str
+>
+> def add_message(state: ChatState):
+>     return {"messages": state.messages + [AIMessage(content="Hello there!")]}
+>
+> builder = StateGraph(ChatState)
+> builder.add_node("add_message", add_message)
+> builder.add_edge(START, "add_message")
+> builder.add_edge("add_message", END)
+> graph = builder.compile()
+>
+> # Create input with a message
+> initial_state = ChatState(
+>     messages=[HumanMessage(content="Hi")], context="Customer support chat"
+> )
+>
+> result = graph.invoke(initial_state)
+> print(f"Output: {result}")
+>
+> # Convert back to Pydantic model to see message types
+> output_model = ChatState(**result)
+> for i, msg in enumerate(output_model.messages):
+>     print(f"Message {i}: {type(msg).__name__} - {msg.content}")
+> ```
 
 ## 添加运行时配置
 
@@ -609,107 +607,107 @@ print(graph.invoke({}, context={"my_runtime_value": "b"}))  # [!code highlight]
 {'my_state_value': 2}
 ```
 
-<Accordion title="Extended example: specifying LLM at runtime">
-  下面我们演示一个实际示例，其中我们配置运行时使用的 LLM。我们将使用OpenAI和Anthropic型号。
+> **扩展示例：在运行时指定 LLM**
+>
+> 下面我们演示一个实际示例，其中我们配置运行时使用的 LLM。我们将使用OpenAI和Anthropic型号。
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> from dataclasses import dataclass
+>
+> from langchain.chat_models import init_chat_model
+> from langgraph.graph import MessagesState, END, StateGraph, START
+> from langgraph.runtime import Runtime
+> from typing_extensions import TypedDict
+>
+> @dataclass
+> class ContextSchema:
+>     model_provider: str = "anthropic"
+>
+> MODELS = {
+>     "anthropic": init_chat_model("claude-haiku-4-5-20251001"),
+>     "openai": init_chat_model("gpt-5.4-mini"),
+> }
+>
+> def call_model(state: MessagesState, runtime: Runtime[ContextSchema]):
+>     model = MODELS[runtime.context.model_provider]
+>     response = model.invoke(state["messages"])
+>     return {"messages": [response]}
+>
+> builder = StateGraph(MessagesState, context_schema=ContextSchema)
+> builder.add_node("model", call_model)
+> builder.add_edge(START, "model")
+> builder.add_edge("model", END)
+>
+> graph = builder.compile()
+>
+> # Usage
+> input_message = {"role": "user", "content": "hi"}
+> # With no configuration, uses default (Anthropic)
+> response_1 = graph.invoke({"messages": [input_message]}, context=ContextSchema())["messages"][-1]
+> # Or, can set OpenAI
+> response_2 = graph.invoke({"messages": [input_message]}, context={"model_provider": "openai"})["messages"][-1]
+>
+> print(response_1.response_metadata["model_name"])
+> print(response_2.response_metadata["model_name"])
+> ```
+>
+> ```
+> claude-haiku-4-5-20251001
+> gpt-5.4-mini
+> ```
 
-  ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  from dataclasses import dataclass
-
-  from langchain.chat_models import init_chat_model
-  from langgraph.graph import MessagesState, END, StateGraph, START
-  from langgraph.runtime import Runtime
-  from typing_extensions import TypedDict
-
-  @dataclass
-  class ContextSchema:
-      model_provider: str = "anthropic"
-
-  MODELS = {
-      "anthropic": init_chat_model("claude-haiku-4-5-20251001"),
-      "openai": init_chat_model("gpt-5.4-mini"),
-  }
-
-  def call_model(state: MessagesState, runtime: Runtime[ContextSchema]):
-      model = MODELS[runtime.context.model_provider]
-      response = model.invoke(state["messages"])
-      return {"messages": [response]}
-
-  builder = StateGraph(MessagesState, context_schema=ContextSchema)
-  builder.add_node("model", call_model)
-  builder.add_edge(START, "model")
-  builder.add_edge("model", END)
-
-  graph = builder.compile()
-
-  # Usage
-  input_message = {"role": "user", "content": "hi"}
-  # With no configuration, uses default (Anthropic)
-  response_1 = graph.invoke({"messages": [input_message]}, context=ContextSchema())["messages"][-1]
-  # Or, can set OpenAI
-  response_2 = graph.invoke({"messages": [input_message]}, context={"model_provider": "openai"})["messages"][-1]
-
-  print(response_1.response_metadata["model_name"])
-  print(response_2.response_metadata["model_name"])
-  ```
-
-  ```
-  claude-haiku-4-5-20251001
-  gpt-5.4-mini
-  ```
-</Accordion>
-
-<Accordion title="Extended example: specifying model and system message at runtime">
-  下面我们演示一个实际示例，其中配置两个参数：运行时使用的 LLM 和系统消息。
-
-  ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  from dataclasses import dataclass
-  from langchain.chat_models import init_chat_model
-  from langchain.messages import SystemMessage
-  from langgraph.graph import END, MessagesState, StateGraph, START
-  from langgraph.runtime import Runtime
-  from typing_extensions import TypedDict
-
-  @dataclass
-  class ContextSchema:
-      model_provider: str = "anthropic"
-      system_message: str | None = None
-
-  MODELS = {
-      "anthropic": init_chat_model("claude-haiku-4-5-20251001"),
-      "openai": init_chat_model("gpt-5.4-mini"),
-  }
-
-  def call_model(state: MessagesState, runtime: Runtime[ContextSchema]):
-      model = MODELS[runtime.context.model_provider]
-      messages = state["messages"]
-      if (system_message := runtime.context.system_message):
-          messages = [SystemMessage(system_message)] + messages
-      response = model.invoke(messages)
-      return {"messages": [response]}
-
-  builder = StateGraph(MessagesState, context_schema=ContextSchema)
-  builder.add_node("model", call_model)
-  builder.add_edge(START, "model")
-  builder.add_edge("model", END)
-
-  graph = builder.compile()
-
-  # Usage
-  input_message = {"role": "user", "content": "hi"}
-  response = graph.invoke({"messages": [input_message]}, context={"model_provider": "openai", "system_message": "Respond in Italian."})
-  for message in response["messages"]:
-      message.pretty_print()
-  ```
-
-  ```
-  ================================ Human Message ================================
-
-  hi
-  ================================== Ai Message ==================================
-
-  Ciao! Come posso aiutarti oggi?
-  ```
-</Accordion>
+> **扩展示例：在运行时指定模型和系统消息**
+>
+> 下面我们演示一个实际示例，其中配置两个参数：运行时使用的 LLM 和系统消息。
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> from dataclasses import dataclass
+> from langchain.chat_models import init_chat_model
+> from langchain.messages import SystemMessage
+> from langgraph.graph import END, MessagesState, StateGraph, START
+> from langgraph.runtime import Runtime
+> from typing_extensions import TypedDict
+>
+> @dataclass
+> class ContextSchema:
+>     model_provider: str = "anthropic"
+>     system_message: str | None = None
+>
+> MODELS = {
+>     "anthropic": init_chat_model("claude-haiku-4-5-20251001"),
+>     "openai": init_chat_model("gpt-5.4-mini"),
+> }
+>
+> def call_model(state: MessagesState, runtime: Runtime[ContextSchema]):
+>     model = MODELS[runtime.context.model_provider]
+>     messages = state["messages"]
+>     if (system_message := runtime.context.system_message):
+>         messages = [SystemMessage(system_message)] + messages
+>     response = model.invoke(messages)
+>     return {"messages": [response]}
+>
+> builder = StateGraph(MessagesState, context_schema=ContextSchema)
+> builder.add_node("model", call_model)
+> builder.add_edge(START, "model")
+> builder.add_edge("model", END)
+>
+> graph = builder.compile()
+>
+> # Usage
+> input_message = {"role": "user", "content": "hi"}
+> response = graph.invoke({"messages": [input_message]}, context={"model_provider": "openai", "system_message": "Respond in Italian."})
+> for message in response["messages"]:
+>     message.pretty_print()
+> ```
+>
+> ```
+> ================================ Human Message ================================
+>
+> hi
+> ================================== Ai Message ==================================
+>
+> Ciao! Come posso aiutarti oggi?
+> ```
 
 ## 添加重试策略
 
@@ -725,9 +723,9 @@ builder.add_node(
     node_function,
     retry_policy=RetryPolicy(),
 )
-```
+```默认情况下，`retry_on`参数使用`default_retry_on`函数，该函数会重试任何异常，但以下情况除外：
 
-默认情况下，`retry_on`参数使用`default_retry_on`函数，该函数会重试除以下情况之外的任何异常：* `ValueError`
+* `ValueError`
 * `TypeError`
 * `ArithmeticError`
 * `ImportError`
@@ -742,44 +740,44 @@ builder.add_node(
 
 此外，对于流行的http请求库（例如`requests`和`httpx`）的异常，它仅重试5xx状态代码。
 
-<Accordion title="Extended example: customizing retry policies">
-  考虑一个我们正在从 SQL 数据库读取数据的示例。下面我们向节点传递两种不同的重试策略：
-
-  ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  import sqlite3
-  from typing_extensions import TypedDict
-  from langchain.chat_models import init_chat_model
-  from langgraph.graph import END, MessagesState, StateGraph, START
-  from langgraph.types import RetryPolicy
-  from langchain.messages import AIMessage
-
-  con = sqlite3.connect(":memory:")
-  model = init_chat_model("claude-haiku-4-5-20251001")
-
-  def query_database(state: MessagesState):
-      cursor = con.cursor()
-      cursor.execute("SELECT * FROM Artist LIMIT 10;")
-      query_result = str(cursor.fetchall())
-      return {"messages": [AIMessage(content=query_result)]}
-
-  def call_model(state: MessagesState):
-      response = model.invoke(state["messages"])
-      return {"messages": [response]}
-
-  # Define a new graph
-  builder = StateGraph(MessagesState)
-  builder.add_node(
-      "query_database",
-      query_database,
-      retry_policy=RetryPolicy(retry_on=sqlite3.OperationalError),
-  )
-  builder.add_node("model", call_model, retry_policy=RetryPolicy(max_attempts=5))
-  builder.add_edge(START, "model")
-  builder.add_edge("model", "query_database")
-  builder.add_edge("query_database", END)
-  graph = builder.compile()
-  ```
-</Accordion>
+> **扩展示例：自定义重试策略**
+>
+> 考虑一个我们正在从 SQL 数据库读取数据的示例。下面我们向节点传递两种不同的重试策略：
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import sqlite3
+> from typing_extensions import TypedDict
+> from langchain.chat_models import init_chat_model
+> from langgraph.graph import END, MessagesState, StateGraph, START
+> from langgraph.types import RetryPolicy
+> from langchain.messages import AIMessage
+>
+> con = sqlite3.connect(":memory:")
+> model = init_chat_model("claude-haiku-4-5-20251001")
+>
+> def query_database(state: MessagesState):
+>     cursor = con.cursor()
+>     cursor.execute("SELECT * FROM Artist LIMIT 10;")
+>     query_result = str(cursor.fetchall())
+>     return {"messages": [AIMessage(content=query_result)]}
+>
+> def call_model(state: MessagesState):
+>     response = model.invoke(state["messages"])
+>     return {"messages": [response]}
+>
+> # Define a new graph
+> builder = StateGraph(MessagesState)
+> builder.add_node(
+>     "query_database",
+>     query_database,
+>     retry_policy=RetryPolicy(retry_on=sqlite3.OperationalError),
+> )
+> builder.add_node("model", call_model, retry_policy=RetryPolicy(max_attempts=5))
+> builder.add_edge(START, "model")
+> builder.add_edge("model", "query_database")
+> builder.add_edge("query_database", END)
+> graph = builder.compile()
+> ```
 
 ## 设置节点超时
 
@@ -814,17 +812,17 @@ except NodeTimeoutError:
     print("Node timed out")
 ```
 
-仅异步节点支持节点超时。如果在同步节点上设置 `timeout`，则在编译图形时，LangGraph 会引发错误，因为同步 Python 执行无法在进程中安全取消。
+仅异步节点支持节点超时。如果在同步节点上设置 `timeout`，则在编译图形时，LangGraph 会引发错误，因为无法在进程中安全地取消同步 Python 执行。
 
-当节点超过其超时时，LangGraph引发`NodeTimeoutError`，它是Python内置`TimeoutError`的子类。如果节点有重试 `TimeoutError` 或 `NodeTimeoutError` 的 `retry_policy`，则会重试超时尝试。超时独立地应用于每次尝试，因此计时器会在每次重试时重置。
+当节点超过其超时时，LangGraph引发`NodeTimeoutError`，它是Python内置`TimeoutError`的子类。如果节点有重试 `TimeoutError` 或 `NodeTimeoutError` 的 `retry_policy`，则会重试超时尝试。超时独立地应用于每次尝试，因此计时器会在每次重试时重置。超时尝试不会提交其缓冲写入。这可以防止状态更新或子任务调度在超时边界后泄漏。
 
-超时尝试不会提交其缓冲写入。这可以防止状态更新或子任务调度在超时边界后泄漏。## 配置节点超时
+## 配置节点超时
 
-[⟦T198⟧](https://reference.langchain.com/python/langgraph/graph/state/StateGraph/add_node) 上的 `timeout=` 参数限制了单个异步节点尝试可以运行的时间。传递数字（秒）、`timedelta`或[⟦T200⟧](https://reference.langchain.com/python/langgraph/types/TimeoutPolicy)以更好地控制运行和空闲超时。当超过限制时，LangGraph提高[⟦T201⟧](https://reference.langchain.com/python/langgraph/errors/NodeTimeoutError)，并让重试策略决定是否重试。
+[⟦T198⟧](https://reference.langchain.com/python/langgraph/graph/state/StateGraph/add_node) 上的 `timeout=` 参数限制了单个异步节点尝试可以运行的时间。传递数字（秒）、`timedelta`或[⟦T200⟧](https://reference.langchain.com/python/langgraph/types/TimeoutPolicy)以更好地控制运行和空闲超时。当超过限制时，LangGraph提高[⟦T201⟧](https://reference.langchain.com/python/langgraph/errors/NodeTimeoutError)并让重试策略决定是否重试。
 
-<Note>
-  每个节点超时需要`langgraph>=1.2`。
-</Note>
+> [!注意]
+>
+> 每个节点超时需要 `langgraph>=1.2`。
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from langgraph.types import TimeoutPolicy
@@ -840,11 +838,11 @@ builder.add_node(
 
 ## 处理节点错误
 
-[⟦T205⟧](https://reference.langchain.com/python/langgraph/graph/state/StateGraph/add_node)上的`error_handler=`参数注册一个在节点失败且所有重试都用完后运行的函数。处理程序接收当前状态和带有失败上下文的类型化[⟦T206⟧](https://reference.langchain.com/python/langgraph/errors/NodeError)，并且可以通过[⟦T207⟧](https://reference.langchain.com/python/langgraph/types/Command)路由到恢复分支：
+[⟦T205⟧](https://reference.langchain.com/python/langgraph/graph/state/StateGraph/add_node)上的`error_handler=`参数注册一个在节点失败且所有重试都用尽后运行的函数。处理程序接收当前状态和带有失败上下文的类型化[⟦T206⟧](https://reference.langchain.com/python/langgraph/errors/NodeError)，并且可以通过[⟦T207⟧](https://reference.langchain.com/python/langgraph/types/Command)路由到恢复分支：
 
-<Note>
-  节点级错误处理程序需要`langgraph>=1.2`。
-</Note>
+> [!注意]
+>
+> 节点级错误处理程序需要 `langgraph>=1.2`。
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from langgraph.errors import NodeError
@@ -868,11 +866,9 @@ builder.add_node(
 
 ## 设置图范围节点默认值
 
-<Note>
-  需要`langgraph>=1.2`。
-</Note>
-
-使用 [⟦T211⟧](https://reference.langchain.com/python/langgraph/graph/state/StateGraph/set_node_defaults) 为图中的每个节点设置 `retry_policy`、`timeout`、`cache_policy` 或 `error_handler` 一次，而不是在每个 [⟦T216⟧](https://reference.langchain.com/python/langgraph/graph/state/StateGraph/add_node) 调用中重复它们。每个节点的值总是获胜，并且在 [⟦T217⟧](https://reference.langchain.com/python/langgraph/graph/state/StateGraph/compile) 时间应用默认值：
+> [!注意]
+>
+> 需要`langgraph>=1.2`。使用 [⟦T211⟧](https://reference.langchain.com/python/langgraph/graph/state/StateGraph/set_node_defaults) 为图中的每个节点设置 `retry_policy`、`timeout`、`cache_policy` 或 `error_handler` 一次，而不是在每个 [⟦T216⟧](https://reference.langchain.com/python/langgraph/graph/state/StateGraph/add_node) 调用中重复它们。每个节点的值总是获胜，并且在 [⟦T217⟧](https://reference.langchain.com/python/langgraph/graph/state/StateGraph/compile) 时间应用默认值：
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from langgraph.types import RetryPolicy, TimeoutPolicy
@@ -889,13 +885,15 @@ graph = (
     .add_edge(START, "a")
     .compile()
 )
-````retry_policy` 和 `timeout` 默认值适用于每个节点，包括错误处理程序节点。 `cache_policy` 和 `error_handler` 默认值仅适用于常规节点 - 处理程序永远不会捕获自己，并且缓存处理程序结果是不安全的。子图不会继承默认值。
+```
+
+`retry_policy` 和 `timeout` 默认值适用于每个节点，包括错误处理程序节点。 `cache_policy` 和 `error_handler` 默认值仅适用于常规节点 - 处理程序永远不会捕获自己，并且缓存处理程序结果是不安全的。子图不会继承默认值。
 
 有关完整的优先级规则和适用性表，请参阅[Fault tolerance](/oss/python/langgraph/fault-tolerance#graph-defaults)。
 
 ### 访问节点内的执行信息
 
-您可以通过`runtime.execution_info`访问执行身份和重试信息。这会显示线程、运行和检查点标识符以及重试状态，而无需直接从 `config` 读取。|属性|类型 |描述 |
+您可以通过`runtime.execution_info`访问执行身份和重试信息。这会显示线程、运行和检查点标识符以及重试状态，而无需直接从 `config` 读取。|属性 |类型 |描述 |
 | - | - | - |
 | `thread_id` | `str \| None` |当前执行的线程 ID。 `None` 没有检查点。 |
 | `run_id` | `str \| None` |当前执行的运行 ID。 `None` 当配置中未提供时。 |
@@ -960,7 +958,7 @@ graph = builder.compile()
 
 ### 访问节点内的服务器信息当您的图表在LangGraph服务器上运行时，您可以通过`runtime.server_info`访问特定于服务器的元数据。这会显示助手 ID、图形 ID 和经过身份验证的用户，而无需直接读取配置元数据或可配置密钥。
 
-|属性|类型 |描述 |
+|属性 |类型 |描述 |
 | - | - | - |
 | `assistant_id` | `str` |当前部署的助手 ID。 |
 | `graph_id` | `str` |当前部署的图形 ID。 |
@@ -991,9 +989,9 @@ graph = builder.compile()
 
 当图表未在 LangGraph 服务器上运行时（例如，在本地开发或测试期间），`server_info` 为 `None`。
 
-<Note>
-  `runtime.execution_info` 和 `runtime.server_info` 需要 `deepagents>=0.5.0`（或 `langgraph>=1.1.5`）。
-</Note>
+> [!注意]
+>
+> 对于 `runtime.execution_info` 和 `runtime.server_info`，需要 `deepagents>=0.5.0`（或 `langgraph>=1.1.5`）。
 
 ### 访问节点内的耗尽状态
 
@@ -1013,9 +1011,9 @@ def my_node(state: State, runtime: Runtime) -> State:
 | `drain_requested` | `bool` | `True` 如果本次运行已调用 `RunControl.request_drain()`。 |
 | `drain_reason` | `str \| None` |原因字符串传递给`request_drain()`，或者如果未请求排水则传递给`None`。 |
 
-<Note>
-  需要`langgraph>=1.2`。请参阅 [Graceful shutdown](/oss/python/langgraph/fault-tolerance#graceful-shutdown) 了解完整的 `RunControl` API。
-</Note>
+> [!注意]
+>
+> 需要`langgraph>=1.2`。请参阅 [Graceful shutdown](/oss/python/langgraph/fault-tolerance#graceful-shutdown) 了解完整的 `RunControl` API。
 
 ## 添加节点缓存当您想要避免重复操作时，例如在执行昂贵的操作（无论是时间还是成本）时，节点缓存非常有用。 LangGraph 允许您向图中的节点添加个性化的缓存策略。
 
@@ -1041,10 +1039,10 @@ graph = builder.compile(cache=InMemoryCache())
 
 ## 创建一系列步骤
 
-<Info>
-  **先决条件**
-  本指南假设您熟悉上述 [state](#define-and-update-state) 部分。
-</Info>
+> [!注意]
+>
+> **先决条件**
+> 本指南假设您熟悉上述 [state](#define-and-update-state) 部分。
 
 在这里，我们演示如何构建简单的步骤序列。我们将展示：
 
@@ -1074,132 +1072,137 @@ builder.add_edge("step_2", "step_3")
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 builder = StateGraph(State).add_sequence([step_1, step_2, step_3])
 builder.add_edge(START, "step_1")
-```<Accordion title="Why split application steps into a sequence with LangGraph?">
-  LangGraph 可以轻松地向您的应用程序添加底层持久层。
-  这允许在节点执行之间设置状态检查点，因此您的 LangGraph 节点可以管理：
-
-  * 状态更新是怎样的[checkpointed](/oss/python/langgraph/persistence)
-  * 如何在[human-in-the-loop](/oss/python/langgraph/interrupts)工作流程中恢复中断
-  * 我们如何使用 LangGraph 的 [time travel](/oss/python/langgraph/use-time-travel) 功能“倒带”和分支执行
-
-  它们还确定执行步骤如何[streamed](/oss/python/langgraph/streaming)，以及如何使用[Studio](/langsmith/studio)可视化和调试应用程序。
-
-  让我们演示一个端到端的示例。我们将创建一个包含三个步骤的序列：
-
-  1.在state的key中填充一个值
-  2.更新相同的值
-  3. 填充不同的值
-
-  让我们首先定义我们的[state](/oss/python/langgraph/graph-api#state)。这控制[schema of the graph](/oss/python/langgraph/graph-api#schema)，并且还可以指定如何应用更新。有关更多详细信息，请参阅[Process state updates with reducers](#process-state-updates-with-reducers)。
-
-  在我们的例子中，我们将只跟踪两个值：
-
-  ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  from typing_extensions import TypedDict
-
-  class State(TypedDict):
-      value_1: str
-      value_2: int
-  ```
-
-  我们的 [nodes](/oss/python/langgraph/graph-api#nodes) 只是读取图表状态并对其进行更新的 Python 函数。该函数的第一个参数始终是状态：
-
-  ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  def step_1(state: State):
-      return {"value_1": "a"}
-
-  def step_2(state: State):
-      current_value_1 = state["value_1"]
-      return {"value_1": f"{current_value_1} b"}
-
-  def step_3(state: State):
-      return {"value_2": 10}
-  ```
-
-  <Note>
-    请注意，当向状态发出更新时，每个节点只能指定它希望更新的键的值。默认情况下，这将**覆盖**相应键的值。您还可以使用 [reducers](/oss/python/langgraph/graph-api#reducers) 来控制更新的处理方式，例如，您可以将连续的更新附加到某个键。有关更多详细信息，请参阅[Process state updates with reducers](#process-state-updates-with-reducers)。
-  </Note>
-
-  最后，我们定义图表。我们使用[StateGraph](/oss/python/langgraph/graph-api#stategraph)来定义一个在此状态上运行的图。
-
-  然后，我们将使用 [⟦T284⟧](/oss/python/langgraph/graph-api#messagesstate) 和 [⟦T285⟧](/oss/python/langgraph/graph-api#edges) 来填充我们的图表并定义其控制流。
-
-  ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  from langgraph.graph import START, StateGraph
-
-  builder = StateGraph(State)
-
-  # Add nodes
-  builder.add_node(step_1)
-  builder.add_node(step_2)
-  builder.add_node(step_3)
-
-  # Add edges
-  builder.add_edge(START, "step_1")
-  builder.add_edge("step_1", "step_2")
-  builder.add_edge("step_2", "step_3")
-  ```
-
-  <Tip>
-    **指定自定义名称**
-    您可以使用 [⟦T286⟧](https://reference.langchain.com/python/langgraph/graph/state/StateGraph/add_node) 为节点指定自定义名称：
-
-    ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    builder.add_node("my_node", step_1)
-    ```
-  </Tip>
-
-  请注意：
-
-  * [⟦T287⟧](https://reference.langchain.com/python/langgraph/pregel/_draw/add_edge) 采用节点名称，对于函数来说默认为 `node.__name__`。
-  * 我们必须指定图表的入口点。为此，我们添加一条带有 [START node](/oss/python/langgraph/graph-api#start-node) 的边。
-  * 当没有更多节点要执行时，图表将停止。
-
-  接下来是[compile](/oss/python/langgraph/graph-api#compiling-your-graph)我们的图表。这提供了对图结构的一些基本检查（例如，识别孤立节点）。如果我们通过 [checkpointer](/oss/python/langgraph/persistence) 添加持久性到我们的应用程序中，它也会被传递到这里。
-
-  ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  graph = builder.compile()
-  ```
-
-  LangGraph 提供用于可视化图表的内置实用程序。让我们检查一下我们的序列。有关可视化的详细信息，请参阅[Visualize your graph](#visualize-your-graph)。
-
-  ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  from IPython.display import Image, display
-
-  display(Image(graph.get_graph().draw_mermaid_png()))
-  ```
-
-  <img alt="Sequence of steps graph" />让我们继续进行一个简单的调用：
-
-  ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  graph.invoke({"value_1": "c"})
-  ```
-
-  ```
-  {'value_1': 'a b', 'value_2': 10}
-  ```
-
-  请注意：
-
-  * 我们通过为单个状态键提供一个值来启动调用。我们必须始终为至少一个键提供一个值。
-  * 我们传入的值被第一个节点覆盖了。
-  * 第二个节点更新了值。
-  * 第三个节点填充了不同的值。
-
-  <Tip>
-    **内置速记**
-    `langgraph>=0.2.46` 包含用于添加节点序列的内置速记法 `add_sequence`。您可以按如下方式编译相同的图表：
-
-    ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    builder = StateGraph(State).add_sequence([step_1, step_2, step_3])  # [!code highlight]
-    builder.add_edge(START, "step_1")
-
-    graph = builder.compile()
-
-    graph.invoke({"value_1": "c"})
-    ```
-  </Tip>
-</Accordion>
+```> **为什么使用 LangGraph 将应用程序步骤拆分为一个序列？**
+>
+> LangGraph 可以轻松地向您的应用程序添加底层持久层。
+> 这允许在节点执行之间设置状态检查点，因此您的 LangGraph 节点可以管理：
+>
+> * 状态更新是怎样的[checkpointed](/oss/python/langgraph/persistence)
+> * 如何在[human-in-the-loop](/oss/python/langgraph/interrupts)工作流程中恢复中断
+> * 我们如何使用 LangGraph 的 [time travel](/oss/python/langgraph/use-time-travel) 功能“倒带”和分支执行
+>
+> 它们还确定执行步骤如何[streamed](/oss/python/langgraph/streaming)，以及如何使用[Studio](/langsmith/studio) 可视化和调试应用程序。
+>
+> 让我们演示一个端到端的示例。我们将创建一个包含三个步骤的序列：
+>
+> 1.在state的key中填充一个值
+> 2.更新相同的值
+> 3. 填充不同的值
+>
+> 让我们首先定义我们的[state](/oss/python/langgraph/graph-api#state)。这控制[schema of the graph](/oss/python/langgraph/graph-api#schema)，并且还可以指定如何应用更新。有关更多详细信息，请参阅[Process state updates with reducers](#process-state-updates-with-reducers)。
+>
+> 在我们的例子中，我们将只跟踪两个值：
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> from typing_extensions import TypedDict
+>
+> class State(TypedDict):
+>     value_1: str
+>     value_2: int
+> ```
+>
+> 我们的 [nodes](/oss/python/langgraph/graph-api#nodes) 只是读取图表状态并对其进行更新的 Python 函数。该函数的第一个参数始终是状态：
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> def step_1(state: State):
+>     return {"value_1": "a"}
+>
+> def step_2(state: State):
+>     current_value_1 = state["value_1"]
+>     return {"value_1": f"{current_value_1} b"}
+>
+> def step_3(state: State):
+>     return {"value_2": 10}
+> ```
+>
+>> [!注意]
+>>>> 请注意，当向状态发出更新时，每个节点可以只指定它希望更新的键的值。
+>>
+>> 默认情况下，这将**覆盖**相应键的值。您还可以使用 [reducers](/oss/python/langgraph/graph-api#reducers) 来控制更新的处理方式，例如，您可以将连续的更新附加到某个键。有关更多详细信息，请参阅[Process state updates with reducers](#process-state-updates-with-reducers)。
+>
+> 最后，我们定义图表。我们使用[StateGraph](/oss/python/langgraph/graph-api#stategraph)来定义一个在此状态上运行的图。
+>
+> 然后我们将使用 [⟦T284⟧](/oss/python/langgraph/graph-api#messagesstate) 和 [⟦T285⟧](/oss/python/langgraph/graph-api#edges) 来填充我们的图表并定义其控制流。
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> from langgraph.graph import START, StateGraph
+>
+> builder = StateGraph(State)
+>
+> # Add nodes
+> builder.add_node(step_1)
+> builder.add_node(step_2)
+> builder.add_node(step_3)
+>
+> # Add edges
+> builder.add_edge(START, "step_1")
+> builder.add_edge("step_1", "step_2")
+> builder.add_edge("step_2", "step_3")
+> ```
+>
+>> [!提示]
+>>
+>> **指定自定义名称**
+>> 您可以使用[⟦T286⟧](https://reference.langchain.com/python/langgraph/graph/state/StateGraph/add_node)为节点指定自定义名称：
+>>
+>> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> > builder.add_node("my_node", step_1)
+> > ```
+>
+> 请注意：
+>
+> * [⟦T287⟧](https://reference.langchain.com/python/langgraph/pregel/_draw/add_edge) 采用节点名称，对于函数来说默认为 `node.__name__`。
+> * 我们必须指定图表的入口点。为此，我们添加一条带有 [START node](/oss/python/langgraph/graph-api#start-node) 的边。
+> * 当没有更多节点要执行时，图表将停止。
+>
+> 接下来是[compile](/oss/python/langgraph/graph-api#compiling-your-graph)我们的图表。这提供了对图结构的一些基本检查（例如，识别孤立节点）。如果我们通过[checkpointer](/oss/python/langgraph/persistence)向应用程序添加持久性，它也将被传递到这里。
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> graph = builder.compile()
+> ```
+>> LangGraph 提供用于可视化图表的内置实用程序。让我们检查一下我们的序列。有关可视化的详细信息，请参阅[Visualize your graph](#visualize-your-graph)。
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> from IPython.display import Image, display
+>
+> display(Image(graph.get_graph().draw_mermaid_png()))
+> ```
+>
+> ![Sequence of steps graph](https://mintcdn.com/langchain-5e9cc07a/-_xGPoyjhyiDWTPJ/oss/images/graph_api_image_2.png?fit=max\&auto=format\&n=-_xGPoyjhyiDWTPJ\&q=85\&s=fa0376786cc89d704a5435abba178804)
+>
+> 让我们继续一个简单的调用：
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> graph.invoke({"value_1": "c"})
+> ```
+>
+> ```
+> {'value_1': 'a b', 'value_2': 10}
+> ```
+>
+> 请注意：
+>
+> * 我们通过为单个状态键提供一个值来启动调用。我们必须始终为至少一个键提供一个值。
+>
+> * 我们传入的值被第一个节点覆盖了。
+>
+> * 第二个节点更新了值。
+>
+> * 第三个节点填充了不同的值。
+>
+>> [!提示]
+>>
+>> **内置速记**
+>> `langgraph>=0.2.46` 包含一个内置的速记`add_sequence`，用于添加节点序列。您可以按如下方式编译相同的图表：
+>>
+>> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> > builder = StateGraph(State).add_sequence([step_1, step_2, step_3])  # [!code highlight]
+> > builder.add_edge(START, "step_1")
+> >
+> > graph = builder.compile()
+> >
+> > graph.invoke({"value_1": "c"})
+> > ```
 
 ## 创建分支
 
@@ -1253,7 +1256,7 @@ from IPython.display import Image, display
 display(Image(graph.get_graph().draw_mermaid_png()))
 ```
 
-<img alt="Parallel execution graph" />
+![Parallel execution graph](https://mintcdn.com/langchain-5e9cc07a/-_xGPoyjhyiDWTPJ/oss/images/graph_api_image_3.png?fit=max\&auto=format\&n=-_xGPoyjhyiDWTPJ\&q=85\&s=8359f2e8d9dde03d7cc25f9d755a428d)
 
 通过reducer，可以看到每个节点添加的值都被累加了。
 
@@ -1268,33 +1271,33 @@ Adding "C" to ['A']
 Adding "D" to ['A', 'B', 'C']
 ```
 
-<Note>
-  在上面的例子中，节点`"b"`和`"c"`在同一个[superstep](/oss/python/langgraph/graph-api#graphs)中并发执行。由于它们处于同一步骤，因此节点 `"d"` 在 `"b"` 和 `"c"` 都完成后执行。
+> [!注意]
+>
+> 在上面的例子中，节点`"b"`和`"c"`在同一个[superstep](/oss/python/langgraph/graph-api#graphs)中并发执行。由于它们处于同一步骤，因此节点 `"d"` 在 `"b"` 和 `"c"` 都完成后执行。
+>
+> 重要的是，来自并行超级步的更新的顺序可能不一致。如果您需要从并行超级步中对更新进行一致的、预定的排序，则应将输出连同用于排序的值一起写入状态中的单独字段。> **异常处理？**
+>
+> LangGraph 执行[supersteps](/oss/python/langgraph/graph-api#graphs) 内的节点，这意味着虽然并行分支是并行执行的，但整个超级步骤是**事务性的**。如果这些分支中的任何一个引发异常，则不会将任何更新应用于状态（整个超级步错误）。
+>
+> 重要的是，使用 [checkpointer](/oss/python/langgraph/persistence) 时，超级步中成功节点的结果将被保存，并且在恢复时不会重复。
+>
+> 如果您容易出错（也许想要处理不稳定的 API 调用），LangGraph 提供了两种方法来解决这个问题：
+>
+> 1. 您可以在节点内编写常规Python代码来捕获和处理异常。
+> 2. 您可以设置 **[⟦T299⟧](https://reference.langchain.com/python/langgraph/types)** 来指示图形重试引发某些类型异常的节点。仅重试失败的分支，因此您不必担心执行多余的工作。
+>
+> 这些共同让您可以执行并行执行并完全控制异常处理。
 
-  重要的是，来自并行超级步的更新的顺序可能不一致。如果您需要从并行超级步中对更新进行一致的、预定的排序，则应将输出连同用于排序的值一起写入状态中的单独字段。
-</Note><Accordion title="Exception handling?">
-  LangGraph执行[supersteps](/oss/python/langgraph/graph-api#graphs)内的节点，这意味着虽然并行分支是并行执行的，但整个超级步骤是**事务性的**。如果这些分支中的任何一个引发异常，则不会将任何更新应用于状态（整个超级步错误）。
+> [!提示]
+>
+> **设置最大并发数**
+> 您可以在调用图表时通过设置[configuration](https://reference.langchain.com/python/langchain-core/runnables/config/RunnableConfig)中的`max_concurrency`来控制最大并发任务数。 `max_concurrency` 是一个独立的配置键，因此将其设置在配置的顶层而不是内部`configurable`。
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> graph.invoke({"value_1": "c"}, {"max_concurrency": 10})
+> ```### 推迟节点执行
 
-  重要的是，当使用[checkpointer](/oss/python/langgraph/persistence)时，超级步内成功节点的结果将被保存，并且在恢复时不会重复。
-
-  如果您容易出错（也许想要处理不稳定的 API 调用），LangGraph 提供了两种方法来解决这个问题：
-
-  1. 您可以在节点内编写常规Python代码来捕获和处理异常。
-  2. 您可以设置 **[⟦T299⟧](https://reference.langchain.com/python/langgraph/types)** 来指示图形重试引发某些类型异常的节点。仅重试失败的分支，因此您不必担心执行冗余工作。
-
-  这些共同使您可以执行并行执行并完全控制异常处理。
-</Accordion>
-
-<Tip>
-  **设置最大并发数**
-  您可以在调用图表时通过设置[configuration](https://reference.langchain.com/python/langchain-core/runnables/config/RunnableConfig)中的`max_concurrency`来控制最大并发任务数。 `max_concurrency` 是一个独立的配置键，因此将其设置在配置的顶层而不是内部`configurable`。
-
-  ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  graph.invoke({"value_1": "c"}, {"max_concurrency": 10})
-  ```
-</Tip>
-
-### 推迟节点执行当您想要延迟节点的执行直到所有其他待处理任务完成时，延迟节点执行非常有用。当分支具有不同长度时，这一点尤其重要，这在映射缩减流等工作流程中很常见。
+当您想要延迟节点的执行直到所有其他待处理任务完成时，延迟节点执行非常有用。当分支具有不同长度时，这一点尤其重要，这在映射缩减流等工作流程中很常见。
 
 上面的示例展示了当每条路径只有一步时如何进行扇出和扇入。但如果一个分支有多个步骤怎么办？让我们在 `"b"` 分支中添加一个节点 `"b_2"` ：
 
@@ -1350,7 +1353,7 @@ from IPython.display import Image, display
 display(Image(graph.get_graph().draw_mermaid_png()))
 ```
 
-<img alt="Deferred execution graph" />
+![Deferred execution graph](https://mintcdn.com/langchain-5e9cc07a/-_xGPoyjhyiDWTPJ/oss/images/graph_api_image_4.png?fit=max\&auto=format\&n=-_xGPoyjhyiDWTPJ\&q=85\&s=44cd97f020dfefeaffbe2b012514f343)
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 graph.invoke({"aggregate": []})
@@ -1428,7 +1431,7 @@ from IPython.display import Image, display
 display(Image(graph.get_graph().draw_mermaid_png()))
 ```
 
-<img alt="Conditional branching graph" />
+![Conditional branching graph](https://mintcdn.com/langchain-5e9cc07a/-_xGPoyjhyiDWTPJ/oss/images/graph_api_image_5.png?fit=max\&auto=format\&n=-_xGPoyjhyiDWTPJ\&q=85\&s=3373a383d5acc3e4d6a4d1575e849146)
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 result = graph.invoke({"aggregate": []})
@@ -1439,16 +1442,16 @@ Adding "C" to ['A']
 {'aggregate': ['A', 'C'], 'which': 'c'}
 ```
 
-<Tip>
-  您的条件边可以路由到多个目标节点。例如：
-
-  ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  def route_bc_or_cd(state: State) -> Sequence[str]:
-      if state["which"] == "cd":
-          return ["c", "d"]
-      return ["b", "c"]
-  ```
-</Tip>
+> [!提示]
+>
+> 您的条件边可以路由到多个目标节点。例如：
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> def route_bc_or_cd(state: State) -> Sequence[str]:
+>     if state["which"] == "cd":
+>         return ["c", "d"]
+>     return ["b", "c"]
+> ```
 
 ## Map-Reduce 和发送 API
 
@@ -1500,7 +1503,7 @@ from IPython.display import Image, display
 display(Image(graph.get_graph().draw_mermaid_png()))
 ```
 
-<img alt="Map-reduce graph with fanout" />
+![Map-reduce graph with fanout](https://mintcdn.com/langchain-5e9cc07a/-_xGPoyjhyiDWTPJ/oss/images/graph_api_image_6.png?fit=max\&auto=format\&n=-_xGPoyjhyiDWTPJ\&q=85\&s=48249d2085e8bfc63a142ccfba5082f5)
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 # Call the graph: here we call it to generate a list of jokes
@@ -1520,15 +1523,15 @@ for message in stream.messages:
 
 ## 创建和控制循环
 
-当创建带有循环的图时，我们需要一种终止执行的机制。最常见的方法是添加一个 [conditional edge](/oss/python/langgraph/graph-api#conditional-edges) ，一旦达到某些终止条件，该[END](/oss/python/langgraph/graph-api#end-node) 节点就会路由到 [END](/oss/python/langgraph/graph-api#end-node) 节点。
+当创建带有循环的图时，我们需要一种终止执行的机制。最常见的方法是添加一个 [conditional edge](/oss/python/langgraph/graph-api#conditional-edges)，一旦达到某些终止条件，该[END](/oss/python/langgraph/graph-api#end-node) 节点就会路由到该节点。
 
 您还可以在调用或流式传输图形时设置图形递归限制。递归限制设置了图表在引发错误之前允许执行的 [super-steps](/oss/python/langgraph/graph-api#graphs) 数量。了解有关 [recursion limit concept](/oss/python/langgraph/graph-api#recursion-limit) 的更多信息。
 
 让我们考虑一个带有循环的简单图，以更好地理解这些机制是如何工作的。
 
-<Tip>
-  要返回状态的最后一个值而不是收到递归限制错误，请参阅 [next section](#impose-a-recursion-limit)。
-</Tip>
+> [!提示]
+>
+> 要返回状态的最后一个值而不是收到递归限制错误，请参阅 [next section](#impose-a-recursion-limit)。
 
 创建循环时，可以包含指定终止条件的条件边：
 
@@ -1602,7 +1605,7 @@ from IPython.display import Image, display
 display(Image(graph.get_graph().draw_mermaid_png()))
 ```
 
-<img alt="Simple loop graph" />
+![Simple loop graph](https://mintcdn.com/langchain-5e9cc07a/dL5Sn6Cmy9pwtY0V/oss/images/graph_api_image_7.png?fit=max\&auto=format\&n=dL5Sn6Cmy9pwtY0V\&q=85\&s=e1b99e7efe45b1fdc5836d590d5fbbc3)
 
 该架构类似于[ReAct agent](/oss/python/langgraph/workflows-agents)，其中节点`"a"`是工具调用模型，节点`"b"`代表工具。
 
@@ -1644,439 +1647,409 @@ Node C sees ['A', 'B']
 Node D sees ['A', 'B']
 Node A sees ['A', 'B', 'C', 'D']
 Recursion Error
-```
+```> **扩展示例：达到递归限制时返回状态**
+>
+> 我们可以引入一个新的状态键来跟踪剩余步骤数，直到达到递归限制，而不是提高`GraphRecursionError`。然后我们可以使用这个键来确定是否应该结束运行。
+>
+> LangGraph 实现了特殊的 `RemainingSteps` 注释。在底层，它创建了一个 `ManagedValue` 通道——一个状态通道，它将在我们的图形运行期间存在，并且不再存在。
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import operator
+> from typing import Annotated, Literal
+> from typing_extensions import TypedDict
+> from langgraph.graph import StateGraph, START, END
+> from langgraph.managed.is_last_step import RemainingSteps
+>
+> class State(TypedDict):
+>     aggregate: Annotated[list, operator.add]
+>     remaining_steps: RemainingSteps
+>
+> def a(state: State):
+>     print(f'Node A sees {state["aggregate"]}')
+>     return {"aggregate": ["A"]}
+>
+> def b(state: State):
+>     print(f'Node B sees {state["aggregate"]}')
+>     return {"aggregate": ["B"]}
+>
+> # Define nodes
+> builder = StateGraph(State)
+> builder.add_node(a)
+> builder.add_node(b)
+>
+> # Define edges
+> def route(state: State) -> Literal["b", END]:
+>     if state["remaining_steps"] <= 2:
+>         return END
+>     else:
+>         return "b"
+>
+> builder.add_edge(START, "a")
+> builder.add_conditional_edges("a", route)
+> builder.add_edge("b", "a")
+> graph = builder.compile()
+>
+> # Test it out
+> result = graph.invoke({"aggregate": []}, {"recursion_limit": 4})
+> print(result)
+> ```
+>
+> ```
+> Node A sees []
+> Node B sees ['A']
+> Node A sees ['A', 'B']
+> {'aggregate': ['A', 'B', 'A']}
+> ```> **扩展示例：带分支的循环**
+>
+> 为了更好地理解递归限制的工作原理，让我们考虑一个更复杂的示例。下面我们实现一个循环，但一步扇出到两个节点：
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import operator
+> from typing import Annotated, Literal
+> from typing_extensions import TypedDict
+> from langgraph.graph import StateGraph, START, END
+>
+> class State(TypedDict):
+>     aggregate: Annotated[list, operator.add]
+>
+> def a(state: State):
+>     print(f'Node A sees {state["aggregate"]}')
+>     return {"aggregate": ["A"]}
+>
+> def b(state: State):
+>     print(f'Node B sees {state["aggregate"]}')
+>     return {"aggregate": ["B"]}
+>
+> def c(state: State):
+>     print(f'Node C sees {state["aggregate"]}')
+>     return {"aggregate": ["C"]}
+>
+> def d(state: State):
+>     print(f'Node D sees {state["aggregate"]}')
+>     return {"aggregate": ["D"]}
+>
+> # Define nodes
+> builder = StateGraph(State)
+> builder.add_node(a)
+> builder.add_node(b)
+> builder.add_node(c)
+> builder.add_node(d)
+>
+> # Define edges
+> def route(state: State) -> Literal["b", END]:
+>     if len(state["aggregate"]) < 7:
+>         return "b"
+>     else:
+>         return END
+>
+> builder.add_edge(START, "a")
+> builder.add_conditional_edges("a", route)
+> builder.add_edge("b", "c")
+> builder.add_edge("b", "d")
+> builder.add_edge(["c", "d"], "a")
+> graph = builder.compile()
+> ```
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> from IPython.display import Image, display
+>
+> display(Image(graph.get_graph().draw_mermaid_png()))
+> ```
+>
+> ![Complex loop graph with branches](https://mintcdn.com/langchain-5e9cc07a/dL5Sn6Cmy9pwtY0V/oss/images/graph_api_image_8.png?fit=max\&auto=format\&n=dL5Sn6Cmy9pwtY0V\&q=85\&s=20e2a9e8c15760eb9ecb07fc411aa70e)
+>
+> 该图看起来很复杂，但可以概念化为[supersteps](/oss/python/langgraph/graph-api#graphs)的循环：
+>
+> 1. 节点A
+> 2. 节点B
+> 3. 节点C和D
+> 4. 节点A
+> 5. ...
+>
+> 我们有一个包含四个超级步骤的循环，其中节点 C 和 D 是同时执行的。列表形式的边缘在返回`"a"`之前等待`"c"`和`"d"`。有关列表形式的边与进入同一节点的单独边有何不同，请参阅[Defer node execution](#defer-node-execution)。
+>
+> 像以前一样调用图表，我们看到在达到终止条件之前我们完成了两个完整的“圈”：
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> result = graph.invoke({"aggregate": []})
+> ```
+>
+> ```
+> Node A sees []
+> Node B sees ['A']
+> Node D sees ['A', 'B']
+> Node C sees ['A', 'B']
+> Node A sees ['A', 'B', 'C', 'D']
+> Node B sees ['A', 'B', 'C', 'D', 'A']
+> Node D sees ['A', 'B', 'C', 'D', 'A', 'B']
+> Node C sees ['A', 'B', 'C', 'D', 'A', 'B']
+> Node A sees ['A', 'B', 'C', 'D', 'A', 'B', 'C', 'D']
+> ```
+>
+> 但是，如果我们将递归限制设置为四，我们只完成一圈，因为每一圈是四个超级步：
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> from langgraph.errors import GraphRecursionError
+>
+> try:
+>     result = graph.invoke({"aggregate": []}, {"recursion_limit": 4})
+> except GraphRecursionError:
+>     print("Recursion Error")
+> ```
+>
+> ```
+> Node A sees []
+> Node B sees ['A']
+> Node C sees ['A', 'B']
+> Node D sees ['A', 'B']
+> Node A sees ['A', 'B', 'C', 'D']
+> Recursion Error
+> ```
 
-<Accordion title="Extended example: return state on hitting recursion limit">
-  我们可以引入一个新的状态键来跟踪剩余步骤数，直到达到递归限制，而不是提高`GraphRecursionError`。然后我们可以使用这个键来确定是否应该结束运行。LangGraph 实现了特殊的 `RemainingSteps` 注释。在底层，它创建了一个 `ManagedValue` 通道——一个状态通道，它将在我们的图形运行期间存在，并且不再存在。
+## 异步
 
-  ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  import operator
-  from typing import Annotated, Literal
-  from typing_extensions import TypedDict
-  from langgraph.graph import StateGraph, START, END
-  from langgraph.managed.is_last_step import RemainingSteps
+当并发运行 [IO-bound](https://en.wikipedia.org/wiki/I/O_bound) 代码时（例如，向聊天模型提供者发出并发 API 请求），使用异步编程范例可以显着提高性能。
 
-  class State(TypedDict):
-      aggregate: Annotated[list, operator.add]
-      remaining_steps: RemainingSteps
-
-  def a(state: State):
-      print(f'Node A sees {state["aggregate"]}')
-      return {"aggregate": ["A"]}
-
-  def b(state: State):
-      print(f'Node B sees {state["aggregate"]}')
-      return {"aggregate": ["B"]}
-
-  # Define nodes
-  builder = StateGraph(State)
-  builder.add_node(a)
-  builder.add_node(b)
-
-  # Define edges
-  def route(state: State) -> Literal["b", END]:
-      if state["remaining_steps"] <= 2:
-          return END
-      else:
-          return "b"
-
-  builder.add_edge(START, "a")
-  builder.add_conditional_edges("a", route)
-  builder.add_edge("b", "a")
-  graph = builder.compile()
-
-  # Test it out
-  result = graph.invoke({"aggregate": []}, {"recursion_limit": 4})
-  print(result)
-  ```
-
-  ```
-  Node A sees []
-  Node B sees ['A']
-  Node A sees ['A', 'B']
-  {'aggregate': ['A', 'B', 'A']}
-  ```
-</Accordion>
-
-<Accordion title="Extended example: loops with branches">
-  为了更好地理解递归限制的工作原理，让我们考虑一个更复杂的示例。下面我们实现一个循环，但一步扇出到两个节点：
-
-  ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  import operator
-  from typing import Annotated, Literal
-  from typing_extensions import TypedDict
-  from langgraph.graph import StateGraph, START, END
-
-  class State(TypedDict):
-      aggregate: Annotated[list, operator.add]
-
-  def a(state: State):
-      print(f'Node A sees {state["aggregate"]}')
-      return {"aggregate": ["A"]}
-
-  def b(state: State):
-      print(f'Node B sees {state["aggregate"]}')
-      return {"aggregate": ["B"]}
-
-  def c(state: State):
-      print(f'Node C sees {state["aggregate"]}')
-      return {"aggregate": ["C"]}
-
-  def d(state: State):
-      print(f'Node D sees {state["aggregate"]}')
-      return {"aggregate": ["D"]}
-
-  # Define nodes
-  builder = StateGraph(State)
-  builder.add_node(a)
-  builder.add_node(b)
-  builder.add_node(c)
-  builder.add_node(d)
-
-  # Define edges
-  def route(state: State) -> Literal["b", END]:
-      if len(state["aggregate"]) < 7:
-          return "b"
-      else:
-          return END
-
-  builder.add_edge(START, "a")
-  builder.add_conditional_edges("a", route)
-  builder.add_edge("b", "c")
-  builder.add_edge("b", "d")
-  builder.add_edge(["c", "d"], "a")
-  graph = builder.compile()
-  ```
-
-  ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  from IPython.display import Image, display
-
-  display(Image(graph.get_graph().draw_mermaid_png()))
-  ```
-
-  <img alt="Complex loop graph with branches" />
-
-  该图看起来很复杂，但可以概念化为[supersteps](/oss/python/langgraph/graph-api#graphs)的循环：
-
-  1. 节点A
-  2. 节点B
-  3. 节点C和D
-  4. 节点A
-  5....
-
-  我们有一个包含四个超级步骤的循环，其中节点 C 和 D 是同时执行的。列表形式的边缘在返回`"a"`之前等待`"c"`和`"d"`。有关列表形式的边与进入同一节点的单独边的不同之处，请参阅[Defer node execution](#defer-node-execution)。
-
-  像以前一样调用图表，我们看到在达到终止条件之前我们完成了两个完整的“圈”：
-
-  ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  result = graph.invoke({"aggregate": []})
-  ```
-
-  ```
-  Node A sees []
-  Node B sees ['A']
-  Node D sees ['A', 'B']
-  Node C sees ['A', 'B']
-  Node A sees ['A', 'B', 'C', 'D']
-  Node B sees ['A', 'B', 'C', 'D', 'A']
-  Node D sees ['A', 'B', 'C', 'D', 'A', 'B']
-  Node C sees ['A', 'B', 'C', 'D', 'A', 'B']
-  Node A sees ['A', 'B', 'C', 'D', 'A', 'B', 'C', 'D']
-  ```
-
-  然而，如果我们将递归限制设置为四，我们只完成一圈，因为每一圈是四个超级步：
-
-  ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  from langgraph.errors import GraphRecursionError
-
-  try:
-      result = graph.invoke({"aggregate": []}, {"recursion_limit": 4})
-  except GraphRecursionError:
-      print("Recursion Error")
-  ```
-
-  ```
-  Node A sees []
-  Node B sees ['A']
-  Node C sees ['A', 'B']
-  Node D sees ['A', 'B']
-  Node A sees ['A', 'B', 'C', 'D']
-  Recursion Error
-  ```
-</Accordion>
-
-## 异步并发运行 [IO-bound](https://en.wikipedia.org/wiki/I/O_bound) 代码时（例如，向聊天模型提供者发出并发 API 请求），使用异步编程范例可以显着提高性能。
-
-要将图的 `sync` 实现转换为 `async` 实现，您需要：
-
-1.更新`nodes`使用`async def`代替`def`。
+要将图的 `sync` 实现转换为 `async` 实现，您需要：1.更新`nodes`使用`async def`代替`def`。
 2. 更新里面的代码以正确使用`await`。
 3. 根据需要使用 `.ainvoke` 或 `.astream` 调用图表。
 
 由于许多 LangChain 对象实现了 [Runnable Protocol](https://python.langchain.com/docs/expression_language/interface/)，而 [Runnable Protocol](https://python.langchain.com/docs/expression_language/interface/) 具有所有 `sync` 方法的 `async` 变体，因此通常可以相当快地将 `sync` 图升级为 `async` 图。
 
-请参阅下面的示例。为了演示底层 LLM 的异步调用，我们将包含一个聊天模型：
+请参见下面的示例。为了演示底层 LLM 的异步调用，我们将包含一个聊天模型：
 
-<Tabs>
-  <Tab title="OpenAI">
-    👉 阅读[OpenAI chat model integration docs](/oss/python/integrations/chat/openai/)
+**OpenAI**
 
-    <CodeGroup>
-      ```bash pip theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-      pip install -U "langchain[openai]"
-      ```
+👉 阅读[OpenAI chat model integration docs](/oss/python/integrations/chat/openai/)
 
-      ```bash uv theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-      uv add "langchain[openai]"
-      ```
-    </CodeGroup>
+```bash pip theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+pip install -U "langchain[openai]"
+```
 
-    <CodeGroup>
-      ```python init_chat_model theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-      import os
-      from langchain.chat_models import init_chat_model
+```bash uv theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+uv add "langchain[openai]"
+```
 
-      os.environ["OPENAI_API_KEY"] = "sk-..."
+```python init_chat_model theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import os
+from langchain.chat_models import init_chat_model
 
-      model = init_chat_model("gpt-5.5")
-      ```
+os.environ["OPENAI_API_KEY"] = "sk-..."
 
-      ```python Model Class theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-      import os
-      from langchain_openai import ChatOpenAI
+model = init_chat_model("gpt-5.5")
+```
 
-      os.environ["OPENAI_API_KEY"] = "sk-..."
+```python Model Class theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import os
+from langchain_openai import ChatOpenAI
 
-      model = ChatOpenAI(model="gpt-5.5")
-      ```
-    </CodeGroup>
-  </Tab>
+os.environ["OPENAI_API_KEY"] = "sk-..."
 
-  <Tab title="Anthropic">
-    👉 阅读[Anthropic chat model integration docs](/oss/python/integrations/chat/anthropic/)
+model = ChatOpenAI(model="gpt-5.5")
+```
 
-    <CodeGroup>
-      ```bash pip theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-      pip install -U "langchain[anthropic]"
-      ```
+**Anthropic**
 
-      ```bash uv theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-      uv add "langchain[anthropic]"
-      ```
-    </CodeGroup>
+👉 阅读[Anthropic chat model integration docs](/oss/python/integrations/chat/anthropic/)
 
-    <CodeGroup>
-      ```python init_chat_model theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-      import os
-      from langchain.chat_models import init_chat_model
+```bash pip theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+pip install -U "langchain[anthropic]"
+```
 
-      os.environ["ANTHROPIC_API_KEY"] = "sk-..."
+```bash uv theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+uv add "langchain[anthropic]"
+```
 
-      model = init_chat_model("claude-sonnet-4-6")
-      ```
+```python init_chat_model theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import os
+from langchain.chat_models import init_chat_model
 
-      ```python Model Class theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-      import os
-      from langchain_anthropic import ChatAnthropic
+os.environ["ANTHROPIC_API_KEY"] = "sk-..."
 
-      os.environ["ANTHROPIC_API_KEY"] = "sk-..."
+model = init_chat_model("claude-sonnet-4-6")
+```
 
-      model = ChatAnthropic(model="claude-sonnet-4-6")
-      ```
-    </CodeGroup>
-  </Tab>
+```python Model Class theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import os
+from langchain_anthropic import ChatAnthropic
 
-  <Tab title="Azure">
-    👉 阅读[Azure chat model integration docs](/oss/python/integrations/chat/azure_chat_openai/)
+os.environ["ANTHROPIC_API_KEY"] = "sk-..."
 
-    <CodeGroup>
-      ```bash pip theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-      pip install -U "langchain[openai]"
-      ```
+model = ChatAnthropic(model="claude-sonnet-4-6")
+```
 
-      ```bash uv theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-      uv add "langchain[openai]"
-      ```
-    </CodeGroup>
+**天蓝色**
 
-    <CodeGroup>
-      ```python init_chat_model theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-      import os
-      from langchain.chat_models import init_chat_model
+👉 阅读[Azure chat model integration docs](/oss/python/integrations/chat/azure_chat_openai/)
 
-      os.environ["AZURE_OPENAI_API_KEY"] = "..."
-      os.environ["AZURE_OPENAI_ENDPOINT"] = "..."
-      os.environ["OPENAI_API_VERSION"] = "2025-03-01-preview"
+```bash pip theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+pip install -U "langchain[openai]"
+```
 
-      model = init_chat_model(
-          "azure_openai:gpt-5.5",
-          azure_deployment=os.environ["AZURE_OPENAI_DEPLOYMENT_NAME"],
-      )
-      ```
+```bash uv theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+uv add "langchain[openai]"
+```
 
-      ```python Model Class theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-      import os
-      from langchain_openai import AzureChatOpenAI
+```python init_chat_model theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import os
+from langchain.chat_models import init_chat_model
 
-      os.environ["AZURE_OPENAI_API_KEY"] = "..."
-      os.environ["AZURE_OPENAI_ENDPOINT"] = "..."
-      os.environ["OPENAI_API_VERSION"] = "2025-03-01-preview"
+os.environ["AZURE_OPENAI_API_KEY"] = "..."
+os.environ["AZURE_OPENAI_ENDPOINT"] = "..."
+os.environ["OPENAI_API_VERSION"] = "2025-03-01-preview"
 
-      model = AzureChatOpenAI(
-          model="gpt-5.5",
-          azure_deployment=os.environ["AZURE_OPENAI_DEPLOYMENT_NAME"]
-      )
-      ```
-    </CodeGroup>
-  </Tab>
+model = init_chat_model(
+    "azure_openai:gpt-5.5",
+    azure_deployment=os.environ["AZURE_OPENAI_DEPLOYMENT_NAME"],
+)
+```
 
-  <Tab title="Google Gemini">
-    👉 阅读[Google GenAI chat model integration docs](/oss/python/integrations/chat/google_generative_ai/)<CodeGroup>
-      ```bash pip theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-      pip install -U "langchain[google-genai]"
-      ```
+```python Model Class theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import os
+from langchain_openai import AzureChatOpenAI
 
-      ```bash uv theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-      uv add "langchain[google-genai]"
-      ```
-    </CodeGroup>
+os.environ["AZURE_OPENAI_API_KEY"] = "..."
+os.environ["AZURE_OPENAI_ENDPOINT"] = "..."
+os.environ["OPENAI_API_VERSION"] = "2025-03-01-preview"
 
-    <CodeGroup>
-      ```python init_chat_model theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-      import os
-      from langchain.chat_models import init_chat_model
+model = AzureChatOpenAI(
+    model="gpt-5.5",
+    azure_deployment=os.environ["AZURE_OPENAI_DEPLOYMENT_NAME"]
+)
+```
 
-      os.environ["GOOGLE_API_KEY"] = "..."
+**谷歌双子座**
 
-      model = init_chat_model("google_genai:gemini-3.7-flash")
-      ```
+👉 阅读[Google GenAI chat model integration docs](/oss/python/integrations/chat/google_generative_ai/)
 
-      ```python Model Class theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-      import os
-      from langchain_google_genai import ChatGoogleGenerativeAI
+```bash pip theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+pip install -U "langchain[google-genai]"
+```
 
-      os.environ["GOOGLE_API_KEY"] = "..."
+```bash uv theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+uv add "langchain[google-genai]"
+```
 
-      model = ChatGoogleGenerativeAI(model="gemini-3.7-flash")
-      ```
-    </CodeGroup>
-  </Tab>
+```python init_chat_model theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import os
+from langchain.chat_models import init_chat_model
 
-  <Tab title="AWS Bedrock">
-    👉 阅读[AWS Bedrock chat model integration docs](/oss/python/integrations/chat/bedrock/)
+os.environ["GOOGLE_API_KEY"] = "..."
 
-    <CodeGroup>
-      ```bash pip theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-      pip install -U "langchain[aws]"
-      ```
+model = init_chat_model("google_genai:gemini-3.7-flash")
+```
 
-      ```bash uv theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-      uv add "langchain[aws]"
-      ```
-    </CodeGroup>
+```python Model Class theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import os
+from langchain_google_genai import ChatGoogleGenerativeAI
 
-    <CodeGroup>
-      ```python init_chat_model theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-      from langchain.chat_models import init_chat_model
+os.environ["GOOGLE_API_KEY"] = "..."
 
-      # Follow the steps here to configure your credentials:
-      # https://docs.aws.amazon.com/bedrock/latest/userguide/getting-started.html
+model = ChatGoogleGenerativeAI(model="gemini-3.7-flash")
+```
 
-      model = init_chat_model(
-          "us.anthropic.claude-sonnet-4-6",
-          model_provider="bedrock_converse",
-      )
-      ```
+**AWS 基岩**
 
-      ```python Model Class theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-      from langchain_aws import ChatBedrock
+👉 阅读[AWS Bedrock chat model integration docs](/oss/python/integrations/chat/bedrock/)
 
-      model = ChatBedrock(model="us.anthropic.claude-sonnet-4-6")
-      ```
-    </CodeGroup>
-  </Tab>
+```bash pip theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+pip install -U "langchain[aws]"
+```
 
-  <Tab title="HuggingFace">
-    👉 阅读[HuggingFace chat model integration docs](/oss/python/integrations/chat/huggingface/)
+```bash uv theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+uv add "langchain[aws]"
+```
 
-    <CodeGroup>
-      ```bash pip theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-      pip install -U "langchain[huggingface]"
-      ```
+```python init_chat_model theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+from langchain.chat_models import init_chat_model
 
-      ```bash uv theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-      uv add "langchain[huggingface]"
-      ```
-    </CodeGroup>
+# Follow the steps here to configure your credentials:
+# https://docs.aws.amazon.com/bedrock/latest/userguide/getting-started.html
 
-    <CodeGroup>
-      ```python init_chat_model theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-      import os
-      from langchain.chat_models import init_chat_model
+model = init_chat_model(
+    "us.anthropic.claude-sonnet-4-6",
+    model_provider="bedrock_converse",
+)
+```
 
-      os.environ["HUGGINGFACEHUB_API_TOKEN"] = "hf_..."
+```python Model Class theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+from langchain_aws import ChatBedrock
 
-      model = init_chat_model(
-          "microsoft/Phi-3-mini-4k-instruct",
-          model_provider="huggingface",
-          temperature=0.7,
-          max_tokens=1024,
-      )
-      ```
+model = ChatBedrock(model="us.anthropic.claude-sonnet-4-6")
+```
 
-      ```python Model Class theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-      import os
-      from langchain_huggingface import ChatHuggingFace, HuggingFaceEndpoint
+**拥抱脸**
 
-      os.environ["HUGGINGFACEHUB_API_TOKEN"] = "hf_..."
+👉 阅读[HuggingFace chat model integration docs](/oss/python/integrations/chat/huggingface/)
 
-      llm = HuggingFaceEndpoint(
-          repo_id="microsoft/Phi-3-mini-4k-instruct",
-          temperature=0.7,
-          max_length=1024,
-      )
-      model = ChatHuggingFace(llm=llm)
-      ```
-    </CodeGroup>
-  </Tab>
+```bash pip theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+pip install -U "langchain[huggingface]"
+```
 
-  <Tab title="OpenRouter">
-    👉 阅读[OpenRouter chat model integration docs](/oss/python/integrations/chat/openrouter/)
+```bash uv theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+uv add "langchain[huggingface]"
+```
 
-    <CodeGroup>
-      ```bash pip theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-      pip install -U "langchain-openrouter"
-      ```
+```python init_chat_model theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import os
+from langchain.chat_models import init_chat_model
 
-      ```bash uv theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-      uv add "langchain-openrouter"
-      ```
-    </CodeGroup>
+os.environ["HUGGINGFACEHUB_API_TOKEN"] = "hf_..."
 
-    <CodeGroup>
-      ```python init_chat_model theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-      import os
-      from langchain.chat_models import init_chat_model
+model = init_chat_model(
+    "microsoft/Phi-3-mini-4k-instruct",
+    model_provider="huggingface",
+    temperature=0.7,
+    max_tokens=1024,
+)
+```
 
-      os.environ["OPENROUTER_API_KEY"] = "sk-..."
+```python Model Class theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import os
+from langchain_huggingface import ChatHuggingFace, HuggingFaceEndpoint
 
-      model = init_chat_model(
-          "auto",
-          model_provider="openrouter",
-      )
-      ```
+os.environ["HUGGINGFACEHUB_API_TOKEN"] = "hf_..."
 
-      ```python Model Class theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-      import os
-      from langchain_openrouter import ChatOpenRouter
+llm = HuggingFaceEndpoint(
+    repo_id="microsoft/Phi-3-mini-4k-instruct",
+    temperature=0.7,
+    max_length=1024,
+)
+model = ChatHuggingFace(llm=llm)
+```
 
-      os.environ["OPENROUTER_API_KEY"] = "sk-..."
+**开放路由器**
 
-      model = ChatOpenRouter(model="auto")
-      ```
-    </CodeGroup>
-  </Tab>
-</Tabs>
+👉 阅读[OpenRouter chat model integration docs](/oss/python/integrations/chat/openrouter/)
+
+```bash pip theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+pip install -U "langchain-openrouter"
+```
+
+```bash uv theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+uv add "langchain-openrouter"
+```
+
+```python init_chat_model theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import os
+from langchain.chat_models import init_chat_model
+
+os.environ["OPENROUTER_API_KEY"] = "sk-..."
+
+model = init_chat_model(
+    "auto",
+    model_provider="openrouter",
+)
+```
+
+```python Model Class theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import os
+from langchain_openrouter import ChatOpenRouter
+
+os.environ["OPENROUTER_API_KEY"] = "sk-..."
+
+model = ChatOpenRouter(model="auto")
+```
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from langchain.chat_models import init_chat_model
@@ -2093,14 +2066,12 @@ input_message = {"role": "user", "content": "Hello"}
 result = await graph.ainvoke({"messages": [input_message]})  # [!code highlight]
 ```
 
-<Tip>
-  **异步流**
-  有关异步流式传输的示例，请参阅 [streaming guide](/oss/python/langgraph/streaming)。
-</Tip>
+> [!提示]
+>
+> **异步流**
+> 有关异步流式传输的示例，请参阅 [streaming guide](/oss/python/langgraph/streaming)。
 
-## 将控制流和状态更新与`Command`结合起来
-
-将控制流（边）和状态更新（节点）结合起来非常有用。例如，您可能希望既执行状态更新又决定在同一节点中下一个转到哪个节点。 LangGraph 提供了一种方法，通过从节点函数返回 [Command](https://reference.langchain.com/python/langgraph/types/Command) 对象来实现此目的：
+## 将控制流和状态更新与`Command`结合起来将控制流（边）和状态更新（节点）结合起来非常有用。例如，您可能希望既执行状态更新又决定在同一节点中下一个转到哪个节点。 LangGraph 提供了一种方法，通过从节点函数返回 [Command](https://reference.langchain.com/python/langgraph/types/Command) 对象来实现此目的：
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 def my_node(state: State) -> Command[Literal["my_other_node"]]:
@@ -2150,7 +2121,9 @@ def node_b(state: State):
 def node_c(state: State):
     print("Called C")
     return {"foo": state["foo"] + "c"}
-```我们现在可以使用上述节点创建[⟦T353⟧](https://reference.langchain.com/python/langgraph/graph/state/StateGraph)。请注意，该图没有用于路由的[conditional edges](/oss/python/langgraph/graph-api#conditional-edges)！这是因为控制流是用`node_a`内的[⟦T354⟧](https://reference.langchain.com/python/langgraph/types/Command)定义的。
+```
+
+我们现在可以使用上述节点创建[⟦T353⟧](https://reference.langchain.com/python/langgraph/graph/state/StateGraph)。请注意，该图没有用于路由的[conditional edges](/oss/python/langgraph/graph-api#conditional-edges)！这是因为控制流是用`node_a`内的[⟦T354⟧](https://reference.langchain.com/python/langgraph/types/Command)定义的。
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 builder = StateGraph(State)
@@ -2163,9 +2136,9 @@ builder.add_node(node_c)
 graph = builder.compile()
 ```
 
-<Warning>
-  您可能已经注意到，我们使用 [⟦T356⟧](https://reference.langchain.com/python/langgraph/types/Command) 作为返回类型注释，例如`Command[Literal["node_b", "node_c"]]`。这对于图形渲染是必要的，并告诉LangGraph`node_a`可以导航到`node_b`和`node_c`。
-</Warning>
+> [!警告]
+>
+> 您可能已经注意到，我们使用 [⟦T356⟧](https://reference.langchain.com/python/langgraph/types/Command) 作为返回类型注释，例如`Command[Literal["node_b", "node_c"]]`。这对于图形渲染是必要的，并告诉LangGraph`node_a`可以导航到`node_b`和`node_c`。
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from IPython.display import display, Image
@@ -2173,7 +2146,7 @@ from IPython.display import display, Image
 display(Image(graph.get_graph().draw_mermaid_png()))
 ```
 
-<img alt="Command-based graph navigation" />
+![Command-based graph navigation](https://mintcdn.com/langchain-5e9cc07a/-_xGPoyjhyiDWTPJ/oss/images/graph_api_image_11.png?fit=max\&auto=format\&n=-_xGPoyjhyiDWTPJ\&q=85\&s=f11e5cddedbf2760d40533f294c44aea)
 
 如果我们多次运行该图，我们会看到它根据节点 A 中的随机选择采取不同的路径（A -> B 或 A -> C）。
 
@@ -2186,9 +2159,7 @@ Called A
 Called C
 ```
 
-### 导航到父图中的节点
-
-如果您使用[subgraphs](/oss/python/langgraph/use-subgraphs)，您可能希望从子图中的节点导航到不同的子图（即父图中的不同节点）。为此，您可以在 `Command` 中指定 `graph=Command.PARENT`：
+### 导航到父图中的节点如果您使用[subgraphs](/oss/python/langgraph/use-subgraphs)，您可能希望从子图中的节点导航到不同的子图（即父图中的不同节点）。为此，您可以在 `Command` 中指定 `graph=Command.PARENT`：
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 def my_node(state: State) -> Command[Literal["other_subgraph"]]:
@@ -2199,10 +2170,12 @@ def my_node(state: State) -> Command[Literal["other_subgraph"]]:
     )
 ```
 
-让我们用上面的例子来演示这一点。为此，我们将上面示例中的 `nodeA` 更改为单节点图，并将其作为子图添加到父图。<Warning>
-  **使用 `Command.PARENT`** 进行状态更新
-  当您将父图和子图[state schemas](/oss/python/langgraph/graph-api#schema)共享的键的更新从子图节点发送到父图节点时，您**必须**为要在父图状态中更新的键定义一个[reducer](/oss/python/langgraph/graph-api#reducers)。请参阅下面的示例。
-</Warning>
+让我们用上面的例子来演示这一点。为此，我们将上面示例中的 `nodeA` 更改为单节点图，并将其作为子图添加到父图。
+
+> [!警告]
+>
+> **使用 `Command.PARENT`** 进行状态更新
+> 当您将父图和子图[state schemas](/oss/python/langgraph/graph-api#schema)共享的键的更新从子图节点发送到父图节点时，您**必须**为您在父图状态中更新的键定义一个[reducer](/oss/python/langgraph/graph-api#reducers)。请参阅下面的示例。
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import operator
@@ -2280,11 +2253,11 @@ def lookup_user_info(runtime: ToolRuntime):
             "messages": [ToolMessage("Successfully looked up user information", tool_call_id=runtime.tool_call_id)]
         }
     )
-```
+```> [!警告]
+>
+> 当从工具返回[⟦T368⟧](https://reference.langchain.com/python/langgraph/types/Command)时，您必须在`Command.update`中包含`messages`（或用于消息历史记录的任何状态键），并且`messages`中的消息列表必须包含`ToolMessage`。这对于生成的消息历史记录有效是必要的（LLM 提供商要求带有工具调用的 AI 消息后跟工具结果消息）。
 
-<Warning>
-  当从工具返回[⟦T368⟧](https://reference.langchain.com/python/langgraph/types/Command)时，您必须在`Command.update`中包含`messages`（或用于消息历史记录的任何状态键），并且`messages`中的消息列表必须包含`ToolMessage`。这对于生成的消息历史记录有效是必要的（LLM 提供商要求带有工具调用的 AI 消息后跟工具结果消息）。
-</Warning>如果您使用通过 [⟦T371⟧](https://reference.langchain.com/python/langgraph/types/Command) 更新状态的工具，我们建议使用预构建的 [⟦T372⟧](https://reference.langchain.com/python/langgraph/agents/#langgraph.prebuilt.tool_node.ToolNode)，它会自动处理返回 [⟦T373⟧](https://reference.langchain.com/python/langgraph/types/Command) 对象的工具并将它们传播到图形状态。如果您正在编写调用工具的自定义节点，则需要手动传播工具返回的 [⟦T374⟧](https://reference.langchain.com/python/langgraph/types/Command) 对象作为节点的更新。
+如果您使用通过 [⟦T371⟧](https://reference.langchain.com/python/langgraph/types/Command) 更新状态的工具，我们建议使用预构建的 [⟦T372⟧](https://reference.langchain.com/python/langgraph/agents/#langgraph.prebuilt.tool_node.ToolNode) ，它会自动处理返回 [⟦T373⟧](https://reference.langchain.com/python/langgraph/types/Command) 对象的工具并将它们传播到图形状态。如果您正在编写调用工具的自定义节点，则需要手动传播工具返回的 [⟦T374⟧](https://reference.langchain.com/python/langgraph/types/Command) 对象作为节点的更新。
 
 ## 可视化你的图表
 
@@ -2389,9 +2362,7 @@ graph TD;
 
 ### PNG
 
-如果愿意，我们可以将图形渲染为`.png`。这里我们可以使用三个选项：
-
-* 使用Mermaid.ink API（不需要额外的包）
+如果愿意，我们可以将图形渲染为`.png`。这里我们可以使用三个选项：* 使用Mermaid.ink API（不需要额外的包）
 * 使用 Mermaid + Pyppeteer (需要 `pip install pyppeteer`)
 * 使用graphviz（需要`pip install graphviz`）
 
@@ -2406,7 +2377,7 @@ from langchain_core.runnables.graph import CurveStyle, MermaidDrawMethod, NodeSt
 display(Image(app.get_graph().draw_mermaid_png()))
 ```
 
-<img alt="Fractal graph visualization" />
+![Fractal graph visualization](https://mintcdn.com/langchain-5e9cc07a/-_xGPoyjhyiDWTPJ/oss/images/graph_api_image_10.png?fit=max\&auto=format\&n=-_xGPoyjhyiDWTPJ\&q=85\&s=6cb916b7c627e81c2816cc74ebf3f913)
 
 **使用 Mermaid + Pyppeteer**
 
@@ -2443,12 +2414,6 @@ except ImportError:
 
 ***
 
-<div>
-  <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
-  </Callout>
+[Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
 
-  <Callout icon="edit">
-    [Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/use-graph-api.mdx) 或 [file an issue](https://github.com/langchain-ai/docs/issues/new/choose)。
-  </Callout>
-</div>
+[Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/use-graph-api.mdx) 或 [file an issue](https://github.com/langchain-ai/docs/issues/new/choose)。

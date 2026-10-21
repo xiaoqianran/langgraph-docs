@@ -10,29 +10,27 @@
 
 ## 能力
 
-<CardGroup cols={2}>
-  <Card title="Develop your application" cta="Set up your project" href="/langsmith/application-structure" icon="code">
-    构建您的应用程序，配置 Python、JavaScript 和 monorepos 的依赖项，并使用 RemoteGraph、语义搜索、TTL 和 CI/CD 连接代理。
-  </Card>
+> **[Develop your application](/langsmith/application-structure)**
+>
+> 构建您的应用程序，配置 Python、JavaScript 和 monorepos 的依赖项，并使用 RemoteGraph、语义搜索、TTL 和 CI/CD 连接代理。
 
-  <Card title="Agent Server runtime" cta="Explore the runtime" href="/langsmith/agent-server" icon="bolt">
-    使用助手、线程、运行和 cron 作业。流式传输给用户、暂停以供人工审核、处理并发输入并通过 MCP 和 A2A 连接。
-  </Card>
+> **[Agent Server runtime](/langsmith/agent-server)**
+>
+> 使用助手、线程、运行和 cron 作业。流式传输给用户、暂停以供人工审核、处理并发输入并通过 MCP 和 A2A 连接。
 
-  <Card title="Auth & access control" cta="Secure your server" href="/langsmith/auth" icon="lock">
-    对用户进行身份验证、强制实施资源级访问并连接外部 OAuth2 身份提供商。
-  </Card>
+> **[Auth & access control](/langsmith/auth)**
+>
+> 对用户进行身份验证、强制实施资源级访问并连接外部 OAuth2 身份提供商。
 
-  <Card title="Server customization" cta="Customize your server" href="/langsmith/caching" icon="settings">
-    添加缓存、自定义存储和检查点、生命周期挂钩、中间件、自定义路由、加密以及可配置标头和日志。
-  </Card><Card title="REST API" cta="Browse the API" href="/langsmith/server-api-ref" icon="book">
-    适用于助手、线程、运行、crons、存储、A2A、MCP 和系统端点的完整 REST API 参考。
-  </Card>
-</CardGroup>
+> **[Server customization](/langsmith/caching)**
+>
+> 添加缓存、自定义存储和检查点、生命周期挂钩、中间件、自定义路由、加密以及可配置标头和日志。
 
-## 教程
+> **[REST API](/langsmith/server-api-ref)**
+>
+> 针对助手、线程、运行、cron、存储、A2A、MCP 和系统端点的完整 REST API 参考。
 
-* [Collect user feedback for Agent Server runs](/langsmith/agent-server-feedback)：将最终用户反馈附加到运行和跟踪中
+## 教程* [Collect user feedback for Agent Server runs](/langsmith/agent-server-feedback)：将最终用户反馈附加到运行和跟踪中
 * [Deploy other frameworks (e.g., Strands, CrewAI)](/langsmith/deploy-other-frameworks)：使用功能 API 包装现有代理并部署
 * [Implement generative user interfaces with LangGraph](/langsmith/generative-ui-react)：将 UI 元素流式传输到 React 客户端
 * [Implement a CI/CD pipeline](/langsmith/cicd-pipeline-example)：使用 GitHub Actions 自动化测试、评估和部署
@@ -50,12 +48,6 @@
 
 ***
 
-<div className="source-links">
-  <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
-  </Callout>
+[Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
 
-  <Callout icon="edit">
-    [Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/langsmith/agent-server-overview.mdx) 或 [file an issue](https://github.com/langchain-ai/docs/issues/new/choose)。
-  </Callout>
-</div>
+[Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/langsmith/agent-server-overview.mdx) 或 [file an issue](https://github.com/langchain-ai/docs/issues/new/choose)。

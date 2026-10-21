@@ -8,13 +8,13 @@ LangGraph 应用程序由一个或多个图、一个配置文件 (`langgraph.jso
 
 本指南展示了应用程序的典型结构，并向您展示如何提供使用 [LangSmith Deployment](/langsmith/deployment) 部署应用程序所需的配置。
 
-<Info>
-  LangSmith Deployment 是一个托管托管平台，用于部署和扩展LangGraph 代理。它处理基础架构、扩展和操作问题，因此您可以直接从存储库部署有状态、长期运行的代理。在[Deployment documentation](/langsmith/deployment)了解更多信息。
-</Info>
+> [!注意]
+>
+> LangSmith Deployment 是一个托管托管平台，用于部署和扩展 LangGraph 代理。它处理基础架构、扩展和操作问题，因此您可以直接从存储库部署有状态、长期运行的代理。在[Deployment documentation](/langsmith/deployment)了解更多信息。
 
 ## 关键概念
 
-使用LangSmith进行部署，需要提供以下信息：
+要使用LangSmith进行部署，应提供以下信息：
 
 1. [LangGraph configuration file](#configuration-file-concepts) (`langgraph.json`)，指定应用程序使用的依赖项、图表和环境变量。
 2. 实现应用程序逻辑的[graphs](#graphs)。
@@ -25,43 +25,41 @@ LangGraph 应用程序由一个或多个图、一个配置文件 (`langgraph.jso
 
 以下是应用程序目录结构的示例：
 
-<Tabs>
-  <Tab title="Python (requirements.txt)">
-    ```plaintext theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    my-app/
-    ├── my_agent # all project code lies within here
-    │   ├── utils # utilities for your graph
-    │   │   ├── __init__.py
-    │   │   ├── tools.py # tools for your graph
-    │   │   ├── nodes.py # node functions for your graph
-    │   │   └── state.py # state definition of your graph
-    │   ├── __init__.py
-    │   └── agent.py # code for constructing your graph
-    ├── .env # environment variables
-    ├── requirements.txt # package dependencies
-    └── langgraph.json # configuration file for LangGraph
-    ```
-  </Tab>
+**Python（需求.txt）**
 
-  <Tab title="Python (pyproject.toml)">
-    ```plaintext theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-    my-app/
-    ├── my_agent # all project code lies within here
-    │   ├── utils # utilities for your graph
-    │   │   ├── __init__.py
-    │   │   ├── tools.py # tools for your graph
-    │   │   ├── nodes.py # node functions for your graph
-    │   │   └── state.py # state definition of your graph
-    │   ├── __init__.py
-    │   └── agent.py # code for constructing your graph
-    ├── .env # environment variables
-    ├── langgraph.json  # configuration file for LangGraph
-    └── pyproject.toml # dependencies for your project
-    ```
-  </Tab>
-</Tabs><Note>
-  LangGraph 应用程序的目录结构可能会根据所使用的编程语言和包管理器而有所不同。
-</Note>
+```plaintext theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+my-app/
+├── my_agent # all project code lies within here
+│   ├── utils # utilities for your graph
+│   │   ├── __init__.py
+│   │   ├── tools.py # tools for your graph
+│   │   ├── nodes.py # node functions for your graph
+│   │   └── state.py # state definition of your graph
+│   ├── __init__.py
+│   └── agent.py # code for constructing your graph
+├── .env # environment variables
+├── requirements.txt # package dependencies
+└── langgraph.json # configuration file for LangGraph
+```
+
+**Python (pyproject.toml)**
+
+```plaintext theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+my-app/
+├── my_agent # all project code lies within here
+│   ├── utils # utilities for your graph
+│   │   ├── __init__.py
+│   │   ├── tools.py # tools for your graph
+│   │   ├── nodes.py # node functions for your graph
+│   │   └── state.py # state definition of your graph
+│   ├── __init__.py
+│   └── agent.py # code for constructing your graph
+├── .env # environment variables
+├── langgraph.json  # configuration file for LangGraph
+└── pyproject.toml # dependencies for your project
+```> [!注意]
+>
+> LangGraph 应用程序的目录结构可能会根据所使用的编程语言和包管理器而有所不同。
 
 ## 配置文件
 
@@ -69,9 +67,9 @@ LangGraph 应用程序由一个或多个图、一个配置文件 (`langgraph.jso
 
 有关 JSON 文件中所有支持的键的详细信息，请参阅 [LangGraph configuration file reference](/langsmith/cli#configuration-file)。
 
-<Tip>
-  [LangGraph CLI](/langsmith/cli) 默认使用当前目录下的配置文件`langgraph.json`。
-</Tip>
+> [!提示]
+>
+> [LangGraph CLI](/langsmith/cli) 默认使用当前目录下的配置文件`langgraph.json`。
 
 ### 示例
 
@@ -113,12 +111,6 @@ LangGraph 应用程序可能依赖于其他 Python 包。
 
 ***
 
-<div>
-  <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
-  </Callout>
+[Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
 
-  <Callout icon="edit">
-    [Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/application-structure.mdx) 或 [file an issue](https://github.com/langchain-ai/docs/issues/new/choose)。
-  </Callout>
-</div>
+[Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/application-structure.mdx) 或 [file an issue](https://github.com/langchain-ai/docs/issues/new/choose)。

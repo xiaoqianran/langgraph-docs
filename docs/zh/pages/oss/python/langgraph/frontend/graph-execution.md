@@ -18,8 +18,6 @@ LangGraph 特工不是黑匣子。每个图都由**命名节点**组成
 响应，您可以公开相同的检查点、节点名称、状态密钥和
 LangGraph内部使用的流元数据。
 
-<PatternEmbed />
-
 ## 图形节点如何映射到 UI 卡
 
 LangGraph 图定义了一系列节点，每个节点负责特定的任务
@@ -59,35 +57,61 @@ graphNodes.forEach((node) => {
 当前运行）。将每个发现的子图快照传递给选择器以读取
 消息范围仅限于该节点。
 
-<Info>
-  代码示例使用 `useStream<typeof myAgent>` 来实现类型安全的流状态。请参阅 [Python](/oss/python/langchain/frontend/overview#type-inference) 或 [JavaScript](/oss/javascript/langchain/frontend/overview#type-inference) 后端的类型推断。
-</Info>
+> [!注意]
+>
+> 代码示例使用 `useStream<typeof myAgent>` 来实现类型安全的流状态。请参阅 [Python](/oss/python/langchain/frontend/overview#type-inference) 或 [JavaScript](/oss/javascript/langchain/frontend/overview#type-inference) 后端的类型推断。
 
-<CodeGroup>
-  ```tsx React theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  import { useStream } from "@langchain/react";
+```tsx React theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import { useStream } from "@langchain/react";
 
-  const AGENT_URL = "http://localhost:2024";
+const AGENT_URL = "http://localhost:2024";
 
-  export function PipelineChat() {
-    const stream = useStream<typeof myAgent>({
-      apiUrl: AGENT_URL,
-      assistantId: "graph_execution_cards",
-    });
-    const graphNodes = [...stream.subgraphs.values()];
+export function PipelineChat() {
+  const stream = useStream<typeof myAgent>({
+    apiUrl: AGENT_URL,
+    assistantId: "graph_execution_cards",
+  });
+  const graphNodes = [...stream.subgraphs.values()];
 
-    return (
-      <div>
-        <PipelineProgress nodes={graphNodes} isLoading={stream.isLoading} />
-        <NodeCardList nodes={graphNodes} stream={stream} isLoading={stream.isLoading} />
-      </div>
-    );
-  }
-  ```
+  return (
+    <div>
+      <PipelineProgress nodes={graphNodes} isLoading={stream.isLoading} />
+      <NodeCardList nodes={graphNodes} stream={stream} isLoading={stream.isLoading} />
+    </div>
+  );
+}
+```
 
-  ```vue Vue theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  <script setup lang="ts">
-  import { useStream } from "@langchain/vue";
+```vue Vue theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+<script setup lang="ts">
+import { useStream } from "@langchain/vue";
+
+const AGENT_URL = "http://localhost:2024";
+
+const stream = useStream<typeof myAgent>({
+  apiUrl: AGENT_URL,
+  assistantId: "graph_execution_cards",
+});
+</script>
+
+<template>
+  <div>
+    <PipelineProgress
+      :nodes="[...stream.subgraphs.value.values()]"
+      :is-loading="stream.isLoading.value"
+    />
+    <NodeCardList
+      :nodes="[...stream.subgraphs.value.values()]"
+      :stream="stream"
+      :is-loading="stream.isLoading.value"
+    />
+  </div>
+</template>
+```
+
+```svelte Svelte theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+<script lang="ts">
+  import { useStream } from "@langchain/svelte";
 
   const AGENT_URL = "http://localhost:2024";
 
@@ -95,77 +119,49 @@ graphNodes.forEach((node) => {
     apiUrl: AGENT_URL,
     assistantId: "graph_execution_cards",
   });
-  </script>
+</script>
 
-  <template>
+<div>
+  <PipelineProgress nodes={[...stream.subgraphs.values()]} isLoading={stream.isLoading} />
+  <NodeCardList
+    nodes={[...stream.subgraphs.values()]}
+    {stream}
+    isLoading={stream.isLoading}
+  />
+</div>
+```
+
+```ts Angular theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import { Component, computed } from "@angular/core";
+import { injectStream } from "@langchain/angular";
+
+const AGENT_URL = "http://localhost:2024";
+
+@Component({
+  selector: "app-pipeline-chat",
+  template: `
     <div>
-      <PipelineProgress
-        :nodes="[...stream.subgraphs.value.values()]"
-        :is-loading="stream.isLoading.value"
+      <app-pipeline-progress
+        [nodes]="graphNodes()"
+        [isLoading]="stream.isLoading()"
       />
-      <NodeCardList
-        :nodes="[...stream.subgraphs.value.values()]"
-        :stream="stream"
-        :is-loading="stream.isLoading.value"
+      <app-node-card-list
+        [nodes]="graphNodes()"
+        [stream]="stream"
+        [isLoading]="stream.isLoading()"
       />
     </div>
-  </template>
-  ```
+  `,
+})
+export class PipelineChatComponent {
+  stream = injectStream<typeof myAgent>({
+    apiUrl: AGENT_URL,
+    assistantId: "graph_execution_cards",
+  });
 
-  ```svelte Svelte theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  <script lang="ts">
-    import { useStream } from "@langchain/svelte";
-
-    const AGENT_URL = "http://localhost:2024";
-
-    const stream = useStream<typeof myAgent>({
-      apiUrl: AGENT_URL,
-      assistantId: "graph_execution_cards",
-    });
-  </script>
-
-  <div>
-    <PipelineProgress nodes={[...stream.subgraphs.values()]} isLoading={stream.isLoading} />
-    <NodeCardList
-      nodes={[...stream.subgraphs.values()]}
-      {stream}
-      isLoading={stream.isLoading}
-    />
-  </div>
-  ```
-
-  ```ts Angular theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  import { Component, computed } from "@angular/core";
-  import { injectStream } from "@langchain/angular";
-
-  const AGENT_URL = "http://localhost:2024";
-
-  @Component({
-    selector: "app-pipeline-chat",
-    template: `
-      <div>
-        <app-pipeline-progress
-          [nodes]="graphNodes()"
-          [isLoading]="stream.isLoading()"
-        />
-        <app-node-card-list
-          [nodes]="graphNodes()"
-          [stream]="stream"
-          [isLoading]="stream.isLoading()"
-        />
-      </div>
-    `,
-  })
-  export class PipelineChatComponent {
-    stream = injectStream<typeof myAgent>({
-      apiUrl: AGENT_URL,
-      assistantId: "graph_execution_cards",
-    });
-
-    graphNodes = computed(() => [...this.stream.subgraphs().values()]);
-  }
-  ```
-</CodeGroup>
+  graphNodes = computed(() => [...this.stream.subgraphs().values()]);
+}
+```
 
 ## 将流令牌路由到节点随着图流式传输，每个发现的子图快照都会标识它的节点
 属于.将该快照传递给选择器挂钩或可组合项以读取
@@ -330,11 +326,11 @@ function NodeContent({ stream, node }: { stream: AnyStream; node: SubgraphDiscov
 }
 ```
 
-<Tip>
-  流媒体内容可能包含未经过处理的部分标记或降价
-  尚未完全成型。如果您渲染 Markdown，请确保您的渲染器可以处理
-  优雅地处理不完整的语法（例如，未闭合的粗体标记`**`）。
-</Tip>
+> [!提示]
+>
+> 流媒体内容可能包含未经过处理的部分标记或降价
+> 尚未完全成型。如果您渲染 Markdown，请确保您的渲染器可以处理
+> 优雅地不完整语法（例如，未闭合的粗体标记`**`）。
 
 ## 将它们放在一起
 
@@ -392,12 +388,12 @@ const activeNodes = [...stream.subgraphs.values()];
 这可确保您的 UI 仅显示与相关节点相关的卡片
 当前执行，避免空占位卡。
 
-<Info>
-  如果您的图表具有条件分支（例如，跳过“研究”以获得简单的结果）
-  事实查询），跳过的节点不会出现在`stream.subgraphs`中。你的
-  管道进度条可以仅渲染已发现的节点或使预期节点变暗
-  没有匹配的快照。
-</Info>
+> [!注意]
+>
+> 如果您的图表具有条件分支（例如，跳过“研究”以获得简单的结果）
+>事实查询），跳过的节点不会出现在`stream.subgraphs`中。你的
+> 管道进度条可以仅渲染已发现的节点或使预期节点变暗
+> 没有匹配的快照。
 
 ## 最佳实践* **从流中发现节点**。来自`stream.subgraphs`的渲染卡
   而不是对预期节点进行硬编码；有条件或跳过的步骤不会
@@ -419,10 +415,6 @@ const activeNodes = [...stream.subgraphs.values()];
 
 ***
 
-<div>
-  <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
-  </Callout><Callout icon="edit">
-    [Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/frontend/graph-execution.mdx) 或 [file an issue](https://github.com/langchain-ai/docs/issues/new/choose)。
-  </Callout>
-</div>
+[Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
+
+[Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/frontend/graph-execution.mdx) 或 [file an issue](https://github.com/langchain-ai/docs/issues/new/choose)。

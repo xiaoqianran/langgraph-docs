@@ -4,9 +4,9 @@
 
 # 向后兼容性
 
-更新生产中的 LangGraph 图形代码，而不会中断运行中的运行。
+更新生产中的LangGraph图形代码，而不会中断运行中的运行。
 
-软件需要在生产中改变。新的需求、错误修复和重构最终都会出现在您的图形代码中。因为 LangGraph 针对现有线程的 [persisted](/oss/python/langgraph/persistence) 状态运行最新部署的图，所以您发布的每个更改实际上都是相对于现有检查点的向后兼容的 API 更改。
+软件需要在生产中改变。新的需求、错误修复和重构最终都会出现在您的图形代码中。由于 LangGraph 针对现有线程的 [persisted](/oss/python/langgraph/persistence) 状态运行最新部署的图，因此您发布的每个更改实际上都是相对于现有检查点的向后兼容的 API 更改。
 
 与将运行固定到其开始的代码版本的工作流引擎不同，LangGraph将最新的图表立即应用于*每个*线程，包括新线程和从检查点恢复的线程。这很方便：错误修复无需仪式即可传播到飞行中的对话和代理。这还意味着您必须推断每个更改如何与在先前版本的代码下启动的运行交互。
 
@@ -14,17 +14,17 @@
 2. [Business compatibility](#business-compatibility)：不太常见；即使代码已更改，现有运行也应继续遵循旧的业务逻辑。
 3. [Non-determinism](#non-determinism)：仅适用于[Functional API](/oss/python/langgraph/functional-api)。
 
-<Tip>
-  有关运行时默认支持的图形拓扑和状态更改的简短摘要，请参阅[Graph migrations](/oss/python/langgraph/graph-api#graph-migrations)。本页的其余部分介绍了当更改超出支持集时可以应用的模式。
-</Tip>
+> [!提示]
+>
+> 有关运行时默认支持的图形拓扑和状态更改的简短摘要，请参阅[Graph migrations](/oss/python/langgraph/graph-api#graph-migrations)。本页的其余部分介绍了当更改超出支持集时可以应用的模式。
 
 ## 技术兼容性
 
-技术兼容性相当于微服务中 API 的重大更改。这里的“API”是图形代码和现有线程的[checkpointer](/oss/python/langgraph/checkpointers#checkpointer-libraries)已经保存的数据之间的契约。当线程恢复时，LangGraph反序列化保存的状态，按名称将其分派到节点，并期望该节点返回适合状态模式的值。
+技术兼容性相当于微服务中 API 的重大更改。这里的“API”是图形代码和现有线程的[checkpointer](/oss/python/langgraph/checkpointers#checkpointer-libraries)已经保存的数据之间的契约。当线程恢复时，LangGraph 反序列化保存的状态，按名称将其分派到节点，并期望该节点返回适合状态模式的值。
 
 常见技术故障：* **重命名或删除节点**，当线程暂停或即将进入该节点时，例如在 [⟦T2⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 处或通过仍路由到旧名称的检查点条件边。恢复时，LangGraph无法通过保存的名称找到节点，并且运行失败。恢复运行的起点是执行停止的节点的开头，因此丢失的节点无处可恢复。
 * **重命名或删除旧检查点仍然包含的或下游节点仍然读取的状态密钥**。
-* **收紧状态字段**，例如将 `Optional` 字段设置为必填字段、缩小类型范围或添加新的不带默认值的必填字段。现有检查点将无法满足新模式。
+* **收紧状态字段**，例如将 `Optional` 字段设为必填、缩小类型范围或添加新的不带默认值的必填字段。现有检查点将无法满足新模式。
 
 边缘拓扑本身*不*保留在检查点中。在仍然存在的节点之间添加、删除或重新路由边对于运行中的线程来说是安全的。根据 [Graph migrations](/oss/python/langgraph/graph-api#graph-migrations) 总结，唯一可能破坏中断线程的拓扑更改是重命名或删除节点。
 
@@ -117,7 +117,7 @@ graph = builder.compile()
 
 仅当您在需要版本控制的任何分支之前*在线程启动时*设置版本时，此模式才有效。稍后设置意味着现有线程在需要时不会设置它。## 非决定论
 
-此类别仅适用于 [Graph API](/oss/python/langgraph/graph-api) **节点** 内的 [Functional API](/oss/python/langgraph/functional-api) 和 [**tasks**](/oss/python/langgraph/functional-api#task) 或 [⟦T29⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 调用。 Plain Graph API **节点** [re-run from the start of the node function](/oss/python/langgraph/graph-api#re-execution-and-idempotency) 恢复；将副作用设计为幂等的，但您不需要保留任务调用顺序，除非您在该 **节点** 中使用 **任务** 或 [⟦T30⟧](https://reference.langchain.com/python/langgraph/types/interrupt)。
+此类别仅适用于 [Graph API](/oss/python/langgraph/graph-api) **节点** 内的 [Functional API](/oss/python/langgraph/functional-api) 和 [**tasks**](/oss/python/langgraph/functional-api#task) 或 [⟦T29⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 调用。 Plain Graph API **节点** [re-run from the start of the node function](/oss/python/langgraph/graph-api#re-execution-and-idempotency) 恢复；将副作用设计为幂等，但您不需要保留任务调用顺序，除非您在该 **节点** 中使用 **任务** 或 [⟦T30⟧](https://reference.langchain.com/python/langgraph/types/interrupt)。
 
 功能 API **入口点** 编译为单个 **节点**，该节点在运行恢复时从头开始重播入口点主体，使用缓存的 [⟦T31⟧](https://reference.langchain.com/python/langgraph/func/task) 结果跳过已完成的工作。有两种变化打破了这个模型：
 
@@ -132,12 +132,6 @@ graph = builder.compile()
 
 ***
 
-<div>
-  <Callout icon="terminal-2">
-    [Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
-  </Callout>
+[Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
 
-  <Callout icon="edit">
-    [Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/backward-compatibility.mdx) 或 [file an issue](https://github.com/langchain-ai/docs/issues/new/choose)。
-  </Callout>
-</div>
+[Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/backward-compatibility.mdx) 或 [file an issue](https://github.com/langchain-ai/docs/issues/new/choose)。
