@@ -154,7 +154,7 @@ with PostgresSaver.from_conn_string(DB_URI) as checkpointer:  # [!code highlight
 >> [!提示]
 >>
 >> **设置**
->> 要使用[MongoDB checkpointer](https://pypi.org/project/langgraph-checkpoint-mongodb/)，您需要一个MongoDB集群。如果您还没有集群，请按照 [this guide](https://www.mongodb.com/docs/guides/atlas/cluster/) 创建集群。有关以代理为中心的演练，请参阅 [short-term memory with MongoDB Atlas](/oss/python/integrations/memory/mongodb-short-term-memory)。
+>> 要使用[MongoDB checkpointer](https://pypi.org/project/langgraph-checkpoint-mongodb/)，您需要一个 MongoDB 集群。如果您还没有集群，请按照 [this guide](https://www.mongodb.com/docs/guides/atlas/cluster/) 创建集群。有关以代理为中心的演练，请参阅 [short-term memory with MongoDB Atlas](/oss/python/integrations/memory/mongodb-short-term-memory)。
 >
 > **同步**
 >
@@ -514,7 +514,7 @@ graph = builder.compile(store=store)  # [!code highlight]
 
 ### 访问节点内的存储
 
-一旦你编译了带有存储的图，LangGraph就会自动将存储注入到你的节点函数中。访问存储的推荐方式是通过 `Runtime` 对象。
+一旦你编译了带有存储的图，LangGraph就会自动将存储注入到你的节点函数中。访问商店的推荐方式是通过 `Runtime` 对象。
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from dataclasses import dataclass
@@ -731,6 +731,191 @@ with PostgresStore.from_conn_string(DB_URI) as store:  # [!code highlight]
 > ```
 
 > **示例：使用 MongoDB 存储**
+>
+> ```
+> pip install -U langgraph-store-mongodb langgraph-checkpoint-mongodb
+> ```
+>
+>> [!提示]
+>>
+>> 使用 `query` 进行语义搜索需要 MongoDB Vector Search (`$vectorSearch`)，它运行在 [MongoDB Atlas](https://www.mongodb.com/docs/atlas/) 或使用 [Search and Vector Search](https://www.mongodb.com/docs/search/self-managed/current/) (`mongot`) 的自管理 MongoDB 上。没有 `mongot` 的普通 `mongod` 是不够的。开店时从`create_vector_index_config`经过`index_config`。索引创建可能会超过默认的 15 秒等待时间，因此在第一次运行时将 `auto_index_timeout` 设置得更高。有关 Atlas 集群设置，请参阅[this guide](https://www.mongodb.com/docs/guides/atlas/cluster/)。有关向量索引设置和以代理为中心的演练，请参阅 [long-term memory with MongoDB Atlas](/oss/python/integrations/memory/mongodb-long-term-memory)。
+>
+> **异步**
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import os
+> from collections.abc import Sequence
+> from dataclasses import dataclass
+> from uuid import uuid4
+>
+> from langchain.chat_models import init_chat_model
+> from langgraph.checkpoint.mongodb import MongoDBSaver  # [!code highlight]
+> from langgraph.graph import StateGraph, MessagesState, START
+> from langgraph.runtime import Runtime  # [!code highlight]
+> from langgraph.store.mongodb import MongoDBStore, create_vector_index_config  # [!code highlight]
+>
+> model = init_chat_model(model="claude-haiku-4-5-20251001")
+>
+> def embed(texts: Sequence[str]) -> list[list[float]]:
+>     # Replace with an embeddings model or LangChain Embeddings instance
+>     return [[1.0, 2.0] for _ in texts]
+>
+> @dataclass
+> class Context:
+>     user_id: str
+>
+> async def call_model(  # [!code highlight]
+>     state: MessagesState,
+>     runtime: Runtime[Context],  # [!code highlight]
+> ):
+>     user_id = runtime.context.user_id  # [!code highlight]
+>     namespace = ("memories", user_id)
+>     memories = await runtime.store.asearch(namespace, query=str(state["messages"][-1].content))  # [!code highlight]
+>     info = "\n".join([d.value["data"] for d in memories])
+>     system_msg = f"You are a helpful assistant talking to the user. User info: {info}"
+>
+>     # Store new memories if the user asks the model to remember
+>     last_message = state["messages"][-1]
+>     if "remember" in last_message.content.lower():
+>         memory = "User name is Bob"
+>         await runtime.store.aput(namespace, str(uuid4()), {"data": memory})  # [!code highlight]
+>
+>     response = await model.ainvoke(
+>         [{"role": "system", "content": system_msg}] + state["messages"]
+>     )
+>     return {"messages": response}
+>
+> MONGODB_ATLAS_URI = os.environ["MONGODB_ATLAS_URI"]
+> index_config = create_vector_index_config(embed=embed, dims=2, fields=["data"])  # [!code highlight]
+>
+> with (
+>     MongoDBStore.from_conn_string(  # [!code highlight]
+>         MONGODB_ATLAS_URI,
+>         index_config=index_config,  # [!code highlight]
+>         auto_index_timeout=120,
+>     ) as store,
+>     MongoDBSaver.from_conn_string(MONGODB_ATLAS_URI) as checkpointer,
+> ):
+>     builder = StateGraph(MessagesState, context_schema=Context)  # [!code highlight]
+>     builder.add_node(call_model)
+>     builder.add_edge(START, "call_model")
+>
+>     graph = builder.compile(
+>         checkpointer=checkpointer,
+>         store=store,  # [!code highlight]
+>     )
+>
+>     import asyncio
+>
+>     async def run():
+>         config = {"configurable": {"thread_id": "1"}}
+>         stream = await graph.astream_events(
+>             {"messages": [{"role": "user", "content": "Hi! Remember: my name is Bob"}]},
+>             config,
+>             version="v3",
+>             context=Context(user_id="1"),  # [!code highlight]
+>         )
+>         async for snapshot in stream.values:
+>             snapshot["messages"][-1].pretty_print()
+>
+>         config = {"configurable": {"thread_id": "2"}}
+>         stream = await graph.astream_events(
+>             {"messages": [{"role": "user", "content": "what is my name?"}]},
+>             config,
+>             version="v3",
+>             context=Context(user_id="1"),  # [!code highlight]
+>         )
+>         async for snapshot in stream.values:
+>             snapshot["messages"][-1].pretty_print()
+>
+>     asyncio.run(run())
+> ```
+>
+> **同步**
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import os
+> from collections.abc import Sequence
+> from dataclasses import dataclass
+> from uuid import uuid4
+>
+> from langchain.chat_models import init_chat_model
+> from langgraph.checkpoint.mongodb import MongoDBSaver  # [!code highlight]
+> from langgraph.graph import StateGraph, MessagesState, START
+> from langgraph.runtime import Runtime  # [!code highlight]
+> from langgraph.store.mongodb import MongoDBStore, create_vector_index_config  # [!code highlight]
+>
+> model = init_chat_model(model="claude-haiku-4-5-20251001")
+>
+> def embed(texts: Sequence[str]) -> list[list[float]]:
+>     # Replace with an embeddings model or LangChain Embeddings instance
+>     return [[1.0, 2.0] for _ in texts]
+>
+> @dataclass
+> class Context:
+>     user_id: str
+>
+> def call_model(  # [!code highlight]
+>     state: MessagesState,
+>     runtime: Runtime[Context],  # [!code highlight]
+> ):
+>     user_id = runtime.context.user_id  # [!code highlight]
+>     namespace = ("memories", user_id)
+>     memories = runtime.store.search(namespace, query=str(state["messages"][-1].content))  # [!code highlight]
+>     info = "\n".join([d.value["data"] for d in memories])
+>     system_msg = f"You are a helpful assistant talking to the user. User info: {info}"
+>
+>     # Store new memories if the user asks the model to remember
+>     last_message = state["messages"][-1]
+>     if "remember" in last_message.content.lower():
+>         memory = "User name is Bob"
+>         runtime.store.put(namespace, str(uuid4()), {"data": memory})  # [!code highlight]
+>
+>     response = model.invoke(
+>         [{"role": "system", "content": system_msg}] + state["messages"]
+>     )
+>     return {"messages": response}
+>
+> MONGODB_ATLAS_URI = os.environ["MONGODB_ATLAS_URI"]
+> index_config = create_vector_index_config(embed=embed, dims=2, fields=["data"])  # [!code highlight]
+>
+> with (
+>     MongoDBStore.from_conn_string(  # [!code highlight]
+>         MONGODB_ATLAS_URI,
+>         index_config=index_config,  # [!code highlight]
+>         auto_index_timeout=120,
+>     ) as store,
+>     MongoDBSaver.from_conn_string(MONGODB_ATLAS_URI) as checkpointer,
+> ):
+>     builder = StateGraph(MessagesState, context_schema=Context)  # [!code highlight]
+>     builder.add_node(call_model)
+>     builder.add_edge(START, "call_model")
+>
+>     graph = builder.compile(
+>         checkpointer=checkpointer,
+>         store=store,  # [!code highlight]
+>     )
+>
+>     config = {"configurable": {"thread_id": "1"}}
+>     stream = graph.stream_events(
+>         {"messages": [{"role": "user", "content": "Hi! Remember: my name is Bob"}]},
+>         config,
+>         version="v3",
+>         context=Context(user_id="1"),  # [!code highlight]
+>     )
+>     for snapshot in stream.values:
+>         snapshot["messages"][-1].pretty_print()
+>
+>     config = {"configurable": {"thread_id": "2"}}
+>     stream = graph.stream_events(
+>         {"messages": [{"role": "user", "content": "what is my name?"}]},
+>         config,
+>         version="v3",
+>         context=Context(user_id="1"),  # [!code highlight]
+>     )
+>     for snapshot in stream.values:
+>         snapshot["messages"][-1].pretty_print()
+> ```
 
 > **示例：使用 Redis 存储**
 >
@@ -892,9 +1077,7 @@ with PostgresStore.from_conn_string(DB_URI) as store:  # [!code highlight]
 >     )
 >     for snapshot in stream.values:
 >         snapshot["messages"][-1].pretty_print()
-> ```
-
-> **示例：使用 Oracle 存储**
+> ```> **示例：使用 Oracle 存储**
 >
 > ```
 > pip install -U langgraph langgraph-oracledb langchain-openai
@@ -1168,19 +1351,19 @@ items = store.search(
 
 ## 管理短期记忆
 
-启用 [short-term memory](#add-short-term-memory) 后，长时间对话可能会超出 LLM 的上下文窗口。常见的解决方案有：* [Trim messages](#trim-messages)：删除前N条或后N条消息（在调用LLM之前）
+启用 [short-term memory](#add-short-term-memory) 后，长时间对话可能会超出 LLM 的上下文窗口。常见的解决方案有：
+
+* [Trim messages](#trim-messages)：删除前N条或后N条消息（在调用LLM之前）
 * [Delete messages](#delete-messages)从LangGraph状态永久
-* [Summarize messages](#summarize-messages)：总结历史中较早的消息并用摘要替换它们
+* [Summarize messages](#summarize-messages)：总结历史记录中较早的消息并用摘要替换它们
 * [Manage checkpoints](#manage-checkpoints) 存储和检索消息历史记录
 * 自定义策略（例如消息过滤等）
 
 这允许代理在不超出 LLM 上下文窗口的情况下跟踪对话。
 
-### 修剪消息
+### 修剪消息大多数法学硕士都有最大支持的上下文窗口（以令牌计价）。决定何时截断消息的一种方法是计算消息历史记录中的标记，并在接近该限制时进行截断。如果您使用 LangChain，则可以使用修剪消息实用程序并指定要从列表中保留的标记数量，以及用于处理边界的 `strategy`（例如，保留最后一个 `max_tokens`）。
 
-大多数法学硕士都有最大支持的上下文窗口（以令牌计价）。决定何时截断消息的一种方法是计算消息历史记录中的标记，并在接近该限制时进行截断。如果您使用 LangChain，则可以使用修剪消息实用程序并指定要从列表中保留的标记数量，以及用于处理边界的 `strategy`（例如，保留最后一个 `max_tokens`）。
-
-要修剪消息历史记录，请使用 [⟦T62⟧](https://reference.langchain.com/python/langchain-core/messages/utils/trim_messages) 函数：
+要修剪消息历史记录，请使用 [⟦T73⟧](https://reference.langchain.com/python/langchain-core/messages/utils/trim_messages) 函数：
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from langchain_core.messages.utils import (  # [!code highlight]
@@ -1253,7 +1436,9 @@ builder.add_node(call_model)
 
 ### 删除消息
 
-您可以从图形状态中删除消息以管理消息历史记录。当您想要删除特定消息或清除整个消息历史记录时，这非常有用。要从图形状态中删除消息，您可以使用`RemoveMessage`。要使 `RemoveMessage` 工作，您需要使用带有 [⟦T65⟧](https://reference.langchain.com/python/langgraph/graph/message/add_messages) [reducer](/oss/python/langgraph/graph-api#reducers) 的状态密钥，例如 [⟦T66⟧](/oss/python/langgraph/graph-api#messagesstate)。
+您可以从图形状态中删除消息以管理消息历史记录。当您想要删除特定消息或清除整个消息历史记录时，这非常有用。
+
+要从图形状态中删除消息，您可以使用`RemoveMessage`。要使 `RemoveMessage` 工作，您需要使用带有 [⟦T76⟧](https://reference.langchain.com/python/langgraph/graph/message/add_messages) [reducer](/oss/python/langgraph/graph-api#reducers) 的状态密钥，例如 [⟦T77⟧](/oss/python/langgraph/graph-api#messagesstate)。
 
 要删除特定消息：
 
@@ -1274,9 +1459,7 @@ from langgraph.graph.message import REMOVE_ALL_MESSAGES  # [!code highlight]
 
 def delete_messages(state):
     return {"messages": [RemoveMessage(id=REMOVE_ALL_MESSAGES)]}  # [!code highlight]
-```
-
-> [!警告]
+```> [!警告]
 >
 > 删除消息时，**确保**生成的消息历史记录有效。检查您正在使用的 LLM 提供商的限制。例如：
 >
@@ -1337,13 +1520,15 @@ def delete_messages(state):
 
 ![Summary](https://mintcdn.com/langchain-5e9cc07a/ybiAaBfoBvFquMDz/oss/images/summary.png?fit=max\&auto=format\&n=ybiAaBfoBvFquMDz\&q=85\&s=c8ed3facdccd4ef5c7e52902c72ba938)
 
-提示和编排逻辑可用于总结消息历史记录。例如，在 LangGraph 中，您可以扩展 [⟦T70⟧](/oss/python/langgraph/graph-api#working-with-messages-in-graph-state) 以包含 `summary` 键：
+提示和编排逻辑可用于总结消息历史记录。例如，在 LangGraph 中，您可以扩展 [⟦T81⟧](/oss/python/langgraph/graph-api#working-with-messages-in-graph-state) 以包含 `summary` 键：
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from langgraph.graph import MessagesState
 class State(MessagesState):
     summary: str
-```然后，您可以使用任何现有摘要作为下一个摘要的上下文来生成聊天历史记录的摘要。当`messages`状态键中积累了一定数量的消息后，可以调用该`summarize_conversation`节点。
+```
+
+然后，您可以使用任何现有摘要作为下一个摘要的上下文来生成聊天历史记录的摘要。当`messages`状态键中积累了一定数量的消息后，可以调用该`summarize_conversation`节点。
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 def summarize_conversation(state: State):
@@ -1370,9 +1555,7 @@ def summarize_conversation(state: State):
     # Delete all but the 2 most recent messages
     delete_messages = [RemoveMessage(id=m.id) for m in state["messages"][:-2]]
     return {"summary": response.content, "messages": delete_messages}
-```
-
-> **完整示例：总结消息**
+```> **完整示例：总结消息**
 >
 > ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > from typing import Any, TypedDict
@@ -1425,7 +1608,7 @@ def summarize_conversation(state: State):
 > print("\nSummary:", final_response["context"]["running_summary"].summary)
 > ```
 >
-> 1. 我们将在`context`字段中跟踪我们的运行总结
+> 1. 我们会在`context`字段中记录我们的运行总结
 >
 >（`SummarizationNode` 预期）。
 >
@@ -1704,9 +1887,9 @@ thread_id = "1"
 checkpointer.delete_thread(thread_id)
 ```
 
-## 数据库管理如果您使用任何数据库支持的持久性实现（例如 Postgres、Redis 或 Oracle）来存储短期和/或长期内存，则需要运行迁移来设置所需的架构，然后才能将其与数据库一起使用。
+## 数据库管理
 
-按照惯例，大多数特定于数据库的库在运行所需迁移的检查点或存储实例上定义了一个 `setup()` 方法。但是，您应该检查[⟦T78⟧](https://reference.langchain.com/python/langgraph/checkpoints/#langgraph.checkpoint.base.BaseCheckpointSaver)或[⟦T79⟧](https://reference.langchain.com/python/langchain-core/stores/BaseStore)的具体实现，以确认确切的方法名称和用法。
+如果您使用任何数据库支持的持久性实现（例如 Postgres、Redis 或 Oracle）来存储短期和/或长期内存，则需要运行迁移来设置所需的架构，然后才能将其与数据库一起使用。按照惯例，大多数特定于数据库的库在运行所需迁移的检查点或存储实例上定义了一个 `setup()` 方法。但是，您应该检查[⟦T89⟧](https://reference.langchain.com/python/langgraph/checkpoints/#langgraph.checkpoint.base.BaseCheckpointSaver)或[⟦T90⟧](https://reference.langchain.com/python/langchain-core/stores/BaseStore)的具体实现，以确认确切的方法名称和用法。
 
 我们建议将迁移作为专用部署步骤运行，或者您可以确保它们作为服务器启动的一部分运行。
 

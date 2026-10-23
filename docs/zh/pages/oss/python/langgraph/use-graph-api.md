@@ -46,7 +46,7 @@ class State(TypedDict):
     extra_field: int
 ```
 
-此状态跟踪 [message](https://python.langchain.com/docs/concepts/messages/) 对象列表，以及一个额外的整数字段。
+此状态跟踪 [message](/oss/python/langchain/messages) 对象列表，以及一个额外的整数字段。
 
 ### 更新状态
 
@@ -104,7 +104,7 @@ result
 * 我们通过更新状态的单个键来启动调用。
 * 我们在调用结果中收到整个状态。
 
-为了方便起见，我们经常通过漂亮打印检查[message objects](https://python.langchain.com/docs/concepts/messages/)的内容：
+为了方便起见，我们经常通过漂亮打印检查[message objects](/oss/python/langchain/messages)的内容：
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 for message in result["messages"]:
@@ -171,7 +171,7 @@ Hello!
 #### 消息状态
 
 在实践中，更新消息列表还有其他注意事项：* 我们可能希望更新该州的现有消息。
-* 我们可能希望接受 [message formats](/oss/python/langgraph/graph-api#using-messages-in-your-graph) 的简写形式，例如 [OpenAI format](https://python.langchain.com/docs/concepts/messages/#openai-format)。
+* 我们可能希望接受 [message formats](/oss/python/langgraph/graph-api#using-messages-in-your-graph) 的简写形式，例如 [OpenAI format](/oss/python/langchain/messages#message-content)。
 
 LangGraph 包含一个内置减速器 [⟦T149⟧](https://reference.langchain.com/python/langgraph/graph/message/add_messages)，可处理以下注意事项：
 
@@ -207,7 +207,7 @@ Hi
 Hello!
 ```
 
-对于涉及[chat models](https://python.langchain.com/docs/concepts/chat_models/)的应用程序来说，这是一种通用的状态表示。为了方便起见，LangGraph 包含一个预建的 `MessagesState`，这样我们就可以：
+对于涉及[chat models](/oss/python/langchain/models)的应用程序来说，这是一种通用的状态表示。为了方便起见，LangGraph 包含一个预建的 `MessagesState`，这样我们就可以：
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from langgraph.graph import MessagesState
@@ -893,7 +893,7 @@ graph = (
 
 ### 访问节点内的执行信息
 
-您可以通过`runtime.execution_info`访问执行身份和重试信息。这会显示线程、运行和检查点标识符以及重试状态，而无需直接从 `config` 读取。|属性 |类型 |描述 |
+您可以通过`runtime.execution_info`访问执行身份和重试信息。这会显示线程、运行和检查点标识符以及重试状态，而无需直接从 `config` 读取。|属性|类型 |描述 |
 | - | - | - |
 | `thread_id` | `str \| None` |当前执行的线程 ID。 `None` 没有检查点。 |
 | `run_id` | `str \| None` |当前执行的运行 ID。 `None` 当配置中未提供时。 |
@@ -958,7 +958,7 @@ graph = builder.compile()
 
 ### 访问节点内的服务器信息当您的图表在LangGraph服务器上运行时，您可以通过`runtime.server_info`访问特定于服务器的元数据。这会显示助手 ID、图形 ID 和经过身份验证的用户，而无需直接读取配置元数据或可配置密钥。
 
-|属性 |类型 |描述 |
+|属性|类型 |描述 |
 | - | - | - |
 | `assistant_id` | `str` |当前部署的助手 ID。 |
 | `graph_id` | `str` |当前部署的图形 ID。 |
@@ -1814,9 +1814,9 @@ Recursion Error
 2. 更新里面的代码以正确使用`await`。
 3. 根据需要使用 `.ainvoke` 或 `.astream` 调用图表。
 
-由于许多 LangChain 对象实现了 [Runnable Protocol](https://python.langchain.com/docs/expression_language/interface/)，而 [Runnable Protocol](https://python.langchain.com/docs/expression_language/interface/) 具有所有 `sync` 方法的 `async` 变体，因此通常可以相当快地将 `sync` 图升级为 `async` 图。
+由于许多 LangChain 对象实现了 [Runnable Protocol](https://reference.langchain.com/python/langchain-core/runnables/base/Runnable)，而 [Runnable Protocol](https://reference.langchain.com/python/langchain-core/runnables/base/Runnable) 具有所有 `sync` 方法的 `async` 变体，因此通常可以相当快地将 `sync` 图升级为 `async` 图。
 
-请参见下面的示例。为了演示底层 LLM 的异步调用，我们将包含一个聊天模型：
+请参阅下面的示例。为了演示底层 LLM 的异步调用，我们将包含一个聊天模型：
 
 **OpenAI**
 

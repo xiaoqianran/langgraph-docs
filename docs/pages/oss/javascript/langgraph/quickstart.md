@@ -4,6 +4,8 @@
 
 This quickstart demonstrates how to build a calculator agent using the LangGraph Graph API or the Functional API.
 
+Build the LangGraph calculator quickstart
+
 Build a LangGraph calculator agent in this working directory by following the LangGraph quickstart.
 
 ## Step 1: Read the guide
@@ -39,6 +41,8 @@ Implement the selected quickstart path end to end: tools for add, multiply, and 
 >
 > * Install the [LangChain Docs MCP servers](/use-these-docs) to give your agent access to up-to-date LangChain documentation and examples.
 >
+>   Connect LangChain docs MCP servers
+>
 >   Connect both LangChain documentation MCP servers to my coding agent so it can look up current LangChain, LangGraph, and LangSmith docs and API reference.
 >
 >   Servers to add:
@@ -55,6 +59,8 @@ Implement the selected quickstart path end to end: tools for add, multiply, and 
 >
 >   Do not invent alternate MCP URLs. After configuring, confirm both servers are listed and reachable.
 > * Install [LangChain Skills](https://github.com/langchain-ai/langchain-skills) to improve your agent's performance on LangChain ecosystem tasks.
+>
+>   Install LangChain Skills
 >
 >   Install LangChain Skills for my coding agent so it can perform better on LangChain, LangGraph, and Deep Agents tasks.
 >

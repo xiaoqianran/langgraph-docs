@@ -46,7 +46,7 @@ class State(TypedDict):
     extra_field: int
 ```
 
-This state tracks a list of [message](https://python.langchain.com/docs/concepts/messages/) objects, as well as an extra integer field.
+This state tracks a list of [message](/oss/python/langchain/messages) objects, as well as an extra integer field.
 
 ### Update state
 
@@ -106,7 +106,7 @@ Note that:
 * We kicked off invocation by updating a single key of the state.
 * We receive the entire state in the invocation result.
 
-For convenience, we frequently inspect the content of [message objects](https://python.langchain.com/docs/concepts/messages/) via pretty-print:
+For convenience, we frequently inspect the content of [message objects](/oss/python/langchain/messages) via pretty-print:
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 for message in result["messages"]:
@@ -175,7 +175,7 @@ Hello!
 In practice, there are additional considerations for updating lists of messages:
 
 * We may wish to update an existing message in the state.
-* We may want to accept short-hands for [message formats](/oss/python/langgraph/graph-api#using-messages-in-your-graph), such as [OpenAI format](https://python.langchain.com/docs/concepts/messages/#openai-format).
+* We may want to accept short-hands for [message formats](/oss/python/langgraph/graph-api#using-messages-in-your-graph), such as [OpenAI format](/oss/python/langchain/messages#message-content).
 
 LangGraph includes a built-in reducer [`add_messages`](https://reference.langchain.com/python/langgraph/graph/message/add_messages) that handles these considerations:
 
@@ -211,7 +211,7 @@ Hi
 Hello!
 ```
 
-This is a versatile representation of state for applications involving [chat models](https://python.langchain.com/docs/concepts/chat_models/). LangGraph includes a prebuilt `MessagesState` for convenience, so that we can have:
+This is a versatile representation of state for applications involving [chat models](/oss/python/langchain/models). LangGraph includes a prebuilt `MessagesState` for convenience, so that we can have:
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from langgraph.graph import MessagesState
@@ -1860,7 +1860,7 @@ To convert a `sync` implementation of the graph to an `async` implementation, yo
 2. Update the code inside to use `await` appropriately.
 3. Invoke the graph with `.ainvoke` or `.astream` as desired.
 
-Because many LangChain objects implement the [Runnable Protocol](https://python.langchain.com/docs/expression_language/interface/) which has `async` variants of all the `sync` methods it's typically fairly quick to upgrade a `sync` graph to an `async` graph.
+Because many LangChain objects implement the [Runnable Protocol](https://reference.langchain.com/python/langchain-core/runnables/base/Runnable) which has `async` variants of all the `sync` methods it's typically fairly quick to upgrade a `sync` graph to an `async` graph.
 
 See example below. To demonstrate async invocations of underlying LLMs, we will include a chat model:
 

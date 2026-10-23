@@ -4,6 +4,8 @@
 
 # LangGraph v1 迁移指南
 
+将代码库迁移到 LangGraph v1。
+
 将此代码库迁移到LangGraph v1（需要`langgraph>=1.0.0`、`langchain-core>=0.3.0`）。
 
 主要变化：

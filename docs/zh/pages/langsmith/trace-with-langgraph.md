@@ -105,7 +105,7 @@ export LANGSMITH_WORKSPACE_ID=<your-workspace-id>
 >
 > `export LANGCHAIN_CALLBACKS_BACKGROUND=false`
 >
-> 请参阅[this LangChain.js guide](https://js.langchain.com/docs/how_to/callbacks_serverless) 了解更多信息。
+> 请参阅[this LangChain.js guide](/langsmith/trace-with-langchain#ensure-all-traces-are-submitted-before-exiting) 了解更多信息。
 
 ### 3. 记录跟踪设置环境后，您可以像平常一样调用 LangChain runnables。 LangSmith 将推断正确的跟踪配置：
 
@@ -339,7 +339,7 @@ export OPENAI_API_KEY=<your-openai-api-key>
 >
 > `export LANGCHAIN_CALLBACKS_BACKGROUND=false`
 >
-> 请参阅[this LangChain.js guide](https://js.langchain.com/docs/how_to/callbacks_serverless) 了解更多信息。
+> 请参阅[this LangChain.js guide](/langsmith/trace-with-langchain#ensure-all-traces-are-submitted-before-exiting) 了解更多信息。
 
 ### 3. 记录跟踪设置好环境后，您想要跟踪[wrap or decorate the custom functions/SDKs](/langsmith/annotate-code#use-%40traceable-%2F-traceable)。然后LangSmith将推断出正确的跟踪配置：
 

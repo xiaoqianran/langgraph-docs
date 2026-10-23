@@ -668,7 +668,7 @@ const items = await store.search(["user_123", "memories"], {
 
 ### 修剪消息大多数法学硕士都有最大支持的上下文窗口（以令牌计价）。决定何时截断消息的一种方法是计算消息历史记录中的标记，并在接近该限制时进行截断。如果您使用 LangChain，则可以使用修剪消息实用程序并指定要从列表中保留的标记数量，以及用于处理边界的 `strategy`（例如，保留最后一个 `maxTokens`）。
 
-要修剪消息历史记录，请使用 [⟦T44⟧](https://js.langchain.com/docs/how_to/trim_messages/) 函数：
+要修剪消息历史记录，请使用 [⟦T44⟧](https://reference.langchain.com/javascript/langchain-core/messages/trimMessages) 函数：
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { trimMessages } from "@langchain/core/messages";

@@ -4,6 +4,8 @@
 
 # LangGraph v1 迁移指南
 
+将代码库迁移到 LangGraph v1。
+
 将此代码库迁移到 LangGraph v1（需要 v1 上的 `@langchain/langgraph` 和 `@langchain/core`，以及从 `createReactAgent` 迁移时需要 v1 上的 `langchain` 和 Node.js 22+）。
 
 主要变化：

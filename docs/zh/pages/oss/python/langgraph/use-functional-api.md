@@ -779,7 +779,7 @@ print(accumulate.invoke(3, config=config))  # 3
 机器人能够记住之前的对话并从中断的地方继续。
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-from langchain.messages import BaseMessage
+from langchain_core.messages import BaseMessage
 from langgraph.graph import add_messages
 from langgraph.func import entrypoint, task
 from langgraph.checkpoint.memory import InMemorySaver

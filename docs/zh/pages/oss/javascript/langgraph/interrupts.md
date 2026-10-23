@@ -484,9 +484,10 @@ const sendEmailTool = tool(
 >   StateGraph,
 >   StateSchema,
 >   MessagesValue,
->   GraphNode,
 >   interrupt,
 > } from "@langchain/langgraph";
+> import { ToolNode } from "@langchain/langgraph/prebuilt";
+> import { AIMessage } from "@langchain/core/messages";
 > import * as z from "zod";
 >
 > const sendEmailTool = tool(
@@ -521,6 +522,7 @@ const sendEmailTool = tool(
 > );
 >
 > const model = new ChatAnthropic({ model: "claude-sonnet-4-6" }).bindTools([sendEmailTool]);
+> const toolNode = new ToolNode([sendEmailTool]);
 >
 > const State = new StateSchema({
 >   messages: MessagesValue,
@@ -532,10 +534,21 @@ const sendEmailTool = tool(
 >   return { messages: [response] };
 > };
 >
+> const shouldContinue = (state: typeof State.State) => {
+>   // Route to the tools node if the LLM made a tool call
+>   const lastMessage = state.messages.at(-1);
+>   if (AIMessage.isInstance(lastMessage) && lastMessage.tool_calls?.length) {
+>     return "tools";
+>   }
+>   return END;
+> };
+>
 > const graphBuilder = new StateGraph(State)
 >   .addNode("agent", agent)
+>   .addNode("tools", toolNode)
 >   .addEdge(START, "agent")
->   .addEdge("agent", END);
+>   .addConditionalEdges("agent", shouldContinue, ["tools", END])
+>   .addEdge("tools", "agent"); // Loop back after tools
 >
 > const checkpointer = new MemorySaver();
 > const graph = graphBuilder.compile({ checkpointer });

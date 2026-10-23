@@ -43,7 +43,7 @@ const State = new StateSchema({
 });
 ```
 
-此状态跟踪 [message](https://js.langchain.com/docs/concepts/messages/) 对象列表，以及一个额外的整数字段。
+此状态跟踪 [message](/oss/javascript/langchain/messages) 对象列表，以及一个额外的整数字段。
 
 ### 更新状态
 
@@ -105,7 +105,7 @@ console.log(result);
 * 我们通过更新状态的单个键来启动调用。
 * 我们在调用结果中收到整个状态。
 
-为了方便起见，我们经常通过日志记录来检查[message objects](https://js.langchain.com/docs/concepts/messages/)的内容：
+为了方便起见，我们经常通过日志记录来检查[message objects](/oss/javascript/langchain/messages)的内容：
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 for (const message of result.messages) {
@@ -171,7 +171,7 @@ ai: Hello!
 #### 消息值
 
 在实践中，更新消息列表还有其他注意事项：* 我们可能希望更新该州的现有消息。
-* 我们可能希望接受 [message formats](/oss/javascript/langgraph/graph-api#using-messages-in-your-graph) 的缩写，例如 [OpenAI format](https://python.langchain.com/docs/concepts/messages/#openai-format)。
+* 我们可能希望接受 [message formats](/oss/javascript/langgraph/graph-api#using-messages-in-your-graph) 的缩写，例如 [OpenAI format](/oss/javascript/langchain/messages#message-content)。
 
 LangGraph 包含处理这些注意事项的内置 `MessagesValue`：
 
@@ -210,7 +210,7 @@ human: Hi
 ai: Hello!
 ```
 
-对于涉及[chat models](https://js.langchain.com/docs/concepts/chat_models/)的应用程序来说，这是一种通用的状态表示。为了方便起见，LangGraph包含了预建的`MessagesValue`，这样我们就可以：
+对于涉及[chat models](/oss/javascript/langchain/models)的应用程序来说，这是一种通用的状态表示。为了方便起见，LangGraph包含了预建的`MessagesValue`，这样我们就可以：
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { StateSchema, MessagesValue } from "@langchain/langgraph";
@@ -818,7 +818,7 @@ const graph = new StateGraph(State)
 
 ### 访问节点内的执行信息
 
-您可以通过`runtime.executionInfo`访问执行身份和重试信息。这会显示线程、运行和检查点标识符以及重试状态，而无需直接从 `config` 读取。|属性 |类型 |描述 |
+您可以通过`runtime.executionInfo`访问执行身份和重试信息。这会显示线程、运行和检查点标识符以及重试状态，而无需直接从 `config` 读取。|属性|类型 |描述 |
 | - | - | - |
 | `threadId` | `string \| undefined` |当前执行的线程 ID。 |
 | `runId` | `string \| undefined` |当前执行的运行 ID。 |
@@ -885,7 +885,7 @@ const graph = new StateGraph(State)
 
 ### 访问节点内的服务器信息
 
-当您的图表在LangGraph服务器上运行时，您可以通过`runtime.serverInfo`访问特定于服务器的元数据。|属性 |类型 |描述 |
+当您的图表在LangGraph服务器上运行时，您可以通过`runtime.serverInfo`访问特定于服务器的元数据。|属性|类型 |描述 |
 | - | - | - |
 | `assistantId` | `string` |当前部署的助手 ID。 |
 | `graphId` | `string` |当前部署的图形 ID。 |

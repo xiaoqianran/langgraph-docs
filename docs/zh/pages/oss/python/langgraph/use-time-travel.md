@@ -8,12 +8,12 @@
 
 ## 概述
 
-LangGraph支持通过[checkpoints](/oss/python/langgraph/checkpointers#checkpoints)进行时间旅行：
+LangGraph支持通过[checkpoints](/oss/python/langgraph/checkpointers.md#checkpoints)进行时间旅行：
 
 * **[Replay](#replay)**：从之前的检查点重试。
 * **[Fork](#fork)**：从具有修改状态的先前检查点分支以探索替代路径。
 
-两者都通过从先前的检查点恢复来工作。检查点之前的节点不会重新执行（结果已保存）。检查点之后的节点重新执行，包括任何LLM调用、API请求和[interrupts](/oss/python/langgraph/interrupts)（可能会产生不同的结果）。
+两者都通过从先前的检查点恢复来工作。检查点之前的节点不会重新执行（结果已保存）。检查点之后的节点重新执行，包括任何LLM调用、API请求和[interrupts](/oss/python/langgraph/interrupts.md)（可能会产生不同的结果）。
 
 ## 重播
 
@@ -21,7 +21,7 @@ LangGraph支持通过[checkpoints](/oss/python/langgraph/checkpointers#checkpoin
 
 > [!警告]
 >
-> Replay 重新执行节点——它不只是从缓存中读取。 LLM 调用、API 请求和[interrupts](/oss/python/langgraph/interrupts) 再次触发，可能会返回不同的结果。从最终检查点（无`next`节点）重放是无操作的。
+> Replay 重新执行节点——它不只是从缓存中读取。 LLM 调用、API 请求和[interrupts](/oss/python/langgraph/interrupts.md) 再次触发，可能会返回不同的结果。从最终检查点（无`next`节点）重放是无操作的。
 
 ![Replay](https://mintcdn.com/langchain-5e9cc07a/dL5Sn6Cmy9pwtY0V/oss/images/re_play.png?fit=max\&auto=format\&n=dL5Sn6Cmy9pwtY0V\&q=85\&s=d7b34b85c106e55d181ae1f4afb50251)
 
@@ -99,14 +99,14 @@ print(fork_result["joke"])  # A joke about chickens, not socks
 
 ### 来自特定节点
 
-当您调用[⟦T14⟧](https://reference.langchain.com/python/langgraph/graphs/#langgraph.graph.state.CompiledStateGraph.update_state)时，将使用指定节点的编写器（包括[reducers](/oss/python/langgraph/graph-api#reducers)）应用值。检查点将该节点记录为已生成更新，并从该节点的后继节点恢复执行。
+当您调用[⟦T14⟧](https://reference.langchain.com/python/langgraph/graphs/#langgraph.graph.state.CompiledStateGraph.update_state)时，将使用指定节点的编写器（包括[reducers](/oss/python/langgraph/graph-api.md#reducers)）应用值。检查点将该节点记录为已生成更新，并从该节点的后继节点恢复执行。
 
 默认情况下，LangGraph从检查点的版本历史记录中推断出`as_node`。当从特定检查点分叉时，这个推论几乎总是正确的。
 
 在以下情况下明确指定 `as_node`：
 
 * **并行分支**：多个节点在同一步骤中更新状态，并且LangGraph无法确定哪一个是最后一个（`InvalidUpdateError`）。
-* **没有执行历史**：在新线程上设置状态（常见于[testing](/oss/python/langgraph/test)）。
+* **没有执行历史**：在新线程上设置状态（常见于[testing](/oss/python/langgraph/test.md)）。
 * **跳过节点**：将`as_node`设置为较晚的节点，使图认为该节点已经运行。
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
@@ -123,7 +123,7 @@ fork_config = graph.update_state(
 
 ## 中断
 
-如果您的图表将 [⟦T19⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 用于 [human-in-the-loop](/oss/python/langgraph/interrupts) 工作流程，则在时间旅行期间始终会重新触发中断。包含中断的节点重新执行，并且`interrupt()`暂停以等待新的`Command(resume=...)`。
+如果您的图表将 [⟦T19⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 用于 [human-in-the-loop](/oss/python/langgraph/interrupts.md) 工作流程，则在时间旅行期间始终会重新触发中断。包含中断的节点重新执行，并且`interrupt()`暂停以等待新的`Command(resume=...)`。
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from langgraph.types import interrupt, Command
@@ -197,7 +197,7 @@ result = graph.invoke(None, fork_config)
 
 ## 子图
 
-[subgraphs](/oss/python/langgraph/use-subgraphs) 的时间旅行取决于子图是否有自己的检查点。这决定了您可以进行时间旅行的检查点的粒度。
+[subgraphs](/oss/python/langgraph/use-subgraphs.md) 的时间旅行取决于子图是否有自己的检查点。这决定了您可以进行时间旅行的检查点的粒度。
 
 **继承的检查指针（默认）**
 
@@ -280,10 +280,10 @@ sub_config = parent_state.tasks[0].state.config
 fork_config = graph.update_state(sub_config, {"value": ["forked"]})
 result = graph.invoke(None, fork_config)
 # step_b re-executes, step_a's result is preserved
-```有关配置子图检查点的更多信息，请参阅[subgraph persistence](/oss/python/langgraph/use-subgraphs#subgraph-persistence)。
+```有关配置子图检查点的更多信息，请参阅[subgraph persistence](/oss/python/langgraph/use-subgraphs.md#subgraph-persistence)。
 
 ***
 
-[Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
+[Connect these docs](/use-these-docs.md) 通过 MCP 发送给您选择的代理以获得实时解答。
 
 [Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/use-time-travel.mdx) 或 [file an issue](https://github.com/langchain-ai/docs/issues/new/choose)。

@@ -672,7 +672,7 @@ This allows the agent to keep track of the conversation without exceeding the LL
 
 Most LLMs have a maximum supported context window (denominated in tokens). One way to decide when to truncate messages is to count the tokens in the message history and truncate whenever it approaches that limit. If you're using LangChain, you can use the trim messages utility and specify the number of tokens to keep from the list, as well as the `strategy` (e.g., keep the last `maxTokens`) to use for handling the boundary.
 
-To trim message history, use the [`trimMessages`](https://js.langchain.com/docs/how_to/trim_messages/) function:
+To trim message history, use the [`trimMessages`](https://reference.langchain.com/javascript/langchain-core/messages/trimMessages) function:
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { trimMessages } from "@langchain/core/messages";

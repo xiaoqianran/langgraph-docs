@@ -105,7 +105,7 @@ export LANGSMITH_WORKSPACE_ID=<your-workspace-id>
 >
 > `export LANGCHAIN_CALLBACKS_BACKGROUND=false`
 >
-> See [this LangChain.js guide](https://js.langchain.com/docs/how_to/callbacks_serverless) for more information.
+> See [this LangChain.js guide](/langsmith/trace-with-langchain#ensure-all-traces-are-submitted-before-exiting) for more information.
 
 ### 3. Log a trace
 
@@ -343,7 +343,7 @@ export OPENAI_API_KEY=<your-openai-api-key>
 >
 > `export LANGCHAIN_CALLBACKS_BACKGROUND=false`
 >
-> See [this LangChain.js guide](https://js.langchain.com/docs/how_to/callbacks_serverless) for more information.
+> See [this LangChain.js guide](/langsmith/trace-with-langchain#ensure-all-traces-are-submitted-before-exiting) for more information.
 
 ### 3. Log a trace
 

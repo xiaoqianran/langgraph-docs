@@ -229,7 +229,7 @@ A normal edge always sends the graph to the same next node. A [conditional edge]
 
 **1. Add document grading**
 
-Add a `gradeDocuments` node that uses a model with structured output (Zod), and falls back to a plain yes or no response if structured parsing fails. Route with a conditional edge according to the result (`generate` or `rewrite`):
+Add a `gradeDocuments` routing function that uses a model with structured output (Zod), and falls back to a plain yes or no response if structured parsing fails. It returns the name of the next node based on the grading decision (`generate` or `rewrite`), so use it in a conditional edge rather than adding it as a node:
 
 ```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import * as z from "zod";
@@ -506,12 +506,14 @@ const shouldRetrieve = (state: typeof State.State) => {
 const graph = new StateGraph(State)
   .addNode("generateQueryOrRespond", generateQueryOrRespond)
   .addNode("retrieve", toolNode)
-  .addNode("gradeDocuments", gradeDocuments)
   .addNode("rewrite", rewrite)
   .addNode("generate", generate)
   .addEdge(START, "generateQueryOrRespond")
-  .addConditionalEdges("generateQueryOrRespond", shouldRetrieve)
-  .addConditionalEdges("retrieve", gradeDocuments)
+  .addConditionalEdges("generateQueryOrRespond", shouldRetrieve, [
+    "retrieve",
+    END,
+  ])
+  .addConditionalEdges("retrieve", gradeDocuments, ["generate", "rewrite"])
   .addEdge("generate", END)
   .addEdge("rewrite", "generateQueryOrRespond")
   .compile();

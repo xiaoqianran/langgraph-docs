@@ -2,6 +2,8 @@
 
 # LangGraph v1 migration guide
 
+Migrate a codebase to LangGraph v1.
+
 Migrate this codebase to LangGraph v1 (requires `langgraph>=1.0.0`, `langchain-core>=0.3.0`).
 
 Key changes:

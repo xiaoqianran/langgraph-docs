@@ -6,12 +6,12 @@
 
 > 比较 langgraph dev 和 langgraph up，以进行代理服务器应用程序的本地开发和类似生产的测试。
 
-本指南介绍了如何在本地开发和测试 [Agent Server](/langsmith/agent-server) 应用程序。 [LangGraph CLI](/langsmith/cli) 提供了两个用于本地开发的命令，每个命令都针对工作流程的不同阶段进行了优化：
+本指南介绍了如何在本地开发和测试 [Agent Server](/langsmith/agent-server.md) 应用程序。 [LangGraph CLI](/langsmith/cli.md) 提供了两个用于本地开发的命令，每个命令都针对工作流程的不同阶段进行了优化：
 
 * [⟦T27⟧](#langgraph-dev)：快速迭代的轻量级开发服务器。
 * [⟦T28⟧](#langgraph-up)：用于验证的类似生产的测试环境。
 
-|特色 | `langgraph dev` | `langgraph up` |
+|特色| `langgraph dev` | `langgraph up` |
 | - | - | - |
 | **需要 Docker** |没有 |是的 |
 | **安装** | `pip install langgraph-cli[inmem]` | `pip install langgraph-cli` |
@@ -25,7 +25,7 @@
 
 > [!提示]
 >
-> 有关完整参考详细信息，请参阅[LangGraph CLI reference](/langsmith/cli) 页面。
+> 有关完整参考详细信息，请参阅[LangGraph CLI reference](/langsmith/cli.md) 页面。
 
 ＃＃ 发展以下是构建应用程序时的典型工作流程：
 
@@ -50,7 +50,7 @@ flowchart LR
 1. **日常开发**：使用`langgraph dev`进行快速迭代。
 2. **定期验证**：使用`langgraph up`测试主要变更。
 3. **部署前检查**：运行 `langgraph up --recreate` 进行全新构建。
-4. **部署**：通过[LangSmith UI](/langsmith/deployment-quickstart)或[Control Plane API](/langsmith/api-ref-control-plane)推送到生产环境。
+4. **部署**：通过[LangSmith UI](/langsmith/deployment-quickstart.md)或[Control Plane API](/langsmith/api-ref-control-plane.md)推送到生产环境。
 
 ## `langgraph dev`
 
@@ -308,15 +308,15 @@ flowchart LR
 
 ## 部署前检查清单
 
-在部署应用程序之前，请使用 `langgraph up` 验证以下内容：* 所有[dependencies](/langsmith/setup-app-requirements-txt)正确安装在容器中。
+在部署应用程序之前，请使用 `langgraph up` 验证以下内容：* 所有[dependencies](/langsmith/setup-app-requirements-txt.md)正确安装在容器中。
 * 应用程序启动时没有错误。
 * 图表执行成功。
-* 所有[environment variables](/langsmith/env-var-cloud)工作正常。
-* [Authentication/authorization](/langsmith/cli#adding-custom-authentication) 按预期工作。
+* 所有[environment variables](/langsmith/env-var-cloud.md)工作正常。
+* [Authentication/authorization](/langsmith/cli.md#adding-custom-authentication) 按预期工作。
 
 ## 依赖配置
 
-`langgraph dev`和`langgraph up`都从[configuration files](/langsmith/application-structure#configuration-file)读取应用程序的[dependencies](/langsmith/application-structure#dependencies)，但它们运行在不同的环境中：
+`langgraph dev`和`langgraph up`都从[configuration files](/langsmith/application-structure.md#configuration-file)读取应用程序的[dependencies](/langsmith/application-structure.md#dependencies)，但它们运行在不同的环境中：
 
 * **`langgraph dev`** 直接在本地环境（Python 或 Node.js）中运行代码，无需使用 Docker。
 * **`langgraph up`** 构建一个 Docker 容器并在该隔离容器内运行您的代码。
@@ -325,7 +325,7 @@ flowchart LR
 
 ### `langgraph.json` 文件
 
-`dependencies` 字段告诉 [CLI](/langsmith/cli) **在哪里**找到您的应用程序代码。 `dependencies`字段可以指向：
+`dependencies` 字段告诉 [CLI](/langsmith/cli.md) **在哪里**找到您的应用程序代码。 `dependencies`字段可以指向：
 
 * **包含包配置的目录**（包含`pyproject.toml`、`setup.py`、`requirements.txt`或`package.json`）
 * **特定子目录**：`"dependencies": ["./my_agent"]`
@@ -407,7 +407,7 @@ langgraph
 
 这种两个文件方法分离了关注点：`langgraph.json`处理应用程序结构和位置，而包配置文件处理特定于语言的包依赖性。
 
-有关安装程序的更多信息，请参阅[CLI configuration file](/langsmith/cli#configuration-file)。
+有关安装程序的更多信息，请参阅[CLI configuration file](/langsmith/cli.md#configuration-file)。
 
 ### 故障排除
 
@@ -439,7 +439,7 @@ langgraph up --recreate
 docker ps
 ```
 
-[Cloud deployments](/langsmith/cloud) 不要使用本地 Docker。
+[Cloud deployments](/langsmith/cloud.md) 不要使用本地 Docker。
 
 **解决方案**：安装Docker，或者使用`langgraph dev`进行本地测试。
 
@@ -476,31 +476,31 @@ VPN 连接、防火墙规则或公司代理设置可能会影响本地 Docker �
 
 现在您已经在本地运行了 LangGraph 应用程序，您就可以部署它了：
 
-**为 LangSmith 选择托管选项：*** [**Cloud**](/langsmith/cloud)：最快设置，完全托管（推荐）。
-* [**Self-hosted**](/langsmith/self-hosted)：完全控制您的基础设施。
+**为 LangSmith 选择托管选项：*** [**Cloud**](/langsmith/cloud.md)：最快设置，完全托管（推荐）。
+* [**Self-hosted**](/langsmith/self-hosted.md)：完全控制您的基础设施。
 
-更多详情请参阅[Platform setup comparison](/langsmith/platform-setup)。
+更多详情请参阅[Platform setup comparison](/langsmith/platform-setup.md)。
 
 **然后部署您的应用程序：**
 
-* [Deploy to Cloud quickstart](/langsmith/deployment-quickstart)：快速设置指南。
-* [Full Cloud setup guide](/langsmith/deploy-to-cloud)：全面的部署文档。
+* [Deploy to Cloud quickstart](/langsmith/deployment-quickstart.md)：快速设置指南。
+* [Full Cloud setup guide](/langsmith/deploy-to-cloud.md)：全面的部署文档。
 
 **探索功能：**
 
-* **[Studio](/langsmith/studio)**：使用 Studio UI 可视化、交互和调试您的应用程序。尝试一下[Studio quickstart](/langsmith/quick-start-studio)。
-* **API 参考**：[LangSmith Deployment API](https://langchain-ai.github.io/langgraph/cloud/reference/api/api_ref/)、[Python SDK](/langsmith/langgraph-python-sdk)、[JS/TS SDK](/langsmith/langgraph-js-ts-sdk)
+* **[Studio](/langsmith/studio.md)**：使用 Studio UI 可视化、交互和调试您的应用程序。尝试一下[Studio quickstart](/langsmith/quick-start-studio.md)。
+* **API 参考**：[LangSmith Deployment API](/langsmith/server-api-ref.md)、[Python SDK](/langsmith/langgraph-python-sdk.md)、[JS/TS SDK](/langsmith/langgraph-js-ts-sdk.md)
 
 ## 相关资源
 
-* [CLI Reference](/langsmith/cli)：所有 CLI 命令的详细文档
-* [Application Structure](/langsmith/application-structure)：如何构建您的LangGraph应用程序
-* [Troubleshooting](/langsmith/troubleshooting-studio)：常见问题及解决方案
-* [Setting up with pyproject.toml](/langsmith/setup-pyproject)：配置Python依赖
-* [Setting up with requirements.txt](/langsmith/setup-app-requirements-txt)：替代依赖配置
+* [CLI Reference](/langsmith/cli.md)：所有 CLI 命令的详细文档
+* [Application Structure](/langsmith/application-structure.md)：如何构建您的LangGraph应用程序
+* [Troubleshooting](/langsmith/troubleshooting-studio.md)：常见问题及解决方案
+* [Setting up with pyproject.toml](/langsmith/setup-pyproject.md)：配置Python依赖
+* [Setting up with requirements.txt](/langsmith/setup-app-requirements-txt.md)：替代依赖配置
 
 ***
 
-[Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
+[Connect these docs](/use-these-docs.md) 通过 MCP 发送给您选择的代理以获得实时解答。
 
 [Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/langsmith/local-dev-testing.mdx) 或[file an issue](https://github.com/langchain-ai/docs/issues/new/choose)。

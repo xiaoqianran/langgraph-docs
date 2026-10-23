@@ -57,7 +57,7 @@ memories[-1].dict()
  'updated_at': '2024-10-02T17:22:31.590605+00:00'}
 ```
 
-每个内存类型都是一个具有某些属性的 Python 类 ([⟦T32⟧](https://langchain-ai.github.io/langgraph/reference/store/#langgraph.store.base.Item))。我们可以通过使用 `.dict` 进行转换来将其作为字典来访问。
+每个内存类型都是一个具有某些属性的 Python 类 ([⟦T32⟧](https://reference.langchain.com/python/langgraph.store/base/Item))。我们可以通过使用 `.dict` 进行转换来将其作为字典来访问。
 
 它所具有的属性有：
 
@@ -195,7 +195,7 @@ for update in graph.stream(
     context=Context(user_id="1"),
 ):
     print(update)
-```You can access the store and the `user_id` from *any node* by using the `Runtime` object. The `Runtime` is automatically injected by LangGraph when you add it as a parameter to your node function.您可以用它来保存记忆：
+```您可以使用 `Runtime` 对象从*任何节点*访问存储和 `user_id`。当您将`Runtime`作为参数添加到节点函数时，LangGraph会自动注入它。您可以用它来保存记忆：
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from langgraph.runtime import Runtime
@@ -262,7 +262,7 @@ async def call_model(state: MessagesState, runtime: Runtime[Context]):
     # ... Use memories in the model call
 ```
 
-If you create a new thread, you can still access the same memories so long as the `user_id` is the same.
+如果你创建一个新线程，只要`user_id`相同，你仍然可以访问相同的内存。
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 # Invoke the graph on a new thread
@@ -278,7 +278,7 @@ for update in graph.stream(
     print(update)
 ```
 
-当您在本地使用LangSmith（例如，在[Studio](/langsmith/studio)中）或[hosted](/langsmith/platform-setup)时，默认情况下可以使用基本存储，并且不需要在图形编译期间指定它。 To enable semantic search, however, you **do** need to configure the indexing settings in your `langgraph.json` file.例如：
+当您在本地使用LangSmith（例如，在[Studio](/langsmith/studio)中）或[hosted](/langsmith/platform-setup)时，默认情况下可以使用基本存储，并且不需要在图形编译期间指定它。但是，要启用语义搜索，您**确实**需要在 `langgraph.json` 文件中配置索引设置。例如：
 
 ```json theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 {
@@ -293,11 +293,11 @@ for update in graph.stream(
 }
 ```
 
-See the [deployment guide](/langsmith/semantic-search) for more details and configuration options.
+有关更多详细信息和配置选项，请参阅[deployment guide](/langsmith/semantic-search)。
 
 ## 建立一个自定义商店
 
-To use a storage backend other than the built-in implementations, subclass [BaseStore](https://reference.langchain.com/python/langchain-core/stores/BaseStore) and implement its required methods. The built-in [InMemoryStore](https://reference.langchain.com/python/langchain-core/stores/InMemoryStore) is the simplest reference implementation.
+要使用内置实现之外的存储后端，请子类 [BaseStore](https://reference.langchain.com/python/langchain-core/stores/BaseStore) 并实现其所需的方法。内置的[InMemoryStore](https://reference.langchain.com/python/langchain-core/stores/InMemoryStore)是最简单的参考实现。
 
 ### 基础合约所有五个异步方法都是必需的。同步对应项（`put`、`get`、`delete`、`search`、`list_namespaces`）是可选的，但建议与同步图执行兼容。
 

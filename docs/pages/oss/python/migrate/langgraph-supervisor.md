@@ -8,6 +8,8 @@ The [`langgraph-supervisor`](https://github.com/langchain-ai/langgraph-superviso
 
 This guide covers how to migrate from `create_supervisor` to [`create_agent`](https://reference.langchain.com/python/langchain/agents/factory/create_agent), including setups that use [`interrupt`](https://reference.langchain.com/python/langgraph/types/interrupt) and external API callbacks.
 
+Migrate from langgraph-supervisor to create\_agent subagents
+
 Migrate this codebase from the `langgraph-supervisor` package to the LangChain subagents pattern with `create_agent` and tool-wrapped workers.
 
 ## Step 1: Read the guide

@@ -6,7 +6,9 @@
 
 本快速入门演示了如何使用 LangGraph 图形 API 或功能 API 构建计算器代理。
 
-按照 LangGraph 快速入门，在此工作目录中构建 LangGraph 计算器代理。
+构建 LangGraph 计算器快速入门
+
+按照 LangGraph 快速入门，在此工作目录中构建LangGraph 计算器代理。
 
 ## 第 1 步：阅读指南
 
@@ -23,9 +25,9 @@
 
 ## 步骤 3：配置模型凭据
 
-本快速入门默认使用 Anthropic。检查`ANTHROPIC_API_KEY`是否设置。如果不是，则要求用户创建一个密钥并将其设置在 shell 或 `.env` 文件中，然后停止并等待确认。请勿发明、硬编码或提交 API 密钥。如果用户更喜欢集成文档中的另一个聊天模型提供程序，请在确认后相应地调整示例。
+本快速入门默认使用 Anthropic。检查`ANTHROPIC_API_KEY`是否设置。如果不是，则要求用户创建一个密钥并将其设置在 shell 或 `.env` 文件中，然后停止并等待确认。请勿发明、硬编码或提交 API 密钥。如果用户更喜欢集成文档中的另一个聊天模型提供程序，请在确认后相应地调整示例。## 步骤 4：实现计算器代理
 
-## 步骤 4：实现计算器代理端到端实施所选的快速入门路径：加法、乘法和除法工具；代理图或功能工作流程；以及练习工具调用的示例调用。打印最终结果，以便用户验证运行。
+端到端实施所选的快速入门路径：加法、乘法和除法工具；代理图或功能工作流程；以及练习工具调用的示例调用。打印最终结果，以便用户验证运行。
 
 ## 规则
 
@@ -36,6 +38,8 @@
 > **使用人工智能编码助手？**
 >
 > * 安装 [LangChain Docs MCP servers](/use-these-docs) 以使您的代理能够访问最新的 LangChain 文档和示例。
+>
+> 连接 LangChain 文档 MCP 服务器
 >
 > 将两个 LangChain 文档 MCP 服务器连接到我的编码代理，以便它可以查找当前的 LangChain、LangGraph 和 LangSmith 文档和 API 参考。
 >
@@ -48,11 +52,13 @@
 >
 > * Claude 代码：`claude mcp add --transport http` 对于每个服务器（默认情况下项目范围；仅当我要求全局访问时才使用`--scope user`）。
 > * Codex CLI：`codex mcp add` 以及每个服务器 URL。
-> * 光标、Deep Agents 代码、VS 代码或反重力：使用我的客户页面上显示的字段名称将两个条目合并到 MCP 设置 JSON 中。
+> * 光标、Deep Agents 代码、VS 代码或反重力：使用该页面上为我的客户显示的字段名称将两个条目合并到 MCP 设置 JSON 中。
 > * Claude Desktop：在“设置”>“连接器”下添加两个 URL。
 >
 > 不要发明备用 MCP URL。配置后，确认两台服务器均已列出并且可访问。
 > * 安装 [LangChain Skills](https://github.com/langchain-ai/langchain-skills) 以提高代理在 LangChain 生态系统任务上的性能。
+>
+> 安装LangChain技能
 >> 为我的编码代理安装 LangChain 技能，以便它可以更好地执行 LangChain、LangGraph 和 Deep Agents 任务。
 >
 > 使用 [https://github.com/langchain-ai/langchain-skills](https://github.com/langchain-ai/langchain-skills) 中的特工技能安装程序：

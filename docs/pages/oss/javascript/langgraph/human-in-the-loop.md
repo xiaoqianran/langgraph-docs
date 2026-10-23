@@ -2,7 +2,7 @@
 
 # Interrupts
 
-Interrupts allow you to pause graph execution at specific points and wait for external input before continuing. This enables human-in-the-loop patterns where you need external input to proceed. When an interrupt is triggered, LangGraph saves the graph state using its [persistence](/oss/javascript/langgraph/persistence) layer and waits indefinitely until you resume execution.
+Interrupts allow you to pause graph execution at specific points and wait for external input before continuing. This enables human-in-the-loop patterns where you need external input to proceed. When an interrupt is triggered, LangGraph saves the graph state using its [persistence](/oss/javascript/langgraph/persistence.md) layer and waits indefinitely until you resume execution.
 
 Interrupts work by calling the `interrupt()` function at any point in your graph nodes. The function accepts any JSON-serializable value which is surfaced to the caller. When you're ready to continue, you resume execution by re-invoking the graph using `Command`, which then becomes the return value of the `interrupt()` call from inside the node.
 
@@ -79,7 +79,7 @@ await graph.invoke(new Command({ resume: true }), config);
 
 > [!WARNING]
 >
-> `new Command({ resume: ... })` is the **only** `Command` pattern intended as input to `invoke()`/`stream()`/`stream_events()`. The other `Command` parameters (`update`, `goto`, `graph`) are designed for [returning from node functions](/oss/javascript/langgraph/graph-api#command). Do not pass `new Command({ update: ... })` as input to continue multi-turn conversations—pass a plain input object instead.
+> `new Command({ resume: ... })` is the **only** `Command` pattern intended as input to `invoke()`/`stream()`/`stream_events()`. The other `Command` parameters (`update`, `goto`, `graph`) are designed for [returning from node functions](/oss/javascript/langgraph/graph-api.md#command). Do not pass `new Command({ update: ... })` as input to continue multi-turn conversations—pass a plain input object instead.
 
 ## Define an interrupt response schema
 
@@ -152,7 +152,7 @@ The key thing that interrupts unlock is the ability to pause execution and wait 
 
 ### Stream with human-in-the-loop (HITL) interrupts
 
-When building interactive agents with human-in-the-loop workflows, you can use [event streaming](/oss/javascript/langgraph/event-streaming) to consume message chunks and state snapshots concurrently while handling interrupts.
+When building interactive agents with human-in-the-loop workflows, you can use [event streaming](/oss/javascript/langgraph/event-streaming.md) to consume message chunks and state snapshots concurrently while handling interrupts.
 
 Use the typed projections returned by `graph.stream_events(..., version="v3")` in a loop until the run finishes:
 
@@ -496,9 +496,10 @@ This approach is useful when you want the approval logic to live with the tool i
 >   StateGraph,
 >   StateSchema,
 >   MessagesValue,
->   GraphNode,
 >   interrupt,
 > } from "@langchain/langgraph";
+> import { ToolNode } from "@langchain/langgraph/prebuilt";
+> import { AIMessage } from "@langchain/core/messages";
 > import * as z from "zod";
 >
 > const sendEmailTool = tool(
@@ -533,6 +534,7 @@ This approach is useful when you want the approval logic to live with the tool i
 > );
 >
 > const model = new ChatAnthropic({ model: "claude-sonnet-4-6" }).bindTools([sendEmailTool]);
+> const toolNode = new ToolNode([sendEmailTool]);
 >
 > const State = new StateSchema({
 >   messages: MessagesValue,
@@ -544,10 +546,21 @@ This approach is useful when you want the approval logic to live with the tool i
 >   return { messages: [response] };
 > };
 >
+> const shouldContinue = (state: typeof State.State) => {
+>   // Route to the tools node if the LLM made a tool call
+>   const lastMessage = state.messages.at(-1);
+>   if (AIMessage.isInstance(lastMessage) && lastMessage.tool_calls?.length) {
+>     return "tools";
+>   }
+>   return END;
+> };
+>
 > const graphBuilder = new StateGraph(State)
 >   .addNode("agent", agent)
+>   .addNode("tools", toolNode)
 >   .addEdge(START, "agent")
->   .addEdge("agent", END);
+>   .addConditionalEdges("agent", shouldContinue, ["tools", END])
+>   .addEdge("tools", "agent"); // Loop back after tools
 >
 > const checkpointer = new MemorySaver();
 > const graph = graphBuilder.compile({ checkpointer });
@@ -1022,16 +1035,16 @@ await graph.invoke(null, config);  // [!code highlight]
 
 > [!TIP]
 >
-> To debug your interrupts, use [LangSmith](/langsmith/observability).
+> To debug your interrupts, use [LangSmith](/langsmith/observability.md).
 
 ### Using LangSmith Studio
 
-You can use [LangSmith Studio](/langsmith/studio) to set static interrupts in your graph in the UI before running the graph. You can also use the UI to inspect the graph state at any point in the execution.
+You can use [LangSmith Studio](/langsmith/studio.md) to set static interrupts in your graph in the UI before running the graph. You can also use the UI to inspect the graph state at any point in the execution.
 
 ![image](https://mintcdn.com/langchain-5e9cc07a/dL5Sn6Cmy9pwtY0V/oss/images/static-interrupt.png?fit=max\&auto=format\&n=dL5Sn6Cmy9pwtY0V\&q=85\&s=5aa4e7cea2ab147cef5b4e210dd6c4a1)
 
 ***
 
-[Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
+[Connect these docs](/use-these-docs.md) to your agent of choice via MCP for real-time answers.
 
 [Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/interrupts.mdx) or [file an issue](https://github.com/langchain-ai/docs/issues/new/choose).

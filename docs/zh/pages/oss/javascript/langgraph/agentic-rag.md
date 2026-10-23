@@ -225,7 +225,7 @@ AIMessage {
 
 **1.添加文档评分**
 
-添加一个使用具有结构化输出 (Zod) 的模型的 `gradeDocuments` 节点，如果结构化解析失败，则返回简单的“是”或“否”响应。根据结果使用条件边进行路由（`generate`或`rewrite`）：
+添加一个 `gradeDocuments` 路由函数，该函数使用具有结构化输出 (Zod) 的模型，如果结构化解析失败，则返回简单的“是”或“否”响应。它根据评分决策（`generate`或`rewrite`）返回下一个节点的名称，因此在条件边中使用它而不是将其添加为节点：
 
 ```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import * as z from "zod";
@@ -342,9 +342,9 @@ const input = {
 const result = await gradeDocuments(input);
 ```
 
-## 重写问题
+## 重写问题如果评分者将检索到的文档标记为不相关，则图表不应从该上下文中进行回答。相反，请将原始用户问题重写为更清晰的搜索查询，然后将控制发送回生成查询或响应节点，以便代理可以再次检索。此重试循环是代理如何从较弱的首次检索中恢复的方式，而不是停止或产生幻觉答案。
 
-如果评分者将检索到的文档标记为不相关，则图表不应从该上下文中进行回答。相反，请将原始用户问题重写为更清晰的搜索查询，然后将控制发送回生成查询或响应节点，以便代理可以再次检索。此重试循环是代理如何从较弱的首次检索中恢复的方式，而不是停止或产生幻觉答案。**1.构建重写节点**
+**1.构建重写节点**
 
 构建`rewrite`节点，改善原用户检索失败时的问题：
 
@@ -498,12 +498,14 @@ const shouldRetrieve = (state: typeof State.State) => {
 const graph = new StateGraph(State)
   .addNode("generateQueryOrRespond", generateQueryOrRespond)
   .addNode("retrieve", toolNode)
-  .addNode("gradeDocuments", gradeDocuments)
   .addNode("rewrite", rewrite)
   .addNode("generate", generate)
   .addEdge(START, "generateQueryOrRespond")
-  .addConditionalEdges("generateQueryOrRespond", shouldRetrieve)
-  .addConditionalEdges("retrieve", gradeDocuments)
+  .addConditionalEdges("generateQueryOrRespond", shouldRetrieve, [
+    "retrieve",
+    END,
+  ])
+  .addConditionalEdges("retrieve", gradeDocuments, ["generate", "rewrite"])
   .addEdge("generate", END)
   .addEdge("rewrite", "generateQueryOrRespond")
   .compile();

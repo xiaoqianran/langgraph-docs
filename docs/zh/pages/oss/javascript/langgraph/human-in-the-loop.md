@@ -4,7 +4,7 @@
 
 # 中断
 
-中断允许您在特定点暂停图形执行并在继续之前等待外部输入。这可以实现需要外部输入才能继续的人机交互模式。当触发中断时，LangGraph 使用其[persistence](/oss/javascript/langgraph/persistence) 层保存图形状态，并无限期等待，直到恢复执行。
+中断允许您在特定点暂停图形执行并在继续之前等待外部输入。这可以实现需要外部输入才能继续的人机交互模式。当触发中断时，LangGraph 使用其[persistence](/oss/javascript/langgraph/persistence.md) 层保存图形状态，并无限期等待，直到恢复执行。
 
 中断通过在图形节点中的任意点调用 `interrupt()` 函数来工作。该函数接受向调用者显示的任何 JSON 可序列化值。当您准备好继续时，您可以通过使用 `Command` 重新调用图形来恢复执行，然后该图将成为从节点内部调用 `interrupt()` 的返回值。
 
@@ -75,7 +75,7 @@ await graph.invoke(new Command({ resume: true }), config);
 
 > [!警告]
 >
-> `new Command({ resume: ... })` 是**唯一** `Command` 模式，旨在作为 `invoke()`/`stream()`/`stream_events()` 的输入。其他`Command`参数（`update`、`goto`、`graph`）是为[returning from node functions](/oss/javascript/langgraph/graph-api#command)设计的。不要传递 `new Command({ update: ... })` 作为输入来继续多轮对话，而是传递一个普通的输入对象。
+> `new Command({ resume: ... })` 是**唯一** `Command` 模式，旨在作为 `invoke()`/`stream()`/`stream_events()` 的输入。其他`Command`参数（`update`、`goto`、`graph`）是为[returning from node functions](/oss/javascript/langgraph/graph-api.md#command)设计的。不要传递 `new Command({ update: ... })` 作为输入来继续多轮对话，而是传递一个普通的输入对象。
 
 ## 定义中断响应模式
 
@@ -144,7 +144,7 @@ Studio 将中断响应架构呈现为键入的输入字段而不是 JSON 编辑�
 
 ### 具有人机交互 (HITL) 中断的流
 
-当使用人机交互工作流程构建交互式代理时，您可以使用[event streaming](/oss/javascript/langgraph/event-streaming)在处理中断的同时同时使用消息块和状态快照。
+当使用人机交互工作流程构建交互式代理时，您可以使用[event streaming](/oss/javascript/langgraph/event-streaming.md)在处理中断的同时同时使用消息块和状态快照。
 
 循环使用 `graph.stream_events(..., version="v3")` 返回的类型化投影，直到运行完成：
 
@@ -484,9 +484,10 @@ const sendEmailTool = tool(
 >   StateGraph,
 >   StateSchema,
 >   MessagesValue,
->   GraphNode,
 >   interrupt,
 > } from "@langchain/langgraph";
+> import { ToolNode } from "@langchain/langgraph/prebuilt";
+> import { AIMessage } from "@langchain/core/messages";
 > import * as z from "zod";
 >
 > const sendEmailTool = tool(
@@ -521,6 +522,7 @@ const sendEmailTool = tool(
 > );
 >
 > const model = new ChatAnthropic({ model: "claude-sonnet-4-6" }).bindTools([sendEmailTool]);
+> const toolNode = new ToolNode([sendEmailTool]);
 >
 > const State = new StateSchema({
 >   messages: MessagesValue,
@@ -532,10 +534,21 @@ const sendEmailTool = tool(
 >   return { messages: [response] };
 > };
 >
+> const shouldContinue = (state: typeof State.State) => {
+>   // Route to the tools node if the LLM made a tool call
+>   const lastMessage = state.messages.at(-1);
+>   if (AIMessage.isInstance(lastMessage) && lastMessage.tool_calls?.length) {
+>     return "tools";
+>   }
+>   return END;
+> };
+>
 > const graphBuilder = new StateGraph(State)
 >   .addNode("agent", agent)
+>   .addNode("tools", toolNode)
 >   .addEdge(START, "agent")
->   .addEdge("agent", END);
+>   .addConditionalEdges("agent", shouldContinue, ["tools", END])
+>   .addEdge("tools", "agent"); // Loop back after tools
 >
 > const checkpointer = new MemorySaver();
 > const graph = graphBuilder.compile({ checkpointer });
@@ -998,14 +1011,14 @@ await graph.invoke(null, config);  // [!code highlight]
 
 > [!提示]
 >
-> 要调试中断，请使用[LangSmith](/langsmith/observability)。
+> 要调试中断，请使用[LangSmith](/langsmith/observability.md)。
 
-### 使用LangSmith Studio在运行图表之前，您可以使用 [LangSmith Studio](/langsmith/studio) 在 UI 中的图表中设置静态中断。您还可以使用 UI 在执行过程中的任意时刻检查图形状态。
+### 使用LangSmith Studio在运行图表之前，您可以使用 [LangSmith Studio](/langsmith/studio.md) 在 UI 中的图表中设置静态中断。您还可以使用 UI 在执行过程中的任意时刻检查图形状态。
 
 ![image](https://mintcdn.com/langchain-5e9cc07a/dL5Sn6Cmy9pwtY0V/oss/images/static-interrupt.png?fit=max\&auto=format\&n=dL5Sn6Cmy9pwtY0V\&q=85\&s=5aa4e7cea2ab147cef5b4e210dd6c4a1)
 
 ***
 
-[Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
+[Connect these docs](/use-these-docs.md) 通过 MCP 发送给您选择的代理以获得实时解答。
 
 [Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/interrupts.mdx) 或 [file an issue](https://github.com/langchain-ai/docs/issues/new/choose)。

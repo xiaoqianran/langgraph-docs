@@ -4,7 +4,7 @@
 
 > Compare langgraph dev and langgraph up for local development and production-like testing of Agent Server applications.
 
-This guide covers how to develop and test [Agent Server](/langsmith/agent-server) applications locally. The [LangGraph CLI](/langsmith/cli) provides two commands for local development, each optimized for different stages of your workflow:
+This guide covers how to develop and test [Agent Server](/langsmith/agent-server.md) applications locally. The [LangGraph CLI](/langsmith/cli.md) provides two commands for local development, each optimized for different stages of your workflow:
 
 * [`langgraph dev`](#langgraph-dev): A lightweight development server for rapid iteration.
 * [`langgraph up`](#langgraph-up): A production-like testing environment for validation.
@@ -23,7 +23,7 @@ This guide covers how to develop and test [Agent Server](/langsmith/agent-server
 
 > [!TIP]
 >
-> For full reference details, refer to the [LangGraph CLI reference](/langsmith/cli) page.
+> For full reference details, refer to the [LangGraph CLI reference](/langsmith/cli.md) page.
 
 ## Development
 
@@ -50,7 +50,7 @@ flowchart LR
 1. **Daily development**: Use `langgraph dev` for rapid iteration.
 2. **Periodic validation**: Test major changes with `langgraph up`.
 3. **Pre-deployment check**: Run `langgraph up --recreate` for a fresh build.
-4. **Deploy**: Push to production via the [LangSmith UI](/langsmith/deployment-quickstart) or [Control Plane API](/langsmith/api-ref-control-plane).
+4. **Deploy**: Push to production via the [LangSmith UI](/langsmith/deployment-quickstart.md) or [Control Plane API](/langsmith/api-ref-control-plane.md).
 
 ## `langgraph dev`
 
@@ -315,15 +315,15 @@ Use `langgraph up` for validation and production-readiness testing:
 
 Before deploying an application, verify the following with `langgraph up`:
 
-* All [dependencies](/langsmith/setup-app-requirements-txt) install correctly in the container.
+* All [dependencies](/langsmith/setup-app-requirements-txt.md) install correctly in the container.
 * Application starts without errors.
 * Graph executes successfully.
-* All [environment variables](/langsmith/env-var-cloud) work correctly.
-* [Authentication/authorization](/langsmith/cli#adding-custom-authentication) works as expected.
+* All [environment variables](/langsmith/env-var-cloud.md) work correctly.
+* [Authentication/authorization](/langsmith/cli.md#adding-custom-authentication) works as expected.
 
 ## Dependencies configuration
 
-Both `langgraph dev` and `langgraph up` read your application's [dependencies](/langsmith/application-structure#dependencies) from your [configuration files](/langsmith/application-structure#configuration-file), but they run in different environments:
+Both `langgraph dev` and `langgraph up` read your application's [dependencies](/langsmith/application-structure.md#dependencies) from your [configuration files](/langsmith/application-structure.md#configuration-file), but they run in different environments:
 
 * **`langgraph dev`** runs your code directly in your local environment (Python or Node.js) without Docker.
 * **`langgraph up`** builds a Docker container and runs your code inside that isolated container.
@@ -332,7 +332,7 @@ Properly configuring your dependencies ensures both commands work correctly and 
 
 ### `langgraph.json` file
 
-The `dependencies` field tells the [CLI](/langsmith/cli) **where** to find your application code. The `dependencies` field can point to:
+The `dependencies` field tells the [CLI](/langsmith/cli.md) **where** to find your application code. The `dependencies` field can point to:
 
 * **A directory with package config** (containing `pyproject.toml`, `setup.py`, `requirements.txt`, or `package.json`)
 * **A specific subdirectory**: `"dependencies": ["./my_agent"]`
@@ -416,7 +416,7 @@ When you run [`langgraph up`](/langsmith/cli#up), the CLI follows these steps to
 
 This two-file approach separates concerns: `langgraph.json` handles application structure and location, while the package configuration file handles language-specific package dependencies.
 
-For more information on the installer, refer to [CLI configuration file](/langsmith/cli#configuration-file).
+For more information on the installer, refer to [CLI configuration file](/langsmith/cli.md#configuration-file).
 
 ### Troubleshooting
 
@@ -450,7 +450,7 @@ The following are common local environment issues that don't affect production.
 docker ps
 ```
 
-[Cloud deployments](/langsmith/cloud) don't use your local Docker.
+[Cloud deployments](/langsmith/cloud.md) don't use your local Docker.
 
 **Solution**: Install Docker, or use `langgraph dev` for local testing.
 
@@ -489,31 +489,31 @@ Now that you have a LangGraph app running locally, you're ready to deploy it:
 
 **Choose a hosting option for LangSmith:**
 
-* [**Cloud**](/langsmith/cloud): Fastest setup, fully managed (recommended).
-* [**Self-hosted**](/langsmith/self-hosted): Full control in your infrastructure.
+* [**Cloud**](/langsmith/cloud.md): Fastest setup, fully managed (recommended).
+* [**Self-hosted**](/langsmith/self-hosted.md): Full control in your infrastructure.
 
-For more details, refer to the [Platform setup comparison](/langsmith/platform-setup).
+For more details, refer to the [Platform setup comparison](/langsmith/platform-setup.md).
 
 **Then deploy your app:**
 
-* [Deploy to Cloud quickstart](/langsmith/deployment-quickstart): Quick setup guide.
-* [Full Cloud setup guide](/langsmith/deploy-to-cloud): Comprehensive deployment documentation.
+* [Deploy to Cloud quickstart](/langsmith/deployment-quickstart.md): Quick setup guide.
+* [Full Cloud setup guide](/langsmith/deploy-to-cloud.md): Comprehensive deployment documentation.
 
 **Explore features:**
 
-* **[Studio](/langsmith/studio)**: Visualize, interact with, and debug your application with the Studio UI. Try the [Studio quickstart](/langsmith/quick-start-studio).
-* **API References**: [LangSmith Deployment API](https://langchain-ai.github.io/langgraph/cloud/reference/api/api_ref/), [Python SDK](/langsmith/langgraph-python-sdk), [JS/TS SDK](/langsmith/langgraph-js-ts-sdk)
+* **[Studio](/langsmith/studio.md)**: Visualize, interact with, and debug your application with the Studio UI. Try the [Studio quickstart](/langsmith/quick-start-studio.md).
+* **API References**: [LangSmith Deployment API](/langsmith/server-api-ref.md), [Python SDK](/langsmith/langgraph-python-sdk.md), [JS/TS SDK](/langsmith/langgraph-js-ts-sdk.md)
 
 ## Related resources
 
-* [CLI Reference](/langsmith/cli): Detailed documentation for all CLI commands
-* [Application Structure](/langsmith/application-structure): How to structure your LangGraph application
-* [Troubleshooting](/langsmith/troubleshooting-studio): Common issues and solutions
-* [Setting up with pyproject.toml](/langsmith/setup-pyproject): Configure Python dependencies
-* [Setting up with requirements.txt](/langsmith/setup-app-requirements-txt): Alternative dependency configuration
+* [CLI Reference](/langsmith/cli.md): Detailed documentation for all CLI commands
+* [Application Structure](/langsmith/application-structure.md): How to structure your LangGraph application
+* [Troubleshooting](/langsmith/troubleshooting-studio.md): Common issues and solutions
+* [Setting up with pyproject.toml](/langsmith/setup-pyproject.md): Configure Python dependencies
+* [Setting up with requirements.txt](/langsmith/setup-app-requirements-txt.md): Alternative dependency configuration
 
 ***
 
-[Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
+[Connect these docs](/use-these-docs.md) to your agent of choice via MCP for real-time answers.
 
 [Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/langsmith/local-dev-testing.mdx) or [file an issue](https://github.com/langchain-ai/docs/issues/new/choose).
