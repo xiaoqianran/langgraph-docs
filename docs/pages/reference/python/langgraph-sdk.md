@@ -168,6 +168,9 @@
 - [`SyncAssistantsClient`](https://reference.langchain.com/python/langgraph-sdk/_sync/assistants/SyncAssistantsClient)
 - [`SyncLangGraphClient`](https://reference.langchain.com/python/langgraph-sdk/_sync/client/SyncLangGraphClient)
 - [`SyncStoreClient`](https://reference.langchain.com/python/langgraph-sdk/_sync/store/SyncStoreClient)
+- [`Priority`](https://reference.langchain.com/python/langgraph-sdk/priority/Priority)
+- [`PriorityContext`](https://reference.langchain.com/python/langgraph-sdk/priority/types/PriorityContext)
+- [`PrioritySettings`](https://reference.langchain.com/python/langgraph-sdk/priority/types/PrioritySettings)
 
 ## Functions
 

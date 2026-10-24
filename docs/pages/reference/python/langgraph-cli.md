@@ -22,6 +22,7 @@
 - [`CacheConfig`](https://reference.langchain.com/python/langgraph-cli/schemas/CacheConfig)
 - [`AuthConfig`](https://reference.langchain.com/python/langgraph-cli/schemas/AuthConfig)
 - [`EncryptionConfig`](https://reference.langchain.com/python/langgraph-cli/schemas/EncryptionConfig)
+- [`PriorityConfig`](https://reference.langchain.com/python/langgraph-cli/schemas/PriorityConfig)
 - [`CorsConfig`](https://reference.langchain.com/python/langgraph-cli/schemas/CorsConfig)
 - [`ConfigurableHeaderConfig`](https://reference.langchain.com/python/langgraph-cli/schemas/ConfigurableHeaderConfig)
 - [`HttpConfig`](https://reference.langchain.com/python/langgraph-cli/schemas/HttpConfig)

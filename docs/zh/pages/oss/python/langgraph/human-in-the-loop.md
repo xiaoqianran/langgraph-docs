@@ -4,13 +4,13 @@
 
 # 中断
 
-中断允许您在特定点暂停图形执行并在继续之前等待外部输入。这可以实现需要外部输入才能继续的人机交互模式。当触发中断时，LangGraph 使用其[persistence](/oss/python/langgraph/persistence.md) 层保存图形状态，并无限期等待，直到恢复执行。
+中断允许您在特定点暂停图形执行并在继续之前等待外部输入。这可以实现需要外部输入才能继续的人机交互模式。当触发中断时，LangGraph 使用其[persistence](https://docs.langchain.com/oss/python/langgraph/persistence.md) 层保存图形状态，并无限期等待，直到恢复执行。
 
 中断通过在图形节点中的任意点调用 `interrupt()` 函数来工作。该函数接受向调用者显示的任何 JSON 可序列化值。当您准备好继续时，您可以通过使用 `Command` 重新调用图形来恢复执行，然后该图将成为从节点内部调用 `interrupt()` 的返回值。
 
 与静态断点（在特定节点之前或之后暂停）不同，中断是动态的：它们可以放置在代码中的任何位置，并且可以根据应用程序逻辑设置条件。* **检查点保留您的位置：** 检查点写入准确的图形状态，以便您可以稍后恢复，即使处于错误状态也是如此。
 * **`thread_id` 是你的指针：** 设置 `config={"configurable": {"thread_id": ...}}` 告诉检查指针要加载哪个状态。
-* **通过`stream.interrupts`：**使用[event streaming](/oss/python/langgraph/event-streaming.md)（`graph.stream_events(..., version="v3")`）时，传递给`interrupt()`的值出现在`stream.interrupts`上，当运行暂停输入时，`stream.interrupted`是`True`。
+* **通过`stream.interrupts`：**使用[event streaming](https://docs.langchain.com/oss/python/langgraph/event-streaming.md)（`graph.stream_events(..., version="v3")`）时，传递给`interrupt()`的值出现在`stream.interrupts`上，当运行暂停输入时，`stream.interrupted`是`True`。
 
 您选择的 `thread_id` 实际上是您的持久光标。重用它会恢复相同的检查点；使用新值启动一个处于空状态的全新线程。
 
@@ -39,7 +39,7 @@ def approval_node(state: State):
 
 1. **图形执行在调用 [⟦T51⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 的确切位置暂停**2. **使用检查指针保存状态**，以便稍后可以恢复执行，在生产中，这应该是一个持久的检查指针（例如由数据库支持）
 
-3. 使用[event streaming](/oss/python/langgraph/event-streaming.md)（`graph.stream_events(..., version="v3")`）时，**在`stream.interrupts`上，或在使用默认`invoke()` API时，在`__interrupt__`下，将值返回给调用者；它可以是任何 JSON 可序列化的值（字符串、对象、数组等）
+3. 使用[event streaming](https://docs.langchain.com/oss/python/langgraph/event-streaming.md)（`graph.stream_events(..., version="v3")`）时，**在`stream.interrupts`上，或在使用默认`invoke()` API时，在`__interrupt__`下，将值返回给调用者；它可以是任何 JSON 可序列化的值（字符串、对象、数组等）
 
 4. **Graph 无限期地等待**，直到您通过响应恢复执行
 
@@ -49,7 +49,7 @@ def approval_node(state: State):
 
 中断暂停执行后，您可以通过使用包含恢复值的 `Command` 再次调用它来恢复图表。恢复值被传回`interrupt`调用，允许节点继续使用外部输入执行。
 
-驱动可能中断的图的推荐方法是[event streaming](/oss/python/langgraph/event-streaming.md)——它通过`stream.interrupts`和`stream.interrupted`表面中断，并通过`stream.output`公开最终状态。
+驱动可能中断的图的推荐方法是[event streaming](https://docs.langchain.com/oss/python/langgraph/event-streaming.md)——它通过`stream.interrupts`和`stream.interrupted`表面中断，并通过`stream.output`公开最终状态。
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from langgraph.types import Command
@@ -89,7 +89,7 @@ final = resumed.output
 
 > [!警告]
 >
-> `Command(resume=...)` 是**唯一** `Command` 模式，旨在作为 `invoke()`/`stream()`/`stream_events()` 的输入。其他`Command`参数（`update`、`goto`、`graph`）是为[returning from node functions](/oss/python/langgraph/graph-api.md#command)设计的。不要传递 `Command(update=...)` 作为输入来继续多轮对话 - 而是传递一个简单的输入字典。
+> `Command(resume=...)` 是**唯一** `Command` 模式，旨在作为 `invoke()`/`stream()`/`stream_events()` 的输入。其他`Command`参数（`update`、`goto`、`graph`）是为[returning from node functions](https://docs.langchain.com/oss/python/langgraph/graph-api.md#command)设计的。不要传递 `Command(update=...)` 作为输入来继续多轮对话 - 而是传递一个简单的输入字典。
 
 ## 定义中断响应模式
 
@@ -160,7 +160,7 @@ Studio 将中断响应架构呈现为键入的输入字段而不是 JSON 编辑�
 
 ### 具有人机交互 (HITL) 中断的流
 
-当使用人机交互工作流程构建交互式代理时，您可以使用[event streaming](/oss/python/langgraph/event-streaming.md)在处理中断时同时使用消息块和状态快照。
+当使用人机交互工作流程构建交互式代理时，您可以使用[event streaming](https://docs.langchain.com/oss/python/langgraph/event-streaming.md)在处理中断时同时使用消息块和状态快照。
 
 循环使用 `graph.stream_events(..., version="v3")` 返回的类型化投影，直到运行完成：
 
@@ -675,7 +675,7 @@ builder.add_conditional_edges("collect_age", route)
 
 ## 中断规则
 
-当您在节点内调用 [⟦T125⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 时，LangGraph 通过引发异常来通知运行时暂停，从而暂停执行。该异常通过调用堆栈向上传播并被运行时捕获，通知图保存当前状态并等待外部输入。
+当您在节点内调用 [⟦T125⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 时，LangGraph 会引发异常，指示运行时暂停，从而暂停执行。该异常通过调用堆栈向上传播并被运行时捕获，通知图保存当前状态并等待外部输入。
 
 当执行恢复时（在您提供请求的输入之后），运行时会从头开始重新启动整个节点 - 它不会从调用 [⟦T126⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 的确切行恢复。这意味着在 [⟦T127⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 之前运行的任何代码都将再次执行。因此，在处理中断时需要遵循一些重要规则，以确保它们按预期运行。
 
@@ -994,21 +994,21 @@ graph.invoke(None, config=config)  # [!code highlight]
 ```1. 使用`interrupt_before`和`interrupt_after`参数调用`graph.invoke`。这是一个运行时配置，可以针对每次调用进行更改。
 2. `interrupt_before` 指定执行该节点之前应暂停执行的节点。
 3. `interrupt_after` 指定该节点执行完毕后应暂停执行的节点。
-4. 运行图表直至遇到第一个断点。
+4. 运行图表直到遇到第一个断点。
 5. 通过传入 `None` 作为输入来恢复图表。这将运行图表直到遇到下一个断点。
 
 > [!提示]
 >
-> 要调试中断，请使用[LangSmith](/langsmith/observability.md)。
+> 要调试中断，请使用[LangSmith](https://docs.langchain.com/langsmith/observability.md)。
 
 ### 使用LangSmith Studio
 
-在运行图表之前，您可以使用 [LangSmith Studio](/langsmith/studio.md) 在 UI 中的图表中设置静态中断。您还可以使用 UI 在执行过程中的任意时刻检查图形状态。
+在运行图表之前，您可以使用 [LangSmith Studio](https://docs.langchain.com/langsmith/studio.md) 在 UI 中的图表中设置静态中断。您还可以使用 UI 在执行过程中的任意时刻检查图形状态。
 
 ![image](https://mintcdn.com/langchain-5e9cc07a/dL5Sn6Cmy9pwtY0V/oss/images/static-interrupt.png?fit=max\&auto=format\&n=dL5Sn6Cmy9pwtY0V\&q=85\&s=5aa4e7cea2ab147cef5b4e210dd6c4a1)
 
 ***
 
-[Connect these docs](/use-these-docs.md) 通过 MCP 发送给您选择的代理以获得实时解答。
+[Connect these docs](https://docs.langchain.com/use-these-docs.md) 通过 MCP 发送给您选择的代理以获得实时解答。
 
 [Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/interrupts.mdx) 或 [file an issue](https://github.com/langchain-ai/docs/issues/new/choose)。

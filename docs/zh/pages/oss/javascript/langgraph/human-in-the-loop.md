@@ -4,7 +4,7 @@
 
 # 中断
 
-中断允许您在特定点暂停图形执行并在继续之前等待外部输入。这可以实现需要外部输入才能继续的人机交互模式。当触发中断时，LangGraph 使用其[persistence](/oss/javascript/langgraph/persistence.md) 层保存图形状态，并无限期等待，直到恢复执行。
+中断允许您在特定点暂停图形执行并在继续之前等待外部输入。这可以实现需要外部输入才能继续的人机交互模式。当触发中断时，LangGraph 使用其[persistence](https://docs.langchain.com/oss/javascript/langgraph/persistence.md) 层保存图形状态，并无限期等待，直到恢复执行。
 
 中断通过在图形节点中的任意点调用 `interrupt()` 函数来工作。该函数接受向调用者显示的任何 JSON 可序列化值。当您准备好继续时，您可以通过使用 `Command` 重新调用图形来恢复执行，然后该图将成为从节点内部调用 `interrupt()` 的返回值。
 
@@ -75,7 +75,7 @@ await graph.invoke(new Command({ resume: true }), config);
 
 > [!警告]
 >
-> `new Command({ resume: ... })` 是**唯一** `Command` 模式，旨在作为 `invoke()`/`stream()`/`stream_events()` 的输入。其他`Command`参数（`update`、`goto`、`graph`）是为[returning from node functions](/oss/javascript/langgraph/graph-api.md#command)设计的。不要传递 `new Command({ update: ... })` 作为输入来继续多轮对话，而是传递一个普通的输入对象。
+> `new Command({ resume: ... })` 是**唯一** `Command` 模式，旨在作为 `invoke()`/`stream()`/`stream_events()` 的输入。其他`Command`参数（`update`、`goto`、`graph`）是为[returning from node functions](https://docs.langchain.com/oss/javascript/langgraph/graph-api.md#command)设计的。不要传递 `new Command({ update: ... })` 作为输入来继续多轮对话，而是传递一个普通的输入对象。
 
 ## 定义中断响应模式
 
@@ -137,14 +137,14 @@ Studio 将中断响应架构呈现为键入的输入字段而不是 JSON 编辑�
 ## 常见模式
 
 中断解锁的关键是能够暂停执行并等待外部输入。这对于各种用例都很有用，包括：* [Approval workflows](#approve-or-reject)：在执行关键操作（API 调用、数据库更改、金融交易）之前暂停
-* [Handling multiple interrupts](#handling-multiple-interrupts)：在单次调用中恢复多个中断时将中断 ID 与恢复值配对
+* [Handling multiple interrupts](#handling-multiple-interrupts)：在单次调用中恢复多个中断时，将中断 ID 与恢复值配对
 * [Review and edit](#review-and-edit-state)：让人们在继续之前检查和修改LLM输出或工具调用
 * [Interrupting tool calls](#interrupts-in-tools)：执行工具调用前暂停，以在执行前查看和编辑工具调用
 * [Validating human input](#validating-human-input)：在继续下一步验证人工输入之前暂停
 
 ### 具有人机交互 (HITL) 中断的流
 
-当使用人机交互工作流程构建交互式代理时，您可以使用[event streaming](/oss/javascript/langgraph/event-streaming.md)在处理中断的同时同时使用消息块和状态快照。
+当使用人机交互工作流程构建交互式代理时，您可以使用[event streaming](https://docs.langchain.com/oss/javascript/langgraph/event-streaming.md)在处理中断的同时同时使用消息块和状态快照。
 
 循环使用 `graph.stream_events(..., version="v3")` 返回的类型化投影，直到运行完成：
 
@@ -578,7 +578,7 @@ const sendEmailTool = tool(
 
 > [!警告]
 >
-> **避免 `while True` + `interrupt()` 在单个节点内循环。** 因为节点在每次恢复时都从头重新运行（请参阅 [Rules of interrupts](#rules-of-interrupts)），所以多次调用 `interrupt()` 的循环会导致每个恢复重播所有先前的迭代：第一个恢复重播 1 次迭代，第二次重播 2 次迭代，依此类推。结果是循环体内任何代码的指数重新执行。
+> **避免 `while True` + `interrupt()` 在单个节点内循环。** 因为节点在每次恢复时都从头重新运行（请参阅 [Rules of interrupts](#rules-of-interrupts)），多次调用 `interrupt()` 的循环会导致每个恢复重播所有先前的迭代：第一个恢复重播 1 次迭代，第二次重播 2 次迭代，依此类推。结果是循环体内任何代码的指数重新执行。
 
 正确的模式：
 
@@ -1006,19 +1006,19 @@ await graph.invoke(null, config);  // [!code highlight]
 1. 使用`interruptBefore`和`interruptAfter`参数调用`graph.invoke`。这是一个运行时配置，可以针对每次调用进行更改。
 2. `interruptBefore` 指定执行该节点之前应暂停执行的节点。
 3. `interruptAfter` 指定该节点执行完毕后应暂停执行的节点。
-4. 运行图表直至遇到第一个断点。
+4. 运行图表直到遇到第一个断点。
 5. 通过传入 `null` 作为输入来恢复图表。这将运行图表直到遇到下一个断点。
 
 > [!提示]
 >
-> 要调试中断，请使用[LangSmith](/langsmith/observability.md)。
+> 要调试中断，请使用[LangSmith](https://docs.langchain.com/langsmith/observability.md)。
 
-### 使用LangSmith Studio在运行图表之前，您可以使用 [LangSmith Studio](/langsmith/studio.md) 在 UI 中的图表中设置静态中断。您还可以使用 UI 在执行过程中的任意时刻检查图形状态。
+### 使用LangSmith Studio在运行图表之前，您可以使用 [LangSmith Studio](https://docs.langchain.com/langsmith/studio.md) 在 UI 中的图表中设置静态中断。您还可以使用 UI 在执行过程中的任意时刻检查图形状态。
 
 ![image](https://mintcdn.com/langchain-5e9cc07a/dL5Sn6Cmy9pwtY0V/oss/images/static-interrupt.png?fit=max\&auto=format\&n=dL5Sn6Cmy9pwtY0V\&q=85\&s=5aa4e7cea2ab147cef5b4e210dd6c4a1)
 
 ***
 
-[Connect these docs](/use-these-docs.md) 通过 MCP 发送给您选择的代理以获得实时解答。
+[Connect these docs](https://docs.langchain.com/use-these-docs.md) 通过 MCP 发送给您选择的代理以获得实时解答。
 
 [Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/interrupts.mdx) 或 [file an issue](https://github.com/langchain-ai/docs/issues/new/choose)。

@@ -6,12 +6,12 @@
 
 ## Overview
 
-LangGraph supports time travel through [checkpoints](/oss/javascript/langgraph/checkpointers.md#checkpoints):
+LangGraph supports time travel through [checkpoints](https://docs.langchain.com/oss/javascript/langgraph/checkpointers.md#checkpoints):
 
 * **[Replay](#replay)**: Retry from a prior checkpoint.
 * **[Fork](#fork)**: Branch from a prior checkpoint with modified state to explore an alternative path.
 
-Both work by resuming from a prior checkpoint. Nodes before the checkpoint are not re-executed (results are already saved). Nodes after the checkpoint re-execute, including any LLM calls, API requests, and [interrupts](/oss/javascript/langgraph/interrupts.md) (which may produce different results).
+Both work by resuming from a prior checkpoint. Nodes before the checkpoint are not re-executed (results are already saved). Nodes after the checkpoint re-execute, including any LLM calls, API requests, and [interrupts](https://docs.langchain.com/oss/javascript/langgraph/interrupts.md) (which may produce different results).
 
 ## Replay
 
@@ -19,7 +19,7 @@ Invoke the graph with a prior checkpoint's config to replay from that point.
 
 > [!WARNING]
 >
-> Replay re-executes nodes—it doesn't just read from cache. LLM calls, API requests, and [interrupts](/oss/javascript/langgraph/interrupts.md) fire again and may return different results. Replaying from the final checkpoint (no `next` nodes) is a no-op.
+> Replay re-executes nodes—it doesn't just read from cache. LLM calls, API requests, and [interrupts](https://docs.langchain.com/oss/javascript/langgraph/interrupts.md) fire again and may return different results. Replaying from the final checkpoint (no `next` nodes) is a no-op.
 
 ![Replay](https://mintcdn.com/langchain-5e9cc07a/dL5Sn6Cmy9pwtY0V/oss/images/re_play.png?fit=max\&auto=format\&n=dL5Sn6Cmy9pwtY0V\&q=85\&s=d7b34b85c106e55d181ae1f4afb50251)
 
@@ -97,14 +97,14 @@ console.log(forkResult.joke); // A joke about chickens, not socks
 
 ### From a specific node
 
-When you call [`update_state`](https://reference.langchain.com/javascript/langchain-langgraph/pregel/Pregel/updateState), values are applied using the specified node's writers (including [reducers](/oss/javascript/langgraph/graph-api.md#reducers)). The checkpoint records that node as having produced the update, and execution resumes from that node's successors.
+When you call [`update_state`](https://reference.langchain.com/javascript/langchain-langgraph/pregel/Pregel/updateState), values are applied using the specified node's writers (including [reducers](https://docs.langchain.com/oss/javascript/langgraph/graph-api.md#reducers)). The checkpoint records that node as having produced the update, and execution resumes from that node's successors.
 
 By default, LangGraph infers `as_node` from the checkpoint's version history. When forking from a specific checkpoint, this inference is almost always correct.
 
 Specify `as_node` explicitly when:
 
 * **Parallel branches**: Multiple nodes updated state in the same step, and LangGraph can't determine which was last (`InvalidUpdateError`).
-* **No execution history**: Setting up state on a fresh thread (common in [testing](/oss/javascript/langgraph/test.md)).
+* **No execution history**: Setting up state on a fresh thread (common in [testing](https://docs.langchain.com/oss/javascript/langgraph/test.md)).
 * **Skipping nodes**: Set `as_node` to a later node to make the graph think that node already ran.
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
@@ -121,7 +121,7 @@ const forkConfig = await graph.updateState(
 
 ## Interrupts
 
-If your graph uses [`interrupt`](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) for [human-in-the-loop](/oss/javascript/langgraph/interrupts.md) workflows, interrupts are always re-triggered during time travel. The node containing the interrupt re-executes, and `interrupt()` pauses for a new `Command(resume=...)`.
+If your graph uses [`interrupt`](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) for [human-in-the-loop](https://docs.langchain.com/oss/javascript/langgraph/interrupts.md) workflows, interrupts are always re-triggered during time travel. The node containing the interrupt re-executes, and `interrupt()` pauses for a new `Command(resume=...)`.
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { interrupt, Command } from "@langchain/langgraph";
@@ -182,7 +182,7 @@ const result = await graph.invoke(null, forkConfig);
 
 ## Subgraphs
 
-Time travel with [subgraphs](/oss/javascript/langgraph/use-subgraphs.md) depends on whether the subgraph has its own checkpointer. This determines the granularity of checkpoints you can time travel from.
+Time travel with [subgraphs](https://docs.langchain.com/oss/javascript/langgraph/use-subgraphs.md) depends on whether the subgraph has its own checkpointer. This determines the granularity of checkpoints you can time travel from.
 
 **Inherited checkpointer (default)**
 
@@ -256,10 +256,10 @@ const result = await graph.invoke(null, forkConfig);
 // stepB re-executes, stepA's result is preserved
 ```
 
-See [subgraph persistence](/oss/javascript/langgraph/use-subgraphs.md#subgraph-persistence) for more on configuring subgraph checkpointers.
+See [subgraph persistence](https://docs.langchain.com/oss/javascript/langgraph/use-subgraphs.md#subgraph-persistence) for more on configuring subgraph checkpointers.
 
 ***
 
-[Connect these docs](/use-these-docs.md) to your agent of choice via MCP for real-time answers.
+[Connect these docs](https://docs.langchain.com/use-these-docs.md) to your agent of choice via MCP for real-time answers.
 
 [Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/use-time-travel.mdx) or [file an issue](https://github.com/langchain-ai/docs/issues/new/choose).
