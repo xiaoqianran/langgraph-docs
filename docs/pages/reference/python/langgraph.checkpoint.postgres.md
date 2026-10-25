@@ -9,10 +9,10 @@
 ## Classes
 
 - [`PostgresSaver`](https://reference.langchain.com/python/langgraph.checkpoint.postgres/PostgresSaver)
-- [`AsyncPostgresSaver`](https://reference.langchain.com/python/langgraph.checkpoint.postgres/aio/AsyncPostgresSaver)
 - [`ShallowPostgresSaver`](https://reference.langchain.com/python/langgraph.checkpoint.postgres/shallow/ShallowPostgresSaver)
 - [`AsyncShallowPostgresSaver`](https://reference.langchain.com/python/langgraph.checkpoint.postgres/shallow/AsyncShallowPostgresSaver)
 - [`BasePostgresSaver`](https://reference.langchain.com/python/langgraph.checkpoint.postgres/base/BasePostgresSaver)
+- [`AsyncPostgresSaver`](https://reference.langchain.com/python/langgraph.checkpoint.postgres/aio/AsyncPostgresSaver)
 
 ## Functions
 
@@ -21,6 +21,6 @@
 
 ## Types
 
+- [`MetadataInput`](https://reference.langchain.com/python/langgraph.checkpoint.postgres/base/MetadataInput)
 - [`Conn`](https://reference.langchain.com/python/langgraph.checkpoint.postgres/_internal/Conn)
 - [`Conn`](https://reference.langchain.com/python/langgraph.checkpoint.postgres/_ainternal/Conn)
-- [`MetadataInput`](https://reference.langchain.com/python/langgraph.checkpoint.postgres/base/MetadataInput)

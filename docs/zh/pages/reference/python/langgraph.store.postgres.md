@@ -10,16 +10,16 @@
 
 ## 课程
 
-- [⟦T0⟧](https://reference.langchain.com/python/langgraph.store.postgres/aio/AsyncPostgresStore)
-- [⟦T1⟧](https://reference.langchain.com/python/langgraph.store.postgres/base/Migration)
-- [⟦T2⟧](https://reference.langchain.com/python/langgraph.store.postgres/base/PoolConfig)
-- [⟦T3⟧](https://reference.langchain.com/python/langgraph.store.postgres/base/ANNIndexConfig)
-- [⟦T4⟧](https://reference.langchain.com/python/langgraph.store.postgres/base/HNSWConfig)
-- [⟦T5⟧](https://reference.langchain.com/python/langgraph.store.postgres/base/IVFFlatConfig)
-- [⟦T6⟧](https://reference.langchain.com/python/langgraph.store.postgres/base/PostgresIndexConfig)
-- [⟦T7⟧](https://reference.langchain.com/python/langgraph.store.postgres/base/BasePostgresStore)
-- [⟦T8⟧](https://reference.langchain.com/python/langgraph.store.postgres/base/PostgresStore)
-- [⟦T9⟧](https://reference.langchain.com/python/langgraph.store.postgres/base/Row)
+- [⟦T0⟧](https://reference.langchain.com/python/langgraph.store.postgres/base/Migration)
+- [⟦T1⟧](https://reference.langchain.com/python/langgraph.store.postgres/base/PoolConfig)
+- [⟦T2⟧](https://reference.langchain.com/python/langgraph.store.postgres/base/ANNIndexConfig)
+- [⟦T3⟧](https://reference.langchain.com/python/langgraph.store.postgres/base/HNSWConfig)
+- [⟦T4⟧](https://reference.langchain.com/python/langgraph.store.postgres/base/IVFFlatConfig)
+- [⟦T5⟧](https://reference.langchain.com/python/langgraph.store.postgres/base/PostgresIndexConfig)
+- [⟦T6⟧](https://reference.langchain.com/python/langgraph.store.postgres/base/BasePostgresStore)
+- [⟦T7⟧](https://reference.langchain.com/python/langgraph.store.postgres/base/PostgresStore)
+- [⟦T8⟧](https://reference.langchain.com/python/langgraph.store.postgres/base/Row)
+- [⟦T9⟧](https://reference.langchain.com/python/langgraph.store.postgres/aio/AsyncPostgresStore)
 
 ## 函数
 

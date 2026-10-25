@@ -8,6 +8,7 @@
 
 ## Classes
 
+- [`InMemoryStore`](https://reference.langchain.com/python/langgraph.store/memory/InMemoryStore)
 - [`NotProvided`](https://reference.langchain.com/python/langgraph.store/base/NotProvided)
 - [`Item`](https://reference.langchain.com/python/langgraph.store/base/Item)
 - [`SearchItem`](https://reference.langchain.com/python/langgraph.store/base/SearchItem)
@@ -22,7 +23,6 @@
 - [`BaseStore`](https://reference.langchain.com/python/langgraph.store/base/BaseStore)
 - [`EmbeddingsLambda`](https://reference.langchain.com/python/langgraph.store/base/embed/EmbeddingsLambda)
 - [`AsyncBatchedBaseStore`](https://reference.langchain.com/python/langgraph.store/base/batch/AsyncBatchedBaseStore)
-- [`InMemoryStore`](https://reference.langchain.com/python/langgraph.store/memory/InMemoryStore)
 
 ## Functions
 
