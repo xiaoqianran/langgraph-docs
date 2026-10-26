@@ -1351,9 +1351,7 @@ items = store.search(
 
 ## 管理短期记忆
 
-启用 [short-term memory](#add-short-term-memory) 后，长时间对话可能会超出 LLM 的上下文窗口。常见的解决方案有：
-
-* [Trim messages](#trim-messages)：删除前N条或后N条消息（在调用LLM之前）
+启用 [short-term memory](#add-short-term-memory) 后，检查指针会在同一线程内的各个回合中保持图形状态。调用模型的节点控制状态中的哪些数据包含在模型输入中。持久状态不会自动将所有状态发送到模型。将长消息历史记录传递给模型可能会超出其上下文窗口。常见的解决方案有：* [Trim messages](#trim-messages)：删除前N条或后N条消息（在调用LLM之前）
 * [Delete messages](#delete-messages)从LangGraph状态永久
 * [Summarize messages](#summarize-messages)：总结历史记录中较早的消息并用摘要替换它们
 * [Manage checkpoints](#manage-checkpoints) 存储和检索消息历史记录
@@ -1361,7 +1359,11 @@ items = store.search(
 
 这允许代理在不超出 LLM 上下文窗口的情况下跟踪对话。
 
-### 修剪消息大多数法学硕士都有最大支持的上下文窗口（以令牌计价）。决定何时截断消息的一种方法是计算消息历史记录中的标记，并在接近该限制时进行截断。如果您使用 LangChain，则可以使用修剪消息实用程序并指定要从列表中保留的标记数量，以及用于处理边界的 `strategy`（例如，保留最后一个 `max_tokens`）。
+### 修剪消息
+
+大多数法学硕士都有最大支持的上下文窗口（以令牌计价）。决定何时截断消息的一种方法是计算消息历史记录中的标记，并在接近该限制时进行截断。如果您使用 LangChain，则可以使用修剪消息实用程序并指定要从列表中保留的标记数量，以及用于处理边界的 `strategy`（例如，保留最后一个 `max_tokens`）。
+
+在以下示例中，节点将修剪后的消息列表传递给模型，而不从状态中删除消息。
 
 要修剪消息历史记录，请使用 [⟦T73⟧](https://reference.langchain.com/python/langchain-core/messages/utils/trim_messages) 函数：
 
@@ -1434,9 +1436,7 @@ builder.add_node(call_model)
 > Your name is Bob, as you mentioned when you first introduced yourself.
 > ```
 
-### 删除消息
-
-您可以从图形状态中删除消息以管理消息历史记录。当您想要删除特定消息或清除整个消息历史记录时，这非常有用。
+### 删除消息您可以从图形状态中删除消息以管理消息历史记录。当您想要删除特定消息或清除整个消息历史记录时，这非常有用。
 
 要从图形状态中删除消息，您可以使用`RemoveMessage`。要使 `RemoveMessage` 工作，您需要使用带有 [⟦T76⟧](https://reference.langchain.com/python/langgraph/graph/message/add_messages) [reducer](/oss/python/langgraph/graph-api#reducers) 的状态密钥，例如 [⟦T77⟧](/oss/python/langgraph/graph-api#messagesstate)。
 
@@ -1459,7 +1459,9 @@ from langgraph.graph.message import REMOVE_ALL_MESSAGES  # [!code highlight]
 
 def delete_messages(state):
     return {"messages": [RemoveMessage(id=REMOVE_ALL_MESSAGES)]}  # [!code highlight]
-```> [!警告]
+```
+
+> [!警告]
 >
 > 删除消息时，**确保**生成的消息历史记录有效。检查您正在使用的 LLM 提供商的限制。例如：
 >
@@ -1518,9 +1520,7 @@ def delete_messages(state):
 
 如上所示，修剪或删除消息的问题是您可能会因消息队列的剔除而丢失信息。因此，一些应用程序受益于使用聊天模型总结消息历史记录的更复杂的方法。
 
-![Summary](https://mintcdn.com/langchain-5e9cc07a/ybiAaBfoBvFquMDz/oss/images/summary.png?fit=max\&auto=format\&n=ybiAaBfoBvFquMDz\&q=85\&s=c8ed3facdccd4ef5c7e52902c72ba938)
-
-提示和编排逻辑可用于总结消息历史记录。例如，在 LangGraph 中，您可以扩展 [⟦T81⟧](/oss/python/langgraph/graph-api#working-with-messages-in-graph-state) 以包含 `summary` 键：
+![Summary](https://mintcdn.com/langchain-5e9cc07a/ybiAaBfoBvFquMDz/oss/images/summary.png?fit=max\&auto=format\&n=ybiAaBfoBvFquMDz\&q=85\&s=c8ed3facdccd4ef5c7e52902c72ba938)提示和编排逻辑可用于总结消息历史记录。例如，在 LangGraph 中，您可以扩展 [⟦T81⟧](/oss/python/langgraph/graph-api#working-with-messages-in-graph-state) 以包含 `summary` 键：
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from langgraph.graph import MessagesState
@@ -1555,7 +1555,9 @@ def summarize_conversation(state: State):
     # Delete all but the 2 most recent messages
     delete_messages = [RemoveMessage(id=m.id) for m in state["messages"][:-2]]
     return {"summary": response.content, "messages": delete_messages}
-```> **完整示例：总结消息**
+```
+
+> **完整示例：总结消息**
 >
 > ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > from typing import Any, TypedDict
@@ -1887,9 +1889,9 @@ thread_id = "1"
 checkpointer.delete_thread(thread_id)
 ```
 
-## 数据库管理
+## 数据库管理如果您使用任何数据库支持的持久性实现（例如 Postgres、Redis 或 Oracle）来存储短期和/或长期内存，则需要运行迁移来设置所需的架构，然后才能将其与数据库一起使用。
 
-如果您使用任何数据库支持的持久性实现（例如 Postgres、Redis 或 Oracle）来存储短期和/或长期内存，则需要运行迁移来设置所需的架构，然后才能将其与数据库一起使用。按照惯例，大多数特定于数据库的库在运行所需迁移的检查点或存储实例上定义了一个 `setup()` 方法。但是，您应该检查[⟦T89⟧](https://reference.langchain.com/python/langgraph/checkpoints/#langgraph.checkpoint.base.BaseCheckpointSaver)或[⟦T90⟧](https://reference.langchain.com/python/langchain-core/stores/BaseStore)的具体实现，以确认确切的方法名称和用法。
+按照惯例，大多数特定于数据库的库在运行所需迁移的检查点或存储实例上定义了一个 `setup()` 方法。但是，您应该检查[⟦T89⟧](https://reference.langchain.com/python/langgraph/checkpoints/#langgraph.checkpoint.base.BaseCheckpointSaver)或[⟦T90⟧](https://reference.langchain.com/python/langchain-core/stores/BaseStore)的具体实现，以确认确切的方法名称和用法。
 
 我们建议将迁移作为专用部署步骤运行，或者您可以确保它们作为服务器启动的一部分运行。
 

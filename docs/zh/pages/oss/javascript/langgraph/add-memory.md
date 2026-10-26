@@ -656,7 +656,7 @@ const items = await store.search(["user_123", "memories"], {
 
 ## 管理短期记忆
 
-启用 [short-term memory](#add-short-term-memory) 后，长时间对话可能会超出 LLM 的上下文窗口。常见的解决方案有：
+启用 [short-term memory](#add-short-term-memory) 后，检查指针会在同一线程内的轮次中保持图形状态。调用模型的节点控制状态中的哪些数据包含在模型输入中。持久状态不会自动将所有状态发送到模型。将长消息历史记录传递给模型可能会超出其上下文窗口。常见的解决方案有：
 
 * [Trim messages](#trim-messages)：删除前N条或后N条消息（在调用LLM之前）
 * [Delete messages](#delete-messages)从LangGraph状态永久
@@ -667,6 +667,8 @@ const items = await store.search(["user_123", "memories"], {
 这允许代理在不超出 LLM 上下文窗口的情况下跟踪对话。
 
 ### 修剪消息大多数法学硕士都有最大支持的上下文窗口（以令牌计价）。决定何时截断消息的一种方法是计算消息历史记录中的标记，并在接近该限制时进行截断。如果您使用 LangChain，则可以使用修剪消息实用程序并指定要从列表中保留的标记数量，以及用于处理边界的 `strategy`（例如，保留最后一个 `maxTokens`）。
+
+在以下示例中，节点将修剪后的消息列表传递给模型，而不从状态中删除消息。
 
 要修剪消息历史记录，请使用 [⟦T44⟧](https://reference.langchain.com/javascript/langchain-core/messages/trimMessages) 函数：
 
