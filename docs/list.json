@@ -1,7 +1,7 @@
 {
-  "fetchedAt": "2026-10-26T16:16:18.031Z",
+  "fetchedAt": "2026-10-28T16:13:07.385Z",
   "method": "langgraph-filter+reference",
-  "ok": 108,
+  "ok": 109,
   "failed": 0,
   "tracks": {
     "platform": {
@@ -10,7 +10,7 @@
     },
     "javascript": {
       "name": "JavaScript · Guides",
-      "count": 36
+      "count": 37
     },
     "migrate": {
       "name": "Migration",
@@ -56,13 +56,13 @@
     },
     {
       "rel": "langsmith/trace-with-langgraph.md",
-      "title": "Trace LangGraph applications",
+      "title": "Trace LangGraph agents",
       "url": "https://docs.langchain.com/langsmith/trace-with-langgraph",
       "track": "platform",
       "trackName": "Platform · LangSmith",
       "group": "langsmith",
       "source": "llms-full",
-      "bytes": 18079
+      "bytes": 18672
     },
     {
       "rel": "oss/javascript/langgraph/add-memory.md",
@@ -232,7 +232,7 @@
       "trackName": "JavaScript · Guides",
       "group": "interrupts",
       "source": "llms-full",
-      "bytes": 43819
+      "bytes": 43894
     },
     {
       "rel": "oss/javascript/langgraph/local-server.md",
@@ -242,7 +242,7 @@
       "trackName": "JavaScript · Guides",
       "group": "local-server",
       "source": "llms-full",
-      "bytes": 6567
+      "bytes": 7039
     },
     {
       "rel": "oss/javascript/langgraph/observability.md",
@@ -252,7 +252,7 @@
       "trackName": "JavaScript · Guides",
       "group": "observability",
       "source": "llms-full",
-      "bytes": 5306
+      "bytes": 5470
     },
     {
       "rel": "oss/javascript/langgraph/overview.md",
@@ -262,7 +262,7 @@
       "trackName": "JavaScript · Guides",
       "group": "overview",
       "source": "llms-full",
-      "bytes": 7586
+      "bytes": 8265
     },
     {
       "rel": "oss/javascript/langgraph/persistence.md",
@@ -295,6 +295,16 @@
       "bytes": 22597
     },
     {
+      "rel": "oss/javascript/langgraph/sql-agent.md",
+      "title": "Build a custom SQL agent",
+      "url": "https://docs.langchain.com/oss/javascript/langgraph/sql-agent",
+      "track": "javascript",
+      "trackName": "JavaScript · Guides",
+      "group": "sql-agent",
+      "source": "llms-full",
+      "bytes": 32481
+    },
+    {
       "rel": "oss/javascript/langgraph/stores.md",
       "title": "Stores",
       "url": "https://docs.langchain.com/oss/javascript/langgraph/stores",
@@ -322,7 +332,7 @@
       "trackName": "JavaScript · Guides",
       "group": "studio",
       "source": "llms-full",
-      "bytes": 6545
+      "bytes": 7026
     },
     {
       "rel": "oss/javascript/langgraph/test.md",
@@ -592,7 +602,7 @@
       "trackName": "Python · Guides",
       "group": "interrupts",
       "source": "llms-full",
-      "bytes": 45727
+      "bytes": 45760
     },
     {
       "rel": "oss/python/langgraph/local-server.md",
@@ -602,7 +612,7 @@
       "trackName": "Python · Guides",
       "group": "local-server",
       "source": "llms-full",
-      "bytes": 6964
+      "bytes": 7436
     },
     {
       "rel": "oss/python/langgraph/observability.md",
@@ -612,7 +622,7 @@
       "trackName": "Python · Guides",
       "group": "observability",
       "source": "llms-full",
-      "bytes": 5424
+      "bytes": 5671
     },
     {
       "rel": "oss/python/langgraph/overview.md",
@@ -622,7 +632,7 @@
       "trackName": "Python · Guides",
       "group": "overview",
       "source": "llms-full",
-      "bytes": 7088
+      "bytes": 7763
     },
     {
       "rel": "oss/python/langgraph/persistence.md",
@@ -692,7 +702,7 @@
       "trackName": "Python · Guides",
       "group": "studio",
       "source": "llms-full",
-      "bytes": 6697
+      "bytes": 7178
     },
     {
       "rel": "oss/python/langgraph/test.md",
@@ -805,6 +815,36 @@
       "bytes": 3425
     },
     {
+      "rel": "oss/javascript/langgraph/common-errors.md",
+      "title": "Errors",
+      "url": "https://docs.langchain.com/oss/javascript/langgraph/common-errors",
+      "track": "javascript",
+      "trackName": "JavaScript · Guides",
+      "group": "common-errors",
+      "source": "extra",
+      "bytes": 2051
+    },
+    {
+      "rel": "oss/python/langgraph/common-errors.md",
+      "title": "Errors",
+      "url": "https://docs.langchain.com/oss/python/langgraph/common-errors",
+      "track": "python",
+      "trackName": "Python · Guides",
+      "group": "common-errors",
+      "source": "extra",
+      "bytes": 1999
+    },
+    {
+      "rel": "oss/javascript/langgraph/human-in-the-loop.md",
+      "title": "Interrupts",
+      "url": "https://docs.langchain.com/oss/javascript/langgraph/human-in-the-loop",
+      "track": "javascript",
+      "trackName": "JavaScript · Guides",
+      "group": "human-in-the-loop",
+      "source": "extra",
+      "bytes": 44068
+    },
+    {
       "rel": "langsmith/agent-server.md",
       "title": "Agent Server",
       "url": "https://docs.langchain.com/langsmith/agent-server",
@@ -825,36 +865,6 @@
       "bytes": 3678
     },
     {
-      "rel": "oss/python/langgraph/human-in-the-loop.md",
-      "title": "Interrupts",
-      "url": "https://docs.langchain.com/oss/python/langgraph/human-in-the-loop",
-      "track": "python",
-      "trackName": "Python · Guides",
-      "group": "human-in-the-loop",
-      "source": "extra",
-      "bytes": 45988
-    },
-    {
-      "rel": "oss/javascript/langgraph/human-in-the-loop.md",
-      "title": "Interrupts",
-      "url": "https://docs.langchain.com/oss/javascript/langgraph/human-in-the-loop",
-      "track": "javascript",
-      "trackName": "JavaScript · Guides",
-      "group": "human-in-the-loop",
-      "source": "extra",
-      "bytes": 43993
-    },
-    {
-      "rel": "oss/python/langgraph/common-errors.md",
-      "title": "Errors",
-      "url": "https://docs.langchain.com/oss/python/langgraph/common-errors",
-      "track": "python",
-      "trackName": "Python · Guides",
-      "group": "common-errors",
-      "source": "extra",
-      "bytes": 1999
-    },
-    {
       "rel": "langsmith/local-server.md",
       "title": "Local development & testing",
       "url": "https://docs.langchain.com/langsmith/local-server",
@@ -865,14 +875,14 @@
       "bytes": 20129
     },
     {
-      "rel": "oss/javascript/langgraph/common-errors.md",
-      "title": "Errors",
-      "url": "https://docs.langchain.com/oss/javascript/langgraph/common-errors",
-      "track": "javascript",
-      "trackName": "JavaScript · Guides",
-      "group": "common-errors",
+      "rel": "oss/python/langgraph/human-in-the-loop.md",
+      "title": "Interrupts",
+      "url": "https://docs.langchain.com/oss/python/langgraph/human-in-the-loop",
+      "track": "python",
+      "trackName": "Python · Guides",
+      "group": "human-in-the-loop",
       "source": "extra",
-      "bytes": 2051
+      "bytes": 46021
     },
     {
       "rel": "reference/python/langgraph.md",
@@ -895,14 +905,14 @@
       "bytes": 1311
     },
     {
-      "rel": "reference/python/langgraph.checkpoint.sqlite.md",
-      "title": "langgraph.checkpoint.sqlite",
-      "url": "https://reference.langchain.com/python/langgraph.checkpoint.sqlite.md",
+      "rel": "reference/python/langgraph.checkpoint.postgres.md",
+      "title": "langgraph.checkpoint.postgres",
+      "url": "https://reference.langchain.com/python/langgraph.checkpoint.postgres.md",
       "track": "api-python",
       "trackName": "API · Python",
       "group": "python",
       "source": "reference",
-      "bytes": 1129
+      "bytes": 1319
     },
     {
       "rel": "reference/python/langgraph.checkpoint.md",
@@ -915,14 +925,14 @@
       "bytes": 3528
     },
     {
-      "rel": "reference/python/langgraph.store.md",
-      "title": "langgraph.store",
-      "url": "https://reference.langchain.com/python/langgraph.store.md",
+      "rel": "reference/python/langgraph.checkpoint.sqlite.md",
+      "title": "langgraph.checkpoint.sqlite",
+      "url": "https://reference.langchain.com/python/langgraph.checkpoint.sqlite.md",
       "track": "api-python",
       "trackName": "API · Python",
       "group": "python",
       "source": "reference",
-      "bytes": 2136
+      "bytes": 1129
     },
     {
       "rel": "reference/python/langgraph.prebuilt.md",
@@ -935,14 +945,14 @@
       "bytes": 3038
     },
     {
-      "rel": "reference/python/langgraph-sdk.md",
-      "title": "langgraph_sdk",
-      "url": "https://reference.langchain.com/python/langgraph-sdk.md",
+      "rel": "reference/python/langgraph.store.md",
+      "title": "langgraph.store",
+      "url": "https://reference.langchain.com/python/langgraph.store.md",
       "track": "api-python",
       "trackName": "API · Python",
       "group": "python",
       "source": "reference",
-      "bytes": 20284
+      "bytes": 2136
     },
     {
       "rel": "reference/python/langgraph-cli.md",
@@ -952,17 +962,7 @@
       "trackName": "API · Python",
       "group": "python",
       "source": "reference",
-      "bytes": 11998
-    },
-    {
-      "rel": "reference/python/langgraph-supervisor.md",
-      "title": "langgraph_supervisor",
-      "url": "https://reference.langchain.com/python/langgraph-supervisor.md",
-      "track": "api-python",
-      "trackName": "API · Python",
-      "group": "python",
-      "source": "reference",
-      "bytes": 1004
+      "bytes": 11823
     },
     {
       "rel": "reference/python/langgraph-swarm.md",
@@ -975,24 +975,14 @@
       "bytes": 678
     },
     {
-      "rel": "reference/javascript/langchain-langgraph-sdk.md",
-      "title": "@langchain/langgraph-sdk",
-      "url": "https://reference.langchain.com/javascript/langchain-langgraph-sdk.md",
-      "track": "api-js",
-      "trackName": "API · JavaScript",
-      "group": "javascript",
+      "rel": "reference/python/langgraph-supervisor.md",
+      "title": "langgraph_supervisor",
+      "url": "https://reference.langchain.com/python/langgraph-supervisor.md",
+      "track": "api-python",
+      "trackName": "API · Python",
+      "group": "python",
       "source": "reference",
-      "bytes": 16359
-    },
-    {
-      "rel": "reference/javascript/langchain-langgraph-checkpoint.md",
-      "title": "@langchain/langgraph-checkpoint",
-      "url": "https://reference.langchain.com/javascript/langchain-langgraph-checkpoint.md",
-      "track": "api-js",
-      "trackName": "API · JavaScript",
-      "group": "javascript",
-      "source": "reference",
-      "bytes": 10240
+      "bytes": 1004
     },
     {
       "rel": "reference/javascript/langchain-langgraph.md",
@@ -1005,24 +995,34 @@
       "bytes": 48339
     },
     {
-      "rel": "reference/javascript/langchain-langgraph-checkpoint-mongodb.md",
-      "title": "@langchain/langgraph-checkpoint-mongodb",
-      "url": "https://reference.langchain.com/javascript/langchain-langgraph-checkpoint-mongodb.md",
+      "rel": "reference/javascript/langchain-langgraph-checkpoint.md",
+      "title": "@langchain/langgraph-checkpoint",
+      "url": "https://reference.langchain.com/javascript/langchain-langgraph-checkpoint.md",
       "track": "api-js",
       "trackName": "API · JavaScript",
       "group": "javascript",
       "source": "reference",
-      "bytes": 444
+      "bytes": 10240
     },
     {
-      "rel": "reference/python/langgraph.checkpoint.postgres.md",
-      "title": "langgraph.checkpoint.postgres",
-      "url": "https://reference.langchain.com/python/langgraph.checkpoint.postgres.md",
+      "rel": "reference/python/langgraph-sdk.md",
+      "title": "langgraph_sdk",
+      "url": "https://reference.langchain.com/python/langgraph-sdk.md",
       "track": "api-python",
       "trackName": "API · Python",
       "group": "python",
       "source": "reference",
-      "bytes": 1319
+      "bytes": 20284
+    },
+    {
+      "rel": "reference/javascript/langchain-langgraph-sdk.md",
+      "title": "@langchain/langgraph-sdk",
+      "url": "https://reference.langchain.com/javascript/langchain-langgraph-sdk.md",
+      "track": "api-js",
+      "trackName": "API · JavaScript",
+      "group": "javascript",
+      "source": "reference",
+      "bytes": 16359
     },
     {
       "rel": "reference/javascript/langchain-langgraph-checkpoint-postgres.md",
@@ -1035,14 +1035,14 @@
       "bytes": 995
     },
     {
-      "rel": "reference/javascript/langchain-langgraph-checkpoint-redis.md",
-      "title": "@langchain/langgraph-checkpoint-redis",
-      "url": "https://reference.langchain.com/javascript/langchain-langgraph-checkpoint-redis.md",
+      "rel": "reference/javascript/langchain-langgraph-checkpoint-mongodb.md",
+      "title": "@langchain/langgraph-checkpoint-mongodb",
+      "url": "https://reference.langchain.com/javascript/langchain-langgraph-checkpoint-mongodb.md",
       "track": "api-js",
       "trackName": "API · JavaScript",
       "group": "javascript",
       "source": "reference",
-      "bytes": 2907
+      "bytes": 444
     },
     {
       "rel": "reference/javascript/langchain-langgraph-checkpoint-sqlite.md",
@@ -1053,6 +1053,16 @@
       "group": "javascript",
       "source": "reference",
       "bytes": 301
+    },
+    {
+      "rel": "reference/javascript/langchain-langgraph-checkpoint-redis.md",
+      "title": "@langchain/langgraph-checkpoint-redis",
+      "url": "https://reference.langchain.com/javascript/langchain-langgraph-checkpoint-redis.md",
+      "track": "api-js",
+      "trackName": "API · JavaScript",
+      "group": "javascript",
+      "source": "reference",
+      "bytes": 2907
     },
     {
       "rel": "reference/javascript/langchain-langgraph-checkpoint-validation.md",
@@ -1095,16 +1105,6 @@
       "bytes": 1980
     },
     {
-      "rel": "reference/javascript/langchain-langgraph-swarm.md",
-      "title": "@langchain/langgraph-swarm",
-      "url": "https://reference.langchain.com/javascript/langchain-langgraph-swarm.md",
-      "track": "api-js",
-      "trackName": "API · JavaScript",
-      "group": "javascript",
-      "source": "reference",
-      "bytes": 1386
-    },
-    {
       "rel": "reference/javascript/langchain-langgraph-supervisor.md",
       "title": "@langchain/langgraph-supervisor",
       "url": "https://reference.langchain.com/javascript/langchain-langgraph-supervisor.md",
@@ -1113,6 +1113,16 @@
       "group": "javascript",
       "source": "reference",
       "bytes": 1673
+    },
+    {
+      "rel": "reference/javascript/langchain-langgraph-swarm.md",
+      "title": "@langchain/langgraph-swarm",
+      "url": "https://reference.langchain.com/javascript/langchain-langgraph-swarm.md",
+      "track": "api-js",
+      "trackName": "API · JavaScript",
+      "group": "javascript",
+      "source": "reference",
+      "bytes": 1386
     }
   ]
 }

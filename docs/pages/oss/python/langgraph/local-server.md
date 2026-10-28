@@ -2,7 +2,7 @@
 
 # Run a local server
 
-This guide shows you how to run a LangGraph application locally.
+This guide shows you how to run a LangGraph agent locally.
 
 ## Prerequisites
 
@@ -22,9 +22,9 @@ pip install -U "langgraph-cli[inmem]"
 uv add "langgraph-cli[inmem]"
 ```
 
-## 2. Create a LangGraph app
+## 2. Create a LangGraph agent
 
-Create a new app from the [`new-langgraph-project-python` template](https://github.com/langchain-ai/new-langgraph-project). This template demonstrates a single-node application you can extend with your own logic.
+Create agent code from the [`new-langgraph-project-python` template](https://github.com/langchain-ai/new-langgraph-project). This template demonstrates a single-node graph you can extend with your own logic.
 
 ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 langgraph new path/to/your/app --template new-langgraph-project-python
@@ -51,10 +51,16 @@ uv sync
 
 ## 4. Create a `.env` file
 
+> [!NOTE]
+>
+> In an [agent-based workspace](/langsmith/agents), [create an agent](/langsmith/create-an-agent) once before sending traces. Use [agent addressing](/langsmith/log-traces-to-agent) to select its identifier and environment. If an integration requires `project_name`, use the selected environment's [`tracer_session_name`](/langsmith/create-an-agent#use-an-environment-project) as a compatibility value.
+
 You will find a `.env.example` in the root of your new LangGraph app. Create a `.env` file in the root of your new LangGraph app and copy the contents of the `.env.example` file into it, filling in the necessary API keys:
 
 ```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 LANGSMITH_API_KEY=lsv2...
+LANGSMITH_AGENT_ID="<your-agent-id>"
+LANGSMITH_AGENT_ENVIRONMENT="production"
 ```
 
 ## 5. Launch Agent server
@@ -86,9 +92,9 @@ For production use, please use LangSmith Deployment.
 
 The `langgraph dev` command starts Agent Server in an in-memory mode. This mode is suitable for development and testing purposes. For production use, deploy Agent Server with access to a persistent storage backend. For more information, see the [Platform setup overview](/langsmith/platform-setup).
 
-## 6. Test your application in Studio
+## 6. Test your agent in Studio
 
-[Studio](/langsmith/studio) is a specialized UI that you can connect to LangGraph API server to visualize, interact with, and debug your application locally. Test your graph in Studio by visiting the URL provided in the output of the `langgraph dev` command:
+[Studio](/langsmith/studio) is a specialized UI that you can connect to LangGraph API server to visualize, interact with, and debug your agent locally. Test your graph in Studio by visiting the URL provided in the output of the `langgraph dev` command:
 
 ```
 >    - LangGraph Studio Web UI: https://smith.langchain.com/studio/?baseUrl=http://127.0.0.1:2024

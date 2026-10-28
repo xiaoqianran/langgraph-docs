@@ -459,13 +459,18 @@
     "reference/javascript/langchain-langgraph.md": {
       "hash": "181fbb5a8b62ac5c21aff84fe949e8b3e5fce213",
       "translatedAt": "2026-10-17T13:07:31.536Z"
+    },
+    "oss/javascript/langgraph/sql-agent.md": {
+      "hash": "bf4068fcebf0cd9392492a1f91da9a270f56b451",
+      "translatedAt": "2026-10-28T16:13:25.319Z",
+      "failed": true
     }
   },
-  "updatedAt": "2026-10-26T16:16:27.723Z",
+  "updatedAt": "2026-10-28T16:13:48.491Z",
   "stats": {
-    "translated": 2,
-    "skipped": 107,
-    "failed": 0,
-    "total": 109
+    "translated": 0,
+    "skipped": 91,
+    "failed": 19,
+    "total": 110
   }
 }
