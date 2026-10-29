@@ -11,10 +11,10 @@
 ## 课程
 
 - [⟦T0⟧](https://reference.langchain.com/python/langgraph.checkpoint.postgres/PostgresSaver)
-- [⟦T1⟧](https://reference.langchain.com/python/langgraph.checkpoint.postgres/shallow/ShallowPostgresSaver)
-- [⟦T2⟧](https://reference.langchain.com/python/langgraph.checkpoint.postgres/shallow/AsyncShallowPostgresSaver)
-- [⟦T3⟧](https://reference.langchain.com/python/langgraph.checkpoint.postgres/base/BasePostgresSaver)
-- [⟦T4⟧](https://reference.langchain.com/python/langgraph.checkpoint.postgres/aio/AsyncPostgresSaver)
+- [⟦T1⟧](https://reference.langchain.com/python/langgraph.checkpoint.postgres/base/BasePostgresSaver)
+- [⟦T2⟧](https://reference.langchain.com/python/langgraph.checkpoint.postgres/aio/AsyncPostgresSaver)
+- [⟦T3⟧](https://reference.langchain.com/python/langgraph.checkpoint.postgres/shallow/ShallowPostgresSaver)
+- [⟦T4⟧](https://reference.langchain.com/python/langgraph.checkpoint.postgres/shallow/AsyncShallowPostgresSaver)
 
 ## 函数
 

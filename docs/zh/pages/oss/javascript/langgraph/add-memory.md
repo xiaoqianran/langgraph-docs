@@ -124,7 +124,7 @@ const graph = builder.compile({ checkpointer });
 >> [!提示]
 >>
 >> **设置**
->> 要使用`MongoDBSaver`，您需要一个 MongoDB 集群。如果您还没有集群，请按照 [this guide](https://www.mongodb.com/docs/guides/atlas/cluster/) 创建集群。有关以代理为中心的演练，请参阅 [short-term memory with MongoDB Atlas](/oss/javascript/integrations/memory/mongodb-short-term-memory)。
+>> 要使用`MongoDBSaver`，您需要一个 MongoDB 集群。如果您还没有集群，请按照 [this guide](https://www.mongodb.com/docs/atlas/tutorial/deploy-free-tier-cluster/) 创建集群。有关以代理为中心的演练，请参阅 [short-term memory with MongoDB Atlas](/oss/javascript/integrations/memory/mongodb-short-term-memory)。
 >
 > ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > import { ChatAnthropic } from "@langchain/anthropic";
@@ -591,7 +591,7 @@ const items = await store.search(["user_123", "memories"], {
 >
 >> [!注意]
 >>
->> 自动嵌入需要 MongoDB Atlas。 MongoDB 通过 Voyage AI 在服务器端生成嵌入。请参阅[Automated Embedding documentation](https://www.mongodb.com/docs/atlas/atlas-vector-search/automated-embedding/)了解更多信息。
+>> 自动嵌入需要 MongoDB Atlas。 MongoDB 通过 Voyage AI 在服务器端生成嵌入。请参阅[Automated Embedding documentation](https://www.mongodb.com/docs/vector-search/)了解更多信息。
 >
 > ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > import { StateGraph, StateSchema, MessagesValue, GraphNode, START } from "@langchain/langgraph";

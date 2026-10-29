@@ -9,10 +9,10 @@
 ## Classes
 
 - [`PostgresSaver`](https://reference.langchain.com/python/langgraph.checkpoint.postgres/PostgresSaver)
-- [`ShallowPostgresSaver`](https://reference.langchain.com/python/langgraph.checkpoint.postgres/shallow/ShallowPostgresSaver)
-- [`AsyncShallowPostgresSaver`](https://reference.langchain.com/python/langgraph.checkpoint.postgres/shallow/AsyncShallowPostgresSaver)
 - [`BasePostgresSaver`](https://reference.langchain.com/python/langgraph.checkpoint.postgres/base/BasePostgresSaver)
 - [`AsyncPostgresSaver`](https://reference.langchain.com/python/langgraph.checkpoint.postgres/aio/AsyncPostgresSaver)
+- [`ShallowPostgresSaver`](https://reference.langchain.com/python/langgraph.checkpoint.postgres/shallow/ShallowPostgresSaver)
+- [`AsyncShallowPostgresSaver`](https://reference.langchain.com/python/langgraph.checkpoint.postgres/shallow/AsyncShallowPostgresSaver)
 
 ## Functions
 

@@ -16,7 +16,7 @@ Studio 连接到本地运行的代理，向您显示代理执行的每个步骤�
 
 * **LangSmith帐户**：注册（免费）或登录[smith.langchain.com](https://smith.langchain.com?utm_source=docs\&utm_medium=cta\&utm_campaign=langsmith-signup\&utm_content=oss-langgraph-studio)。
 * **A LangSmith API 密钥**：遵循 [Create an API key](/langsmith/create-account-api-key) 指南。
-* 如果您不需要数据 [traced](/langsmith/observability-concepts#traces) 至 LangSmith，请在应用程序的 `.env` 文件中设置 `LANGSMITH_TRACING=false`。禁用跟踪后，没有数据离开您的本地服务器。
+* 如果您不需要数据 [traced](/langsmith/observability-concepts#traces) 至 LangSmith，请在代理的 `.env` 文件中设置 `LANGSMITH_TRACING=false`。禁用跟踪后，没有数据离开您的本地服务器。
 
 ## 设置本地Agent服务器
 
@@ -56,6 +56,10 @@ export { agent };
 
 ### 3.环境变量
 
+> [!注意]
+>
+> 在发送跟踪之前，在[agent-based workspace](/langsmith/agents)、[create an agent](/langsmith/create-an-agent) 中进行一次。使用[agent addressing](/langsmith/log-traces-to-agent)选择其标识符和环境。如果集成需要 `project_name`，请使用所选环境的 [⟦T10⟧](/langsmith/create-an-agent#use-an-environment-project) 作为兼容性值。
+
 Studio 需要 LangSmith API 密钥来连接您的本地代理。在项目的根目录中创建一个 `.env` 文件，并从 [LangSmith](https://smith.langchain.com/settings) 添加 API 密钥。
 
 > [!警告]
@@ -64,6 +68,8 @@ Studio 需要 LangSmith API 密钥来连接您的本地代理。在项目的根�
 
 ```bash .env theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 LANGSMITH_API_KEY=lsv2...
+LANGSMITH_AGENT_ID="<your-agent-id>"
+LANGSMITH_AGENT_ENVIRONMENT="production"
 ```
 
 ### 4.创建LangGraph配置文件
@@ -80,7 +86,7 @@ LangGraph CLI 使用配置文件来查找代理并管理依赖项。在应用程
 }
 ```
 
-[⟦T12⟧](https://reference.langchain.com/javascript/langchain/index/createAgent) 函数自动返回编译后的 LangGraph 图，这正是 `graphs` 键在配置文件中所期望的。
+[⟦T14⟧](https://reference.langchain.com/javascript/langchain/index/createAgent) 函数自动返回编译后的 LangGraph 图，这正是 `graphs` 键在配置文件中所期望的。
 
 > [!注意]
 >
@@ -103,25 +109,25 @@ my-app/
 yarn install
 ```
 
-### 6. 在 Studio 中查看您的代理
-
-启动开发服务器以将代理连接到 Studio：
+### 6. 在 Studio 中查看您的代理启动开发服务器以将代理连接到 Studio：
 
 ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 npx @langchain/langgraph-cli dev
-```> [!警告]
+```
+
+> [!警告]
 >
 > Safari 阻止 `localhost` 与 Studio 的连接。要解决此问题，请使用 `--tunnel` 运行上述命令，以通过安全隧道访问 Studio。您需要通过单击 Studio UI 中的 **连接到本地服务器** 来手动将隧道 URL 添加到允许的源。步骤请参阅[troubleshooting guide](/langsmith/troubleshooting-studio#safari-connection-issues)。
 
-服务器运行后，您的代理可以通过 `http://127.0.0.1:2024` 的 API 和`https://smith.langchain.com/studio/?baseUrl=http://127.0.0.1:2024` 的 Studio UI 访问：
+服务器运行后，您的代理可以通过 `http://127.0.0.1:2024` 的 API 和 `https://smith.langchain.com/studio/?baseUrl=http://127.0.0.1:2024` 的 Studio UI 访问：
 
 ![Agent view in the Studio UI](https://mintcdn.com/langchain-5e9cc07a/TCDks4pdsHdxWmuJ/oss/images/studio_create-agent.png?fit=max\&auto=format\&n=TCDks4pdsHdxWmuJ\&q=85\&s=ebd259e9fa24af7d011dfcc568f74be2)
 
 通过 Studio 连接到本地代理，您可以快速迭代代理的行为。运行测试输入，检查完整的执行跟踪，包括提示、工具参数、返回值和[LangSmith](/langsmith/observability-studio)中的令牌/延迟指标。当出现问题时，Studio 会捕获周围状态的异常，以帮助您了解发生的情况。
 
-开发服务器支持热重载——对代码中的提示或工具签名进行更改，Studio 会立即反映它们。从任何步骤重新运行对话线程以测试您的更改，而无需重新开始。该工作流程从简单的单工具代理扩展到复杂的多节点图。
+开发服务器支持热重载——对代码中的提示或工具签名进行更改，Studio 会立即反映它们。从任何步骤重新运行对话线程以测试您的更改，而无需重新开始。该工作流程从简单的单工具代理扩展到复杂的多节点图。有关如何运行 Studio 的更多信息，请参阅 [LangSmith docs](/langsmith/observability) 中的以下指南：
 
-有关如何运行 Studio 的更多信息，请参阅 [LangSmith docs](/langsmith/observability) 中的以下指南：* [Run application](/langsmith/use-studio#run-application)
+* [Run agent](/langsmith/use-studio#run-application)
 * [Manage assistants](/langsmith/use-studio#manage-assistants)
 * [Manage threads](/langsmith/use-studio#manage-threads)
 * [Iterate on prompts](/langsmith/observability-studio)

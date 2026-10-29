@@ -154,7 +154,7 @@ with PostgresSaver.from_conn_string(DB_URI) as checkpointer:  # [!code highlight
 >> [!提示]
 >>
 >> **设置**
->> 要使用[MongoDB checkpointer](https://pypi.org/project/langgraph-checkpoint-mongodb/)，您需要一个 MongoDB 集群。如果您还没有集群，请按照 [this guide](https://www.mongodb.com/docs/guides/atlas/cluster/) 创建集群。有关以代理为中心的演练，请参阅 [short-term memory with MongoDB Atlas](/oss/python/integrations/memory/mongodb-short-term-memory)。
+>> 要使用[MongoDB checkpointer](https://pypi.org/project/langgraph-checkpoint-mongodb/)，您需要一个 MongoDB 集群。如果您还没有集群，请按照 [this guide](https://www.mongodb.com/docs/atlas/tutorial/deploy-free-tier-cluster/) 创建集群。有关以代理为中心的演练，请参阅 [short-term memory with MongoDB Atlas](/oss/python/integrations/memory/mongodb-short-term-memory)。
 >
 > **同步**
 >
@@ -738,7 +738,7 @@ with PostgresStore.from_conn_string(DB_URI) as store:  # [!code highlight]
 >
 >> [!提示]
 >>
->> 使用 `query` 进行语义搜索需要 MongoDB Vector Search (`$vectorSearch`)，它运行在 [MongoDB Atlas](https://www.mongodb.com/docs/atlas/) 或使用 [Search and Vector Search](https://www.mongodb.com/docs/search/self-managed/current/) (`mongot`) 的自管理 MongoDB 上。没有 `mongot` 的普通 `mongod` 是不够的。开店时从`create_vector_index_config`经过`index_config`。索引创建可能会超过默认的 15 秒等待时间，因此在第一次运行时将 `auto_index_timeout` 设置得更高。有关 Atlas 集群设置，请参阅[this guide](https://www.mongodb.com/docs/guides/atlas/cluster/)。有关向量索引设置和以代理为中心的演练，请参阅 [long-term memory with MongoDB Atlas](/oss/python/integrations/memory/mongodb-long-term-memory)。
+>> 使用 `query` 进行语义搜索需要 MongoDB Vector Search (`$vectorSearch`)，它运行在 [MongoDB Atlas](https://www.mongodb.com/docs/atlas/) 或使用 [Search and Vector Search](https://www.mongodb.com/docs/search/self-managed/current/) (`mongot`) 的自管理 MongoDB 上。没有 `mongot` 的普通 `mongod` 是不够的。开店时从`create_vector_index_config`经过`index_config`。索引创建可能会超过默认的 15 秒等待时间，因此在第一次运行时将 `auto_index_timeout` 设置得更高。有关 Atlas 集群设置，请参阅[this guide](https://www.mongodb.com/docs/atlas/tutorial/deploy-free-tier-cluster/)。有关向量索引设置和以代理为中心的演练，请参阅 [long-term memory with MongoDB Atlas](/oss/python/integrations/memory/mongodb-long-term-memory)。
 >
 > **异步**
 >

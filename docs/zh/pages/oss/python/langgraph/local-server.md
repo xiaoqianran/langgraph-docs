@@ -4,7 +4,7 @@
 
 # 运行本地服务器
 
-本指南向您展示如何在本地运行 LangGraph 应用程序。
+本指南向您展示如何在本地运行 LangGraph 代理。
 
 ## 先决条件
 
@@ -24,9 +24,9 @@ pip install -U "langgraph-cli[inmem]"
 uv add "langgraph-cli[inmem]"
 ```
 
-## 2. 创建一个LangGraph应用程序
+## 2. 创建LangGraph代理
 
-从 [⟦T16⟧ template](https://github.com/langchain-ai/new-langgraph-project) 创建一个新应用程序。此模板演示了您可以使用自己的逻辑进行扩展的单节点应用程序。
+从 [⟦T16⟧ template](https://github.com/langchain-ai/new-langgraph-project) 创建代理代码。该模板演示了一个单节点图，您可以使用自己的逻辑进行扩展。
 
 ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 langgraph new path/to/your/app --template new-langgraph-project-python
@@ -53,13 +53,17 @@ uv sync
 
 ## 4. 创建`.env`文件
 
+> [!注意]
+>
+> 在发送跟踪之前，在[agent-based workspace](/langsmith/agents)、[create an agent](/langsmith/create-an-agent) 中进行一次。使用[agent addressing](/langsmith/log-traces-to-agent)选择其标识符和环境。如果集成需要 `project_name`，请使用所选环境的 [⟦T21⟧](/langsmith/create-an-agent#use-an-environment-project) 作为兼容性值。
+
 您将在新的 LangGraph 应用程序的根目录中找到 `.env.example`。在新的LangGraph应用程序的根目录中创建一个`.env`文件，并将`.env.example`文件的内容复制到其中，填写必要的API密钥：
 
 ```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 LANGSMITH_API_KEY=lsv2...
-```
-
-## 5.启动代理服务器
+LANGSMITH_AGENT_ID="<your-agent-id>"
+LANGSMITH_AGENT_ENVIRONMENT="production"
+```## 5.启动代理服务器
 
 本地启动 LangGraph API 服务器：
 
@@ -84,11 +88,13 @@ INFO:langgraph_api.cli:
 
 This in-memory server is designed for development and testing.
 For production use, please use LangSmith Deployment.
-````langgraph dev` 命令以内存模式启动 Agent Server。该模式适合开发和测试目的。对于生产使用，部署可以访问持久存储后端的代理服务器。欲了解更多信息，请参阅[Platform setup overview](/langsmith/platform-setup)。
+```
 
-## 6. 在 Studio 中测试您的应用程序
+`langgraph dev` 命令以内存模式启动 Agent Server。该模式适合开发和测试目的。对于生产使用，部署可以访问持久存储后端的代理服务器。有关更多信息，请参阅[Platform setup overview](/langsmith/platform-setup)。
 
-[Studio](/langsmith/studio) 是一个专用 UI，您可以连接到 LangGraph API 服务器以在本地可视化、交互和调试您的应用程序。通过访问 `langgraph dev` 命令输出中提供的 URL 来测试您的图形：
+## 6. 在 Studio 中测试您的代理
+
+[Studio](/langsmith/studio) 是一个专用 UI，您可以连接到 LangGraph API 服务器以在本地可视化、交互和调试代理。通过访问 `langgraph dev` 命令输出中提供的 URL 来测试您的图形：
 
 ```
 >    - LangGraph Studio Web UI: https://smith.langchain.com/studio/?baseUrl=http://127.0.0.1:2024
@@ -167,9 +173,7 @@ https://smith.langchain.com/studio/?baseUrl=http://myhost:3000
        print(f"Receiving new event of type: {chunk.event}...")
        print(chunk.data)
        print("\n\n")
-   ```
-
-**休息API**
+   ```**休息API**
 
 ```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 curl -s --request POST \
@@ -189,7 +193,9 @@ curl -s --request POST \
     }"
 ```
 
-## 后续步骤现在您已经在本地运行了 LangGraph 应用程序，通过探索部署和高级功能来进一步推进您的旅程：
+## 后续步骤
+
+现在您已经在本地运行了 LangGraph 应用程序，通过探索部署和高级功能来进一步推进您的旅程：
 
 * [Deployment quickstart](/langsmith/deployment-quickstart)：使用LangSmith部署您的LangGraph应用程序。
 

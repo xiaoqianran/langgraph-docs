@@ -4,35 +4,41 @@
 
 # LangSmith 可观测性
 
-跟踪是应用程序从输入到输出所采取的一系列步骤。每个单独的步骤都由一次运行表示。您可以使用[LangSmith](https://smith.langchain.com?utm_source=docs\&utm_medium=cta\&utm_campaign=langsmith-signup\&utm_content=oss-langgraph-observability)来可视化这些执行步骤。要使用它，[enable tracing for your application](/langsmith/trace-with-langgraph)。这使您能够执行以下操作：
+跟踪是代理从输入到输出所采取的一系列步骤。每个单独的步骤都由一次运行表示。您可以使用[LangSmith](https://smith.langchain.com?utm_source=docs\&utm_medium=cta\&utm_campaign=langsmith-signup\&utm_content=oss-langgraph-observability)来可视化这些执行步骤。要使用它，[enable tracing for your agent](/langsmith/trace-with-langgraph)。这使您能够执行以下操作：
 
-* [Debug a locally running application](/langsmith/observability-studio#debug-langsmith-traces)。
-* [Evaluate the application performance](/oss/python/langchain/test/evals)。
-* [Monitor the application](/langsmith/dashboards)。
+* [Debug a locally running agent](/langsmith/observability-studio#debug-langsmith-traces)。
+* [Evaluate the agent performance](/oss/python/langchain/test/evals)。
+* [Monitor the agent](/langsmith/dashboards)。
 
 ## 先决条件
 
 在开始之前，请确保您具备以下条件：
 
-* **LangSmith帐户**：注册（免费）或登录[smith.langchain.com](https://smith.langchain.com?utm_source=docs\&utm_medium=cta\&utm_campaign=langsmith-signup\&utm_content=oss-langgraph-observability)。
-* **A LangSmith API 密钥**：遵循 [Create an API key](/langsmith/create-account-api-key) 指南​​。
+* **LangSmith帐户**：注册（免费）或在[smith.langchain.com](https://smith.langchain.com?utm_source=docs\&utm_medium=cta\&utm_campaign=langsmith-signup\&utm_content=oss-langgraph-observability)登录。
+* **A LangSmith API 密钥**：遵循 [Create an API key](/langsmith/create-account-api-key) 指南。
 
 ## 启用跟踪
 
-要为您的应用程序启用跟踪，请设置以下环境变量：
+> [!注意]
+>
+> 在发送跟踪之前，在[agent-based workspace](/langsmith/agents)、[create an agent](/langsmith/create-an-agent) 中进行一次。使用[agent addressing](/langsmith/log-traces-to-agent)选择其标识符和环境。如果集成需要 `project_name`，请使用所选环境的 [⟦T6⟧](/langsmith/create-an-agent#use-an-environment-project) 作为兼容性值。
 
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+要为代理启用跟踪，请设置以下环境变量：
+
+```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+export LANGSMITH_AGENT_ID="<your-agent-id>"
+export LANGSMITH_AGENT_ENVIRONMENT="production"
 export LANGSMITH_TRACING=true
 export LANGSMITH_API_KEY=<your-api-key>
 ```
 
-默认情况下，跟踪将记录到名为 `default` 的项目中。要配置自定义项目名称，请参阅[Log to a project](#log-to-a-project)。
+跟踪显示在设置期间配置的目标中。
 
-欲了解更多信息，请参阅[Trace with LangGraph](/langsmith/trace-with-langgraph)。
+有关更多信息，请参阅[Trace with LangGraph](/langsmith/trace-with-langgraph)。
 
 ## 有选择地跟踪
 
-您可以选择使用 LangSmith 的 `tracing_context` 上下文管理器来跟踪应用程序的特定调用或部分：
+您可以选择使用 LangSmith 的 `tracing_context` 上下文管理器来跟踪代理的特定调用或部分：
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import langsmith as ls
@@ -45,30 +51,15 @@ with ls.tracing_context(enabled=True):
 agent.invoke({"messages": [{"role": "user", "content": "Send another email"}]})
 ```
 
-## 登录到项目
+## 选择代理和环境
 
-> **静态**
+使用`LANGSMITH_AGENT_ID`和`LANGSMITH_AGENT_ENVIRONMENT`选择注册的代理和环境。对于每个请求路由，请在代码中传递代理地址。参见[Log traces to an agent](/langsmith/log-traces-to-agent)。> **基于项目的工作区和自托管 LangSmith**
 >
-> 您可以通过设置 `LANGSMITH_PROJECT` 环境变量来为整个应用程序设置自定义项目名称：
->
-> ```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-> export LANGSMITH_PROJECT=my-agent-project
-> ```
+> 将 `LANGSMITH_PROJECT` 设置为跟踪项目名称，而不是设置代理变量。对于在基于代理的工作区中需要 `project_name` 的集成，请使用环境的 [⟦T12⟧](/langsmith/create-an-agent#use-an-environment-project) 作为兼容性值。
 
-> **动态**
->
-> 您可以通过编程方式设置项目名称以进行特定操作：
->
-> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-> import langsmith as ls
->
-> with ls.tracing_context(project_name="email-agent-test", enabled=True):
->     response = agent.invoke({
->         "messages": [{"role": "user", "content": "Send a welcome email"}]
->     })
-> ```
+## 将元数据添加到跟踪中
 
-## 将元数据添加到跟踪中您可以使用自定义元数据和标签来注释您的跟踪：
+您可以使用自定义元数据和标签来注释您的跟踪：
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 response = agent.invoke(
@@ -88,7 +79,6 @@ response = agent.invoke(
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 with ls.tracing_context(
-    project_name="email-agent-test",
     enabled=True,
     tags=["production", "email-assistant", "v1.0"],
     metadata={"user_id": "user_123", "session_id": "session_456", "environment": "production"}):

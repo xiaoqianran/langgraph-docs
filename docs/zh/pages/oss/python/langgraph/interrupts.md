@@ -360,7 +360,7 @@ graph.stream_events(Command(resume=False), config=config, version="v3").output
 
 ### 查看和编辑状态
 
-有时，您希望在继续之前让人工检查并编辑部分图形状态。这对于纠正法学硕士、添加缺失的信息或进行调整非常有用。
+有时您希望在继续之前让人工检查并编辑部分图形状态。这对于纠正法学硕士、添加缺失的信息或进行调整非常有用。
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from langgraph.types import interrupt
@@ -582,7 +582,7 @@ def send_email(to: str, subject: str, body: str):
 
 > [!警告]
 >
-> **避免 `while True` + `interrupt()` 在单个节点内循环。** 因为节点在每次恢复时都从头重新运行（请参阅 [Rules of interrupts](#rules-of-interrupts)），多次调用 `interrupt()` 的循环会导致每个恢复重播所有先前的迭代：第一个恢复重播 1 次迭代，第二次重播 2 次迭代，依此类推。结果是循环体内任何代码的指数重新执行。
+> **避免 `while True` + `interrupt()` 在单个节点内循环。** 因为节点在每次恢复时都从头重新运行（请参阅 [Rules of interrupts](#rules-of-interrupts)），多次调用 `interrupt()` 的循环会导致每个恢复重播所有先前的迭代：第一个恢复重播 1 次迭代，第二次重播 2 次迭代，依此类推。
 
 正确的模式：
 
@@ -619,7 +619,7 @@ builder = StateGraph(FormState)
 builder.add_node("collect_age", get_age_node)
 builder.add_edge(START, "collect_age")
 builder.add_conditional_edges("collect_age", route)
-```每个恢复调用 `get_age_node` 一次，运行 `interrupt()` 调用一次，然后退出。当答案无效时，条件边沿循环返回，并且下一个中断会重新提示更新的问题。每个简历中没有代码运行超过一次。
+```在此示例中，无效答案会导致节点返回更新后的问题。在同一图运行期间，条件边再次调用该节点，并且此新调用在`interrupt()`处暂停。在稍后的恢复中，节点仍然从头开始重新启动，因此 `interrupt()` 之前的任何代码都会再次运行。参见[Rules of interrupts](#rules-of-interrupts)。
 
 > **完整示例**
 >
@@ -675,7 +675,7 @@ builder.add_conditional_edges("collect_age", route)
 
 ## 中断规则
 
-当您在节点内调用 [⟦T125⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 时，LangGraph 通过引发异常来通知运行时暂停，从而暂停执行。该异常通过调用堆栈向上传播并被运行时捕获，通知图保存当前状态并等待外部输入。
+当您在节点内调用 [⟦T125⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 时，LangGraph 会引发异常，指示运行时暂停，从而暂停执行。该异常通过调用堆栈向上传播并被运行时捕获，通知图保存当前状态并等待外部输入。
 
 当执行恢复时（在您提供请求的输入之后），运行时会从头开始重新启动整个节点 - 它不会从调用 [⟦T126⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 的确切行恢复。这意味着在 [⟦T127⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 之前运行的任何代码都将再次执行。因此，在处理中断时需要遵循一些重要规则，以确保它们按预期运行。
 
@@ -742,7 +742,7 @@ def node_a(state: State):
         "city": city
     }
 ```* 🔴 不要有条件地跳过节点内的 [⟦T135⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 调用
-* 🔴 不要使用在执行过程中不确定的逻辑来循环 [⟦T136⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 调用，包括 `while True` 验证循环。使用条件边代替（参见[Validating human input](#validating-human-input)）
+* 🔴 不要使用跨执行不确定的逻辑来循环 [⟦T136⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 调用，包括 `while True` 验证循环。使用条件边（参见[Validating human input](#validating-human-input)）
 
 ```python Skipping interrupts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 def node_a(state: State):
@@ -800,7 +800,7 @@ def node_a(state: State):
     return {"user": response}
 ```
 
-* 🔴不要将函数、类实例或其他复杂对象传递给[⟦T140⟧](https://reference.langchain.com/python/langgraph/types/interrupt)
+* 🔴 不要将函数、类实例或其他复杂对象传递给[⟦T140⟧](https://reference.langchain.com/python/langgraph/types/interrupt)
 
 ```python Functions theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 def validate_input(value):
@@ -839,7 +839,7 @@ def node_a(state: State):
 
 * ✅ 在[⟦T144⟧](https://reference.langchain.com/python/langgraph/types/interrupt)之前使用幂等操作
 * ✅ 在 [⟦T145⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 调用之后放置副作用
-* ✅尽可能将副作用分离到单独的节点中
+* ✅ 如果可能，将副作用分离到单独的节点中
 
 ```python Idempotent operations theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 def node_a(state: State):
@@ -994,7 +994,7 @@ graph.invoke(None, config=config)  # [!code highlight]
 ```1. 使用`interrupt_before`和`interrupt_after`参数调用`graph.invoke`。这是一个运行时配置，可以针对每次调用进行更改。
 2. `interrupt_before` 指定执行该节点之前应暂停执行的节点。
 3. `interrupt_after` 指定该节点执行完毕后应暂停执行的节点。
-4. 运行图表直至遇到第一个断点。
+4. 运行图表直到遇到第一个断点。
 5. 通过传入 `None` 作为输入来恢复图表。这将运行图表直到遇到下一个断点。
 
 > [!提示]
