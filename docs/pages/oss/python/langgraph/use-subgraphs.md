@@ -435,7 +435,7 @@ resumed = agent.stream_events(Command(resume=True), config=config, version="v3")
 final = resumed.output
 ```
 
-> **[View example trace](https://smith.langchain.com/public/a97b862b-4007-4c28-8de3-7dadd3246bc2/r)**
+> **[View example trace](https://smith.langchain.com/public/98a5d6e1-b3fc-4248-a3b6-48901419f96b/r)**
 >
 > Open a public LangSmith run for this example.
 
@@ -565,7 +565,7 @@ resumed = agent.stream_events(Command(resume=True), config=config, version="v3")
 final = resumed.output
 ```
 
-> **[View example trace](https://smith.langchain.com/public/a97b862b-4007-4c28-8de3-7dadd3246bc2/r)**
+> **[View example trace](https://smith.langchain.com/public/98a5d6e1-b3fc-4248-a3b6-48901419f96b/r)**
 >
 > Open a public LangSmith run for this example.
 

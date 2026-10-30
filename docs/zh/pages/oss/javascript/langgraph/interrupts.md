@@ -183,7 +183,7 @@ while (true) {
 }
 ```
 
-> **[View example trace](https://smith.langchain.com/public/7ebae998-6b68-4caa-a262-38d84efc922f/r)**
+> **[View example trace](https://smith.langchain.com/public/4aeb7a2d-5aa5-45e2-afd8-0a4c5ef9ac2a/r)**
 >
 > 为此示例打开公共 LangSmith 运行。* **`stream.messages`**：聊天模型输出为内容块；迭代 `message.text` 以获得代币增量。对于嵌套子图，从`stream.subgraphs[*].messages`读取消息块。
 * **`stream.values`**：每一步后的完整状态快照
@@ -607,7 +607,7 @@ const getAgeNode: typeof State.Node = (state) => {
 // );
 ```
 
-> **[View example trace](https://smith.langchain.com/public/9e6a7db8-1fa3-4f6f-91cc-3b48fcf5e6ec/r)**
+> **[View example trace](https://smith.langchain.com/public/68000848-fccd-4c6a-9f64-0951306122fe/r)**
 >
 > 为此示例打开公共 LangSmith 运行。在此示例中，无效答案会导致节点返回更新后的问题。在同一图运行期间，条件边再次调用该节点，并且此新调用在`interrupt()`处暂停。在稍后的恢复中，节点仍然从头开始重新启动，因此 `interrupt()` 之前的任何代码都会再次运行。参见[Rules of interrupts](#rules-of-interrupts)。
 
@@ -845,7 +845,9 @@ const nodeA: GraphNode<typeof State> = async (state) => {
 
 * ✅ 在[⟦T132⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt)之前使用幂等操作
 * ✅ 在 [⟦T133⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 调用之后放置副作用
-* ✅ 如果可能，将副作用分离到单独的节点中
+* ✅尽可能将副作用分离到单独的节点中
+
+在下面的批准后示例中，副作用仅在批准成功时运行。如果节点在提交副作用后但完成之前失败，重试该节点可以重复该效果。在外部系统中使用幂等操作或重复写入。
 
 ```typescript Idempotent operations theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 const nodeA: GraphNode<typeof State> = async (state) => {
@@ -865,7 +867,7 @@ const nodeA: GraphNode<typeof State> = async (state) => {
 ```typescript Side effects after interrupt theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 const nodeA: GraphNode<typeof State> = async (state) => {
   // ✅ Good: placing side effect after the interrupt
-  // This ensures it only runs once after approval is received
+  // Approval gates this side effect; retries still need idempotency
   const approved = interrupt("Approve this change?");
 
   if (approved) {
@@ -889,7 +891,7 @@ const approvalNode: GraphNode<typeof State> = async (state) => {
 
 const notificationNode: GraphNode<typeof State> = async (state) => {
   // ✅ Good: side effect happens in a separate node
-  // This runs after approval, so it only executes once
+  // Approval gates this side effect; retries still need idempotency
   if (state.approved) {
     await sendNotification({
       userId: state.userId,
@@ -952,7 +954,7 @@ async function nodeInSubgraph(state: State) {
 }
 ```
 
-## 使用中断进行调试要调试和测试图形，您可以使用静态中断作为断点，一次单步执行一个节点的图形执行。静态中断在节点执行之前或之后的定义点触发。您可以在编译图表时通过指定 `interruptBefore` 和 `interruptAfter` 来设置这些。
+## 使用中断进行调试要调试和测试图表，您可以使用静态中断作为断点，一次单步执行一个节点的图表执行。静态中断在节点执行之前或之后的定义点触发。您可以在编译图表时通过指定 `interruptBefore` 和 `interruptAfter` 来设置这些。
 
 > [!注意]
 >
@@ -1001,7 +1003,7 @@ graph.invoke(inputs, {
 
 // Resume the graph
 await graph.invoke(null, config);  // [!code highlight]
-```1. 使用`interruptBefore`和`interruptAfter`参数调用`graph.invoke`。这是一个运行时配置，可以针对每次调用进行更改。
+```1. 使用`interruptBefore`和`interruptAfter`参数调用`graph.invoke`。这是一个运行时配置，可以在每次调用时更改。
 2. `interruptBefore` 指定执行该节点之前应暂停执行的节点。
 3. `interruptAfter` 指定该节点执行完毕后应暂停执行的节点。
 4. 运行图表直到遇到第一个断点。

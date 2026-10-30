@@ -76,7 +76,7 @@ resumed = graph.stream_events(Command(resume=True), config=config, version="v3")
 final = resumed.output
 ```
 
-> **[View example trace](https://smith.langchain.com/public/cf85f039-145d-4226-9c16-3e915c35a35c/r)**
+> **[View example trace](https://smith.langchain.com/public/4741fc73-bfe6-4c7d-a1b8-b19349fa0189/r)**
 >
 > Open a public LangSmith run for this example.
 
@@ -200,7 +200,7 @@ while True:
     stream_input = Command(resume=user_response)
 ```
 
-> **[View example trace](https://smith.langchain.com/public/3fcd0b07-12d7-455e-9d24-8b25548a46be/r)**
+> **[View example trace](https://smith.langchain.com/public/9305def9-923f-419c-9ffd-a44a8492ef45/r)**
 >
 > Open a public LangSmith run for this example.
 
@@ -268,7 +268,7 @@ print("Final state:", resumed.output)
 # Final state: {'vals': ['a:answer for question_a', 'b:answer for question_b']}
 ```
 
-> **[View example trace](https://smith.langchain.com/public/7cbaa580-169c-4f6d-a883-5d980309e9cf/r)**
+> **[View example trace](https://smith.langchain.com/public/865aef4a-3f52-4774-936e-0e21756f2cc1/r)**
 >
 > Open a public LangSmith run for this example.
 
@@ -366,7 +366,7 @@ graph.stream_events(Command(resume=False), config=config, version="v3").output
 > print(resumed.output["status"])
 > ```
 >
-> > **[View example trace](https://smith.langchain.com/public/81e6322b-083e-4290-bcb2-18cf98d38038/r)**
+> > **[View example trace](https://smith.langchain.com/public/c2ed3d48-f1f0-4bb8-919b-0fa46ca88ca6/r)**
 > >
 > > Open a public LangSmith run for this example.
 
@@ -447,7 +447,7 @@ graph.stream_events(
 > print(final_state.output["generated_text"])  # -> "Improved draft after review"
 > ```
 >
-> > **[View example trace](https://smith.langchain.com/public/5efd556a-ed06-45b2-9520-a7a4819a92a6/r)**
+> > **[View example trace](https://smith.langchain.com/public/cb22ff81-2f4f-40ef-9e6c-4a646c284d60/r)**
 > >
 > > Open a public LangSmith run for this example.
 
@@ -863,6 +863,8 @@ As an example, you might have an API call to update a record inside of a node. I
 * ✅ Place side effects after [`interrupt`](https://reference.langchain.com/python/langgraph/types/interrupt) calls
 * ✅ Separate side effects into separate nodes when possible
 
+In the post-approval examples below, side effects run only when approval succeeds. If a node fails after committing a side effect but before completing, retrying the node can repeat the effect. Use idempotent operations or deduplicate writes in the external system.
+
 ```python Idempotent operations theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 def node_a(state: State):
     # ✅ Good: using upsert operation which is idempotent
@@ -880,7 +882,7 @@ def node_a(state: State):
 ```python Side effects after interrupt theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 def node_a(state: State):
     # ✅ Good: placing side effect after the interrupt
-    # This ensures it only runs once after approval is received
+    # Approval gates this side effect; retries still need idempotency
     approved = interrupt("Approve this change?")
 
     if approved:
@@ -901,7 +903,7 @@ def approval_node(state: State):
 
 def notification_node(state: State):
     # ✅ Good: side effect happens in a separate node
-    # This runs after approval, so it only executes once
+    # Approval gates this side effect; retries still need idempotency
     if (state.approved):
         send_notification(
             user_id=state["user_id"],

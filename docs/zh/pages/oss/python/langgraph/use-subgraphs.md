@@ -29,7 +29,7 @@ uv add langgraph
 
 ## 定义子图通信
 
-添加子图时，需要定义父图和子图如何通信：|图案|何时使用 |状态模式|
+添加子图时，需要定义父图和子图如何通信：|图案|何时使用 |状态模式 |
 | - | - | - |
 | [Call a subgraph inside a node](#call-a-subgraph-inside-a-node) |父图和子图具有**不同的状态模式**（没有共享密钥），或者您需要在它们之间转换状态 |您编写一个包装函数，将父状态映射到子图输入，并将子图输出映射回父状态 |
 | [Add a subgraph as a node](#add-a-subgraph-as-a-node) |父图和子图 **共享状态键** - 子图与父图读取和写入相同的通道 |您将编译后的子图直接传递给`add_node`——无需包装函数 |
@@ -427,7 +427,7 @@ output = stream.output  # drive the stream to completion
 # Resume - approve the interrupt
 resumed = agent.stream_events(Command(resume=True), config=config, version="v3")
 final = resumed.output
-```> **[View example trace](https://smith.langchain.com/public/a97b862b-4007-4c28-8de3-7dadd3246bc2/r)**
+```> **[View example trace](https://smith.langchain.com/public/98a5d6e1-b3fc-4248-a3b6-48901419f96b/r)**
 >
 > 为此示例打开公共 LangSmith 运行。
 
@@ -555,7 +555,7 @@ resumed = agent.stream_events(Command(resume=True), config=config, version="v3")
 final = resumed.output
 ```
 
-> **[View example trace](https://smith.langchain.com/public/a97b862b-4007-4c28-8de3-7dadd3246bc2/r)**
+> **[View example trace](https://smith.langchain.com/public/98a5d6e1-b3fc-4248-a3b6-48901419f96b/r)**
 >
 > 为此示例打开公共 LangSmith 运行。
 

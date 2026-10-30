@@ -191,7 +191,7 @@ while (true) {
 }
 ```
 
-> **[View example trace](https://smith.langchain.com/public/7ebae998-6b68-4caa-a262-38d84efc922f/r)**
+> **[View example trace](https://smith.langchain.com/public/4aeb7a2d-5aa5-45e2-afd8-0a4c5ef9ac2a/r)**
 >
 > Open a public LangSmith run for this example.
 
@@ -621,7 +621,7 @@ const getAgeNode: typeof State.Node = (state) => {
 // );
 ```
 
-> **[View example trace](https://smith.langchain.com/public/9e6a7db8-1fa3-4f6f-91cc-3b48fcf5e6ec/r)**
+> **[View example trace](https://smith.langchain.com/public/68000848-fccd-4c6a-9f64-0951306122fe/r)**
 >
 > Open a public LangSmith run for this example.
 
@@ -869,6 +869,8 @@ As an example, you might have an API call to update a record inside of a node. I
 * ✅ Place side effects after [`interrupt`](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) calls
 * ✅ Separate side effects into separate nodes when possible
 
+In the post-approval examples below, side effects run only when approval succeeds. If a node fails after committing a side effect but before completing, retrying the node can repeat the effect. Use idempotent operations or deduplicate writes in the external system.
+
 ```typescript Idempotent operations theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 const nodeA: GraphNode<typeof State> = async (state) => {
   // ✅ Good: using upsert operation which is idempotent
@@ -887,7 +889,7 @@ const nodeA: GraphNode<typeof State> = async (state) => {
 ```typescript Side effects after interrupt theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 const nodeA: GraphNode<typeof State> = async (state) => {
   // ✅ Good: placing side effect after the interrupt
-  // This ensures it only runs once after approval is received
+  // Approval gates this side effect; retries still need idempotency
   const approved = interrupt("Approve this change?");
 
   if (approved) {
@@ -911,7 +913,7 @@ const approvalNode: GraphNode<typeof State> = async (state) => {
 
 const notificationNode: GraphNode<typeof State> = async (state) => {
   // ✅ Good: side effect happens in a separate node
-  // This runs after approval, so it only executes once
+  // Approval gates this side effect; retries still need idempotency
   if (state.approved) {
     await sendNotification({
       userId: state.userId,

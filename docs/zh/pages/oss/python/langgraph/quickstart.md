@@ -8,7 +8,7 @@
 
 构建 LangGraph 计算器快速入门
 
-按照 LangGraph 快速入门，在此工作目录中构建 LangGraph 计算器代理。
+按照 LangGraph 快速入门，在此工作目录中构建LangGraph 计算器代理。
 
 ## 第 1 步：阅读指南
 
@@ -82,13 +82,11 @@
 
 > [!注意]
 >
-> 对于此示例，您需要设置一个 [Claude (Anthropic)](https://www.anthropic.com/) 帐户并获取 API 密钥。然后，在终端中设置 `ANTHROPIC_API_KEY` 环境变量。请参阅[chat model integrations](/oss/python/integrations/chat)了解所有可用的提供商。如果您使用 [LangSmith Gateway](/langsmith/llm-gateway)，则可以使用 [bring your own provider keys](/langsmith/llm-gateway-quickstart#send-a-request) 或使用 [Gateway Credits](/langsmith/llm-gateway-credits) 来访问模型而无需提供者密钥。
+> 对于此示例，您需要设置一个 [Claude (Anthropic)](https://www.anthropic.com/) 帐户并获取 API 密钥。然后，在终端中设置 `ANTHROPIC_API_KEY` 环境变量。请参阅[chat model integrations](/oss/python/integrations/chat)了解所有可用的提供商。或者，如果您使用 LangSmith [LLM Gateway](/langsmith/llm-gateway)，则流向提供商的流量将通过 LangSmith 路由。请改用网关密钥作为 API 密钥。
 
 **使用图形API**
 
-## 1.定义工具和模型
-
-在此示例中，我们将使用 Claude Sonnet 4.5 模型并定义加法、乘法和除法工具。
+## 1.定义工具和模型在此示例中，我们将使用 Claude Sonnet 4.5 模型并定义加法、乘法和除法工具。
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from langchain.tools import tool
@@ -141,7 +139,9 @@ tools_by_name = {tool.name: tool for tool in tools}
 model_with_tools = model.bind_tools(tools)
 ```
 
-## 2. 定义状态图的状态用于存储消息和 LLM 调用的数量。
+## 2. 定义状态
+
+图的状态用于存储消息和 LLM 调用的数量。
 
 > [!提示]
 >
@@ -268,9 +268,7 @@ for m in messages["messages"]:
 >
 > 使用 [LangSmith](https://smith.langchain.com?utm_source=docs\&utm_medium=cta\&utm_campaign=langsmith-signup\&utm_content=oss-langgraph-quickstart) 跟踪和调试您的代理。按照[tracing quickstart](/langsmith/trace-with-langgraph)进行设置。准备好投入生产时，请参阅 [Deploy](/langsmith/deployment) 了解托管选项。
 >
-> 我们建议您还设置 [LangSmith Engine](/langsmith/engine) 来监视您的痕迹、检测问题并提出修复建议。
-
-恭喜！您已经使用 LangGraph Graph API 构建了第一个代理。
+> 我们建议您还设置 [LangSmith Engine](/langsmith/engine) 来监控您的痕迹、检测问题并提出修复建议。恭喜！您已经使用 LangGraph Graph API 构建了第一个代理。
 
 > **完整代码示例**
 >
@@ -431,7 +429,9 @@ for m in messages["messages"]:
 
 **使用函数式API**
 
-## 1.定义工具和模型在此示例中，我们将使用 Claude Sonnet 4.5 模型并定义加法、乘法和除法工具。
+## 1.定义工具和模型
+
+在此示例中，我们将使用 Claude Sonnet 4.5 模型并定义加法、乘法和除法工具。
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from langchain.tools import tool
@@ -568,9 +568,7 @@ for snapshot in stream.values:
 >
 > 使用 [LangSmith](https://smith.langchain.com?utm_source=docs\&utm_medium=cta\&utm_campaign=langsmith-signup\&utm_content=oss-langgraph-quickstart) 跟踪和调试您的代理。按照[tracing quickstart](/langsmith/trace-with-langgraph)进行设置。准备好投入生产后，请参阅 [Deploy](/langsmith/deployment) 了解托管选项。
 >
-> 我们建议您还设置 [LangSmith Engine](/langsmith/engine) 来监控您的痕迹、检测问题并提出修复建议。
-
-恭喜！您已经使用 LangGraph 功能 API 构建了第一个代理。
+> 我们建议您还设置 [LangSmith Engine](/langsmith/engine) 来监控您的痕迹、检测问题并提出修复建议。恭喜！您已经使用 LangGraph 功能 API 构建了第一个代理。
 
 > **完整代码示例**
 >
@@ -691,4 +689,6 @@ for snapshot in stream.values:
 
 ***
 
-[Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。[Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/quickstart.mdx) 或 [file an issue](https://github.com/langchain-ai/docs/issues/new/choose)。
+[Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
+
+[Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/quickstart.mdx) 或 [file an issue](https://github.com/langchain-ai/docs/issues/new/choose)。

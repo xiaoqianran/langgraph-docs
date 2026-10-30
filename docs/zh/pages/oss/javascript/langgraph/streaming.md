@@ -318,7 +318,7 @@ const stream = await graph.streamEvents(
 );
 ```
 
-> **[View example trace](https://smith.langchain.com/public/ba51f3a8-41b5-4403-bf37-5978e9fadb99/r)**
+> **[View example trace](https://smith.langchain.com/public/b2aab4a2-0d5e-49c2-8b99-c89f3de9348d/r)**
 >
 > 为此示例打开公共 LangSmith 运行。
 
@@ -742,7 +742,7 @@ function Chat() {
 两种流模式都可以显示工具进度，但它们有不同的目的：
 
 * **`tools`** — 自动发出结构化生命周期事件（`on_tool_start`、`on_tool_event`、`on_tool_end`、`on_tool_error`），除了使用 `async function*` 之外，无需在工具中进行任何代码更改。 `useStream` 钩子提供开箱即用的反应式 `toolProgress` 数组。
-* **`custom`**—让您可以完全控制发送哪些数据以及何时使用`config.writer()`。当您需要不映射到工具生命周期的自由格式数据时，或者当您想要从节点（不仅仅是工具）进行流式传输时，请使用此选项。
+* **`custom`** — 让您完全控制发送哪些数据以及何时使用 `config.writer()`。当您需要不映射到工具生命周期的自由格式数据时，或者当您想要从节点（不仅仅是工具）进行流式传输时，请使用此选项。
 
 ### 子图输出
 

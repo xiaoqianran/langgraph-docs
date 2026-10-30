@@ -134,7 +134,7 @@ flowchart TD
 > * 重试策略：是的，针对网络问题采用指数退避
 > * 不应缓存：每次发送都是一个唯一的操作
 
-> **错误追踪**
+> **错误跟踪**
 >
 > * 何时执行节点：总是当意图是“bug”时
 > * 重试策略：是的，对于不丢失错误报告至关重要
@@ -168,8 +168,8 @@ flowchart TD
 
 * 原始电子邮件和发件人信息（以后无法重建）
 * 分类结果（多个后期/下游节点需要）
-* 搜索结果和客户数据（重新获取的费用昂贵）
-* 回复草案（需要通过审核坚持）
+* 搜索结果和客户数据（重新获取的成本很高）
+* 回复草稿（需继续审核）
 * 执行元数据（用于调试和恢复）
 
 ### 保持状态原始，按需格式化提示
@@ -554,7 +554,7 @@ workflow.add_node(
 > app = workflow.compile(checkpointer=memory)
 > ```
 
-图结构很小，因为路由通过 [⟦T38⟧](https://reference.langchain.com/python/langgraph/types/Command) 对象在节点内部发生。每个节点都使用像`Command[Literal["node1", "node2"]]`这样的类型提示来声明它可以去哪里，使流程明确且可追踪。
+图结构很小，因为路由通过 [⟦T38⟧](https://reference.langchain.com/python/langgraph/types/Command) 对象发生在节点内部。每个节点都使用像`Command[Literal["node1", "node2"]]`这样的类型提示来声明它可以去哪里，使流程明确且可追踪。
 
 ### 试试你的代理
 
@@ -618,7 +618,7 @@ workflow.add_node(
 > print("Email sent successfully!")
 > ```
 >
->> **[View example trace](https://smith.langchain.com/public/c11c3fe2-7ea3-44bf-aa5d-85e4ac995b88/r)**
+>> **[View example trace](https://smith.langchain.com/public/a80286fd-ffa0-4e24-821a-6229a08513f3/r)**
 >>
 >> 为此示例打开公共 LangSmith 运行。
 
@@ -628,7 +628,7 @@ workflow.add_node(
 
 ### 关键见解
 
-构建这个电子邮件代理向我们展示了LangGraph的思维方式：
+构建这个电子邮件代理向我们展示了 LangGraph 的思维方式：
 
 > **[Break into discrete steps](#step-1-map-out-your-workflow-as-discrete-steps)**
 >
@@ -646,7 +646,7 @@ workflow.add_node(
 
 > **[Human input is first-class](/oss/python/langgraph/interrupts)**
 >
-> `interrupt()` 函数无限期地暂停执行，保存所有状态，并在您提供输入时从中断处准确恢复。当与节点中的其他操作结合时，它必须排在第一位。
+> `interrupt()` 函数无限期地暂停执行，保存所有状态，并在您提供输入时从中断处准确恢复。当与节点中的其他操作结合时，它必须先出现。
 
 > **[Graph structure emerges naturally](#step-5-wire-it-together)**
 >
@@ -671,7 +671,7 @@ workflow.add_node(
 > * **外部服务的隔离：** Doc Search 和 Bug Track 是单独的节点，因为它们调用外部 API。如果搜索服务缓慢或失败，我们希望将其与 LLM 调用隔离。我们可以为这些特定节点添加重试策略，而不影响其他节点。
 >> * **中等可见性：** 将 `Classify Intent` 作为自己的节点，让我们可以在采取行动之前检查 LLM 的决定。这对于调试和监控非常有价值 - 您可以准确地了解代理何时以及为何路由至人工审核。
 >
-> * **不同的失败模式：** LLM 调用、数据库查找和电子邮件发送有不同的重试策略。单独的节点允许您独立配置它们。
+> * **不同的失败模式：** LLM 调用、数据库查找和电子邮件发送具有不同的重试策略。单独的节点允许您独立配置它们。
 >
 > * **可重用性和测试：** 较小的节点更容易单独测试并在其他工作流程中重用。
 >

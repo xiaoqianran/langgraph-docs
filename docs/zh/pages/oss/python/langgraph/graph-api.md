@@ -10,7 +10,7 @@ LangGraph 将代理工作流程建模为图形：使用 StateGraph 定义状态�
 
 其核心是，LangGraph 将代理工作流程建模为图表。您可以使用三个关键组件来定义代理的行为：
 
-1. [⟦T47⟧](#state)：表示应用程序当前快照的共享数据结构。它可以是任何数据类型，但通常使用共享状态模式定义。
+1. [⟦T47⟧](#state)：代表应用程序当前快照的共享数据结构。它可以是任何数据类型，但通常使用共享状态模式定义。
 
 2. [⟦T48⟧](#nodes)：对代理逻辑进行编码的函数。它们接收当前状态作为输入，执行一些计算或副作用，并返回更新的状态。
 
@@ -116,7 +116,7 @@ graph.invoke({"user_input": "My"})
 # {'graph_output': 'My name is Lance'}
 ```
 
-> **[View example trace](https://smith.langchain.com/public/62539b5c-8df4-4dff-8de2-f365fc05983d/r)**
+> **[View example trace](https://smith.langchain.com/public/844a3f6b-b4d3-482d-bffe-7aab4ce59996/r)**
 >
 > 为此示例打开公共 LangSmith 运行。
 
@@ -154,7 +154,7 @@ graph.invoke({"user_input": "My"})
 > # {'foo': 'My name', 'user_input': 'My', 'graph_output': 'My name is Lance', 'bar': 'My name is'}
 > ```
 >
->> **[View example trace](https://smith.langchain.com/public/086201cf-5ed2-4a4b-aade-02848b380fad/r)**
+>> **[View example trace](https://smith.langchain.com/public/42d73712-132e-4b5b-8555-7cd43054859d/r)**
 >>
 >> 为此示例打开公共 LangSmith 运行。
 >
@@ -172,7 +172,7 @@ graph.invoke({"user_input": "My"})
 > ```
 >> 如果您只需要节点实际每一步产生的通道（而不是完整的累积状态），请改用`stream_mode="updates"`。
 
-### 减速器
+### 减速机
 
 减速器是理解节点更新如何应用于`State`的关键。 `State`中的每个按键都有自己独立的减速器功能。如果没有显式指定减速器函数，则假定对该键的所有更新都应覆盖它。有几种不同类型的减速器，从默认类型的减速器开始：
 
@@ -206,13 +206,13 @@ class State(TypedDict):
     tags: Annotated[list[str], append_strings]
 ```
 
-假设状态为`{"tags": ["draft"]}`，节点返回`{"tags": ["review"]}`。 LangGraph 拨打：
+假设状态为`{"tags": ["draft"]}`，节点返回`{"tags": ["review"]}`。 LangGraph calls:
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 append_strings(left=["draft"], right=["review"])  # returns ["draft", "review"]
 ```
 
-`tags` 的新状态值为 `["draft", "review"]`。自定义减速器结合了左右参数。 [default reducer](#default-reducer) 丢弃左侧参数并仅保留右侧参数。
+`tags` 的新状态值为 `["draft", "review"]`。自定义减速器结合了左右参数。 The [default reducer](#default-reducer) discards the left argument and keeps only the right.
 
 #### 默认减速器
 
@@ -273,7 +273,7 @@ class State(TypedDict):
 # node A returns {"errors": ["bad sql"]}
 # node B returns {"errors": []}
 # state["errors"] is still ["bad sql"]; the empty list is merged in, not cleared
-```要在保留合并减速器的同时清除字段，请使用 [⟦T137⟧](https://reference.langchain.com/python/langgraph/types/) 包装更新：
+```To clear the field while keeping a merging reducer, wrap the update with [⟦T137⟧](https://reference.langchain.com/python/langgraph/types/):
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from operator import add
@@ -296,7 +296,7 @@ def clear_errors(state: State):
 
 ### 未跟踪的值
 
-`UntrackedValue` 用于在图执行期间应该存在但不应该被设置检查点的状态字段。当图表从检查点恢复时，未跟踪的值将重置为其初始状态（或不可用）。
+`UntrackedValue` is used for state fields that should exist during graph execution but should **never be checkpointed**.当图表从检查点恢复时，未跟踪的值将重置为其初始状态（或不可用）。
 
 这对于：
 
@@ -331,12 +331,12 @@ const State = new StateSchema({
 * 执行期间：像正常状态一样存储和访问值
 * 在检查点：未跟踪的值从检查点数据中**排除**
 * 恢复时：未跟踪的值重新开始（空或使用默认值）
-* 使用`guard: true`（默认）：如果多个节点在同一步骤中写入，则会抛出错误
-* 使用`guard: false`：允许多次写入，最后一个值获胜
+* With `guard: true` (default): Throws error if multiple nodes write in the same step
+* With `guard: false`: Multiple writes allowed, last value wins
 
 > [!警告]
 >
-> 不要将 `UntrackedValue` 用于需要在中断或时间旅行中保留的数据。使用常规状态字段或`ReducedValue`来存储持久数据。
+> Don't use `UntrackedValue` for data you need to persist across interrupts or time travel. Use regular state fields or `ReducedValue` for persistent data.
 
 ### 类型实用程序LangGraph 提供了多种类型实用程序，以便在定义节点和条件边时实现更好的 TypeScript 类型安全性。
 
@@ -378,7 +378,7 @@ const routerNode: GraphNode<{ InputSchema: typeof State; Nodes: "process" | "don
 
 #### `State.Node` 简写
 
-每个 `StateSchema` 实例都有一个 `Node` 属性，它提供了键入节点的简写：
+每个 `StateSchema` 实例都有一个 `Node` 属性，它提供了输入节点的简写：
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 const State = new StateSchema({
@@ -393,7 +393,7 @@ const myNode2: typeof State.Node = (state) => ({ step: "done" });
 
 #### `ConditionalEdgeRouter`
 
-使用`ConditionalEdgeRouter`作为条件边中的路由函数（没有状态更新，只是路由）：
+使用 `ConditionalEdgeRouter` 进行条件边中的路由函数（无状态更新，仅路由）：
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { ConditionalEdgeRouter, END } from "@langchain/langgraph";
@@ -446,7 +446,7 @@ type MyUpdate = typeof MyStateSchema.Update;
 
 要了解有关消息对象的更多信息，请参阅[Messages conceptual guide](/oss/python/langchain/messages)。
 
-#### 在图表中使用消息在许多情况下，将先前的对话历史记录存储为图形状态中的消息列表会很有帮助。为此，我们可以向存储`Message`对象列表的图状态添加一个键（通道），并使用reducer函数对其进行注释（请参阅下面示例中的`messages`键）。减速器函数对于告诉图如何在每次状态更新时（例如，当节点发送更新时）更新状态中的 `Message` 对象列表至关重要。如果您不指定减速器，则每次状态更新都会用最近提供的值覆盖消息列表。如果您想简单地将消息附加到现有列表，您可以使用 `operator.add` 作为减速器。但是，您可能还想手动更新图形状态中的消息（例如人机循环）。如果您要使用`operator.add`，您发送到图表的手动状态更新将被附加到现有的消息列表中，而不是更新现有的消息。为了避免这种情况，您需要一个可以跟踪消息 ID 并覆盖现有消息（如果更新）的缩减程序。为此，您可以使用预构建的 [⟦T159⟧](https://reference.langchain.com/python/langgraph/graph/message/add_messages) 函数。对于全新的消息，它只会附加到现有列表，但它也会正确处理现有消息的更新。
+#### 在图表中使用消息在许多情况下，将先前的对话历史记录存储为图形状态中的消息列表会很有帮助。为此，我们可以向存储`Message`对象列表的图状态添加一个键（通道），并使用reducer函数对其进行注释（请参阅下面示例中的`messages`键）。减速器函数对于告诉图如何在每次状态更新时（例如，当节点发送更新时）更新状态中的 `Message` 对象列表至关重要。如果您不指定减速器，则每次状态更新都会用最近提供的值覆盖消息列表。如果您想简单地将消息附加到现有列表，您可以使用 `operator.add` 作为减速器。但是，您可能还想手动更新图形状态中的消息（例如人机交互）。如果您要使用`operator.add`，您发送到图表的手动状态更新将被附加到现有的消息列表中，而不是更新现有的消息。为了避免这种情况，您需要一个可以跟踪消息 ID 并覆盖现有消息（如果更新）的缩减程序。为此，您可以使用预构建的 [⟦T159⟧](https://reference.langchain.com/python/langgraph/graph/message/add_messages) 函数。对于全新的消息，它只会附加到现有列表，但它也会正确处理现有消息的更新。
 
 #### 序列化
 
@@ -586,7 +586,7 @@ config = {"configurable": {"thread_id": thread_id}}
 graph.invoke({"url": "https://www.example.com"}, config)
 ```
 
-> **[View example trace](https://smith.langchain.com/public/3bce38d1-45db-477d-87a2-f58b0d2473d9/r)**
+> **[View example trace](https://smith.langchain.com/public/f143a551-c1e4-44fd-b87a-c42eaff62f4a/r)**
 >
 > 为此示例打开公共 LangSmith 运行。
 
@@ -635,7 +635,7 @@ config = {"configurable": {"thread_id": thread_id}}
 graph.invoke({"urls": ["https://www.example.com"]}, config)
 ```
 
-> **[View example trace](https://smith.langchain.com/public/906c25d1-3431-4e07-a0a5-c8f6b51bfa66/r)**
+> **[View example trace](https://smith.langchain.com/public/3916f855-bb3a-45e3-8c04-bba43c1ca851/r)**
 >
 > 为此示例打开公共 LangSmith 运行。
 
@@ -649,7 +649,7 @@ from langgraph.graph import START
 graph.add_edge(START, "node_a")
 ```
 
-### `END` 节点`END`节点是一个特殊的节点，代表终端节点。当您想要指示哪些边完成后没有任何操作时，将引用此节点。
+### `END` 节点`END`节点是一个特殊的节点，代表终端节点。当您想要指示哪些边完成后没有任何操作时，将引用该节点。
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from langgraph.graph import END
@@ -883,7 +883,7 @@ def my_node(state: State) -> Command[Literal["other_subgraph"]]:
 
 #### `resume`
 
-使用 `Command(resume=...)` 提供一个值并在 [interrupt](/oss/python/langgraph/interrupts) 之后恢复图形执行。传递给 `resume` 的值成为暂停节点内 `interrupt()` 调用的返回值：
+使用`Command(resume=...)`提供一个值并在[interrupt](/oss/python/langgraph/interrupts)之后恢复图形执行。传递给 `resume` 的值成为暂停节点内 `interrupt()` 调用的返回值：
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from typing import TypedDict
@@ -923,7 +923,7 @@ resumed = graph.stream_events(Command(resume="yes"), config, version="v3")
 final = resumed.output
 ```
 
-> **[View example trace](https://smith.langchain.com/public/b9e32d60-4cf6-44e6-b85c-60f763578a10/r)**
+> **[View example trace](https://smith.langchain.com/public/cbe5c88e-4c15-4ddd-8744-f1d8b4bd3d3b/r)**
 >
 > 为此示例打开公共 LangSmith 运行。
 
@@ -981,13 +981,11 @@ def node_a(state: State, runtime: Runtime[ContextSchema]):
 
 有关配置的完整详细信息，请参阅[Add runtime configuration](/oss/python/langgraph/use-graph-api#add-runtime-configuration)。
 
-### 递归限制递归限制设置了图在单次执行期间可以执行的最大数量[super-steps](#graphs)。一旦达到限额，LangGraph将提高`GraphRecursionError`。从版本 1.0.6 开始，默认递归限制设置为 1000 步。递归限制可以在运行时在任何图上设置，并通过配置字典传递给`invoke`/`stream`。重要的是，`recursion_limit`是一个独立的`config`密钥，不应像所有其他用户定义的配置一样在`configurable`密钥内传递。请参阅下面的示例：
+### 递归限制递归限制设置了图在单次执行期间可以执行的最大数量[super-steps](#graphs)。一旦达到限额，LangGraph将提高`GraphRecursionError`。从版本 1.1.4 开始，默认值为 10,007 步。在 1.0.6 和 1.1.3 之间，默认递归限制设置为 10,000 步。递归限制可以在运行时在任何图上设置，并通过配置字典传递给`invoke`/`stream`。重要的是，`recursion_limit`是一个独立的`config`密钥，不应像所有其他用户定义的配置一样在`configurable`密钥内传递。请参阅下面的示例：
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 graph.invoke(inputs, config={"recursion_limit": 5}, context={"llm": "anthropic"})
 ```
-
-阅读 [Recursion limit](/oss/python/langgraph/graph-api#recursion-limit) 了解有关递归限制如何工作的更多信息。
 
 ### 访问和处理递归计数器
 
@@ -1009,9 +1007,9 @@ def my_node(state: dict, config: RunnableConfig) -> dict:
     current_step = config["metadata"]["langgraph_step"]
     print(f"Currently on step: {current_step}")
     return state
-```#### 主动递归处理
+```
 
-LangGraph 提供了 `RemainingSteps` 托管值，用于跟踪在达到递归限制之前剩余的步骤数。这允许您的图表内进行优雅的降级。
+#### 主动递归处理LangGraph 提供了 `RemainingSteps` 托管值，用于跟踪在达到递归限制之前剩余的步骤数。这允许您的图表内进行优雅的降级。
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from typing import Annotated, Literal
@@ -1143,9 +1141,9 @@ def inspect_metadata(state: dict, config: RunnableConfig) -> dict:
     print(f"Checkpoint NS: {metadata['langgraph_checkpoint_ns']}")
 
     return state
-```## 可视化
+```
 
-能够可视化图表通常是件好事，尤其是当它们变得更加复杂时。 LangGraph 带有多种内置的图表可视化方法。请参阅[Visualize your graph](/oss/python/langgraph/use-graph-api#visualize-your-graph)了解更多信息。
+## 可视化能够可视化图表通常是件好事，尤其是当它们变得更加复杂时。 LangGraph 带有多种内置的图表可视化方法。请参阅[Visualize your graph](/oss/python/langgraph/use-graph-api#visualize-your-graph)了解更多信息。
 
 ## 可观察性和追踪
 

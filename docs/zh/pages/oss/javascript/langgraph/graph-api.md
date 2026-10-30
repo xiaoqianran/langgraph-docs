@@ -164,19 +164,19 @@ await graph.invoke({ userInput: "My" });
 // { graphOutput: 'My name is Lance' }
 ```
 
-> **[View example trace](https://smith.langchain.com/public/8fd9e17e-fd75-4829-a402-cb7e0bf18736/r)**
+> **[View example trace](https://smith.langchain.com/public/24861731-481e-4b13-babb-d21813227380/r)**
 >
 > 为此示例打开公共 LangSmith 运行。
 
 这里有两个微妙而重要的点需要注意：
 
-1. 我们将`state`作为输入模式传递给`node1`。但是，我们写入`foo`，`OverallState` 中的一个通道。我们如何写入不包含在输入模式中的状态通道？这是因为节点*可以写入图状态中的任何状态通道。*图状态是初始化时定义的状态通道的并集，其中包括`OverallState`以及过滤器`InputState`和`OutputState`。2. 我们用`StateGraph({ state: OverallState, input: InputState, output: OutputState })`初始化图。我们如何在`node2`中写入`PrivateState`？如果未在 `StateGraph` 初始化中传递该架构，那么该图如何访问该架构？我们可以这样做，因为只要状态模式定义存在，*节点也可以声明额外的状态通道*。在这种情况下，定义了`PrivateState`模式，因此我们可以将`bar`添加为图中的新状态通道并写入它。
+1. 我们将`state`作为输入模式传递给`node1`。但是，我们写入`foo`，`OverallState` 中的一个通道。我们如何写入不包含在输入模式中的状态通道？这是因为节点*可以写入图状态中的任何状态通道。*图状态是初始化时定义的状态通道的并集，其中包括`OverallState`以及过滤器`InputState`和`OutputState`。2. We initialize the graph with `StateGraph({ state: OverallState, input: InputState, output: OutputState })`. How can we write to `PrivateState` in `node2`?如果未在 `StateGraph` 初始化中传递该架构，那么该图如何访问该架构？我们可以这样做，因为只要状态模式定义存在，*节点也可以声明额外的状态通道*。在这种情况下，定义了`PrivateState`模式，因此我们可以将`bar`添加为图中的新状态通道并写入它。
 
 > [!警告]
 >
 > **私人频道在流式传输时不会被编辑。**
 >
-> 输入、输出和私有模式限制每个节点*读取*的内容（其输入模式）以及`invoke`*返回*（输出模式）。他们**不会**隐藏`stream`的频道。
+> 输入、输出和私有模式限制每个节点*读取*的内容（其输入模式）以及`invoke`*返回*（输出模式）。 They do **not** hide channels from `stream`.
 >
 > 当您使用 `streamMode: "values"` 进行流式传输时，图表默认会发出其**所有**状态通道（包括私有通道），因为值流式传输默认为完整的状态通道集而不是输出模式。这就是为什么像 `bar` 这样的私人频道被 `invoke` 隐藏但在流式传输时可见：
 >
@@ -236,7 +236,7 @@ await graph.invoke({ userInput: "My" });
 > // { foo: 'My name', userInput: 'My', graphOutput: 'My name is Lance', bar: 'My name is' }
 > ```
 >
->> **[View example trace](https://smith.langchain.com/public/32188285-dc90-4281-b140-d3bbf033748c/r)**
+>> **[View example trace](https://smith.langchain.com/public/9cbbe1f1-0913-498b-be17-fcf8cc1848c9/r)**
 >>
 >> 为此示例打开公共 LangSmith 运行。
 >
@@ -254,7 +254,7 @@ await graph.invoke({ userInput: "My" });
 > ```
 >> 如果您只需要节点实际每一步产生的通道（而不是完整的累积状态），请改用`streamMode: "updates"`。
 
-### 减速器
+### 减速机
 
 减速器是理解节点更新如何应用于`State`的关键。 `State`中的每个按键都有自己独立的减速器功能。如果没有显式指定减速器函数，则假定对该键的所有更新都应覆盖它。有几种不同类型的减速器，从默认类型的减速器开始：
 
@@ -290,7 +290,7 @@ const State = new StateSchema({
 });
 ```
 
-> **[View example trace](https://smith.langchain.com/public/c4537752-96b4-4e3a-832b-9733d2486e85/r)**
+> **[View example trace](https://smith.langchain.com/public/7ec49f29-72d1-4308-8740-abc471d83569/r)**
 >
 > 为此示例打开公共 LangSmith 运行。
 
@@ -318,7 +318,7 @@ const State = new StateSchema({
 });
 ```
 
-> **[View example trace](https://smith.langchain.com/public/62bd5fab-0acd-46c3-9689-42a37da3c7f5/r)**
+> **[View example trace](https://smith.langchain.com/public/0f30e4c6-1a15-4dbf-ba92-761df436a4a9/r)**
 >
 > 为此示例打开公共 LangSmith 运行。
 
@@ -343,7 +343,7 @@ const State = new StateSchema({
 });
 ```
 
-> **[View example trace](https://smith.langchain.com/public/e9ae6a10-b6dc-49c9-bb16-5f307b57d2e4/r)**
+> **[View example trace](https://smith.langchain.com/public/e2be75db-1c52-482a-b89f-ef30c15d08eb/r)**
 >
 > 为此示例打开公共 LangSmith 运行。在此示例中，我们使用 `ReducedValue` 为第二个键 (`bar`) 指定减速器函数。请注意，第一个键保持不变。我们假设图的输入是`{ foo: 1, bar: ["hi"] }`。然后我们假设第一个 `Node` 返回 `{ foo: 2 }`。这被视为对状态的更新。请注意，`Node` 不需要返回整个 `State` 模式 - 只需要更新即可。应用此更新后，`State` 将变为 `{ foo: 2, bar: ["hi"] }`。如果第二个节点返回`{ bar: ["bye"] }`，则`State`将是`{ foo: 2, bar: ["hi", "bye"] }`。请注意，`bar` 键是通过将两个数组连接在一起来更新的。
 
@@ -369,7 +369,7 @@ const State = new StateSchema({
 // state.errors is still ["bad sql"]; the empty array is merged in, not cleared
 ```
 
-> **[View example trace](https://smith.langchain.com/public/3bb1b2e1-f021-488d-86ec-0b09f71b4d14/r)**
+> **[View example trace](https://smith.langchain.com/public/9dca9849-c6f2-4e74-8c82-fdc44d6f6c22/r)**
 >
 > 为此示例打开公共 LangSmith 运行。
 
@@ -387,7 +387,7 @@ const State = new StateSchema({
 });
 
 // node can now clear the field with { errors: [] }
-```> **[View example trace](https://smith.langchain.com/public/0ddacd70-2b42-4e9e-97c3-064e5c5d1f4d/r)**
+```> **[View example trace](https://smith.langchain.com/public/f06a3f2e-6876-4ab1-9b29-3be0aac1cdac/r)**
 >
 > 为此示例打开公共 LangSmith 运行。
 
@@ -708,7 +708,7 @@ const config = { configurable: { thread_id: threadId } };
 await graph.invoke({ url: "https://www.example.com" }, config);
 ```
 
-> **[View example trace](https://smith.langchain.com/public/13308e63-ab5d-47b0-b9ac-9a52389969ed/r)**
+> **[View example trace](https://smith.langchain.com/public/f6485847-0dd8-471a-b79a-fd5a4d97f4eb/r)**
 >
 > 为此示例打开公共 LangSmith 运行。
 
@@ -759,7 +759,7 @@ const config = { configurable: { thread_id: threadId } };
 await graph.invoke({ urls: ["https://www.example.com"] }, config);
 ```
 
-> **[View example trace](https://smith.langchain.com/public/8a472619-c051-4137-95d3-1937c6d0855e/r)**
+> **[View example trace](https://smith.langchain.com/public/551a4dee-6b2c-455f-97fc-11f2e1467a44/r)**
 >
 > 为此示例打开公共 LangSmith 运行。
 
@@ -773,7 +773,7 @@ import { START } from "@langchain/langgraph";
 graph.addEdge(START, "nodeA");
 ```
 
-### `END` 节点`END`节点是一个特殊的节点，代表终端节点。当您想要指示哪些边完成后没有任何操作时，将引用此节点。
+### `END` 节点`END`节点是一个特殊的节点，代表终端节点。当您想要指示哪些边完成后没有任何操作时，将引用该节点。
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { END } from "@langchain/langgraph";
@@ -906,7 +906,7 @@ graph.addConditionalEdges("nodeA", (state) => {
 
 ## `Command`
 
-[⟦T209⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/Command)是一种用于控制图形执行的多功能原语。它接受四个参数：* `update`：应用状态更新（类似于从节点返回更新）。
+[⟦T209⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/Command)是用于控制图执行的通用原语。它接受四个参数：* `update`：应用状态更新（类似于从节点返回更新）。
 * `goto`：导航到特定节点（类似于[conditional edges](#conditional-edges)）。
 * `graph`：从[subgraphs](/oss/javascript/langgraph/use-subgraphs)导航时定位父图。
 * `resume`：提供一个值以在[interrupt](/oss/javascript/langgraph/interrupts)之后恢复执行。
@@ -1127,7 +1127,7 @@ const myNode: GraphNode<typeof State> = async (state, config) => {
 }
 ```
 
-使用显式终止条件设计您的图，并捕获 `GraphRecursionError` 作为安全网：
+设计具有显式终止条件的图表，并捕获 `GraphRecursionError` 作为安全网：
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import {

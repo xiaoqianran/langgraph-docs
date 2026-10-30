@@ -170,7 +170,7 @@ await graph.invoke({ userInput: "My" });
 // { graphOutput: 'My name is Lance' }
 ```
 
-> **[View example trace](https://smith.langchain.com/public/8fd9e17e-fd75-4829-a402-cb7e0bf18736/r)**
+> **[View example trace](https://smith.langchain.com/public/24861731-481e-4b13-babb-d21813227380/r)**
 >
 > Open a public LangSmith run for this example.
 
@@ -244,7 +244,7 @@ There are two subtle and important points to note here:
 > // { foo: 'My name', userInput: 'My', graphOutput: 'My name is Lance', bar: 'My name is' }
 > ```
 >
-> > **[View example trace](https://smith.langchain.com/public/32188285-dc90-4281-b140-d3bbf033748c/r)**
+> > **[View example trace](https://smith.langchain.com/public/9cbbe1f1-0913-498b-be17-fcf8cc1848c9/r)**
 > >
 > > Open a public LangSmith run for this example.
 >
@@ -299,7 +299,7 @@ const State = new StateSchema({
 });
 ```
 
-> **[View example trace](https://smith.langchain.com/public/c4537752-96b4-4e3a-832b-9733d2486e85/r)**
+> **[View example trace](https://smith.langchain.com/public/7ec49f29-72d1-4308-8740-abc471d83569/r)**
 >
 > Open a public LangSmith run for this example.
 
@@ -329,7 +329,7 @@ const State = new StateSchema({
 });
 ```
 
-> **[View example trace](https://smith.langchain.com/public/62bd5fab-0acd-46c3-9689-42a37da3c7f5/r)**
+> **[View example trace](https://smith.langchain.com/public/0f30e4c6-1a15-4dbf-ba92-761df436a4a9/r)**
 >
 > Open a public LangSmith run for this example.
 
@@ -354,7 +354,7 @@ const State = new StateSchema({
 });
 ```
 
-> **[View example trace](https://smith.langchain.com/public/e9ae6a10-b6dc-49c9-bb16-5f307b57d2e4/r)**
+> **[View example trace](https://smith.langchain.com/public/e2be75db-1c52-482a-b89f-ef30c15d08eb/r)**
 >
 > Open a public LangSmith run for this example.
 
@@ -382,7 +382,7 @@ const State = new StateSchema({
 // state.errors is still ["bad sql"]; the empty array is merged in, not cleared
 ```
 
-> **[View example trace](https://smith.langchain.com/public/3bb1b2e1-f021-488d-86ec-0b09f71b4d14/r)**
+> **[View example trace](https://smith.langchain.com/public/9dca9849-c6f2-4e74-8c82-fdc44d6f6c22/r)**
 >
 > Open a public LangSmith run for this example.
 
@@ -402,7 +402,7 @@ const State = new StateSchema({
 // node can now clear the field with { errors: [] }
 ```
 
-> **[View example trace](https://smith.langchain.com/public/0ddacd70-2b42-4e9e-97c3-064e5c5d1f4d/r)**
+> **[View example trace](https://smith.langchain.com/public/f06a3f2e-6876-4ab1-9b29-3be0aac1cdac/r)**
 >
 > Open a public LangSmith run for this example.
 
@@ -733,7 +733,7 @@ const config = { configurable: { thread_id: threadId } };
 await graph.invoke({ url: "https://www.example.com" }, config);
 ```
 
-> **[View example trace](https://smith.langchain.com/public/13308e63-ab5d-47b0-b9ac-9a52389969ed/r)**
+> **[View example trace](https://smith.langchain.com/public/f6485847-0dd8-471a-b79a-fd5a4d97f4eb/r)**
 >
 > Open a public LangSmith run for this example.
 
@@ -784,7 +784,7 @@ const config = { configurable: { thread_id: threadId } };
 await graph.invoke({ urls: ["https://www.example.com"] }, config);
 ```
 
-> **[View example trace](https://smith.langchain.com/public/8a472619-c051-4137-95d3-1937c6d0855e/r)**
+> **[View example trace](https://smith.langchain.com/public/551a4dee-6b2c-455f-97fc-11f2e1467a44/r)**
 >
 > Open a public LangSmith run for this example.
 

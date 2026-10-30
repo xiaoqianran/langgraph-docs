@@ -21,9 +21,9 @@ LangGraph 检查指针将图状态保存为每一步的检查点，从而实现�
 
 ## 为什么使用检查指针
 
-以下功能需要检查点：* **人机交互**：检查点通过允许人类检查、中断和批准图形步骤来促进[human-in-the-loop workflows](/oss/javascript/langgraph/interrupts)。这些工作流程需要检查点，因为人员必须能够在任何时间点查看图形的状态，并且图形必须能够在人员对状态进行任何更新后恢复执行。示例请参见[Interrupts](/oss/javascript/langgraph/interrupts)。
+以下功能需要检查点：* **人机交互**：检查点通过允许人类检查、中断和批准图形步骤来促进[human-in-the-loop workflows](/oss/javascript/langgraph/interrupts)。这些工作流程需要检查点，因为人员必须能够在任何时间点查看图形的状态，并且图形必须能够在人员对状态进行任何更新后恢复执行。有关示例，请参阅[Interrupts](/oss/javascript/langgraph/interrupts)。
 * **内存**：检查点允许交互之间存在["memory"](/oss/javascript/concepts/memory)。在重复的人际交互（如对话）的情况下，任何后续消息都可以发送到该线程，该线程将保留先前消息的记忆。有关如何使用检查点添加和管理对话内存的信息，请参阅[Add memory](/oss/javascript/langgraph/add-memory)。
-* **时间旅行**：检查点允许["time travel"](/oss/javascript/langgraph/use-time-travel)，允许用户重播之前的图形执行以查看和/或调试特定的图形步骤。此外，检查点使得可以在任意检查点分叉图状态以探索替代轨迹。
+* **时间旅行**：检查点允许["time travel"](/oss/javascript/langgraph/use-time-travel)，允许用户重放之前的图形执行以查看和/或调试特定的图形步骤。此外，检查点使得可以在任意检查点分叉图状态以探索替代轨迹。
 * **容错**：检查点提供容错和错误恢复：如果一个或多个节点在给定的超级步骤中失败，您可以从上一个成功的步骤重新启动图形。- **挂起写入**：当图节点在给定的[super-step](#super-steps)执行中失败时，LangGraph存储来自在该超级步骤成功完成的任何其他节点的挂起检查点写入。当您从该超级步骤恢复图形执行时，您不会重新运行成功的节点。
 
 ## 核心概念
@@ -46,11 +46,11 @@ LangGraph 检查指针将图状态保存为每一步的检查点，从而实现�
 
 检查点使用`thread_id`作为存储和检索检查点的主键。如果没有它，检查指针就无法在[interrupt](/oss/javascript/langgraph/interrupts)之后保存状态或恢复执行，因为检查指针使用`thread_id`来加载保存的状态。### 检查点
 
-线程在特定时间点的状态称为检查点。检查点是在每个[super-step](#super-steps)处保存的图状态的快照，并由`StateSnapshot`对象表示（有关完整字段参考，请参阅[StateSnapshot fields](#statesnapshot-fields)）。
+线程在特定时间点的状态称为检查点。检查点是每个 [super-step](#super-steps) 处保存的图状态的快照，并由 `StateSnapshot` 对象表示（有关完整字段参考，请参阅 [StateSnapshot fields](#statesnapshot-fields)）。
 
 #### 超级步骤
 
-LangGraph 在每个**超级步骤**边界创建一个检查点。超级步骤是图表的单个“刻度”，其中为该步骤安排的所有节点都执行（可能并行）。对于像 `START -> A -> B -> END` 这样的顺序图，输入、节点 A 和节点 B 都有单独的超级步骤 - 在每个超级步骤之后生成一个检查点。了解超级步边界对于[time travel](/oss/javascript/langgraph/use-time-travel)很重要，因为您只能从检查点（即超级步边界）恢复执行。除了超步检查点之外，LangGraph还保留**节点（任务）级别**的写入。当超级步骤中的每个节点完成时，其输出将作为链接到正在进行的检查点的任务条目写入检查点的`checkpoint_writes`表。这些按任务写入可以实现[pending writes](#pending-writes)恢复：如果同一超级步骤中的另一个节点发生故障，成功节点的写入已经是持久的，不需要在恢复时重新运行。一旦超级步骤完成，就会提交完整状态快照。
+LangGraph 在每个**超级步骤**边界创建一个检查点。超级步骤是图表的单个“刻度”，其中为该步骤安排的所有节点都执行（可能并行）。对于像 `START -> A -> B -> END` 这样的顺序图，输入、节点 A 和节点 B 都有单独的超级步骤 - 在每个超级步骤之后生成一个检查点。了解超级步边界对于[time travel](/oss/javascript/langgraph/use-time-travel)很重要，因为您只能从检查点（即超级步边界）恢复执行。除了超步检查点之外，LangGraph还保留**节点（任务）级别**的写入。当超级步骤中的每个节点完成时，其输出将作为链接到正在进行的检查点的任务条目写入检查点的`checkpoint_writes`表。这些按任务写入可以实现[pending writes](#pending-writes)恢复：如果同一超级步骤中的另一个节点发生故障，则成功节点的写入已经是持久的，不需要在恢复时重新运行。一旦超级步骤完成，就会提交完整状态快照。
 
 LangGraph 还保留超级步骤中各个节点执行的写入。这些写入存储为任务并用于容错：如果同一超级步骤中的另一个节点发生故障，则在恢复时不需要重新计算成功的节点写入。这些任务写入不是完整的`StateSnapshot`检查点，因此时间旅行从超步边界的完整检查点恢复。
 
@@ -312,7 +312,7 @@ for await (const state of graph.getStateHistory(config)) {
 
 ![State](https://mintcdn.com/langchain-5e9cc07a/-_xGPoyjhyiDWTPJ/oss/images/get_state.jpg?fit=max\&auto=format\&n=-_xGPoyjhyiDWTPJ\&q=85\&s=38ffff52be4d8806b287836295a3c058)
 
-#### 查找特定检查点
+#### Find a specific checkpoint
 
 您可以过滤状态历史记录以查找符合特定条件的检查点：
 
@@ -337,15 +337,15 @@ const interrupted = history.find(
 );
 ```
 
-### 重播
+### Replay
 
-重播从先前的检查点重新执行步骤。使用先前的 `checkpoint_id` 调用图表以在该检查点之后重新运行节点。检查点之前的节点将被跳过（它们的结果已保存）。检查点之后的节点重新执行，包括任何 LLM 调用、API 请求或[interrupts](/oss/javascript/langgraph/interrupts)——这些在重放期间总是重新触发。
+重放从先前的检查点重新执行步骤。使用先前的 `checkpoint_id` 调用图表以在该检查点之后重新运行节点。检查点之前的节点将被跳过（它们的结果已保存）。检查点之后的节点重新执行，包括任何 LLM 调用、API 请求或 [interrupts](/oss/javascript/langgraph/interrupts) — 这些在重放期间始终会重新触发。
 
 有关重放过去执行的完整详细信息和代码示例，请参阅[Time travel](/oss/javascript/langgraph/use-time-travel)。
 
 ![Replay](https://mintcdn.com/langchain-5e9cc07a/dL5Sn6Cmy9pwtY0V/oss/images/re_play.png?fit=max\&auto=format\&n=dL5Sn6Cmy9pwtY0V\&q=85\&s=d7b34b85c106e55d181ae1f4afb50251)
 
-### 更新状态您可以使用`graph.updateState()`编辑图形状态。这将创建一个具有更新值的新检查点 - 它不会修改原始检查点。更新被视为与节点更新相同：值在定义时通过 [reducer](/oss/javascript/langgraph/graph-api#reducers) 函数传递，因此具有减速器的通道*累积*值而不是覆盖它们。
+### Update state您可以使用`graph.updateState()`编辑图形状态。这将创建一个具有更新值的新检查点 - 它不会修改原始检查点。更新被视为与节点更新相同：值在定义时通过 [reducer](/oss/javascript/langgraph/graph-api#reducers) 函数传递，因此具有减速器的通道*累积*值而不是覆盖它们。
 
 您可以选择指定 `asNode` 来控制更新被视为来自哪个节点，这会影响下一个执行的节点。详情请参阅[Time travel: ⟦T73⟧](/oss/javascript/langgraph/use-time-travel#from-a-specific-node)。
 
@@ -362,23 +362,37 @@ await graph.stream(
 )
 ```
 
-耐用性模式（从最不耐用到最耐用）如下：* `"exit"`：LangGraph 仅在图形执行成功退出、出现错误或由于人机循环中断时才保留更改。这为长时间运行的图形提供了最佳性能，但意味着不会保存中间状态，因此您无法从执行中的系统故障（例如进程崩溃）中恢复。
-* `"async"`：LangGraph 在执行下一步时异步保留更改。这提供了良好的性能和耐用性，但存在一个小风险，即如果进程在执行过程中崩溃，LangGraph不会写入检查点。
-* `"sync"`：LangGraph在下一步开始之前同步保留更改。这确保了LangGraph在继续执行之前写入每个检查点，以一些性能开销为代价提供高持久性。
+耐用性模式（从最不耐用到最耐用）如下：
+
+* `"exit"`：LangGraph 仅在图形执行成功退出、出现错误或由于人机循环中断时才保留更改。这为长时间运行的图形提供了最佳性能，但意味着不会保存中间状态，因此您无法从执行中的系统故障（例如进程崩溃）中恢复。* `"async"`：LangGraph 在执行下一步时异步保留更改。这提供了良好的性能和耐用性，但存在一个小风险，即如果进程在执行过程中崩溃，LangGraph不会写入检查点。
+
+* `"sync"`：LangGraph 在整个运行过程中保留检查点写入，并在运行完成时等待未完成的检查点承诺。中间步骤可以在这些写入完成之前继续，因此运行中的进程崩溃仍然可能会丢失最近的检查点；持久性高于`"async"`，只是因为在挂起的写入完成之前运行不会返回。
+
+### 新线程上的第一个持久检查点
+
+对于新线程，持久模式还确定在第一个用户节点执行之前提交哪些检查点。内部`__start__`超级步首先运行；步骤 `0` 是在该超级步骤之后写入的循环检查点。
+
+* `"exit"`：在运行结束之前不存在检查点。运行期间的崩溃不会留下线程的记录。
+
+* `"async"`：LangGraph在第一个用户节点执行之前开始写入输入检查点，但不等待写入完成。第一个用户节点可以在提交任何检查点之前运行。* `"sync"`：LangGraph 安排输入，并在早期标记期间写入步骤 `0`，但仅在运行完成后等待未完成的检查点承诺。对于缓慢或延迟的保护程序，第一个用户节点可以在提交任何检查点之前运行，因此此边界的准入可见性与`"async"`匹配。
+
+> [!警告]
+>
+> 在每种模式下，第一个检查点变得持久之前的崩溃会使线程与从未调用过的线程无法区分：`getTuple()`在两种情况下都返回`undefined`，并且`invoke(null, config)`引发`EmptyInputError`。如果您需要区分“从未接受”和“已接受但丢失”，请在检查点之外记录入场情况，例如，在致电 `invoke` 之前将发件箱行提交到您自己的商店。
 
 ## 优化检查点存储
 
 ## 检查点库
 
-在底层，检查点由符合 [⟦T77⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/BaseCheckpointSaver) 接口的检查点对象提供支持。 LangGraph 提供了多种检查点实现，全部通过独立的可安装库实现。* `@langchain/langgraph-checkpoint`：检查指针保存器（[⟦T79⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/BaseCheckpointSaver)）和序列化/反序列化接口（[⟦T80⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/SerializerProtocol)）的基本接口。包括用于实验的内存检查指针实现 ([⟦T81⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/MemorySaver))。 LangGraph 附带`@langchain/langgraph-checkpoint`。
-* `@langchain/langgraph-checkpoint-sqlite`：使用 SQLite 数据库 ([⟦T84⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint-sqlite/SqliteSaver)) 的 LangGraph 检查点实现。非常适合实验和本地工作流程。需要单独安装。
-* `@langchain/langgraph-checkpoint-postgres`：使用Postgres数据库（[⟦T86⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint-postgres/index/PostgresSaver)）的高级检查点，在LangSmith中使用。非常适合在生产中使用。需要单独安装。
+在底层，检查点由符合 [⟦T90⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/BaseCheckpointSaver) 接口的检查点对象提供支持。 LangGraph 提供了多种检查点实现，全部通过独立的可安装库实现。* `@langchain/langgraph-checkpoint`：检查点保存器（[⟦T92⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/BaseCheckpointSaver)）和序列化/反序列化接口（[⟦T93⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/SerializerProtocol)）的基本接口。包括用于实验的内存检查指针实现 ([⟦T94⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/MemorySaver))。 LangGraph 附带`@langchain/langgraph-checkpoint`。
+* `@langchain/langgraph-checkpoint-sqlite`：使用 SQLite 数据库 ([⟦T97⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint-sqlite/SqliteSaver)) 的 LangGraph 检查点实现。非常适合实验和本地工作流程。需要单独安装。
+* `@langchain/langgraph-checkpoint-postgres`：使用Postgres数据库（[⟦T99⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint-postgres/index/PostgresSaver)）的高级检查点，在LangSmith中使用。非常适合在生产中使用。需要单独安装。
 * `@langchain/langgraph-checkpoint-mongodb`：由 MongoDB 支持的高级检查点 (`MongoDBSaver`) 和长期内存存储 (`MongoDBStore`)。该商店支持跨线程持久性以及可选的集成矢量搜索。非常适合生产使用。需要单独安装。
 * `@langchain/langgraph-checkpoint-redis`：使用Redis数据库的高级检查点（`RedisSaver`）。非常适合在生产中使用。需要单独安装。
 
 ### 检查点接口
 
-每个检查点都符合[⟦T92⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/BaseCheckpointSaver)接口并实现以下方法：* `.put` - 存储检查点及其配置和元数据。
+每个检查点都符合[⟦T105⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/BaseCheckpointSaver)接口并实现以下方法：* `.put` - 存储检查点及其配置和元数据。
 * `.putWrites` - 存储链接到检查点的中间写入（即[pending writes](#pending-writes)）。
 * `.getTuple` - 获取用于给定配置的检查点元组（`thread_id` 和 `checkpoint_id`）。这用于填充 `graph.getState()` 中的 `StateSnapshot`。
 * `.list` - 列出与给定配置和过滤条件匹配的检查点。这用于填充 `graph.getStateHistory()` 中的状态历史记录

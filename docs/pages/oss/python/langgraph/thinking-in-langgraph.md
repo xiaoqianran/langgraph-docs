@@ -630,7 +630,7 @@ Let's run our agent with an urgent billing issue that needs human review:
 > print("Email sent successfully!")
 > ```
 >
-> > **[View example trace](https://smith.langchain.com/public/c11c3fe2-7ea3-44bf-aa5d-85e4ac995b88/r)**
+> > **[View example trace](https://smith.langchain.com/public/a80286fd-ffa0-4e24-821a-6229a08513f3/r)**
 > >
 > > Open a public LangSmith run for this example.
 

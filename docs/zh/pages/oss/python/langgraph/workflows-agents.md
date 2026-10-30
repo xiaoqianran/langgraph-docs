@@ -230,7 +230,7 @@ for snapshot in stream.values:
 通过并行化，法学硕士可以同时处理一项任务。这可以通过同时运行多个独立的子任务来完成，或者多次运行同一任务以检查不同的输出。并行化通常用于：
 
 * 拆分子任务并并行运行它们，从而提高速度
-* 多次运行任务以检查不同的输出，这增加了信心
+* 多次运行任务以检查不同的输出，从而增加信心
 
 一些例子包括：
 
@@ -1193,7 +1193,7 @@ result = graph.invoke(
 )
 ```
 
-> **[View example trace](https://smith.langchain.com/public/9ab71e9c-3d7c-49aa-aa11-70fa6fc848aa/r)**
+> **[View example trace](https://smith.langchain.com/public/cca682e6-baf9-4d9f-90a2-c6a3e255a483/r)**
 >
 > 为此示例打开公共 LangSmith 运行。
 

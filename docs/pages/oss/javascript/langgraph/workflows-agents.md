@@ -1233,7 +1233,7 @@ const result = await graph.invoke(
 );
 ```
 
-> **[View example trace](https://smith.langchain.com/public/f9a855a9-4897-4c50-ab4f-8c7db93b1894/r)**
+> **[View example trace](https://smith.langchain.com/public/a7d4f6bb-6847-4c92-b20c-c32f53b58db8/r)**
 >
 > Open a public LangSmith run for this example.
 

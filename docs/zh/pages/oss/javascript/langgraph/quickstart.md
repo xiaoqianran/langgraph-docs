@@ -8,7 +8,7 @@
 
 构建 LangGraph 计算器快速入门
 
-按照 LangGraph 快速入门，在此工作目录中构建LangGraph 计算器代理。
+按照 LangGraph 快速入门，在此工作目录中构建 LangGraph 计算器代理。
 
 ## 第 1 步：阅读指南
 
@@ -52,7 +52,7 @@
 >
 > * Claude 代码：`claude mcp add --transport http` 对于每个服务器（默认情况下项目范围；仅当我要求全局访问时才使用`--scope user`）。
 > * Codex CLI：`codex mcp add` 以及每个服务器 URL。
-> * 光标、Deep Agents 代码、VS 代码或反重力：使用该页面上为我的客户显示的字段名称将两个条目合并到 MCP 设置 JSON 中。
+> * 光标、Deep Agents 代码、VS 代码或反重力：使用我的客户页面上显示的字段名称将两个条目合并到 MCP 设置 JSON 中。
 > * Claude Desktop：在“设置”>“连接器”下添加两个 URL。
 >
 > 不要发明备用 MCP URL。配置后，确认两台服务器均已列出并且可访问。
@@ -82,13 +82,11 @@
 
 > [!注意]
 >
-> 对于此示例，您需要设置一个 [Claude (Anthropic)](https://www.anthropic.com/) 帐户并获取 API 密钥。然后，在终端中设置 `ANTHROPIC_API_KEY` 环境变量。请参阅 [chat model integrations](/oss/javascript/integrations/chat) 了解所有可用的提供商。如果您使用 [LangSmith Gateway](/langsmith/llm-gateway)，则可以 [bring your own provider keys](/langsmith/llm-gateway-quickstart#send-a-request) 或使用 [Gateway Credits](/langsmith/llm-gateway-credits) 无需提供者密钥即可访问模型。
+> 对于此示例，您需要设置一个 [Claude (Anthropic)](https://www.anthropic.com/) 帐户并获取 API 密钥。然后，在终端中设置 `ANTHROPIC_API_KEY` 环境变量。请参阅 [chat model integrations](/oss/javascript/integrations/chat) 了解所有可用的提供商。或者，如果您使用 LangSmith [LLM Gateway](/langsmith/llm-gateway)，则流向提供商的流量将通过 LangSmith 路由。请改用网关密钥作为 API 密钥。
 
 **使用图形API**
 
-## 1.定义工具和模型
-
-在此示例中，我们将使用 Claude Sonnet 4.5 模型并定义加法、乘法和除法工具。
+## 1.定义工具和模型在此示例中，我们将使用 Claude Sonnet 4.5 模型并定义加法、乘法和除法工具。
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { ChatAnthropic } from "@langchain/anthropic";
@@ -138,7 +136,9 @@ const tools = Object.values(toolsByName);
 const modelWithTools = model.bindTools(tools);
 ```
 
-## 2. 定义状态图的状态用于存储消息和 LLM 调用的数量。
+## 2. 定义状态
+
+图的状态用于存储消息和 LLM 调用的数量。
 
 > [!提示]
 >
@@ -263,11 +263,9 @@ for (const message of result.messages) {
 
 > [!提示]
 >
-> 使用 [LangSmith](https://smith.langchain.com?utm_source=docs\&utm_medium=cta\&utm_campaign=langsmith-signup\&utm_content=oss-langgraph-quickstart) 跟踪和调试您的代理。按照[tracing quickstart](/langsmith/trace-with-langgraph)进行设置。准备好投入生产后，请参阅 [Deploy](/langsmith/deployment) 了解托管选项。
+> 使用 [LangSmith](https://smith.langchain.com?utm_source=docs\&utm_medium=cta\&utm_campaign=langsmith-signup\&utm_content=oss-langgraph-quickstart) 跟踪和调试您的代理。按照[tracing quickstart](/langsmith/trace-with-langgraph)进行设置。准备好投入生产时，请参阅 [Deploy](/langsmith/deployment) 了解托管选项。
 >
-> 我们建议您还设置 [LangSmith Engine](/langsmith/engine) 来监控您的痕迹、检测问题并提出修复建议。
-
-恭喜！您已经使用 LangGraph Graph API 构建了第一个代理。
+> 我们建议您还设置 [LangSmith Engine](/langsmith/engine) 来监视您的痕迹、检测问题并提出修复建议。恭喜！您已经使用 LangGraph Graph API 构建了第一个代理。
 
 > **完整代码示例**
 >
@@ -427,7 +425,9 @@ for (const message of result.messages) {
 > }
 > ```
 
-**使用函数式API**## 1.定义工具和模型
+**使用函数式API**
+
+## 1.定义工具和模型
 
 在此示例中，我们将使用 Claude Sonnet 4.5 模型并定义加法、乘法和除法工具。
 
@@ -548,7 +548,7 @@ for (const message of result) {
 
 > [!提示]
 >
-> 使用 [LangSmith](https://smith.langchain.com?utm_source=docs\&utm_medium=cta\&utm_campaign=langsmith-signup\&utm_content=oss-langgraph-quickstart) 跟踪和调试您的代理。按照[tracing quickstart](/langsmith/trace-with-langgraph)进行设置。准备好投入生产时，请参阅 [Deploy](/langsmith/deployment) 了解托管选项。
+> 使用 [LangSmith](https://smith.langchain.com?utm_source=docs\&utm_medium=cta\&utm_campaign=langsmith-signup\&utm_content=oss-langgraph-quickstart) 跟踪和调试您的代理。按照[tracing quickstart](/langsmith/trace-with-langgraph)进行设置。准备好投入生产后，请参阅 [Deploy](/langsmith/deployment) 了解托管选项。
 >
 > 我们建议您还设置 [LangSmith Engine](/langsmith/engine) 来监控您的痕迹、检测问题并提出修复建议。
 

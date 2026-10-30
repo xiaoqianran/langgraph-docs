@@ -74,7 +74,7 @@ resumed = graph.stream_events(Command(resume=True), config=config, version="v3")
 final = resumed.output
 ```
 
-> **[View example trace](https://smith.langchain.com/public/cf85f039-145d-4226-9c16-3e915c35a35c/r)**
+> **[View example trace](https://smith.langchain.com/public/4741fc73-bfe6-4c7d-a1b8-b19349fa0189/r)**
 >
 > 为此示例打开公共 LangSmith 运行。
 
@@ -190,7 +190,7 @@ while True:
     stream_input = Command(resume=user_response)
 ```
 
-> **[View example trace](https://smith.langchain.com/public/3fcd0b07-12d7-455e-9d24-8b25548a46be/r)**
+> **[View example trace](https://smith.langchain.com/public/9305def9-923f-419c-9ffd-a44a8492ef45/r)**
 >
 > 为此示例打开公共 LangSmith 运行。
 
@@ -258,7 +258,7 @@ print("Final state:", resumed.output)
 # Final state: {'vals': ['a:answer for question_a', 'b:answer for question_b']}
 ```
 
-> **[View example trace](https://smith.langchain.com/public/7cbaa580-169c-4f6d-a883-5d980309e9cf/r)**
+> **[View example trace](https://smith.langchain.com/public/865aef4a-3f52-4774-936e-0e21756f2cc1/r)**
 >
 > 为此示例打开公共 LangSmith 运行。
 
@@ -354,7 +354,7 @@ graph.stream_events(Command(resume=False), config=config, version="v3").output
 > print(resumed.output["status"])
 > ```
 >
->> **[View example trace](https://smith.langchain.com/public/81e6322b-083e-4290-bcb2-18cf98d38038/r)**
+>> **[View example trace](https://smith.langchain.com/public/c2ed3d48-f1f0-4bb8-919b-0fa46ca88ca6/r)**
 >>
 >> 为此示例打开公共 LangSmith 运行。
 
@@ -435,7 +435,7 @@ graph.stream_events(
 > print(final_state.output["generated_text"])  # -> "Improved draft after review"
 > ```
 >
->> **[View example trace](https://smith.langchain.com/public/5efd556a-ed06-45b2-9520-a7a4819a92a6/r)**
+>> **[View example trace](https://smith.langchain.com/public/cb22ff81-2f4f-40ef-9e6c-4a646c284d60/r)**
 >>
 >> 为此示例打开公共 LangSmith 运行。
 
@@ -725,7 +725,7 @@ def node_a(state: State):
 
 在单个节点中使用多个中断是很常见的，但是如果处理不仔细，这可能会导致意外的行为。
 
-当节点包含多个中断调用时，LangGraph 保留特定于执行该节点的任务的恢复值列表。每当执行恢复时，它都会从节点的开头开始。对于遇到的每个中断，LangGraph 检查任务的恢复列表中是否存在匹配的值。匹配**严格基于索引**，因此节点内中断调用的顺序很重要。
+当节点包含多个中断调用时，LangGraph 会保留特定于执行该节点的任务的恢复值列表。每当执行恢复时，它都会从节点的开头开始。对于遇到的每个中断，LangGraph 检查任务的恢复列表中是否存在匹配的值。匹配**严格基于索引**，因此节点内中断调用的顺序很重要。
 
 * ✅ 保持 [⟦T134⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 调用在节点执行之间保持一致
 
@@ -839,7 +839,9 @@ def node_a(state: State):
 
 * ✅ 在[⟦T144⟧](https://reference.langchain.com/python/langgraph/types/interrupt)之前使用幂等操作
 * ✅ 在 [⟦T145⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 调用之后放置副作用
-* ✅ 如果可能，将副作用分离到单独的节点中
+* ✅尽可能将副作用分离到单独的节点中
+
+在下面的批准后示例中，副作用仅在批准成功时运行。如果节点在提交副作用后但完成之前失败，重试该节点可以重复该效果。在外部系统中使用幂等操作或重复写入。
 
 ```python Idempotent operations theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 def node_a(state: State):
@@ -858,7 +860,7 @@ def node_a(state: State):
 ```python Side effects after interrupt theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 def node_a(state: State):
     # ✅ Good: placing side effect after the interrupt
-    # This ensures it only runs once after approval is received
+    # Approval gates this side effect; retries still need idempotency
     approved = interrupt("Approve this change?")
 
     if approved:
@@ -879,7 +881,7 @@ def approval_node(state: State):
 
 def notification_node(state: State):
     # ✅ Good: side effect happens in a separate node
-    # This runs after approval, so it only executes once
+    # Approval gates this side effect; retries still need idempotency
     if (state.approved):
         send_notification(
             user_id=state["user_id"],
@@ -936,7 +938,7 @@ def node_in_subgraph(state: State):
     # ...
 ```
 
-## 使用中断进行调试要调试和测试图形，您可以使用静态中断作为断点，一次单步执行一个节点的图形执行。静态中断在节点执行之前或之后的定义点触发。您可以在编译图表时通过指定 `interrupt_before` 和 `interrupt_after` 来设置这些。
+## 使用中断进行调试要调试和测试图表，您可以使用静态中断作为断点，一次单步执行一个节点的图表执行。静态中断在节点执行之前或之后的定义点触发。您可以在编译图表时通过指定 `interrupt_before` 和 `interrupt_after` 来设置这些。
 
 > [!注意]
 >
@@ -991,7 +993,7 @@ graph.invoke(
 
 # Resume the graph
 graph.invoke(None, config=config)  # [!code highlight]
-```1. 使用`interrupt_before`和`interrupt_after`参数调用`graph.invoke`。这是一个运行时配置，可以针对每次调用进行更改。
+```1. 使用`interrupt_before`和`interrupt_after`参数调用`graph.invoke`。这是一个运行时配置，可以在每次调用时更改。
 2. `interrupt_before` 指定执行该节点之前应暂停执行的节点。
 3. `interrupt_after` 指定该节点执行完毕后应暂停执行的节点。
 4. 运行图表直到遇到第一个断点。
