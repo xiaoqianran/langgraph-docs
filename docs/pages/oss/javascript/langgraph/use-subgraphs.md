@@ -69,7 +69,7 @@ const builder = new StateGraph(State)
 const graph = builder.compile();
 ```
 
-> **Full example: different state schemas**
+> [accordion] Full example: different state schemas
 >
 > ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > import { StateGraph, StateSchema, START } from "@langchain/langgraph";
@@ -133,7 +133,7 @@ const graph = builder.compile();
 > [[], { node2: { foo: 'hi! foobaz' } }]
 > ```
 
-> **Full example: different state schemas (two levels of subgraphs)**
+> [accordion] Full example: different state schemas (two levels of subgraphs)
 >
 > This is an example with two levels of subgraphs: parent -> child -> grandchild.
 >
@@ -260,7 +260,7 @@ const builder = new StateGraph(State)
 const graph = builder.compile();
 ```
 
-> **Full example: shared state schemas**
+> [accordion] Full example: shared state schemas
 >
 > ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > import { StateGraph, StateSchema, START } from "@langchain/langgraph";
@@ -431,76 +431,76 @@ const agent = createAgent({
 });
 ```
 
-**Interrupts**
+> [tab] Interrupts
+>
+> Each invocation can use `interrupt()` to pause and resume. Add `interrupt()` to a tool function to require user approval before proceeding:
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> const fruitInfo = tool(
+>   (input) => {
+>     interrupt("continue?");  // [!code highlight]
+>     return `Info about ${input.fruitName}`;
+>   },
+>   {
+>     name: "fruit_info",
+>     description: "Look up fruit info.",
+>     schema: z.object({ fruitName: z.string() }),
+>   }
+> );
+> ```
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> const config = { configurable: { thread_id: "1" } };
+>
+> // Invoke - the subagent's tool calls interrupt()
+> let response = await agent.invoke(
+>   { messages: [{ role: "user", content: "Tell me about apples" }] },
+>   config,
+> );
+> // response contains __interrupt__
+>
+> // Resume - approve the interrupt
+> response = await agent.invoke(new Command({ resume: true }), config);  // [!code highlight]
+> // Subagent message count: 4
+> ```
 
-Each invocation can use `interrupt()` to pause and resume. Add `interrupt()` to a tool function to require user approval before proceeding:
+> [tab] Multi-turn
+>
+> Each invocation starts with a fresh subagent state. The subagent does not remember previous calls:
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> const config = { configurable: { thread_id: "1" } };
+>
+> // First call
+> let response = await agent.invoke(
+>   { messages: [{ role: "user", content: "Tell me about apples" }] },
+>   config,
+> );
+> // Subagent message count: 4
+>
+> // Second call - subagent starts fresh, no memory of apples
+> response = await agent.invoke(
+>   { messages: [{ role: "user", content: "Now tell me about bananas" }] },
+>   config,
+> );
+> // Subagent message count: 4 (still fresh!)
+> ```
 
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-const fruitInfo = tool(
-  (input) => {
-    interrupt("continue?");  // [!code highlight]
-    return `Info about ${input.fruitName}`;
-  },
-  {
-    name: "fruit_info",
-    description: "Look up fruit info.",
-    schema: z.object({ fruitName: z.string() }),
-  }
-);
-```
-
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-const config = { configurable: { thread_id: "1" } };
-
-// Invoke - the subagent's tool calls interrupt()
-let response = await agent.invoke(
-  { messages: [{ role: "user", content: "Tell me about apples" }] },
-  config,
-);
-// response contains __interrupt__
-
-// Resume - approve the interrupt
-response = await agent.invoke(new Command({ resume: true }), config);  // [!code highlight]
-// Subagent message count: 4
-```
-
-**Multi-turn**
-
-Each invocation starts with a fresh subagent state. The subagent does not remember previous calls:
-
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-const config = { configurable: { thread_id: "1" } };
-
-// First call
-let response = await agent.invoke(
-  { messages: [{ role: "user", content: "Tell me about apples" }] },
-  config,
-);
-// Subagent message count: 4
-
-// Second call - subagent starts fresh, no memory of apples
-response = await agent.invoke(
-  { messages: [{ role: "user", content: "Now tell me about bananas" }] },
-  config,
-);
-// Subagent message count: 4 (still fresh!)
-```
-
-**Multiple subgraph calls**
-
-Multiple calls to the same subgraph work without conflicts, since each invocation gets its own checkpoint namespace:
-
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-const config = { configurable: { thread_id: "1" } };
-
-// LLM calls ask_fruit_expert for both apples and bananas
-const response = await agent.invoke(
-  { messages: [{ role: "user", content: "Tell me about apples and bananas" }] },
-  config,
-);
-// Subagent message count: 4 (apples - fresh)
-// Subagent message count: 4 (bananas - fresh)
-```
+> [tab] Multiple subgraph calls
+>
+> Multiple calls to the same subgraph work without conflicts, since each invocation gets its own checkpoint namespace:
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> const config = { configurable: { thread_id: "1" } };
+>
+> // LLM calls ask_fruit_expert for both apples and bananas
+> const response = await agent.invoke(
+>   { messages: [{ role: "user", content: "Tell me about apples and bananas" }] },
+>   config,
+> );
+> // Subagent message count: 4 (apples - fresh)
+> // Subagent message count: 4 (bananas - fresh)
+> ```
 
 #### Per-thread
 
@@ -567,104 +567,104 @@ const agent = createAgent({
 });
 ```
 
-**Interrupts**
+> [tab] Interrupts
+>
+> Per-thread subagents support `interrupt()` just like per-invocation. Add `interrupt()` to a tool function to require user approval:
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> const fruitInfo = tool(
+>   (input) => {
+>     interrupt("continue?");  // [!code highlight]
+>     return `Info about ${input.fruitName}`;
+>   },
+>   {
+>     name: "fruit_info",
+>     description: "Look up fruit info.",
+>     schema: z.object({ fruitName: z.string() }),
+>   }
+> );
+> ```
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> const config = { configurable: { thread_id: "1" } };
+>
+> // Invoke - the subagent's tool calls interrupt()
+> let response = await agent.invoke(
+>   { messages: [{ role: "user", content: "Tell me about apples" }] },
+>   config,
+> );
+> // response contains __interrupt__
+>
+> // Resume - approve the interrupt
+> response = await agent.invoke(new Command({ resume: true }), config);  // [!code highlight]
+> // Subagent message count: 4
+> ```
 
-Per-thread subagents support `interrupt()` just like per-invocation. Add `interrupt()` to a tool function to require user approval:
+> [tab] Multi-turn
+>
+> State accumulates across invocations—the subagent remembers past conversations:
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> const config = { configurable: { thread_id: "1" } };
+>
+> // First call
+> let response = await agent.invoke(
+>   { messages: [{ role: "user", content: "Tell me about apples" }] },
+>   config,
+> );
+> // Subagent message count: 4
+>
+> // Second call - subagent REMEMBERS apples conversation
+> response = await agent.invoke(
+>   { messages: [{ role: "user", content: "Now tell me about bananas" }] },
+>   config,
+> );
+> // Subagent message count: 8 (accumulated!)
+> ```
 
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-const fruitInfo = tool(
-  (input) => {
-    interrupt("continue?");  // [!code highlight]
-    return `Info about ${input.fruitName}`;
-  },
-  {
-    name: "fruit_info",
-    description: "Look up fruit info.",
-    schema: z.object({ fruitName: z.string() }),
-  }
-);
-```
-
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-const config = { configurable: { thread_id: "1" } };
-
-// Invoke - the subagent's tool calls interrupt()
-let response = await agent.invoke(
-  { messages: [{ role: "user", content: "Tell me about apples" }] },
-  config,
-);
-// response contains __interrupt__
-
-// Resume - approve the interrupt
-response = await agent.invoke(new Command({ resume: true }), config);  // [!code highlight]
-// Subagent message count: 4
-```
-
-**Multi-turn**
-
-State accumulates across invocations—the subagent remembers past conversations:
-
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-const config = { configurable: { thread_id: "1" } };
-
-// First call
-let response = await agent.invoke(
-  { messages: [{ role: "user", content: "Tell me about apples" }] },
-  config,
-);
-// Subagent message count: 4
-
-// Second call - subagent REMEMBERS apples conversation
-response = await agent.invoke(
-  { messages: [{ role: "user", content: "Now tell me about bananas" }] },
-  config,
-);
-// Subagent message count: 8 (accumulated!)
-```
-
-**Multiple subgraph calls**
-
-When you have multiple **different** per-thread subgraphs (for example, a fruit expert and a veggie expert), each one needs its own storage space so their checkpoints don't overwrite each other. This is called **namespace isolation**.
-
-If you [call subgraphs inside a node](#call-a-subgraph-inside-a-node), LangGraph assigns namespaces based on call order (first call, second call, etc.). This means reordering your calls can mix up which subgraph loads which state. To avoid this, wrap each subagent in its own `StateGraph` with a unique node name—this gives each subgraph a stable, unique namespace:
-
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-import { StateGraph, StateSchema, MessagesValue, START } from "@langchain/langgraph";
-
-function createSubAgent(model: string, { name, ...kwargs }: { name: string; [key: string]: any }) {
-  const agent = createAgent({ model, name, ...kwargs });
-  return new StateGraph(new StateSchema({ messages: MessagesValue }))
-    .addNode(name, agent)  // unique name → stable namespace  // [!code highlight]
-    .addEdge(START, name)
-    .compile();
-}
-
-const fruitAgent = createSubAgent("gpt-5.4-mini", {
-  name: "fruit_agent", tools: [fruitInfo], prompt: "...", checkpointer: true,
-});
-const veggieAgent = createSubAgent("gpt-5.4-mini", {
-  name: "veggie_agent", tools: [veggieInfo], prompt: "...", checkpointer: true,
-});
-const config = { configurable: { thread_id: "1" } };
-
-// First call - LLM calls both fruit and veggie experts
-let response = await agent.invoke(
-  { messages: [{ role: "user", content: "Tell me about cherries and broccoli" }] },
-  config,
-);
-// Fruit subagent message count: 4
-// Veggie subagent message count: 4
-
-// Second call - both agents accumulate independently
-response = await agent.invoke(
-  { messages: [{ role: "user", content: "Now tell me about oranges and carrots" }] },
-  config,
-);
-// Fruit subagent message count: 8 (remembers cherries!)
-// Veggie subagent message count: 8 (remembers broccoli!)
-```
-
-Subgraphs [added as nodes](#add-a-subgraph-as-a-node) already get name-based namespaces automatically, so they don't need this wrapper.
+> [tab] Multiple subgraph calls
+>
+> When you have multiple **different** per-thread subgraphs (for example, a fruit expert and a veggie expert), each one needs its own storage space so their checkpoints don't overwrite each other. This is called **namespace isolation**.
+>
+> If you [call subgraphs inside a node](#call-a-subgraph-inside-a-node), LangGraph assigns namespaces based on call order (first call, second call, etc.). This means reordering your calls can mix up which subgraph loads which state. To avoid this, wrap each subagent in its own `StateGraph` with a unique node name—this gives each subgraph a stable, unique namespace:
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import { StateGraph, StateSchema, MessagesValue, START } from "@langchain/langgraph";
+>
+> function createSubAgent(model: string, { name, ...kwargs }: { name: string; [key: string]: any }) {
+>   const agent = createAgent({ model, name, ...kwargs });
+>   return new StateGraph(new StateSchema({ messages: MessagesValue }))
+>     .addNode(name, agent)  // unique name → stable namespace  // [!code highlight]
+>     .addEdge(START, name)
+>     .compile();
+> }
+>
+> const fruitAgent = createSubAgent("gpt-5.4-mini", {
+>   name: "fruit_agent", tools: [fruitInfo], prompt: "...", checkpointer: true,
+> });
+> const veggieAgent = createSubAgent("gpt-5.4-mini", {
+>   name: "veggie_agent", tools: [veggieInfo], prompt: "...", checkpointer: true,
+> });
+> const config = { configurable: { thread_id: "1" } };
+>
+> // First call - LLM calls both fruit and veggie experts
+> let response = await agent.invoke(
+>   { messages: [{ role: "user", content: "Tell me about cherries and broccoli" }] },
+>   config,
+> );
+> // Fruit subagent message count: 4
+> // Veggie subagent message count: 4
+>
+> // Second call - both agents accumulate independently
+> response = await agent.invoke(
+>   { messages: [{ role: "user", content: "Now tell me about oranges and carrots" }] },
+>   config,
+> );
+> // Fruit subagent message count: 8 (remembers cherries!)
+> // Veggie subagent message count: 8 (remembers broccoli!)
+> ```
+>
+> Subgraphs [added as nodes](#add-a-subgraph-as-a-node) already get name-based namespaces automatically, so they don't need this wrapper.
 
 ### Stateless
 
@@ -710,79 +710,79 @@ When you enable [persistence](/oss/javascript/langgraph/persistence), you can in
 >
 > Viewing subgraph state requires that LangGraph can **statically discover** the subgraph—i.e., it is [added as a node](#add-a-subgraph-as-a-node) or [called inside a node](#call-a-subgraph-inside-a-node). It does not work when a subgraph is called inside a [tool](/oss/javascript/langchain/tools) function or other indirection (e.g., the [subagents](/oss/javascript/langchain/multi-agent/subagents) pattern). Interrupts still propagate to the top-level graph regardless of nesting.
 
-**Per-invocation**
+> [tab] Per-invocation
+>
+> Returns subgraph state for the **current invocation only**. Each invocation starts fresh.
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import { StateGraph, StateSchema, START, MemorySaver, interrupt, Command } from "@langchain/langgraph";
+> import * as z from "zod";
+>
+> const State = new StateSchema({
+>   foo: z.string(),
+> });
+>
+> // Subgraph
+> const subgraphBuilder = new StateGraph(State)
+>   .addNode("subgraphNode1", (state) => {
+>     const value = interrupt("Provide value:");
+>     return { foo: state.foo + value };
+>   })
+>   .addEdge(START, "subgraphNode1");
+>
+> const subgraph = subgraphBuilder.compile();  // inherits parent checkpointer
+>
+> // Parent graph
+> const builder = new StateGraph(State)
+>   .addNode("node1", subgraph)
+>   .addEdge(START, "node1");
+>
+> const checkpointer = new MemorySaver();
+> const graph = builder.compile({ checkpointer });
+>
+> const config = { configurable: { thread_id: "1" } };
+>
+> await graph.invoke({ foo: "" }, config);
+>
+> // View subgraph state for the current invocation
+> const subgraphState = (await graph.getState(config, { subgraphs: true })).tasks[0].state;  // [!code highlight]
+>
+> // Resume the subgraph
+> await graph.invoke(new Command({ resume: "bar" }), config);
+> ```
 
-Returns subgraph state for the **current invocation only**. Each invocation starts fresh.
-
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-import { StateGraph, StateSchema, START, MemorySaver, interrupt, Command } from "@langchain/langgraph";
-import * as z from "zod";
-
-const State = new StateSchema({
-  foo: z.string(),
-});
-
-// Subgraph
-const subgraphBuilder = new StateGraph(State)
-  .addNode("subgraphNode1", (state) => {
-    const value = interrupt("Provide value:");
-    return { foo: state.foo + value };
-  })
-  .addEdge(START, "subgraphNode1");
-
-const subgraph = subgraphBuilder.compile();  // inherits parent checkpointer
-
-// Parent graph
-const builder = new StateGraph(State)
-  .addNode("node1", subgraph)
-  .addEdge(START, "node1");
-
-const checkpointer = new MemorySaver();
-const graph = builder.compile({ checkpointer });
-
-const config = { configurable: { thread_id: "1" } };
-
-await graph.invoke({ foo: "" }, config);
-
-// View subgraph state for the current invocation
-const subgraphState = (await graph.getState(config, { subgraphs: true })).tasks[0].state;  // [!code highlight]
-
-// Resume the subgraph
-await graph.invoke(new Command({ resume: "bar" }), config);
-```
-
-**Per-thread**
-
-Returns **accumulated** subgraph state across all invocations on this thread.
-
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-import { StateGraph, StateSchema, MessagesValue, START, MemorySaver } from "@langchain/langgraph";
-
-// Subgraph with its own persistent state
-const SubgraphState = new StateSchema({
-  messages: MessagesValue,
-});
-
-const subgraphBuilder = new StateGraph(SubgraphState);
-// ... add nodes and edges
-const subgraph = subgraphBuilder.compile({ checkpointer: true });  // [!code highlight]
-
-// Parent graph
-const builder = new StateGraph(SubgraphState)
-  .addNode("agent", subgraph)
-  .addEdge(START, "agent");
-
-const checkpointer = new MemorySaver();
-const graph = builder.compile({ checkpointer });
-
-const config = { configurable: { thread_id: "1" } };
-
-await graph.invoke({ messages: [{ role: "user", content: "hi" }] }, config);
-await graph.invoke({ messages: [{ role: "user", content: "what did I say?" }] }, config);
-
-// View accumulated subgraph state (includes messages from both invocations)
-const subgraphState = (await graph.getState(config, { subgraphs: true })).tasks[0].state;  // [!code highlight]
-```
+> [tab] Per-thread
+>
+> Returns **accumulated** subgraph state across all invocations on this thread.
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import { StateGraph, StateSchema, MessagesValue, START, MemorySaver } from "@langchain/langgraph";
+>
+> // Subgraph with its own persistent state
+> const SubgraphState = new StateSchema({
+>   messages: MessagesValue,
+> });
+>
+> const subgraphBuilder = new StateGraph(SubgraphState);
+> // ... add nodes and edges
+> const subgraph = subgraphBuilder.compile({ checkpointer: true });  // [!code highlight]
+>
+> // Parent graph
+> const builder = new StateGraph(SubgraphState)
+>   .addNode("agent", subgraph)
+>   .addEdge(START, "agent");
+>
+> const checkpointer = new MemorySaver();
+> const graph = builder.compile({ checkpointer });
+>
+> const config = { configurable: { thread_id: "1" } };
+>
+> await graph.invoke({ messages: [{ role: "user", content: "hi" }] }, config);
+> await graph.invoke({ messages: [{ role: "user", content: "what did I say?" }] }, config);
+>
+> // View accumulated subgraph state (includes messages from both invocations)
+> const subgraphState = (await graph.getState(config, { subgraphs: true })).tasks[0].state;  // [!code highlight]
+> ```
 
 ## Stream subgraph outputs
 
@@ -803,7 +803,7 @@ for await (const snapshot of stream.values) {
 
 1. Set `subgraphs: true` to stream outputs from subgraphs.
 
-> **Stream from subgraphs**
+> [accordion] Stream from subgraphs
 >
 > ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > import { StateGraph, StateSchema, START } from "@langchain/langgraph";

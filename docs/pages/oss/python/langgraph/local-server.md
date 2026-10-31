@@ -53,7 +53,7 @@ uv sync
 
 > [!NOTE]
 >
-> In an [agent-based workspace](/langsmith/agents), [create an agent](/langsmith/create-an-agent) once before sending traces. Use [agent addressing](/langsmith/log-traces-to-agent) to select its identifier and environment. If an integration requires `project_name`, use the selected environment's [`tracer_session_name`](/langsmith/create-an-agent#use-an-environment-project) as a compatibility value.
+> In an [agent-based workspace](/langsmith/agent-registry), [create an agent](/langsmith/create-an-agent) once before sending traces. Use [agent addressing](/langsmith/log-traces-to-agent) to select its identifier and environment. If an integration requires `project_name`, use the selected environment's [`tracer_session_name`](/langsmith/create-an-agent#use-an-environment-project) as a compatibility value.
 
 You will find a `.env.example` in the root of your new LangGraph app. Create a `.env` file in the root of your new LangGraph app and copy the contents of the `.env.example` file into it, filling in the necessary API keys:
 
@@ -106,7 +106,7 @@ For an Agent Server running on a custom host/port, update the `baseUrl` query pa
 https://smith.langchain.com/studio/?baseUrl=http://myhost:3000
 ```
 
-> **Safari compatibility**
+> [accordion] Safari compatibility
 >
 > Use the `--tunnel` flag with your command to create a secure tunnel, as Safari has limitations when connecting to localhost servers:
 >
@@ -116,84 +116,84 @@ https://smith.langchain.com/studio/?baseUrl=http://myhost:3000
 
 ## 7. Test the API
 
-**Python SDK (async)**
+> [tab] Python SDK (async)
+>
+> 1. Install the LangGraph Python SDK:
+>    ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+>    pip install langgraph-sdk
+>    ```
+> 2. Send a message to the assistant (threadless run):
+>    ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+>    from langgraph_sdk import get_client
+>    import asyncio
+>
+>    client = get_client(url="http://localhost:2024")
+>
+>    async def main():
+>        async for chunk in client.runs.stream(
+>            None,  # Threadless run
+>            "agent", # Name of assistant. Defined in langgraph.json.
+>            input={
+>            "messages": [{
+>                "role": "human",
+>                "content": "What is LangGraph?",
+>                }],
+>            },
+>        ):
+>            print(f"Receiving new event of type: {chunk.event}...")
+>            print(chunk.data)
+>            print("\n\n")
+>
+>    asyncio.run(main())
+>    ```
 
-1. Install the LangGraph Python SDK:
-   ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-   pip install langgraph-sdk
-   ```
-2. Send a message to the assistant (threadless run):
-   ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-   from langgraph_sdk import get_client
-   import asyncio
+> [tab] Python SDK (sync)
+>
+> 1. Install the LangGraph Python SDK:
+>    ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+>    pip install langgraph-sdk
+>    ```
+> 2. Send a message to the assistant (threadless run):
+>    ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+>    from langgraph_sdk import get_sync_client
+>
+>    client = get_sync_client(url="http://localhost:2024")
+>
+>    for chunk in client.runs.stream(
+>        None,  # Threadless run
+>        "agent", # Name of assistant. Defined in langgraph.json.
+>        input={
+>            "messages": [{
+>                "role": "human",
+>                "content": "What is LangGraph?",
+>            }],
+>        },
+>        stream_mode="messages-tuple",
+>    ):
+>        print(f"Receiving new event of type: {chunk.event}...")
+>        print(chunk.data)
+>        print("\n\n")
+>    ```
 
-   client = get_client(url="http://localhost:2024")
-
-   async def main():
-       async for chunk in client.runs.stream(
-           None,  # Threadless run
-           "agent", # Name of assistant. Defined in langgraph.json.
-           input={
-           "messages": [{
-               "role": "human",
-               "content": "What is LangGraph?",
-               }],
-           },
-       ):
-           print(f"Receiving new event of type: {chunk.event}...")
-           print(chunk.data)
-           print("\n\n")
-
-   asyncio.run(main())
-   ```
-
-**Python SDK (sync)**
-
-1. Install the LangGraph Python SDK:
-   ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-   pip install langgraph-sdk
-   ```
-2. Send a message to the assistant (threadless run):
-   ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-   from langgraph_sdk import get_sync_client
-
-   client = get_sync_client(url="http://localhost:2024")
-
-   for chunk in client.runs.stream(
-       None,  # Threadless run
-       "agent", # Name of assistant. Defined in langgraph.json.
-       input={
-           "messages": [{
-               "role": "human",
-               "content": "What is LangGraph?",
-           }],
-       },
-       stream_mode="messages-tuple",
-   ):
-       print(f"Receiving new event of type: {chunk.event}...")
-       print(chunk.data)
-       print("\n\n")
-   ```
-
-**Rest API**
-
-```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-curl -s --request POST \
-    --url "http://localhost:2024/runs/stream" \
-    --header 'Content-Type: application/json' \
-    --data "{
-        \"assistant_id\": \"agent\",
-        \"input\": {
-            \"messages\": [
-                {
-                    \"role\": \"human\",
-                    \"content\": \"What is LangGraph?\"
-                }
-            ]
-        },
-        \"stream_mode\": \"messages-tuple\"
-    }"
-```
+> [tab] Rest API
+>
+> ```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> curl -s --request POST \
+>     --url "http://localhost:2024/runs/stream" \
+>     --header 'Content-Type: application/json' \
+>     --data "{
+>         \"assistant_id\": \"agent\",
+>         \"input\": {
+>             \"messages\": [
+>                 {
+>                     \"role\": \"human\",
+>                     \"content\": \"What is LangGraph?\"
+>                 }
+>             ]
+>         },
+>         \"stream_mode\": \"messages-tuple\"
+>     }"
+> ```
 
 ## Next steps
 

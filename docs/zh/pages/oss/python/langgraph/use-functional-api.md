@@ -24,7 +24,7 @@ def my_workflow(inputs: dict) -> int:
 my_workflow.invoke({"value": 1, "another_value": 2})
 ```
 
-> **扩展示例：简单的工作流程**
+> [手风琴] 扩展示例：简单的工作流程
 >
 > ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > from langchain_core.utils.uuid import uuid7
@@ -56,7 +56,7 @@ my_workflow.invoke({"value": 1, "another_value": 2})
 > print(result)
 > ```
 
-> **扩展示例：以法学硕士撰写论文**
+> [手风琴] 扩展示例：用法学硕士撰写论文
 >
 > 这个例子演示了如何使用 `@task` 和 `@entrypoint` 装饰器
 > 从语法上来说。鉴于提供了检查点，工作流程结果将
@@ -95,7 +95,7 @@ my_workflow.invoke({"value": 1, "another_value": 2})
 
 ## 并行执行
 
-通过并发调用任务并等待结果，可以并行执行任务。这对于提高 IO 密集型任务的性能很有用（例如，调用 LLM 的 API）。
+通过并发调用任务并等待结果，可以并行执行任务。这对于提高 IO 绑定任务的性能很有用（例如，调用 LLM 的 API）。
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 @task
@@ -106,7 +106,7 @@ def add_one(number: int) -> int:
 def graph(numbers: list[int]) -> list[str]:
     futures = [add_one(i) for i in numbers]
     return [f.result() for f in futures]
-```> **扩展示例：并行 LLM 调用**
+```> [accordion] 扩展示例：并行 LLM 调用
 >
 > 此示例演示如何使用 `@task` 并行运行多个 LLM 调用。每次调用都会生成关于不同主题的段落，并将结果合并到单个文本输出中。
 >
@@ -170,7 +170,7 @@ def some_workflow(some_input: dict) -> int:
     }
 ```
 
-> **扩展示例：从函数式 API 调用简单图**
+> [accordion] 扩展示例：从函数式 API 调用简单图
 >
 > ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > from langchain_core.utils.uuid import uuid7
@@ -221,7 +221,7 @@ def my_workflow(inputs: dict) -> int:
     return value
 ```
 
-> **扩展示例：调用另一个入口点**
+> [accordion] 扩展示例：调用另一个入口点
 >
 > ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > from langchain_core.utils.uuid import uuid7
@@ -263,7 +263,7 @@ for mode, chunk in stream.interleave("values"):
 # values: 10
 ```
 
-> **[View example trace](https://smith.langchain.com/public/b2de9987-99f2-40ad-bfb4-6bbf9f01ffb1/r)**
+> [卡][View example trace](https://smith.langchain.com/public/b2de9987-99f2-40ad-bfb4-6bbf9f01ffb1/r)
 >
 > 为此示例打开公共 LangSmith 运行。1. 从`langgraph.config`导入[⟦T34⟧](https://reference.langchain.com/python/langgraph/config/get_stream_writer)。
 2. 获取入口点内的流写入器实例。

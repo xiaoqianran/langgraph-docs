@@ -80,31 +80,31 @@ flowchart TD
 
 对于图中的每个节点，确定它代表什么类型的操作以及它需要什么上下文才能正常工作。
 
-> **[LLM steps](#llm-steps)**
+> [卡][LLM steps](#llm-steps)
 >
 > 当您需要理解、分析、生成文本或做出推理决策时使用
 
-> **[Data steps](#data-steps)**
+> [卡][Data steps](#data-steps)
 >
 > 当您需要从外部来源检索信息时使用
 
-> **[Action steps](#action-steps)**
+> [卡][Action steps](#action-steps)
 >
 > 当您需要执行外部操作时使用
 
-> **[User input steps](#user-input-steps)**
+> [卡][User input steps](#user-input-steps)
 >
 > 当需要人工干预时使用
 
 ### LLM步骤当某个步骤需要理解、分析、生成文本或做出推理决策时：
 
-> **对意图进行分类**
+> [手风琴] 分类意图
 >
 > * 静态上下文（提示）：分类类别、紧急程度定义、响应格式
 > * 动态上下文（来自状态）：电子邮件内容、发件人信息
 > * 期望的结果：确定路由的结构化分类
 
-> **回复草稿**
+> [手风琴] 草稿回复
 >
 > * 静态上下文（提示）：语气指南、公司政策、响应模板
 > * 动态上下文（来自状态）：分类结果、搜索结果、客户历史记录
@@ -114,27 +114,27 @@ flowchart TD
 
 当步骤需要从外部源检索信息时：
 
-> **文档搜索**
+> [手风琴] 文档搜索
 >
 > * 参数：根据意图和主题构建的查询
 > * 重试策略：是的，针对瞬时故障采用指数退避
 > * 缓存：可以缓存常见查询以减少API调用
 
-> **客户历史查询**
+> [手风琴] 客户历史查询
 >
 > * 参数：来自州的客户电子邮件或 ID
 > * 重试策略：是的，但如果不可用，则回退到基本信息
 > * 缓存：是的，通过生存时间来平衡新鲜度和性能
 
-### 行动步骤
+### 行动步骤当步骤需要执行外部操作时：
 
-当步骤需要执行外部操作时：> **发送回复**
+> [手风琴] 发送回复
 >
 > * 何时执行节点：批准后（人工或自动）
 > * 重试策略：是的，针对网络问题采用指数退避
 > * 不应缓存：每次发送都是一个唯一的操作
 
-> **错误跟踪**
+> [手风琴] Bug 轨迹
 >
 > * 何时执行节点：总是当意图是“bug”时
 > * 重试策略：是的，对于不丢失错误报告至关重要
@@ -144,7 +144,7 @@ flowchart TD
 
 当某个步骤需要人工干预时：
 
-> **人工审核节点**
+> [手风琴] 人工审核节点
 >
 > * 决策背景：原始电子邮件、草稿回复、紧急程度、分类
 > * 预期输入格式：批准布尔值加上可选的编辑响应
@@ -158,9 +158,9 @@ flowchart TD
 
 针对每条数据问自己以下问题：
 
-> **包含在状态中**
+> [卡] 包含在状态中
 >
-> 是否需要跨步骤坚持？如果是，则进入状态。> **不存储**
+> 是否需要跨步骤坚持？如果是，则进入状态。> [卡]不存储
 >
 > 你能从其他数据中得出它吗？如果是，请在需要时计算它，而不是将其存储在状态中。
 
@@ -168,7 +168,7 @@ flowchart TD
 
 * 原始电子邮件和发件人信息（以后无法重建）
 * 分类结果（多个后期/下游节点需要）
-* 搜索结果和客户数据（重新获取的成本很高）
+* 搜索结果和客户数据（重新获取的费用昂贵）
 * 回复草稿（需继续审核）
 * 执行元数据（用于调试和恢复）
 
@@ -229,114 +229,114 @@ class EmailAgentState(TypedDict):
 | LLM 可恢复错误（工具故障、解析问题）|法学硕士 |将错误存储在状态中并循环返回 | LLM可以看到错误并调整其方法|
 |用户可修复的错误（信息缺失、说明不明确）|人类 |按 `interrupt()` 暂停 |需要用户输入才能继续 |
 |重试后可恢复的故障 |开发人员（声明性）| `error_handler` |重试耗尽后运行补偿/恢复分支 |
-|意外错误 |开发商 |让它们冒泡|需要调试的未知问题 |
+|意外错误 |开发商|让它们冒泡|需要调试的未知问题 |
 
-**暂时性错误**
-
-添加重试策略以自动重试网络问题和速率限制。
-
-与 `timeout=` 结合以限制每次尝试。有关完整生命周期，请参阅[Fault tolerance](/oss/python/langgraph/fault-tolerance)。
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-from langgraph.types import RetryPolicy
-
-workflow.add_node(
-    "search_documentation",
-    search_documentation,
-    retry_policy=RetryPolicy(max_attempts=3, initial_interval=1.0)
-)
-```
-
-**LLM-可恢复**将错误存储在状态中并循环返回，以便 LLM 可以看到出了什么问题并重试：
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-from langgraph.types import Command
-
-
-def execute_tool(state: State) -> Command[Literal["agent", "execute_tool"]]:
-    try:
-        result = run_tool(state['tool_call'])
-        return Command(update={"tool_result": result}, goto="agent")
-    except ToolError as e:
-        # Let the LLM see what went wrong and try again
-        return Command(
-            update={"tool_result": f"Tool error: {str(e)}"},
-            goto="agent"
-        )
-```
-
-**用户可修复**
-
-需要时暂停并收集用户信息（例如帐户 ID、订单号或说明）：
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-from langgraph.types import Command
-
-
-def lookup_customer_history(
-    state: State
-) -> Command[Literal["lookup_customer_history", "draft_response"]]:
-    if not state.get('customer_id'):
-        user_input = interrupt({
-            "message": "Customer ID needed",
-            "request": "Please provide the customer's account ID to look up their subscription history"
-        })
-        return Command(
-            update={"customer_id": user_input['customer_id']},
-            goto="lookup_customer_history"
-        )
-    # Now proceed with the lookup
-    customer_data = fetch_customer_history(state['customer_id'])
-    return Command(update={"customer_history": customer_data}, goto="draft_response")
-```
-
-**出乎意料**
-
-让它们冒泡进行调试。不要抓住你无法处理的东西：
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-def send_reply(state: EmailAgentState):
-    try:
-        email_service.send(state["draft_response"])
-    except Exception:
-        raise  # Surface unexpected errors
-```
-
-**传奇/补偿**
-
-重试次数耗尽后，运行恢复功能来更新状态并路由到补偿分支。
-
-完整图案请参见[Fault tolerance](/oss/python/langgraph/fault-tolerance#error-handling)。
-
-> [!注意]
+> [选项卡] 瞬态错误
 >
-> `error_handler` 需要 `langgraph>=1.2`。
+> 添加重试策略以自动重试网络问题和速率限制。
+>
+> 与 `timeout=` 结合以限制每次尝试。有关完整生命周期，请参阅[Fault tolerance](/oss/python/langgraph/fault-tolerance)。
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> from langgraph.types import RetryPolicy
+>
+> workflow.add_node(
+>     "search_documentation",
+>     search_documentation,
+>     retry_policy=RetryPolicy(max_attempts=3, initial_interval=1.0)
+> )
+> ```> [选项卡] LLM-可恢复
+>
+> 将错误存储在状态中并循环返回，以便 LLM 可以看到出了什么问题并重试：
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> from langgraph.types import Command
+>
+>
+> def execute_tool(state: State) -> Command[Literal["agent", "execute_tool"]]:
+>     try:
+>         result = run_tool(state['tool_call'])
+>         return Command(update={"tool_result": result}, goto="agent")
+>     except ToolError as e:
+>         # Let the LLM see what went wrong and try again
+>         return Command(
+>             update={"tool_result": f"Tool error: {str(e)}"},
+>             goto="agent"
+>         )
+> ```
 
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-from langgraph.errors import NodeError
-from langgraph.types import Command, RetryPolicy
+> [选项卡] 用户可修复
+>
+> 在需要时暂停并收集用户信息（例如帐户 ID、订单号或说明）：
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> from langgraph.types import Command
+>
+>
+> def lookup_customer_history(
+>     state: State
+> ) -> Command[Literal["lookup_customer_history", "draft_response"]]:
+>     if not state.get('customer_id'):
+>         user_input = interrupt({
+>             "message": "Customer ID needed",
+>             "request": "Please provide the customer's account ID to look up their subscription history"
+>         })
+>         return Command(
+>             update={"customer_id": user_input['customer_id']},
+>             goto="lookup_customer_history"
+>         )
+>     # Now proceed with the lookup
+>     customer_data = fetch_customer_history(state['customer_id'])
+>     return Command(update={"customer_history": customer_data}, goto="draft_response")
+> ```
 
-def payment_error_handler(state: State, error: NodeError) -> Command:
-    return Command(
-        update={"status": f"compensated: {error.error}"},
-        goto="finalize",
-    )
+> [选项卡] 意外
+>
+> 让它们冒泡以进行调试。不要抓住你无法处理的东西：
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> def send_reply(state: EmailAgentState):
+>     try:
+>         email_service.send(state["draft_response"])
+>     except Exception:
+>         raise  # Surface unexpected errors
+> ```
 
-workflow.add_node(
-    "charge_payment",
-    charge_payment,
-    retry_policy=RetryPolicy(max_attempts=3, retry_on=ConnectionError),
-    error_handler=payment_error_handler,
-)
-```
-
-要将相同的 `retry_policy`、`timeout` 或 `error_handler` 应用于图中的每个节点，而不在每个 `add_node` 上重复它们，请使用 `StateGraph.set_node_defaults(...)`。每个节点的值仍然优先。参见[Fault tolerance](/oss/python/langgraph/fault-tolerance#graph-defaults)。
+> [标签] 佐贺 / 补偿
+>
+> 重试次数耗尽后，运行恢复功能来更新状态并路由到补偿分支。
+>
+> 完整图案请参见[Fault tolerance](/oss/python/langgraph/fault-tolerance#error-handling)。
+>
+>> [!注意]
+>>
+>> `error_handler` 需要 `langgraph>=1.2`。
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> from langgraph.errors import NodeError
+> from langgraph.types import Command, RetryPolicy
+>
+> def payment_error_handler(state: State, error: NodeError) -> Command:
+>     return Command(
+>         update={"status": f"compensated: {error.error}"},
+>         goto="finalize",
+>     )
+>
+> workflow.add_node(
+>     "charge_payment",
+>     charge_payment,
+>     retry_policy=RetryPolicy(max_attempts=3, retry_on=ConnectionError),
+>     error_handler=payment_error_handler,
+> )
+> ```
+>
+> 要将相同的 `retry_policy`、`timeout` 或 `error_handler` 应用于图中的每个节点，而不在每个 `add_node` 上重复它们，请使用 `StateGraph.set_node_defaults(...)`。每个节点的值仍然优先。参见[Fault tolerance](/oss/python/langgraph/fault-tolerance#graph-defaults)。
 
 ### 实现我们的电子邮件代理节点
 
 我们将把每个节点实现为一个简单的函数。请记住：节点获取状态、工作并返回更新。
 
-> **读取并分类节点**
+> [accordion] 读取节点并分类
 >
 > ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > from typing import Literal
@@ -390,7 +390,7 @@ workflow.add_node(
 >     )
 > ```
 
-> **搜索和跟踪节点**
+> [手风琴] 搜索和跟踪节点
 >
 > ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > def search_documentation(state: EmailAgentState) -> Command[Literal["draft_response"]]:
@@ -432,7 +432,7 @@ workflow.add_node(
 >     )
 > ```
 
-> **响应节点**
+> [手风琴] 响应节点
 >
 > ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > def draft_response(state: EmailAgentState) -> Command[Literal["human_review", "send_reply"]]:
@@ -516,11 +516,11 @@ workflow.add_node(
 >     return {}
 > ```
 
-## 步骤 5：将其连接在一起
+## 步骤 5：将其连接在一起现在我们将节点连接到工作图中。由于我们的节点处理自己的路由决策，因此我们只需要一些必要的边。
 
-现在我们将节点连接到工作图中。由于我们的节点处理自己的路由决策，因此我们只需要一些必要的边。要使用 `interrupt()` 启用 [human-in-the-loop](/oss/python/langgraph/interrupts)，我们需要使用 [checkpointer](/oss/python/langgraph/persistence) 进行编译以保存运行之间的状态：
+要使用 `interrupt()` 启用 [human-in-the-loop](/oss/python/langgraph/interrupts)，我们需要使用 [checkpointer](/oss/python/langgraph/persistence) 进行编译以保存运行之间的状态：
 
-> **图编译代码**
+> [手风琴] 图编译代码
 >
 > ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > from langgraph.checkpoint.memory import MemorySaver
@@ -560,7 +560,7 @@ workflow.add_node(
 
 让我们的代理处理一个需要人工审核的紧急计费问题：
 
-> **测试代理**
+> [手风琴] 测试代理
 >
 > ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > from typing import TypedDict
@@ -618,7 +618,7 @@ workflow.add_node(
 > print("Email sent successfully!")
 > ```
 >
->> **[View example trace](https://smith.langchain.com/public/a80286fd-ffa0-4e24-821a-6229a08513f3/r)**
+>>【卡牌】[View example trace](https://smith.langchain.com/public/a80286fd-ffa0-4e24-821a-6229a08513f3/r)
 >>
 >> 为此示例打开公共 LangSmith 运行。
 
@@ -628,31 +628,31 @@ workflow.add_node(
 
 ### 关键见解
 
-构建这个电子邮件代理向我们展示了 LangGraph 的思维方式：
-
-> **[Break into discrete steps](#step-1-map-out-your-workflow-as-discrete-steps)**
+构建这个电子邮件代理向我们展示了 LangGraph 的思维方式：> [卡][Break into discrete steps](#step-1-map-out-your-workflow-as-discrete-steps)
 >
 > 每个节点只做好一件事。这种分解可以实现流式进度更新、可以暂停和恢复的持久执行以及清晰的调试，因为您可以检查步骤之间的状态。
 
-> **[State is shared memory](#step-3-design-your-state)**
+> [卡][State is shared memory](#step-3-design-your-state)
 >
-> 存储原始数据，而不是格式化文本。这使得不同的节点以不同的方式使用相同的信息。> **[Nodes are functions](#step-4-build-your-nodes)**
+> 存储原始数据，而不是格式化文本。这使得不同的节点以不同的方式使用相同的信息。
+
+> [卡][Nodes are functions](#step-4-build-your-nodes)
 >
 > 它们获取状态、工作并返回更新。当他们需要做出路由决策时，他们会指定状态更新和下一个目的地。
 
-> **[Errors are part of the flow](#handle-errors-appropriately)**
+> [卡][Errors are part of the flow](#handle-errors-appropriately)
 >
 > 瞬时故障会重试，LLM 可恢复错误会与上下文一起环回，用户可修复的问题会暂停以进行输入，意外错误会冒泡以进行调试。
 
-> **[Human input is first-class](/oss/python/langgraph/interrupts)**
+> [卡][Human input is first-class](/oss/python/langgraph/interrupts)
 >
-> `interrupt()` 函数无限期地暂停执行，保存所有状态，并在您提供输入时从中断处准确恢复。当与节点中的其他操作结合时，它必须先出现。
+> `interrupt()` 函数无限期地暂停执行，保存所有状态，并在您提供输入时从中断处准确恢复。当与节点中的其他操作结合时，它必须排在第一位。
 
-> **[Graph structure emerges naturally](#step-5-wire-it-together)**
+> [卡][Graph structure emerges naturally](#step-5-wire-it-together)
 >
 > 您定义必要的连接，并且您的节点处理它们自己的路由逻辑。这使控制流保持明确和可追踪 - 您始终可以通过查看当前节点来了解代理接下来要做什么。
 
-### 高级注意事项> **节点粒度权衡**
+### 高级注意事项> [accordion] 节点粒度权衡
 >
 >> [!注意]
 >>
@@ -684,27 +684,27 @@ workflow.add_node(
 
 这是关于如何使用 LangGraph 构建代理的介绍。您可以通过以下方式扩展此基础：
 
-> **[Human-in-the-loop patterns](/oss/python/langgraph/interrupts)**
+> [卡][Human-in-the-loop patterns](/oss/python/langgraph/interrupts)
 >
 > 了解如何添加执行前工具审批、批量审批和其他模式
 
-> **[Subgraphs](/oss/python/langgraph/use-subgraphs)**
+> [卡][Subgraphs](/oss/python/langgraph/use-subgraphs)
 >
 > 为复杂的多步骤操作创建子图
 
-> **[Streaming](/oss/python/langgraph/streaming)**
+> [卡][Streaming](/oss/python/langgraph/streaming)
 >
 > 添加流媒体以向用户显示实时进度
 
-> **[Observability](/oss/python/langgraph/observability)**
+> [卡][Observability](/oss/python/langgraph/observability)
 >
 > 使用LangSmith添加可观察性以进行调试和监控
 
-> **[Tool Integration](/oss/python/langchain/tools)**
+> [卡][Tool Integration](/oss/python/langchain/tools)
 >
 > 集成更多网络搜索、数据库查询和API调用工具
 
-> **[Retry Logic](/oss/python/langgraph/use-graph-api#add-retry-policies)**
+> [卡][Retry Logic](/oss/python/langgraph/use-graph-api#add-retry-policies)
 >
 > 针对失败操作实施指数退避重试逻辑
 

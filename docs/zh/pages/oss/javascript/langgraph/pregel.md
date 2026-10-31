@@ -64,298 +64,298 @@ const total = new BinaryOperatorAggregate<number>({ operator: (a, b) => a + b })
 
 虽然大多数用户将通过 [StateGraph](https://reference.langchain.com/javascript/langchain-langgraph/index/StateGraph) API 或 [entrypoint](https://reference.langchain.com/javascript/langchain-langgraph/index/entrypoint) 装饰器与 Pregel 交互，但也可以直接与 Pregel 交互。
 
-下面是几个不同的示例，可帮助您了解 Pregel API。**单节点**
+下面是几个不同的示例，可帮助您了解 Pregel API。> [选项卡] 单节点
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import { EphemeralValue } from "@langchain/langgraph/channels";
+> import { Pregel, NodeBuilder } from "@langchain/langgraph/pregel";
+>
+> const node1 = new NodeBuilder()
+>   .subscribeOnly("a")
+>   .do((x: string) => x + x)
+>   .writeTo("b");
+>
+> const app = new Pregel({
+>   nodes: { node1 },
+>   channels: {
+>     a: new EphemeralValue<string>(),
+>     b: new EphemeralValue<string>(),
+>   },
+>   inputChannels: ["a"],
+>   outputChannels: ["b"],
+> });
+>
+> await app.invoke({ a: "foo" });
+> ```
+>
+> ```console theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> { b: 'foofoo' }
+> ```
 
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-import { EphemeralValue } from "@langchain/langgraph/channels";
-import { Pregel, NodeBuilder } from "@langchain/langgraph/pregel";
+> [选项卡] 多个节点
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import { LastValue, EphemeralValue } from "@langchain/langgraph/channels";
+> import { Pregel, NodeBuilder } from "@langchain/langgraph/pregel";
+>
+> const node1 = new NodeBuilder()
+>   .subscribeOnly("a")
+>   .do((x: string) => x + x)
+>   .writeTo("b");
+>
+> const node2 = new NodeBuilder()
+>   .subscribeOnly("b")
+>   .do((x: string) => x + x)
+>   .writeTo("c");
+>
+> const app = new Pregel({
+>   nodes: { node1, node2 },
+>   channels: {
+>     a: new EphemeralValue<string>(),
+>     b: new LastValue<string>(),
+>     c: new EphemeralValue<string>(),
+>   },
+>   inputChannels: ["a"],
+>   outputChannels: ["b", "c"],
+> });
+>
+> await app.invoke({ a: "foo" });
+> ```
+>
+> ```console theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> { b: 'foofoo', c: 'foofoofoofoo' }
+> ```
 
-const node1 = new NodeBuilder()
-  .subscribeOnly("a")
-  .do((x: string) => x + x)
-  .writeTo("b");
+> [选项卡] 主题
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import { EphemeralValue, Topic } from "@langchain/langgraph/channels";
+> import { Pregel, NodeBuilder } from "@langchain/langgraph/pregel";
+>
+> const node1 = new NodeBuilder()
+>   .subscribeOnly("a")
+>   .do((x: string) => x + x)
+>   .writeTo("b", "c");
+>
+> const node2 = new NodeBuilder()
+>   .subscribeTo("b")
+>   .do((x: { b: string }) => x.b + x.b)
+>   .writeTo("c");
+>
+> const app = new Pregel({
+>   nodes: { node1, node2 },
+>   channels: {
+>     a: new EphemeralValue<string>(),
+>     b: new EphemeralValue<string>(),
+>     c: new Topic<string>({ accumulate: true }),
+>   },
+>   inputChannels: ["a"],
+>   outputChannels: ["c"],
+> });
+>
+> await app.invoke({ a: "foo" });
+> ```
+>
+> ```console theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> { c: ['foofoo', 'foofoofoofoo'] }
+> ```
 
-const app = new Pregel({
-  nodes: { node1 },
-  channels: {
-    a: new EphemeralValue<string>(),
-    b: new EphemeralValue<string>(),
-  },
-  inputChannels: ["a"],
-  outputChannels: ["b"],
-});
+> [选项卡] BinaryOperatorAggregate
+>
+> 这个例子演示了如何使用[⟦T27⟧](https://reference.langchain.com/javascript/langchain-langgraph/channels/BinaryOperatorAggregate)通道来实现reducer。
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import { EphemeralValue, BinaryOperatorAggregate } from "@langchain/langgraph/channels";
+> import { Pregel, NodeBuilder } from "@langchain/langgraph/pregel";
+>
+> const node1 = new NodeBuilder()
+>   .subscribeOnly("a")
+>   .do((x: string) => x + x)
+>   .writeTo("b", "c");
+>
+> const node2 = new NodeBuilder()
+>   .subscribeOnly("b")
+>   .do((x: string) => x + x)
+>   .writeTo("c");
+>
+> const reducer = (current: string, update: string) => {
+>   if (current) {
+>     return current + " | " + update;
+>   } else {
+>     return update;
+>   }
+> };
+>
+> const app = new Pregel({
+>   nodes: { node1, node2 },
+>   channels: {
+>     a: new EphemeralValue<string>(),
+>     b: new EphemeralValue<string>(),
+>     c: new BinaryOperatorAggregate<string>({ operator: reducer }),
+>   },
+>   inputChannels: ["a"],
+>   outputChannels: ["c"],
+> });
+>
+> await app.invoke({ a: "foo" });
+> ```
 
-await app.invoke({ a: "foo" });
-```
-
-```console theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-{ b: 'foofoo' }
-```
-
-**多个节点**
-
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-import { LastValue, EphemeralValue } from "@langchain/langgraph/channels";
-import { Pregel, NodeBuilder } from "@langchain/langgraph/pregel";
-
-const node1 = new NodeBuilder()
-  .subscribeOnly("a")
-  .do((x: string) => x + x)
-  .writeTo("b");
-
-const node2 = new NodeBuilder()
-  .subscribeOnly("b")
-  .do((x: string) => x + x)
-  .writeTo("c");
-
-const app = new Pregel({
-  nodes: { node1, node2 },
-  channels: {
-    a: new EphemeralValue<string>(),
-    b: new LastValue<string>(),
-    c: new EphemeralValue<string>(),
-  },
-  inputChannels: ["a"],
-  outputChannels: ["b", "c"],
-});
-
-await app.invoke({ a: "foo" });
-```
-
-```console theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-{ b: 'foofoo', c: 'foofoofoofoo' }
-```
-
-**主题**
-
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-import { EphemeralValue, Topic } from "@langchain/langgraph/channels";
-import { Pregel, NodeBuilder } from "@langchain/langgraph/pregel";
-
-const node1 = new NodeBuilder()
-  .subscribeOnly("a")
-  .do((x: string) => x + x)
-  .writeTo("b", "c");
-
-const node2 = new NodeBuilder()
-  .subscribeTo("b")
-  .do((x: { b: string }) => x.b + x.b)
-  .writeTo("c");
-
-const app = new Pregel({
-  nodes: { node1, node2 },
-  channels: {
-    a: new EphemeralValue<string>(),
-    b: new EphemeralValue<string>(),
-    c: new Topic<string>({ accumulate: true }),
-  },
-  inputChannels: ["a"],
-  outputChannels: ["c"],
-});
-
-await app.invoke({ a: "foo" });
-```
-
-```console theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-{ c: ['foofoo', 'foofoofoofoo'] }
-```
-
-**二元运算符聚合**
-
-这个例子演示了如何使用[⟦T27⟧](https://reference.langchain.com/javascript/langchain-langgraph/channels/BinaryOperatorAggregate)通道来实现reducer。
-
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-import { EphemeralValue, BinaryOperatorAggregate } from "@langchain/langgraph/channels";
-import { Pregel, NodeBuilder } from "@langchain/langgraph/pregel";
-
-const node1 = new NodeBuilder()
-  .subscribeOnly("a")
-  .do((x: string) => x + x)
-  .writeTo("b", "c");
-
-const node2 = new NodeBuilder()
-  .subscribeOnly("b")
-  .do((x: string) => x + x)
-  .writeTo("c");
-
-const reducer = (current: string, update: string) => {
-  if (current) {
-    return current + " | " + update;
-  } else {
-    return update;
-  }
-};
-
-const app = new Pregel({
-  nodes: { node1, node2 },
-  channels: {
-    a: new EphemeralValue<string>(),
-    b: new EphemeralValue<string>(),
-    c: new BinaryOperatorAggregate<string>({ operator: reducer }),
-  },
-  inputChannels: ["a"],
-  outputChannels: ["c"],
-});
-
-await app.invoke({ a: "foo" });
-```
-
-**循环**
-
-此示例演示了如何在图中引入循环，方法是：
-链写入其订阅的通道。执行将继续
-直到`null`值写入通道。
-
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-import { EphemeralValue } from "@langchain/langgraph/channels";
-import { Pregel, NodeBuilder, ChannelWriteEntry } from "@langchain/langgraph/pregel";
-
-const exampleNode = new NodeBuilder()
-  .subscribeOnly("value")
-  .do((x: string) => x.length < 10 ? x + x : null)
-  .writeTo(new ChannelWriteEntry("value", { skipNone: true }));
-
-const app = new Pregel({
-  nodes: { exampleNode },
-  channels: {
-    value: new EphemeralValue<string>(),
-  },
-  inputChannels: ["value"],
-  outputChannels: ["value"],
-});
-
-await app.invoke({ value: "a" });
-```
-
-```console theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-{ value: 'aaaaaaaaaaaaaaaa' }
-```
+> [选项卡] 循环
+>
+> 这个例子演示了如何在图中引入一个循环，通过
+> 链写入其订阅的频道。执行将继续
+> 直到`null`值写入通道。
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import { EphemeralValue } from "@langchain/langgraph/channels";
+> import { Pregel, NodeBuilder, ChannelWriteEntry } from "@langchain/langgraph/pregel";
+>
+> const exampleNode = new NodeBuilder()
+>   .subscribeOnly("value")
+>   .do((x: string) => x.length < 10 ? x + x : null)
+>   .writeTo(new ChannelWriteEntry("value", { skipNone: true }));
+>
+> const app = new Pregel({
+>   nodes: { exampleNode },
+>   channels: {
+>     value: new EphemeralValue<string>(),
+>   },
+>   inputChannels: ["value"],
+>   outputChannels: ["value"],
+> });
+>
+> await app.invoke({ value: "a" });
+> ```
+>
+> ```console theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> { value: 'aaaaaaaaaaaaaaaa' }
+> ```
 
 ## 高级 API
 
 LangGraph 提供了两个用于创建 Pregel 应用程序的高级 API：[StateGraph (Graph API)](/oss/javascript/langgraph/graph-api) 和 [Functional API](/oss/javascript/langgraph/functional-api)。
 
-**StateGraph（图 API）**
-
-[StateGraph (Graph API)](https://reference.langchain.com/javascript/langchain-langgraph/index/StateGraph) 是一个更高级别的抽象，可以简化 Pregel 应用程序的创建。它允许您定义节点和边的图。当您编译图时，StateGraph API 会自动为您创建 Pregel 应用程序。
-
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-import { START, StateGraph } from "@langchain/langgraph";
-
-interface Essay {
-  topic: string;
-  content?: string;
-  score?: number;
-}
-
-const writeEssay = (essay: Essay) => {
-  return {
-    content: `Essay about ${essay.topic}`,
-  };
-};
-
-const scoreEssay = (essay: Essay) => {
-  return {
-    score: 10
-  };
-};
-
-const builder = new StateGraph<Essay>({
-  channels: {
-    topic: null,
-    content: null,
-    score: null,
-  }
-})
-  .addNode("writeEssay", writeEssay)
-  .addNode("scoreEssay", scoreEssay)
-  .addEdge(START, "writeEssay")
-  .addEdge("writeEssay", "scoreEssay");
-
-// Compile the graph.
-// This will return a Pregel instance.
-const graph = builder.compile();
-```
-
-编译后的 Pregel 实例将与节点和通道列表相关联。您可以通过打印来检查节点和通道。
-
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-console.log(graph.nodes);
-```
-
-你会看到这样的东西：
-
-```console theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-{
-  __start__: PregelNode { ... },
-  writeEssay: PregelNode { ... },
-  scoreEssay: PregelNode { ... }
-}
-```
-
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-console.log(graph.channels);
-```
-
-你应该看到这样的东西
-
-```console theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-{
-  topic: LastValue { ... },
-  content: LastValue { ... },
-  score: LastValue { ... },
-  __start__: EphemeralValue { ... },
-  writeEssay: EphemeralValue { ... },
-  scoreEssay: EphemeralValue { ... },
-  'branch:__start__:__self__:writeEssay': EphemeralValue { ... },
-  'branch:__start__:__self__:scoreEssay': EphemeralValue { ... },
-  'branch:writeEssay:__self__:writeEssay': EphemeralValue { ... },
-  'branch:writeEssay:__self__:scoreEssay': EphemeralValue { ... },
-  'branch:scoreEssay:__self__:writeEssay': EphemeralValue { ... },
-  'branch:scoreEssay:__self__:scoreEssay': EphemeralValue { ... },
-  'start:writeEssay': EphemeralValue { ... }
-}
-```
-
-**功能性API**在[Functional API](/oss/javascript/langgraph/functional-api)中，您可以使用[⟦T29⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/entrypoint)来创建Pregel应用程序。 `entrypoint` 装饰器允许您定义一个接受输入并返回输出的函数。
-
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-import { MemorySaver } from "@langchain/langgraph";
-import { entrypoint } from "@langchain/langgraph/func";
-
-interface Essay {
-  topic: string;
-  content?: string;
-  score?: number;
-}
-
-const checkpointer = new MemorySaver();
-
-const writeEssay = entrypoint(
-  { checkpointer, name: "writeEssay" },
-  async (essay: Essay) => {
-    return {
-      content: `Essay about ${essay.topic}`,
-    };
-  }
-);
-
-console.log("Nodes: ");
-console.log(writeEssay.nodes);
-console.log("Channels: ");
-console.log(writeEssay.channels);
-```
-
-```console theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-Nodes:
-{ writeEssay: PregelNode { ... } }
-Channels:
-{
-  __start__: EphemeralValue { ... },
-  __end__: LastValue { ... },
-  __previous__: LastValue { ... }
-}
-```
+> [选项卡] StateGraph（图 API）
+>
+> [StateGraph (Graph API)](https://reference.langchain.com/javascript/langchain-langgraph/index/StateGraph) 是一种更高级别的抽象，可简化 Pregel 应用程序的创建。它允许您定义节点和边的图。当您编译图时，StateGraph API 会自动为您创建 Pregel 应用程序。
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import { START, StateGraph } from "@langchain/langgraph";
+>
+> interface Essay {
+>   topic: string;
+>   content?: string;
+>   score?: number;
+> }
+>
+> const writeEssay = (essay: Essay) => {
+>   return {
+>     content: `Essay about ${essay.topic}`,
+>   };
+> };
+>
+> const scoreEssay = (essay: Essay) => {
+>   return {
+>     score: 10
+>   };
+> };
+>
+> const builder = new StateGraph<Essay>({
+>   channels: {
+>     topic: null,
+>     content: null,
+>     score: null,
+>   }
+> })
+>   .addNode("writeEssay", writeEssay)
+>   .addNode("scoreEssay", scoreEssay)
+>   .addEdge(START, "writeEssay")
+>   .addEdge("writeEssay", "scoreEssay");
+>
+> // Compile the graph.
+> // This will return a Pregel instance.
+> const graph = builder.compile();
+> ```
+>
+> 编译后的 Pregel 实例将与节点和通道列表相关联。您可以通过打印来检查节点和通道。
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> console.log(graph.nodes);
+> ```
+>
+> 你会看到类似这样的内容：
+>
+> ```console theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> {
+>   __start__: PregelNode { ... },
+>   writeEssay: PregelNode { ... },
+>   scoreEssay: PregelNode { ... }
+> }
+> ```
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> console.log(graph.channels);
+> ```
+>
+> 你应该看到类似这样的东西
+>
+> ```console theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> {
+>   topic: LastValue { ... },
+>   content: LastValue { ... },
+>   score: LastValue { ... },
+>   __start__: EphemeralValue { ... },
+>   writeEssay: EphemeralValue { ... },
+>   scoreEssay: EphemeralValue { ... },
+>   'branch:__start__:__self__:writeEssay': EphemeralValue { ... },
+>   'branch:__start__:__self__:scoreEssay': EphemeralValue { ... },
+>   'branch:writeEssay:__self__:writeEssay': EphemeralValue { ... },
+>   'branch:writeEssay:__self__:scoreEssay': EphemeralValue { ... },
+>   'branch:scoreEssay:__self__:writeEssay': EphemeralValue { ... },
+>   'branch:scoreEssay:__self__:scoreEssay': EphemeralValue { ... },
+>   'start:writeEssay': EphemeralValue { ... }
+> }
+> ```> [选项卡] 功能 API
+>
+> 在[Functional API](/oss/javascript/langgraph/functional-api)中，您可以使用[⟦T29⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/entrypoint)来创建Pregel应用程序。 `entrypoint` 装饰器允许您定义一个接受输入并返回输出的函数。
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import { MemorySaver } from "@langchain/langgraph";
+> import { entrypoint } from "@langchain/langgraph/func";
+>
+> interface Essay {
+>   topic: string;
+>   content?: string;
+>   score?: number;
+> }
+>
+> const checkpointer = new MemorySaver();
+>
+> const writeEssay = entrypoint(
+>   { checkpointer, name: "writeEssay" },
+>   async (essay: Essay) => {
+>     return {
+>       content: `Essay about ${essay.topic}`,
+>     };
+>   }
+> );
+>
+> console.log("Nodes: ");
+> console.log(writeEssay.nodes);
+> console.log("Channels: ");
+> console.log(writeEssay.channels);
+> ```
+>
+> ```console theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> Nodes:
+> { writeEssay: PregelNode { ... } }
+> Channels:
+> {
+>   __start__: EphemeralValue { ... },
+>   __end__: LastValue { ... },
+>   __previous__: LastValue { ... }
+> }
+> ```
 
 ***
 

@@ -256,6 +256,7 @@
 - [`tasks_w_writes()`](https://reference.langchain.com/python/langgraph/pregel/debug/tasks_w_writes)
 - [`get_colored_text()`](https://reference.langchain.com/python/langgraph/pregel/debug/get_colored_text)
 - [`get_bolded_text()`](https://reference.langchain.com/python/langgraph/pregel/debug/get_bolded_text)
+- [`graph_namespace()`](https://reference.langchain.com/python/langgraph/pregel/_messages/graph_namespace)
 - [`ensure_message_ids()`](https://reference.langchain.com/python/langgraph/pregel/_messages/ensure_message_ids)
 - [`convert_to_protocol_event()`](https://reference.langchain.com/python/langgraph/stream/_convert/convert_to_protocol_event)
 - [`transformer_requires_async()`](https://reference.langchain.com/python/langgraph/stream/_types/transformer_requires_async)

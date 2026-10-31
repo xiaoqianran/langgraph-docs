@@ -61,57 +61,57 @@ Once your application is deployed:
 
 You can now test the API:
 
-**Python**
+> [tab] Python
+>
+> 1. Install LangGraph SDK:
+>
+> ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> pip install langgraph-sdk
+> ```
+>
+> 2. Send a message to the agent:
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> from langgraph_sdk import get_sync_client # or get_client for async
+>
+> client = get_sync_client(url="your-deployment-url", api_key="your-langsmith-api-key")
+>
+> for chunk in client.runs.stream(
+>     None,    # Threadless run
+>     "agent", # Name of agent. Defined in langgraph.json.
+>     input={
+>         "messages": [{
+>             "role": "human",
+>             "content": "What is LangGraph?",
+>         }],
+>     },
+>     stream_mode="updates",
+> ):
+>     print(f"Receiving new event of type: {chunk.event}...")
+>     print(chunk.data)
+>     print("\n\n")
+> ```
 
-1. Install LangGraph SDK:
-
-```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-pip install langgraph-sdk
-```
-
-2. Send a message to the agent:
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-from langgraph_sdk import get_sync_client # or get_client for async
-
-client = get_sync_client(url="your-deployment-url", api_key="your-langsmith-api-key")
-
-for chunk in client.runs.stream(
-    None,    # Threadless run
-    "agent", # Name of agent. Defined in langgraph.json.
-    input={
-        "messages": [{
-            "role": "human",
-            "content": "What is LangGraph?",
-        }],
-    },
-    stream_mode="updates",
-):
-    print(f"Receiving new event of type: {chunk.event}...")
-    print(chunk.data)
-    print("\n\n")
-```
-
-**Rest API**
-
-```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-curl -s --request POST \
-    --url <DEPLOYMENT_URL>/runs/stream \
-    --header 'Content-Type: application/json' \
-    --header "X-Api-Key: <LANGSMITH API KEY> \
-    --data "{
-        \"assistant_id\": \"agent\", `# Name of agent. Defined in langgraph.json.`
-        \"input\": {
-            \"messages\": [
-                {
-                    \"role\": \"human\",
-                    \"content\": \"What is LangGraph?\"
-                }
-            ]
-        },
-        \"stream_mode\": \"updates\"
-    }"
-```
+> [tab] Rest API
+>
+> ```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> curl -s --request POST \
+>     --url <DEPLOYMENT_URL>/runs/stream \
+>     --header 'Content-Type: application/json' \
+>     --header "X-Api-Key: <LANGSMITH API KEY> \
+>     --data "{
+>         \"assistant_id\": \"agent\", `# Name of agent. Defined in langgraph.json.`
+>         \"input\": {
+>             \"messages\": [
+>                 {
+>                     \"role\": \"human\",
+>                     \"content\": \"What is LangGraph?\"
+>                 }
+>             ]
+>         },
+>         \"stream_mode\": \"updates\"
+>     }"
+> ```
 
 ***
 

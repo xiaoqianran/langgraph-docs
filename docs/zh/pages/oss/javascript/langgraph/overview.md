@@ -20,10 +20,10 @@ LangGraph 的核心优势之一是能够在单个图中将确定性步骤与 LLM
 
 当您想要运行生产代理而无需管理基础设施时，请从 [Managed Deep Agents](/langsmith/javascript/managed-deep-agents-overview) 开始使用包含电池的工具（上下文压缩、虚拟文件系统、子代理）。或者，为了在使用相同 Deep Agents 线束时获得最大灵活性，请自行使用 [Deep Agents SDK](/oss/javascript/deepagents/overview#self-host-with-the-sdk) 和主机代理，或运行自定义 [LangSmith Deployment](/langsmith/deployment)。 Deep Agents 构建于 LangChain [agents](/oss/javascript/langchain/agents/) 之上，后者在 LangGraph 上运行。
 
-使用 [LangChain](/oss/javascript/langchain/agents) (`create_agent`) 构建高度可定制的代理框架，其中包含模型、工具和代理循环的抽象和集成。使用[LangGraph](/oss/javascript/langgraph/overview)（低级编排框架）来满足结合确定性和代理工作流程的高级需求。
+使用 [LangChain](/oss/javascript/langchain/agents) (`create_agent`) 构建高度可定制的代理框架，其中包含模型、工具和代理循环的抽象和集成。使用底层编排框架[LangGraph](/oss/javascript/langgraph/overview)来满足结合确定性和代理工作流程的高级需求。
 LangGraph 是编排运行时：持久执行、流式传输、人机交互和持久性。
 
-使用 [LangSmith](/langsmith/observability) 跟踪、调试和评估使用任何这些框架构建的代理。按照[tracing quickstart](/langsmith/trace-with-langchain)进行设置。我们建议您还设置 [LangSmith Engine](/langsmith/engine) 来监控您的痕迹、检测问题并提出修复建议。您可以直接从“引擎”选项卡打开包含建议修复的拉取请求。
+使用 [LangSmith](/langsmith/observability) 跟踪、调试和评估使用任何这些框架构建的代理。按照[tracing quickstart](/langsmith/trace-with-langchain)进行设置。我们建议您还设置 [LangSmith Engine](/langsmith/engine) 来监视您的痕迹、检测问题并提出修复建议。您可以直接从“引擎”选项卡打开包含建议修复的拉取请求。
 
 使用 [LangSmith Fleet](/langsmith/fleet/index) 通过模板、集成和例程自动化进行无代码代理构建。
 
@@ -82,17 +82,17 @@ await graph.invoke({ messages: [{ role: "user", content: "hi!" }] });
 * [Debugging with LangSmith](/langsmith/observability)：通过可视化工具跟踪执行路径、捕获状态转换并提供详细的运行时指标，深入了解复杂的代理行为。
 * [Production-ready deployment](/langsmith/deployment)：通过可扩展的基础设施自信地部署复杂的代理系统，该基础设施旨在应对有状态、长时间运行的工作流程的独特挑战。## LangGraph 生态系统
 
-虽然LangGraph可以独立使用，但它也可以与任何LangChain产品无缝集成，为开发人员提供了一整套用于构建代理的工具。为了改进您的 LLM 申请开发，请将 LangGraph 与：
+虽然LangGraph可以独立使用，但它也可以与任何LangChain产品无缝集成，为开发人员提供了一整套用于构建代理的工具。为了改善您的 LLM 申请开发，请将 LangGraph 与：
 
-> **[LangSmith Observability](/langsmith/observability)**
+> [卡][LangSmith Observability](/langsmith/observability)
 >
 > 在一处跟踪请求、评估输出并监控部署。使用LangGraph在本地进行原型设计，然后通过集成的可观察性和评估转移到生产环境，以构建更可靠的代理系统。
 
-> **[LangSmith Deployment](/langsmith/deployment)**
+> [卡片][LangSmith Deployment](/langsmith/deployment)
 >
 > 使用专门构建的部署平台轻松部署和扩展代理，以实现长期运行、有状态的工作流程。跨团队发现、重用、配置和共享代理，并通过 Studio 中的可视化原型快速迭代。
 
-> **[LangChain](/oss/javascript/langchain/overview)**
+> [卡][LangChain](/oss/javascript/langchain/overview)
 >
 > 提供集成和可组合组件以简化法学硕士应用程序开发。包含构建在 LangGraph 之上的代理抽象。
 

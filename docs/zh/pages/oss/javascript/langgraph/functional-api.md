@@ -62,7 +62,7 @@ const workflow = entrypoint(
 );
 ```
 
-> **详细说明**
+> [手风琴] 详细解释
 >
 > 此工作流程将写一篇关于“猫”主题的文章，然后暂停以获取人类的评论。工作流程可以无限期中断，直到提供审核。
 >
@@ -154,7 +154,7 @@ const workflow = entrypoint(
 
 使用函数创建入口点会生成一个工作流实例，该实例有助于管理工作流的执行（例如，处理流式传输、恢复和检查点）。
 
-您经常需要将 **检查指针** 传递给 `entrypoint` 函数以启用持久性并使用 **人在循环** 等功能。
+您经常需要将 **检查指针** 传递给 `entrypoint` 函数以启用持久性并使用 **人机交互** 等功能。
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { entrypoint } from "@langchain/langgraph";
@@ -178,73 +178,73 @@ const myWorkflow = entrypoint(
 
 使用 [⟦T28⟧](#entrypoint) 函数将返回一个可以使用 `invoke` 和 `stream` 方法执行的对象。
 
-**调用**
+> [选项卡] 调用
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> const config = {
+>   configurable: {
+>     thread_id: "some_thread_id"
+>   }
+> };
+> await myWorkflow.invoke(someInput, config); // Wait for the result
+> ```
 
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-const config = {
-  configurable: {
-    thread_id: "some_thread_id"
-  }
-};
-await myWorkflow.invoke(someInput, config); // Wait for the result
-```
-
-**流**
-
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-const config = {
-  configurable: {
-    thread_id: "some_thread_id"
-  }
-};
-
-const stream = await myWorkflow.streamEvents(someInput, config, { version: "v3" });
-for await (const message of stream.messages) {
-  for await (const token of message.text) {
-    process.stdout.write(token);
-  }
-}
-```
+> [选项卡] 流
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> const config = {
+>   configurable: {
+>     thread_id: "some_thread_id"
+>   }
+> };
+>
+> const stream = await myWorkflow.streamEvents(someInput, config, { version: "v3" });
+> for await (const message of stream.messages) {
+>   for await (const token of message.text) {
+>     process.stdout.write(token);
+>   }
+> }
+> ```
 
 ### 恢复在 [interrupt](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 之后恢复执行可以通过将 **resume** 值传递给 [⟦T31⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/Command) 原语来完成。
 
-**调用**
+> [选项卡] 调用
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import { Command } from "@langchain/langgraph";
+>
+> const config = {
+>   configurable: {
+>     thread_id: "some_thread_id"
+>   }
+> };
+>
+> await myWorkflow.invoke(new Command({ resume: someResumeValue }), config);
+> ```
 
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-import { Command } from "@langchain/langgraph";
-
-const config = {
-  configurable: {
-    thread_id: "some_thread_id"
-  }
-};
-
-await myWorkflow.invoke(new Command({ resume: someResumeValue }), config);
-```
-
-**流**
-
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-import { Command } from "@langchain/langgraph";
-
-const config = {
-  configurable: {
-    thread_id: "some_thread_id"
-  }
-};
-
-const stream = await myWorkflow.streamEvents(
-  new Command({ resume: someResumableValue }),
-  config,
-  { version: "v3" },
-);
-
-for await (const message of stream.messages) {
-  for await (const token of message.text) {
-    process.stdout.write(token);
-  }
-}
-```
+> [选项卡] 流
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import { Command } from "@langchain/langgraph";
+>
+> const config = {
+>   configurable: {
+>     thread_id: "some_thread_id"
+>   }
+> };
+>
+> const stream = await myWorkflow.streamEvents(
+>   new Command({ resume: someResumableValue }),
+>   config,
+>   { version: "v3" },
+> );
+>
+> for await (const message of stream.messages) {
+>   for await (const token of message.text) {
+>     process.stdout.write(token);
+>   }
+> }
+> ```
 
 **发生错误后恢复**
 
@@ -252,34 +252,34 @@ for await (const message of stream.messages) {
 
 这假设底层的**错误**已得到解决并且执行可以成功进行。
 
-**调用**
+> [选项卡] 调用
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> const config = {
+>   configurable: {
+>     thread_id: "some_thread_id"
+>   }
+> };
+>
+> await myWorkflow.invoke(null, config);
+> ```
 
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-const config = {
-  configurable: {
-    thread_id: "some_thread_id"
-  }
-};
-
-await myWorkflow.invoke(null, config);
-```
-
-**流**
-
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-const config = {
-  configurable: {
-    thread_id: "some_thread_id"
-  }
-};
-
-const stream = await myWorkflow.streamEvents(null, config, { version: "v3" });
-for await (const message of stream.messages) {
-  for await (const token of message.text) {
-    process.stdout.write(token);
-  }
-}
-```
+> [选项卡] 流
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> const config = {
+>   configurable: {
+>     thread_id: "some_thread_id"
+>   }
+> };
+>
+> const stream = await myWorkflow.streamEvents(null, config, { version: "v3" });
+> for await (const message of stream.messages) {
+>   for await (const token of message.text) {
+>     process.stdout.write(token);
+>   }
+> }
+> ```
 
 ### 短期记忆
 
@@ -343,9 +343,9 @@ await myWorkflow.invoke(3, config); // 0 (previous was undefined)
 await myWorkflow.invoke(1, config); // 6 (previous was 3 * 2 from the previous invocation)
 ```
 
-## 任务
+## 任务**任务**代表一个离散的工作单元，例如 API 调用或数据处理步骤。它有两个关键特征：
 
-**任务**代表一个离散的工作单元，例如 API 调用或数据处理步骤。它有两个关键特征：* **异步执行**：任务被设计为异步执行，允许多个操作同时运行而不会阻塞。
+* **异步执行**：任务被设计为异步执行，允许多个操作同时运行而不会阻塞。
 * **检查点**：任务结果保存到检查点，从而可以从上次保存的状态恢复工作流程。 （更多详情请参见[persistence](/oss/javascript/langgraph/persistence)）。
 
 ### 定义
@@ -426,48 +426,48 @@ LangGraph 中的序列化有两个关键方面：
 
 将副作用（例如，写入文件、发送电子邮件）封装在任务中，以确保在恢复工作流程时不会多次执行它们。
 
-**不正确**
+> [选项卡] 不正确
+>
+> 在本例中，副作用（写入文件）直接包含在工作流程中，因此在恢复工作流程时将再次执行。
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import { entrypoint, interrupt } from "@langchain/langgraph";
+> import fs from "fs";
+>
+> const myWorkflow = entrypoint(
+>   { checkpointer, name: "workflow },
+>   async (inputs: Record<string, any>) => {
+>     // This code will be executed a second time when resuming the workflow.
+>     // Which is likely not what you want.
+>     fs.writeFileSync("output.txt", "Side effect executed");
+>     const value = interrupt("question");
+>     return value;
+>   }
+> );
+> ```> [选项卡] 正确
+>
+> 在本例中，副作用被封装在一个任务中，确保恢复时执行的一致性。
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import { entrypoint, task, interrupt } from "@langchain/langgraph";
+> import * as fs from "fs";
+>
+> const writeToFile = task("writeToFile", async () => {
+>   fs.writeFileSync("output.txt", "Side effect executed");
+> });
+>
+> const myWorkflow = entrypoint(
+>   { checkpointer, name: "workflow" },
+>   async (inputs: Record<string, any>) => {
+>     // The side effect is now encapsulated in a task.
+>     await writeToFile();
+>     const value = interrupt("question");
+>     return value;
+>   }
+> );
+> ```
 
-在本例中，副作用（写入文件）直接包含在工作流中，因此在恢复工作流时将再次执行。
-
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-import { entrypoint, interrupt } from "@langchain/langgraph";
-import fs from "fs";
-
-const myWorkflow = entrypoint(
-  { checkpointer, name: "workflow },
-  async (inputs: Record<string, any>) => {
-    // This code will be executed a second time when resuming the workflow.
-    // Which is likely not what you want.
-    fs.writeFileSync("output.txt", "Side effect executed");
-    const value = interrupt("question");
-    return value;
-  }
-);
-```
-
-**正确**
-
-在此示例中，副作用被封装在任务中，确保恢复时执行的一致性。
-
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-import { entrypoint, task, interrupt } from "@langchain/langgraph";
-import * as fs from "fs";
-
-const writeToFile = task("writeToFile", async () => {
-  fs.writeFileSync("output.txt", "Side effect executed");
-});
-
-const myWorkflow = entrypoint(
-  { checkpointer, name: "workflow" },
-  async (inputs: Record<string, any>) => {
-    // The side effect is now encapsulated in a task.
-    await writeToFile();
-    const value = interrupt("question");
-    return value;
-  }
-);
-```### 非确定性控制流
+### 非确定性控制流
 
 每次可能给出不同结果的操作（例如获取当前时间或随机数）应封装在任务中，以确保在恢复时返回相同的结果。
 
@@ -478,61 +478,61 @@ const myWorkflow = entrypoint(
 
 如果恢复时不保持执行顺序，则一次[⟦T43⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt)调用可能会与错误的`resume`值匹配，从而导致不正确的结果。
 
-请阅读[determinism](#determinism)部分了解更多详情。
+请阅读[determinism](#determinism)部分了解更多详情。> [选项卡] 不正确
+>
+> 在此示例中，工作流使用当前时间来确定要执行哪个任务。这是不确定的，因为工作流的结果取决于它的执行时间。
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import { entrypoint, interrupt } from "@langchain/langgraph";
+>
+> const myWorkflow = entrypoint(
+>   { checkpointer, name: "workflow" },
+>   async (inputs: { t0: number }) => {
+>     const t1 = Date.now();
+>
+>     const deltaT = t1 - inputs.t0;
+>
+>     if (deltaT > 1000) {
+>       const result = await slowTask(1);
+>       const value = interrupt("question");
+>       return { result, value };
+>     } else {
+>       const result = await slowTask(2);
+>       const value = interrupt("question");
+>       return { result, value };
+>     }
+>   }
+> );
+> ```
 
-**不正确**
-
-在此示例中，工作流使用当前时间来确定要执行哪个任务。这是不确定的，因为工作流的结果取决于它的执行时间。
-
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-import { entrypoint, interrupt } from "@langchain/langgraph";
-
-const myWorkflow = entrypoint(
-  { checkpointer, name: "workflow" },
-  async (inputs: { t0: number }) => {
-    const t1 = Date.now();
-
-    const deltaT = t1 - inputs.t0;
-
-    if (deltaT > 1000) {
-      const result = await slowTask(1);
-      const value = interrupt("question");
-      return { result, value };
-    } else {
-      const result = await slowTask(2);
-      const value = interrupt("question");
-      return { result, value };
-    }
-  }
-);
-```
-
-**正确**在此示例中，工作流使用输入 `t0` 来确定要执行哪个任务。这是确定性的，因为工作流的结果仅取决于输入。
-
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-import { entrypoint, task, interrupt } from "@langchain/langgraph";
-
-const getTime = task("getTime", () => Date.now());
-
-const myWorkflow = entrypoint(
-  { checkpointer, name: "workflow" },
-  async (inputs: { t0: number }): Promise<any> => {
-    const t1 = await getTime();
-
-    const deltaT = t1 - inputs.t0;
-
-    if (deltaT > 1000) {
-      const result = await slowTask(1);
-      const value = interrupt("question");
-      return { result, value };
-    } else {
-      const result = await slowTask(2);
-      const value = interrupt("question");
-      return { result, value };
-    }
-  }
-);
-```
+> [选项卡] 正确
+>
+> 在此示例中，工作流使用输入 `t0` 来确定要执行哪个任务。这是确定性的，因为工作流的结果仅取决于输入。
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import { entrypoint, task, interrupt } from "@langchain/langgraph";
+>
+> const getTime = task("getTime", () => Date.now());
+>
+> const myWorkflow = entrypoint(
+>   { checkpointer, name: "workflow" },
+>   async (inputs: { t0: number }): Promise<any> => {
+>     const t1 = await getTime();
+>
+>     const deltaT = t1 - inputs.t0;
+>
+>     if (deltaT > 1000) {
+>       const result = await slowTask(1);
+>       const value = interrupt("question");
+>       return { result, value };
+>     } else {
+>       const result = await slowTask(2);
+>       const value = interrupt("question");
+>       return { result, value };
+>     }
+>   }
+> );
+> ```
 
 ## 了解更多
 

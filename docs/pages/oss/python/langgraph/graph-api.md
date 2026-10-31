@@ -122,7 +122,7 @@ graph.invoke({"user_input": "My"})
 # {'graph_output': 'My name is Lance'}
 ```
 
-> **[View example trace](https://smith.langchain.com/public/844a3f6b-b4d3-482d-bffe-7aab4ce59996/r)**
+> [card] [View example trace](https://smith.langchain.com/public/844a3f6b-b4d3-482d-bffe-7aab4ce59996/r)
 >
 > Open a public LangSmith run for this example.
 
@@ -162,7 +162,7 @@ There are two subtle and important points to note here:
 > # {'foo': 'My name', 'user_input': 'My', 'graph_output': 'My name is Lance', 'bar': 'My name is'}
 > ```
 >
-> > **[View example trace](https://smith.langchain.com/public/42d73712-132e-4b5b-8555-7cd43054859d/r)**
+> > [card] [View example trace](https://smith.langchain.com/public/42d73712-132e-4b5b-8555-7cd43054859d/r)
 > >
 > > Open a public LangSmith run for this example.
 >
@@ -576,95 +576,95 @@ When you compile with a [checkpointer](/oss/python/langgraph/persistence), LangG
 
 If a [node](#nodes) contains multiple operations, you may find it easier to implement each operation as a [**task**](/oss/python/langgraph/functional-api#task) instead of splitting the logic across multiple nodes. Task results are checkpointed when the graph uses a checkpointer, so resuming a thread can skip completed **task** work inside the node.
 
-**Original**
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-from typing import NotRequired
-
-import requests
-from langchain_core.utils.uuid import uuid7
-from langgraph.checkpoint.memory import InMemorySaver
-from langgraph.graph import END, START, StateGraph
-from typing_extensions import TypedDict
-
-
-class State(TypedDict):
-    url: str
-    result: NotRequired[str]
-
-
-def call_api(state: State):
-    """Example node that makes an API request."""
-    result = requests.get(state["url"]).text[:100]  # [!code highlight]
-    return {"result": result}
-
-
-builder = StateGraph(State)
-builder.add_node("call_api", call_api)
-builder.add_edge(START, "call_api")
-builder.add_edge("call_api", END)
-
-checkpointer = InMemorySaver()
-graph = builder.compile(checkpointer=checkpointer)
-
-thread_id = str(uuid7())
-config = {"configurable": {"thread_id": thread_id}}
-
-graph.invoke({"url": "https://www.example.com"}, config)
-```
-
-> **[View example trace](https://smith.langchain.com/public/f143a551-c1e4-44fd-b87a-c42eaff62f4a/r)**
+> [tab] Original
 >
-> Open a public LangSmith run for this example.
-
-**With task**
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-from typing import NotRequired
-
-import requests
-from langchain_core.utils.uuid import uuid7
-from langgraph.checkpoint.memory import InMemorySaver
-from langgraph.func import task
-from langgraph.graph import END, START, StateGraph
-from typing_extensions import TypedDict
-
-
-class State(TypedDict):
-    urls: list[str]
-    results: NotRequired[list[str]]
-
-
-@task
-def _make_request(url: str):
-    """Make a request."""
-    return requests.get(url).text[:100]  # [!code highlight]
-
-
-def call_api(state: State):
-    """Example node that makes API requests as checkpointed tasks."""
-    futures = [_make_request(url) for url in state["urls"]]  # [!code highlight]
-    results = [f.result() for f in futures]
-    return {"results": results}
-
-
-builder = StateGraph(State)
-builder.add_node("call_api", call_api)
-builder.add_edge(START, "call_api")
-builder.add_edge("call_api", END)
-
-checkpointer = InMemorySaver()
-graph = builder.compile(checkpointer=checkpointer)
-
-thread_id = str(uuid7())
-config = {"configurable": {"thread_id": thread_id}}
-
-graph.invoke({"urls": ["https://www.example.com"]}, config)
-```
-
-> **[View example trace](https://smith.langchain.com/public/3916f855-bb3a-45e3-8c04-bba43c1ca851/r)**
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> from typing import NotRequired
 >
-> Open a public LangSmith run for this example.
+> import requests
+> from langchain_core.utils.uuid import uuid7
+> from langgraph.checkpoint.memory import InMemorySaver
+> from langgraph.graph import END, START, StateGraph
+> from typing_extensions import TypedDict
+>
+>
+> class State(TypedDict):
+>     url: str
+>     result: NotRequired[str]
+>
+>
+> def call_api(state: State):
+>     """Example node that makes an API request."""
+>     result = requests.get(state["url"]).text[:100]  # [!code highlight]
+>     return {"result": result}
+>
+>
+> builder = StateGraph(State)
+> builder.add_node("call_api", call_api)
+> builder.add_edge(START, "call_api")
+> builder.add_edge("call_api", END)
+>
+> checkpointer = InMemorySaver()
+> graph = builder.compile(checkpointer=checkpointer)
+>
+> thread_id = str(uuid7())
+> config = {"configurable": {"thread_id": thread_id}}
+>
+> graph.invoke({"url": "https://www.example.com"}, config)
+> ```
+>
+> > [card] [View example trace](https://smith.langchain.com/public/f143a551-c1e4-44fd-b87a-c42eaff62f4a/r)
+> >
+> > Open a public LangSmith run for this example.
+
+> [tab] With task
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> from typing import NotRequired
+>
+> import requests
+> from langchain_core.utils.uuid import uuid7
+> from langgraph.checkpoint.memory import InMemorySaver
+> from langgraph.func import task
+> from langgraph.graph import END, START, StateGraph
+> from typing_extensions import TypedDict
+>
+>
+> class State(TypedDict):
+>     urls: list[str]
+>     results: NotRequired[list[str]]
+>
+>
+> @task
+> def _make_request(url: str):
+>     """Make a request."""
+>     return requests.get(url).text[:100]  # [!code highlight]
+>
+>
+> def call_api(state: State):
+>     """Example node that makes API requests as checkpointed tasks."""
+>     futures = [_make_request(url) for url in state["urls"]]  # [!code highlight]
+>     results = [f.result() for f in futures]
+>     return {"results": results}
+>
+>
+> builder = StateGraph(State)
+> builder.add_node("call_api", call_api)
+> builder.add_edge(START, "call_api")
+> builder.add_edge("call_api", END)
+>
+> checkpointer = InMemorySaver()
+> graph = builder.compile(checkpointer=checkpointer)
+>
+> thread_id = str(uuid7())
+> config = {"configurable": {"thread_id": thread_id}}
+>
+> graph.invoke({"urls": ["https://www.example.com"]}, config)
+> ```
+>
+> > [card] [View example trace](https://smith.langchain.com/public/3916f855-bb3a-45e3-8c04-bba43c1ca851/r)
+> >
+> > Open a public LangSmith run for this example.
 
 ### `START` node
 
@@ -964,7 +964,7 @@ resumed = graph.stream_events(Command(resume="yes"), config, version="v3")
 final = resumed.output
 ```
 
-> **[View example trace](https://smith.langchain.com/public/cbe5c88e-4c15-4ddd-8744-f1d8b4bd3d3b/r)**
+> [card] [View example trace](https://smith.langchain.com/public/cbe5c88e-4c15-4ddd-8744-f1d8b4bd3d3b/r)
 >
 > Open a public LangSmith run for this example.
 

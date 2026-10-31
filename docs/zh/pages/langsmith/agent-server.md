@@ -8,13 +8,13 @@ LangSmith 部署的 **代理服务器** 提供用于创建和管理基于代理�
 
 使用代理服务器创建和管理：
 
-> **[Assistants](https://docs.langchain.com/langsmith/assistants.md)**
+> [卡片][Assistants](https://docs.langchain.com/langsmith/assistants.md)
 
-> **[Threads](https://docs.langchain.com/langsmith/use-threads.md)**
+> [卡][Threads](https://docs.langchain.com/langsmith/use-threads.md)
 
-> **[Runs](https://docs.langchain.com/langsmith/runs.md)**
+> [卡][Runs](https://docs.langchain.com/langsmith/runs.md)
 
-> **[Cron jobs](https://docs.langchain.com/langsmith/cron-jobs.md)**
+> [卡][Cron jobs](https://docs.langchain.com/langsmith/cron-jobs.md)
 
 > [!提示]
 >
@@ -80,7 +80,7 @@ Agent Server 支持三种运行时配置：
 
 典型的部署由两种长时间运行的容器组成，它们都是从同一个 Docker 映像（顶部安装了项目代码的基础映像）构建的：
 
-* **API 服务器** 处理客户端请求（创建运行、读取线程状态、流结果），但本身不执行代理代码。
+* **API 服务器** 处理客户端请求（创建运行、读取线程状态、流式传输结果），但本身不执行代理代码。
 * **队列工作者**是执行引擎。他们监听持久任务队列，执行图形代码并写入检查点。
 
 容器是**无状态**但持久的。任何时候至少有 1 个队列工作线程必须监听任务队列，以确保没有孤立的运行。容器在其生命周期内可以多次运行。API 服务器和队列工作线程是独立的容器池和 [scale independently](https://docs.langchain.com/langsmith/data-plane.md#autoscaling)。

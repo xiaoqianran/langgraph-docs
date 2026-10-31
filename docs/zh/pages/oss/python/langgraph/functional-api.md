@@ -62,7 +62,7 @@ def workflow(topic: str) -> dict:
     }
 ```
 
-> **详细说明**
+> [手风琴] 详细解释
 >
 > 此工作流程将写一篇关于“猫”主题的文章，然后暂停以获取人类的评论。工作流程可以无限期中断，直到提供审核。
 >
@@ -151,31 +151,31 @@ def workflow(topic: str) -> dict:
 
 您通常需要将 **检查指针** 传递给 `@entrypoint` 装饰器以启用持久性并使用 **人在循环** 等功能。
 
-**同步**
+> [选项卡] 同步
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> from langgraph.func import entrypoint
+>
+> @entrypoint(checkpointer=checkpointer)
+> def my_workflow(some_input: dict) -> int:
+>     # some logic that may involve long-running tasks like API calls,
+>     # and may be interrupted for human-in-the-loop.
+>     ...
+>     return result
+> ```
 
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-from langgraph.func import entrypoint
-
-@entrypoint(checkpointer=checkpointer)
-def my_workflow(some_input: dict) -> int:
-    # some logic that may involve long-running tasks like API calls,
-    # and may be interrupted for human-in-the-loop.
-    ...
-    return result
-```
-
-**异步**
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-from langgraph.func import entrypoint
-
-@entrypoint(checkpointer=checkpointer)
-async def my_workflow(some_input: dict) -> int:
-    # some logic that may involve long-running tasks like API calls,
-    # and may be interrupted for human-in-the-loop
-    ...
-    return result
-```
+> [选项卡] 异步
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> from langgraph.func import entrypoint
+>
+> @entrypoint(checkpointer=checkpointer)
+> async def my_workflow(some_input: dict) -> int:
+>     # some logic that may involve long-running tasks like API calls,
+>     # and may be interrupted for human-in-the-loop
+>     ...
+>     return result
+> ```
 
 > [!警告]
 >
@@ -195,7 +195,7 @@ async def my_workflow(some_input: dict) -> int:
 >
 > 使用适当的名称和类型注释来声明参数。
 
-> **请求可注入参数**
+> [accordion] 请求可注入参数
 >
 > ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > from langchain_core.runnables import RunnableConfig
@@ -226,123 +226,123 @@ async def my_workflow(some_input: dict) -> int:
 
 使用 [⟦T41⟧](#entrypoint) 会生成 [⟦T42⟧](https://reference.langchain.com/python/langgraph/pregel/#langgraph.pregel.Pregel.stream) 对象，该对象可以使用 `invoke`、`ainvoke`、`stream` 和 `astream` 方法执行。
 
-**调用**
+> [选项卡] 调用
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> config = {
+>     "configurable": {
+>         "thread_id": "some_thread_id"
+>     }
+> }
+> my_workflow.invoke(some_input, config)  # Wait for the result synchronously
+> ```
 
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-config = {
-    "configurable": {
-        "thread_id": "some_thread_id"
-    }
-}
-my_workflow.invoke(some_input, config)  # Wait for the result synchronously
-```
+> [选项卡] 异步调用
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> config = {
+>     "configurable": {
+>         "thread_id": "some_thread_id"
+>     }
+> }
+> await my_workflow.ainvoke(some_input, config)  # Await result asynchronously
+> ```
 
-**异步调用**
+> [选项卡] 流
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> config = {
+>     "configurable": {
+>         "thread_id": "some_thread_id"
+>     }
+> }
+>
+> stream = my_workflow.stream_events(some_input, config, version="v3")
+> for message in stream.messages:
+>     for token in message.text:
+>         print(token, end="", flush=True)
+> ```
 
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-config = {
-    "configurable": {
-        "thread_id": "some_thread_id"
-    }
-}
-await my_workflow.ainvoke(some_input, config)  # Await result asynchronously
-```
-
-**流**
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-config = {
-    "configurable": {
-        "thread_id": "some_thread_id"
-    }
-}
-
-stream = my_workflow.stream_events(some_input, config, version="v3")
-for message in stream.messages:
-    for token in message.text:
-        print(token, end="", flush=True)
-```
-
-**异步流**
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-config = {
-    "configurable": {
-        "thread_id": "some_thread_id"
-    }
-}
-
-stream = await my_workflow.astream_events(some_input, config, version="v3")
-async for message in stream.messages:
-    async for token in message.text:
-        print(token, end="", flush=True)
-```
+> [选项卡] 异步流
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> config = {
+>     "configurable": {
+>         "thread_id": "some_thread_id"
+>     }
+> }
+>
+> stream = await my_workflow.astream_events(some_input, config, version="v3")
+> async for message in stream.messages:
+>     async for token in message.text:
+>         print(token, end="", flush=True)
+> ```
 
 ### 恢复
 
 在 [interrupt](https://reference.langchain.com/python/langgraph/types/interrupt) 之后恢复执行可以通过将 **resume** 值传递给 [⟦T47⟧](https://reference.langchain.com/python/langgraph/types/Command) 原语来完成。
 
-**调用**
+> [选项卡] 调用
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> from langgraph.types import Command
+>
+> config = {
+>     "configurable": {
+>         "thread_id": "some_thread_id"
+>     }
+> }
+>
+> my_workflow.invoke(Command(resume=some_resume_value), config)
+> ```
 
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-from langgraph.types import Command
+> [选项卡] 异步调用
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> from langgraph.types import Command
+>
+> config = {
+>     "configurable": {
+>         "thread_id": "some_thread_id"
+>     }
+> }
+>
+> await my_workflow.ainvoke(Command(resume=some_resume_value), config)
+> ```
 
-config = {
-    "configurable": {
-        "thread_id": "some_thread_id"
-    }
-}
+> [选项卡] 流
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> from langgraph.types import Command
+>
+> config = {
+>     "configurable": {
+>         "thread_id": "some_thread_id"
+>     }
+> }
+>
+> stream = my_workflow.stream_events(Command(resume=some_resume_value), config, version="v3")
+> for message in stream.messages:
+>     for token in message.text:
+>         print(token, end="", flush=True)
+> ```
 
-my_workflow.invoke(Command(resume=some_resume_value), config)
-```
-
-**异步调用**
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-from langgraph.types import Command
-
-config = {
-    "configurable": {
-        "thread_id": "some_thread_id"
-    }
-}
-
-await my_workflow.ainvoke(Command(resume=some_resume_value), config)
-```
-
-**流**
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-from langgraph.types import Command
-
-config = {
-    "configurable": {
-        "thread_id": "some_thread_id"
-    }
-}
-
-stream = my_workflow.stream_events(Command(resume=some_resume_value), config, version="v3")
-for message in stream.messages:
-    for token in message.text:
-        print(token, end="", flush=True)
-```
-
-**异步流**
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-from langgraph.types import Command
-
-config = {
-    "configurable": {
-        "thread_id": "some_thread_id"
-    }
-}
-
-stream = await my_workflow.astream_events(Command(resume=some_resume_value), config, version="v3")
-async for message in stream.messages:
-    async for token in message.text:
-        print(token, end="", flush=True)
-```
+> [选项卡] 异步流
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> from langgraph.types import Command
+>
+> config = {
+>     "configurable": {
+>         "thread_id": "some_thread_id"
+>     }
+> }
+>
+> stream = await my_workflow.astream_events(Command(resume=some_resume_value), config, version="v3")
+> async for message in stream.messages:
+>     async for token in message.text:
+>         print(token, end="", flush=True)
+> ```
 
 **发生错误后恢复**
 
@@ -350,63 +350,63 @@ async for message in stream.messages:
 
 这假设底层的**错误**已得到解决并且执行可以成功进行。
 
-**调用**
+> [选项卡] 调用
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+>
+> config = {
+>     "configurable": {
+>         "thread_id": "some_thread_id"
+>     }
+> }
+>
+> my_workflow.invoke(None, config)
+> ```> [选项卡] 异步调用
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+>
+> config = {
+>     "configurable": {
+>         "thread_id": "some_thread_id"
+>     }
+> }
+>
+> await my_workflow.ainvoke(None, config)
+> ```
 
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> [选项卡] 流
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+>
+> config = {
+>     "configurable": {
+>         "thread_id": "some_thread_id"
+>     }
+> }
+>
+> stream = my_workflow.stream_events(None, config, version="v3")
+> for message in stream.messages:
+>     for token in message.text:
+>         print(token, end="", flush=True)
+> ```
 
-config = {
-    "configurable": {
-        "thread_id": "some_thread_id"
-    }
-}
+> [选项卡] 异步流
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+>
+> config = {
+>     "configurable": {
+>         "thread_id": "some_thread_id"
+>     }
+> }
+>
+> stream = await my_workflow.astream_events(None, config, version="v3")
+> async for message in stream.messages:
+>     async for token in message.text:
+>         print(token, end="", flush=True)
+> ```
 
-my_workflow.invoke(None, config)
-```
-
-**异步调用**
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-
-config = {
-    "configurable": {
-        "thread_id": "some_thread_id"
-    }
-}
-
-await my_workflow.ainvoke(None, config)
-```
-
-**流**
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-
-config = {
-    "configurable": {
-        "thread_id": "some_thread_id"
-    }
-}
-
-stream = my_workflow.stream_events(None, config, version="v3")
-for message in stream.messages:
-    for token in message.text:
-        print(token, end="", flush=True)
-```
-
-**异步流**
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-
-config = {
-    "configurable": {
-        "thread_id": "some_thread_id"
-    }
-}
-
-stream = await my_workflow.astream_events(None, config, version="v3")
-async for message in stream.messages:
-    async for token in message.text:
-        print(token, end="", flush=True)
-```### 短期记忆
+### 短期记忆
 
 当使用`checkpointer`定义`entrypoint`时，它将在[checkpoints](/oss/python/langgraph/checkpointers#checkpoints)中存储同一**线程id**上的连续调用之间的信息。
 
@@ -457,12 +457,12 @@ my_workflow.invoke(1, config)  # 6 (previous was 3 * 2 from the previous invocat
 
 ## 任务
 
-**任务**代表一个离散的工作单元，例如 API 调用或数据处理步骤。它有两个关键特征：
-
-* **异步执行**：任务被设计为异步执行，允许多个操作同时运行而不会阻塞。
+**任务**代表一个离散的工作单元，例如 API 调用或数据处理步骤。它有两个关键特征：* **异步执行**：任务被设计为异步执行，允许多个操作同时运行而不会阻塞。
 * **检查点**：任务结果保存到检查点，从而可以从上次保存的状态恢复工作流程。 （更多详情请参见[persistence](/oss/python/langgraph/persistence)）。
 
-＃＃＃ 定义任务是使用 `@task` 装饰器定义的，它包装了常规的 Python 函数。
+### 定义
+
+任务是使用 `@task` 装饰器定义的，它包装了常规的 Python 函数。
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from langgraph.func import task
@@ -489,22 +489,22 @@ def slow_computation(input_value):
 
 要获取**任务**的结果，您可以同步等待（使用`result()`）或异步等待（使用`await`）。
 
-**同步调用**
+> [选项卡] 同步调用
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> @entrypoint(checkpointer=checkpointer)
+> def my_workflow(some_input: int) -> int:
+>     future = slow_computation(some_input)
+>     return future.result()  # Wait for the result synchronously
+> ```
 
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-@entrypoint(checkpointer=checkpointer)
-def my_workflow(some_input: int) -> int:
-    future = slow_computation(some_input)
-    return future.result()  # Wait for the result synchronously
-```
-
-**异步调用**
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-@entrypoint(checkpointer=checkpointer)
-async def my_workflow(some_input: int) -> int:
-    return await slow_computation(some_input)  # Await result asynchronously
-```
+> [选项卡] 异步调用
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> @entrypoint(checkpointer=checkpointer)
+> async def my_workflow(some_input: int) -> int:
+>     return await slow_computation(some_input)  # Await result asynchronously
+> ```
 
 ## 何时使用任务
 
@@ -549,40 +549,40 @@ LangGraph 中的序列化有两个关键方面：
 
 将副作用（例如，写入文件、发送电子邮件）封装在任务中，以确保在恢复工作流程时不会多次执行它们。
 
-**不正确**
+> [选项卡] 不正确
+>
+> 在本例中，副作用（写入文件）直接包含在工作流程中，因此在恢复工作流程时将再次执行。
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> @entrypoint(checkpointer=checkpointer)
+> def my_workflow(inputs: dict) -> int:
+>     # This code will be executed a second time when resuming the workflow.
+>     # Which is likely not what you want.
+>     with open("output.txt", "w") as f:  # [!code highlight]
+>         f.write("Side effect executed")  # [!code highlight]
+>     value = interrupt("question")
+>     return value
+> ```> [选项卡] 正确
+>
+> 在本例中，副作用被封装在一个任务中，确保恢复时执行的一致性。
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> from langgraph.func import task
+>
+> @task  # [!code highlight]
+> def write_to_file():  # [!code highlight]
+>     with open("output.txt", "w") as f:
+>         f.write("Side effect executed")
+>
+> @entrypoint(checkpointer=checkpointer)
+> def my_workflow(inputs: dict) -> int:
+>     # The side effect is now encapsulated in a task.
+>     write_to_file().result()
+>     value = interrupt("question")
+>     return value
+> ```
 
-在本例中，副作用（写入文件）直接包含在工作流中，因此在恢复工作流时将再次执行。
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-@entrypoint(checkpointer=checkpointer)
-def my_workflow(inputs: dict) -> int:
-    # This code will be executed a second time when resuming the workflow.
-    # Which is likely not what you want.
-    with open("output.txt", "w") as f:  # [!code highlight]
-        f.write("Side effect executed")  # [!code highlight]
-    value = interrupt("question")
-    return value
-```
-
-**正确**
-
-在此示例中，副作用被封装在任务中，确保恢复时执行的一致性。
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-from langgraph.func import task
-
-@task  # [!code highlight]
-def write_to_file():  # [!code highlight]
-    with open("output.txt", "w") as f:
-        f.write("Side effect executed")
-
-@entrypoint(checkpointer=checkpointer)
-def my_workflow(inputs: dict) -> int:
-    # The side effect is now encapsulated in a task.
-    write_to_file().result()
-    value = interrupt("question")
-    return value
-```### 非确定性控制流
+### 非确定性控制流
 
 每次可能给出不同结果的操作（例如获取当前时间或随机数）应封装在任务中，以确保在恢复时返回相同的结果。
 
@@ -593,65 +593,65 @@ def my_workflow(inputs: dict) -> int:
 
 如果恢复时不保持执行顺序，则一次[⟦T62⟧](https://reference.langchain.com/python/langgraph/types/interrupt)调用可能会与错误的`resume`值匹配，从而导致不正确的结果。
 
-请阅读[determinism](#determinism)部分了解更多详情。
+请阅读[determinism](#determinism)部分了解更多详情。> [选项卡] 不正确
+>
+> 在此示例中，工作流使用当前时间来确定要执行哪个任务。这是不确定的，因为工作流的结果取决于它的执行时间。
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> from langgraph.func import entrypoint
+>
+> @entrypoint(checkpointer=checkpointer)
+> def my_workflow(inputs: dict) -> int:
+>     t0 = inputs["t0"]
+>     t1 = time.time()  # [!code highlight]
+>
+>     delta_t = t1 - t0
+>
+>     if delta_t > 1:
+>         result = slow_task(1).result()
+>         value = interrupt("question")
+>     else:
+>         result = slow_task(2).result()
+>         value = interrupt("question")
+>
+>     return {
+>         "result": result,
+>         "value": value
+>     }
+> ```
 
-**不正确**
-
-在此示例中，工作流使用当前时间来确定要执行哪个任务。这是不确定的，因为工作流的结果取决于它的执行时间。
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-from langgraph.func import entrypoint
-
-@entrypoint(checkpointer=checkpointer)
-def my_workflow(inputs: dict) -> int:
-    t0 = inputs["t0"]
-    t1 = time.time()  # [!code highlight]
-
-    delta_t = t1 - t0
-
-    if delta_t > 1:
-        result = slow_task(1).result()
-        value = interrupt("question")
-    else:
-        result = slow_task(2).result()
-        value = interrupt("question")
-
-    return {
-        "result": result,
-        "value": value
-    }
-```
-
-**正确**在此示例中，工作流使用输入 `t0` 来确定要执行哪个任务。这是确定性的，因为工作流的结果仅取决于输入。
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-import time
-
-from langgraph.func import task
-
-@task  # [!code highlight]
-def get_time() -> float:  # [!code highlight]
-    return time.time()
-
-@entrypoint(checkpointer=checkpointer)
-def my_workflow(inputs: dict) -> int:
-    t0 = inputs["t0"]
-    t1 = get_time().result()  # [!code highlight]
-
-    delta_t = t1 - t0
-
-    if delta_t > 1:
-        result = slow_task(1).result()
-        value = interrupt("question")
-    else:
-        result = slow_task(2).result()
-        value = interrupt("question")
-
-    return {
-        "result": result,
-        "value": value
-    }
-```
+> [选项卡] 正确
+>
+> 在此示例中，工作流使用输入 `t0` 来确定要执行哪个任务。这是确定性的，因为工作流的结果仅取决于输入。
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import time
+>
+> from langgraph.func import task
+>
+> @task  # [!code highlight]
+> def get_time() -> float:  # [!code highlight]
+>     return time.time()
+>
+> @entrypoint(checkpointer=checkpointer)
+> def my_workflow(inputs: dict) -> int:
+>     t0 = inputs["t0"]
+>     t1 = get_time().result()  # [!code highlight]
+>
+>     delta_t = t1 - t0
+>
+>     if delta_t > 1:
+>         result = slow_task(1).result()
+>         value = interrupt("question")
+>     else:
+>         result = slow_task(2).result()
+>         value = interrupt("question")
+>
+>     return {
+>         "result": result,
+>         "value": value
+>     }
+> ```
 
 ## 了解更多
 

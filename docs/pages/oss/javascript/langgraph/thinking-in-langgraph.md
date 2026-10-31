@@ -80,19 +80,19 @@ Now that we've identified the components in our workflow, let's understand what 
 
 For each node in your graph, determine what type of operation it represents and what context it needs to work properly.
 
-> **[LLM steps](#llm-steps)**
+> [card] [LLM steps](#llm-steps)
 >
 > Use when you need to understand, analyze, generate text, or make reasoning decisions
 
-> **[Data steps](#data-steps)**
+> [card] [Data steps](#data-steps)
 >
 > Use when you need to retrieve information from external sources
 
-> **[Action steps](#action-steps)**
+> [card] [Action steps](#action-steps)
 >
 > Use when you need to perform external actions
 
-> **[User input steps](#user-input-steps)**
+> [card] [User input steps](#user-input-steps)
 >
 > Use when you need human intervention
 
@@ -100,13 +100,13 @@ For each node in your graph, determine what type of operation it represents and 
 
 When a step needs to understand, analyze, generate text, or make reasoning decisions:
 
-> **Classify intent**
+> [accordion] Classify intent
 >
 > * Static context (prompt): Classification categories, urgency definitions, response format
 > * Dynamic context (from state): Email content, sender information
 > * Desired outcome: Structured classification that determines routing
 
-> **Draft reply**
+> [accordion] Draft reply
 >
 > * Static context (prompt): Tone guidelines, company policies, response templates
 > * Dynamic context (from state): Classification results, search results, customer history
@@ -116,13 +116,13 @@ When a step needs to understand, analyze, generate text, or make reasoning decis
 
 When a step needs to retrieve information from external sources:
 
-> **Document search**
+> [accordion] Document search
 >
 > * Parameters: Query built from intent and topic
 > * Retry strategy: Yes, with exponential backoff for transient failures
 > * Caching: Could cache common queries to reduce API calls
 
-> **Customer history lookup**
+> [accordion] Customer history lookup
 >
 > * Parameters: Customer email or ID from state
 > * Retry strategy: Yes, but with fallback to basic info if unavailable
@@ -132,13 +132,13 @@ When a step needs to retrieve information from external sources:
 
 When a step needs to perform an external action:
 
-> **Send reply**
+> [accordion] Send reply
 >
 > * When to execute node: After approval (human or automated)
 > * Retry strategy: Yes, with exponential backoff for network issues
 > * Should not cache: Each send is a unique action
 
-> **Bug track**
+> [accordion] Bug track
 >
 > * When to execute node: Always when intent is "bug"
 > * Retry strategy: Yes, critical to not lose bug reports
@@ -148,7 +148,7 @@ When a step needs to perform an external action:
 
 When a step needs human intervention:
 
-> **Human review node**
+> [accordion] Human review node
 >
 > * Context for decision: Original email, draft response, urgency, classification
 > * Expected input format: Approval boolean plus optional edited response
@@ -162,11 +162,11 @@ State is the shared [memory](/oss/javascript/concepts/memory) accessible to all 
 
 Ask yourself these questions about each piece of data:
 
-> **Include in state**
+> [card] Include in state
 >
 > Does it need to persist across steps? If yes, it goes in state.
 
-> **Don't store**
+> [card] Don't store
 >
 > Can you derive it from other data? If yes, compute it when needed instead of storing it in state.
 
@@ -243,98 +243,98 @@ Different errors need different handling strategies:
 | Recoverable failure after retries | Developer (declarative) | `error_handler` | Run a compensation/recovery branch after retry exhaustion |
 | Unexpected errors | Developer | Let them bubble up | Unknown issues that need debugging |
 
-**Transient errors**
+> [tab] Transient errors
+>
+> Add a retry policy to automatically retry network issues and rate limits.
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import type { RetryPolicy } from "@langchain/langgraph";
+>
+> workflow.addNode(
+>   "searchDocumentation",
+>   searchDocumentation,
+>   {
+>     retryPolicy: { maxAttempts: 3, initialInterval: 1.0 },
+>   },
+> );
+> ```
 
-Add a retry policy to automatically retry network issues and rate limits.
+> [tab] LLM-recoverable
+>
+> Store the error in state and loop back so the LLM can see what went wrong and try again:
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import { Command, GraphNode } from "@langchain/langgraph";
+>
+> const executeTool: GraphNode<typeof State> = async (state, config) => {
+>   try {
+>     const result = await runTool(state.toolCall);
+>     return new Command({
+>       update: { toolResult: result },
+>       goto: "agent",
+>     });
+>   } catch (error) {
+>     // Let the LLM see what went wrong and try again
+>     return new Command({
+>       update: { toolResult: `Tool error: ${error}` },
+>       goto: "agent"
+>     });
+>   }
+> }
+> ```
 
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-import type { RetryPolicy } from "@langchain/langgraph";
+> [tab] User-fixable
+>
+> Pause and collect information from the user when needed (like account IDs, order numbers, or clarifications):
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import { Command, GraphNode, interrupt } from "@langchain/langgraph";
+>
+> const lookupCustomerHistory: GraphNode<typeof State> = async (state, config) => {
+>   if (!state.customerId) {
+>     const userInput = interrupt({
+>       message: "Customer ID needed",
+>       request: "Please provide the customer's account ID to look up their subscription history",
+>     });
+>     return new Command({
+>       update: { customerId: userInput.customerId },
+>       goto: "lookupCustomerHistory",
+>     });
+>   }
+>   // Now proceed with the lookup
+>   const customerData = await fetchCustomerHistory(state.customerId);
+>   return new Command({
+>     update: { customerHistory: customerData },
+>     goto: "draftResponse",
+>   });
+> }
+> ```
 
-workflow.addNode(
-  "searchDocumentation",
-  searchDocumentation,
-  {
-    retryPolicy: { maxAttempts: 3, initialInterval: 1.0 },
-  },
-);
-```
+> [tab] Unexpected
+>
+> Let them bubble up for debugging. Don't catch what you can't handle:
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import { Command, GraphNode } from "@langchain/langgraph";
+>
+> const sendReply: GraphNode<typeof EmailAgentState> = async (state, config) => {
+>   try {
+>     await emailService.send(state.responseText);
+>   } catch (error) {
+>     throw error;  // Surface unexpected errors
+>   }
+> }
+> ```
 
-**LLM-recoverable**
-
-Store the error in state and loop back so the LLM can see what went wrong and try again:
-
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-import { Command, GraphNode } from "@langchain/langgraph";
-
-const executeTool: GraphNode<typeof State> = async (state, config) => {
-  try {
-    const result = await runTool(state.toolCall);
-    return new Command({
-      update: { toolResult: result },
-      goto: "agent",
-    });
-  } catch (error) {
-    // Let the LLM see what went wrong and try again
-    return new Command({
-      update: { toolResult: `Tool error: ${error}` },
-      goto: "agent"
-    });
-  }
-}
-```
-
-**User-fixable**
-
-Pause and collect information from the user when needed (like account IDs, order numbers, or clarifications):
-
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-import { Command, GraphNode, interrupt } from "@langchain/langgraph";
-
-const lookupCustomerHistory: GraphNode<typeof State> = async (state, config) => {
-  if (!state.customerId) {
-    const userInput = interrupt({
-      message: "Customer ID needed",
-      request: "Please provide the customer's account ID to look up their subscription history",
-    });
-    return new Command({
-      update: { customerId: userInput.customerId },
-      goto: "lookupCustomerHistory",
-    });
-  }
-  // Now proceed with the lookup
-  const customerData = await fetchCustomerHistory(state.customerId);
-  return new Command({
-    update: { customerHistory: customerData },
-    goto: "draftResponse",
-  });
-}
-```
-
-**Unexpected**
-
-Let them bubble up for debugging. Don't catch what you can't handle:
-
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-import { Command, GraphNode } from "@langchain/langgraph";
-
-const sendReply: GraphNode<typeof EmailAgentState> = async (state, config) => {
-  try {
-    await emailService.send(state.responseText);
-  } catch (error) {
-    throw error;  // Surface unexpected errors
-  }
-}
-```
-
-**Saga / compensation**
-
-After retries are exhausted, run a recovery function that updates state and routes to a compensation branch.
+> [tab] Saga / compensation
+>
+> After retries are exhausted, run a recovery function that updates state and routes to a compensation branch.
 
 ### Implementing our email agent nodes
 
 We'll implement each node as a simple function. Remember: nodes take state, do work, and return updates.
 
-> **Read and classify nodes**
+> [accordion] Read and classify nodes
 >
 > ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > import { StateGraph, START, END, GraphNode, Command } from "@langchain/langgraph";
@@ -390,7 +390,7 @@ We'll implement each node as a simple function. Remember: nodes take state, do w
 > }
 > ```
 
-> **Search and tracking nodes**
+> [accordion] Search and tracking nodes
 >
 > ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > import { Command, GraphNode } from "@langchain/langgraph";
@@ -436,7 +436,7 @@ We'll implement each node as a simple function. Remember: nodes take state, do w
 > }
 > ```
 
-> **Response nodes**
+> [accordion] Response nodes
 >
 > ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > import { Command, interrupt } from "@langchain/langgraph";
@@ -534,7 +534,7 @@ Now we connect our nodes into a working graph. Since our nodes handle their own 
 
 To enable [human-in-the-loop](/oss/javascript/langgraph/interrupts) with `interrupt()`, we need to compile with a [checkpointer](/oss/javascript/langgraph/persistence) to save state between runs:
 
-> **Graph compilation code**
+> [accordion] Graph compilation code
 >
 > ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > import { MemorySaver, RetryPolicy } from "@langchain/langgraph";
@@ -570,7 +570,7 @@ The graph structure is minimal because routing happens inside nodes through `Com
 
 Let's run our agent with an urgent billing issue that needs human review:
 
-> **Testing the agent**
+> [accordion] Testing the agent
 >
 > ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > // Test with an urgent billing issue
@@ -611,33 +611,33 @@ The graph pauses when it hits `interrupt()`, saves everything to the checkpointe
 
 Building this email agent has shown us the LangGraph way of thinking:
 
-> **[Break into discrete steps](#step-1-map-out-your-workflow-as-discrete-steps)**
+> [card] [Break into discrete steps](#step-1-map-out-your-workflow-as-discrete-steps)
 >
 > Each node does one thing well. This decomposition enables streaming progress updates, durable execution that can pause and resume, and clear debugging since you can inspect state between steps.
 
-> **[State is shared memory](#step-3-design-your-state)**
+> [card] [State is shared memory](#step-3-design-your-state)
 >
 > Store raw data, not formatted text. This lets different nodes use the same information in different ways.
 
-> **[Nodes are functions](#step-4-build-your-nodes)**
+> [card] [Nodes are functions](#step-4-build-your-nodes)
 >
 > They take state, do work, and return updates. When they need to make routing decisions, they specify both the state updates and the next destination.
 
-> **[Errors are part of the flow](#handle-errors-appropriately)**
+> [card] [Errors are part of the flow](#handle-errors-appropriately)
 >
 > Transient failures get retries, LLM-recoverable errors loop back with context, user-fixable problems pause for input, and unexpected errors bubble up for debugging.
 
-> **[Human input is first-class](/oss/javascript/langgraph/interrupts)**
+> [card] [Human input is first-class](/oss/javascript/langgraph/interrupts)
 >
 > The `interrupt()` function pauses execution indefinitely, saves all state, and resumes exactly where it left off when you provide input. When combined with other operations in a node, it must come first.
 
-> **[Graph structure emerges naturally](#step-5-wire-it-together)**
+> [card] [Graph structure emerges naturally](#step-5-wire-it-together)
 >
 > You define the essential connections, and your nodes handle their own routing logic. This keeps control flow explicit and traceable - you can always understand what your agent will do next by looking at the current node.
 
 ### Advanced considerations
 
-> **Node granularity trade-offs**
+> [accordion] Node granularity trade-offs
 >
 > > [!NOTE]
 > >
@@ -671,27 +671,27 @@ Building this email agent has shown us the LangGraph way of thinking:
 
 This was an introduction to thinking about building agents with LangGraph. You can extend this foundation with:
 
-> **[Human-in-the-loop patterns](/oss/javascript/langgraph/interrupts)**
+> [card] [Human-in-the-loop patterns](/oss/javascript/langgraph/interrupts)
 >
 > Learn how to add tool approval before execution, batch approval, and other patterns
 
-> **[Subgraphs](/oss/javascript/langgraph/use-subgraphs)**
+> [card] [Subgraphs](/oss/javascript/langgraph/use-subgraphs)
 >
 > Create subgraphs for complex multi-step operations
 
-> **[Streaming](/oss/javascript/langgraph/streaming)**
+> [card] [Streaming](/oss/javascript/langgraph/streaming)
 >
 > Add streaming to show real-time progress to users
 
-> **[Observability](/oss/javascript/langgraph/observability)**
+> [card] [Observability](/oss/javascript/langgraph/observability)
 >
 > Add observability with LangSmith for debugging and monitoring
 
-> **[Tool Integration](/oss/javascript/langchain/tools)**
+> [card] [Tool Integration](/oss/javascript/langchain/tools)
 >
 > Integrate more tools for web search, database queries, and API calls
 
-> **[Retry Logic](/oss/javascript/langgraph/use-graph-api#add-retry-policies)**
+> [card] [Retry Logic](/oss/javascript/langgraph/use-graph-api#add-retry-policies)
 >
 > Implement retry logic with exponential backoff for failed operations
 

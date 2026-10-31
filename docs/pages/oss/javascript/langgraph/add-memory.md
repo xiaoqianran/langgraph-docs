@@ -29,32 +29,32 @@ await graph.invoke(
 
 In production, use a checkpointer backed by a database:
 
-**Postgres**
+> [tab] Postgres
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import { PostgresSaver } from "@langchain/langgraph-checkpoint-postgres";
+>
+> const DB_URI = "postgresql://postgres:postgres@localhost:5432/postgres?sslmode=disable";
+> const checkpointer = PostgresSaver.fromConnString(DB_URI);
+>
+> const builder = new StateGraph(...);
+> const graph = builder.compile({ checkpointer });
+> ```
 
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-import { PostgresSaver } from "@langchain/langgraph-checkpoint-postgres";
+> [tab] MongoDB
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import { MongoClient } from "mongodb";
+> import { MongoDBSaver } from "@langchain/langgraph-checkpoint-mongodb";
+>
+> const client = new MongoClient("mongodb://user:password@localhost:27017");
+> const checkpointer = new MongoDBSaver({ client });
+>
+> const builder = new StateGraph(...);
+> const graph = builder.compile({ checkpointer });
+> ```
 
-const DB_URI = "postgresql://postgres:postgres@localhost:5432/postgres?sslmode=disable";
-const checkpointer = PostgresSaver.fromConnString(DB_URI);
-
-const builder = new StateGraph(...);
-const graph = builder.compile({ checkpointer });
-```
-
-**MongoDB**
-
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-import { MongoClient } from "mongodb";
-import { MongoDBSaver } from "@langchain/langgraph-checkpoint-mongodb";
-
-const client = new MongoClient("mongodb://user:password@localhost:27017");
-const checkpointer = new MongoDBSaver({ client });
-
-const builder = new StateGraph(...);
-const graph = builder.compile({ checkpointer });
-```
-
-> **Example: using Postgres checkpointer**
+> [accordion] Example: using Postgres checkpointer
 >
 > ```
 > npm install @langchain/langgraph-checkpoint-postgres
@@ -113,7 +113,7 @@ const graph = builder.compile({ checkpointer });
 > }
 > ```
 
-> **Example: using MongoDB checkpointer**
+> [accordion] Example: using MongoDB checkpointer
 >
 > ```
 > npm install @langchain/langgraph-checkpoint-mongodb
@@ -259,34 +259,34 @@ await graph.invoke(
 
 In production, use a store backed by a database:
 
-**Postgres**
+> [tab] Postgres
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import { PostgresStore } from "@langchain/langgraph-checkpoint-postgres/store";
+>
+> const DB_URI = "postgresql://postgres:postgres@localhost:5432/postgres?sslmode=disable";
+> const store = PostgresStore.fromConnString(DB_URI);
+>
+> const builder = new StateGraph(...);
+> const graph = builder.compile({ store });
+> ```
 
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-import { PostgresStore } from "@langchain/langgraph-checkpoint-postgres/store";
+> [tab] MongoDB
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import { MongoDBStore } from "@langchain/langgraph-checkpoint-mongodb";
+>
+> const MONGODB_URI = "mongodb://user:password@localhost:27017";
+> const store = await MongoDBStore.fromConnString(MONGODB_URI, {
+>   dbName: "langgraph",
+>   collectionName: "store",
+> });
+>
+> const builder = new StateGraph(...);
+> const graph = builder.compile({ store });
+> ```
 
-const DB_URI = "postgresql://postgres:postgres@localhost:5432/postgres?sslmode=disable";
-const store = PostgresStore.fromConnString(DB_URI);
-
-const builder = new StateGraph(...);
-const graph = builder.compile({ store });
-```
-
-**MongoDB**
-
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-import { MongoDBStore } from "@langchain/langgraph-checkpoint-mongodb";
-
-const MONGODB_URI = "mongodb://user:password@localhost:27017";
-const store = await MongoDBStore.fromConnString(MONGODB_URI, {
-  dbName: "langgraph",
-  collectionName: "store",
-});
-
-const builder = new StateGraph(...);
-const graph = builder.compile({ store });
-```
-
-> **Example: using Postgres store**
+> [accordion] Example: using Postgres store
 >
 > ```
 > npm install @langchain/langgraph-checkpoint-postgres
@@ -363,7 +363,7 @@ const graph = builder.compile({ store });
 > }
 > ```
 
-> **Example: using MongoDB store**
+> [accordion] Example: using MongoDB store
 >
 > ```
 > npm install @langchain/langgraph-checkpoint-mongodb
@@ -468,202 +468,202 @@ const items = await store.search(["user_123", "memories"], {
 >
 > `InMemoryStore` is suitable for development. For production, use a persistent store like `PostgresStore`, `MongoDBStore`, or `RedisStore`.
 
-> **Long-term memory with semantic search**
+> [accordion] Long-term memory with semantic search
 >
-> **InMemoryStore**
->
-> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-> import { OpenAIEmbeddings, ChatOpenAI } from "@langchain/openai";
-> import { StateGraph, StateSchema, MessagesValue, GraphNode, START, InMemoryStore } from "@langchain/langgraph";
->
-> const State = new StateSchema({
->   messages: MessagesValue,
-> });
->
-> const model = new ChatOpenAI({ model: "gpt-5.4-mini" });
->
-> // Create store with semantic search enabled
-> const embeddings = new OpenAIEmbeddings({ model: "text-embedding-3-small" });
-> const store = new InMemoryStore({
->   index: {
->     embeddings,
->     dims: 1536,
->   }
-> });
->
-> await store.put(["user_123", "memories"], "1", { text: "I love pizza" });
-> await store.put(["user_123", "memories"], "2", { text: "I am a plumber" });
->
-> const chat: GraphNode<typeof State> = async (state, runtime) => {
->   // Search based on user's last message
->   const items = await runtime.store.search(
->     ["user_123", "memories"],
->     { query: state.messages.at(-1)?.content }
->   );
->   const memories = items
->     .filter((item) => item.score != null && item.score > 0.2)
->     .map((item) => item.value.text)
->     .join("\n");
->   const memoriesText = memories ? `## Memories of user\n${memories}` : "";
->
->   const response = await model.invoke([
->     { role: "system", content: `You are a helpful assistant.\n${memoriesText}` },
->     ...state.messages,
->   ]);
->
->   return { messages: [response] };
-> };
->
-> const builder = new StateGraph(State)
->   .addNode("chat", chat)
->   .addEdge(START, "chat");
-> const graph = builder.compile({ store });
->
-> const stream = await graph.streamEvents(
->   { messages: [{ role: "user", content: "I'm hungry" }] },
->   { version: "v3" }
-> );
-> for await (const message of stream.messages) {
->   for await (const token of message.text) {
->     process.stdout.write(token);
->   }
-> }
-> ```
->
-> **MongoDB (manual embedding)**
->
-> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-> import { ChatOpenAI, OpenAIEmbeddings } from "@langchain/openai";
-> import { MongoDBStore } from "@langchain/langgraph-checkpoint-mongodb";
-> import { StateGraph, StateSchema, MessagesValue, GraphNode, START } from "@langchain/langgraph";
->
-> const State = new StateSchema({
->   messages: MessagesValue,
-> });
->
-> const model = new ChatOpenAI({ model: "gpt-5.4-mini" });
->
-> // Create store with semantic search enabled
-> const MONGODB_URI = "mongodb://user:password@localhost:27017";
-> const store = await MongoDBStore.fromConnString(MONGODB_URI, {
->   dbName: "langgraph",
->   collectionName: "store",
->   embeddings: new OpenAIEmbeddings({ model: "text-embedding-3-small" }),
->   indexConfig: {
->     name: "store_vector_index",
->     dims: 1536,
->     embeddingKey: "text",
->   },
-> });
->
-> await store.put(["user_123", "memories"], "1", { text: "I love pizza" });
-> await store.put(["user_123", "memories"], "2", { text: "I am a plumber" });
->
-> const chat: GraphNode<typeof State> = async (state, runtime) => {
->   // Search based on user's last message
->   const items = await runtime.store.search(
->     ["user_123", "memories"],
->     { query: state.messages.at(-1)?.content }
->   );
->   const memories = items
->     .filter((item) => item.score != null && item.score > 0.2)
->     .map((item) => item.value.text)
->     .join("\n");
->   const memoriesText = memories ? `## Memories of user\n${memories}` : "";
->
->   const response = await model.invoke([
->     { role: "system", content: `You are a helpful assistant.\n${memoriesText}` },
->     ...state.messages,
->   ]);
->
->   return { messages: [response] };
-> };
->
-> const builder = new StateGraph(State)
->   .addNode("chat", chat)
->   .addEdge(START, "chat");
-> const graph = builder.compile({ store });
->
-> const stream = await graph.streamEvents(
->   { messages: [{ role: "user", content: "I'm hungry" }] },
->   { version: "v3" }
-> );
-> for await (const message of stream.messages) {
->   for await (const token of message.text) {
->     process.stdout.write(token);
->   }
-> }
-> ```
->
-> **MongoDB (auto embedding)**
->
-> > [!NOTE]
+> > [tab] InMemoryStore
 > >
-> > Auto embedding requires MongoDB Atlas. MongoDB generates embeddings server-side via Voyage AI. See the [Automated Embedding documentation](https://www.mongodb.com/docs/vector-search/) for more information.
+> > ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> > import { OpenAIEmbeddings, ChatOpenAI } from "@langchain/openai";
+> > import { StateGraph, StateSchema, MessagesValue, GraphNode, START, InMemoryStore } from "@langchain/langgraph";
+> >
+> > const State = new StateSchema({
+> >   messages: MessagesValue,
+> > });
+> >
+> > const model = new ChatOpenAI({ model: "gpt-5.4-mini" });
+> >
+> > // Create store with semantic search enabled
+> > const embeddings = new OpenAIEmbeddings({ model: "text-embedding-3-small" });
+> > const store = new InMemoryStore({
+> >   index: {
+> >     embeddings,
+> >     dims: 1536,
+> >   }
+> > });
+> >
+> > await store.put(["user_123", "memories"], "1", { text: "I love pizza" });
+> > await store.put(["user_123", "memories"], "2", { text: "I am a plumber" });
+> >
+> > const chat: GraphNode<typeof State> = async (state, runtime) => {
+> >   // Search based on user's last message
+> >   const items = await runtime.store.search(
+> >     ["user_123", "memories"],
+> >     { query: state.messages.at(-1)?.content }
+> >   );
+> >   const memories = items
+> >     .filter((item) => item.score != null && item.score > 0.2)
+> >     .map((item) => item.value.text)
+> >     .join("\n");
+> >   const memoriesText = memories ? `## Memories of user\n${memories}` : "";
+> >
+> >   const response = await model.invoke([
+> >     { role: "system", content: `You are a helpful assistant.\n${memoriesText}` },
+> >     ...state.messages,
+> >   ]);
+> >
+> >   return { messages: [response] };
+> > };
+> >
+> > const builder = new StateGraph(State)
+> >   .addNode("chat", chat)
+> >   .addEdge(START, "chat");
+> > const graph = builder.compile({ store });
+> >
+> > const stream = await graph.streamEvents(
+> >   { messages: [{ role: "user", content: "I'm hungry" }] },
+> >   { version: "v3" }
+> > );
+> > for await (const message of stream.messages) {
+> >   for await (const token of message.text) {
+> >     process.stdout.write(token);
+> >   }
+> > }
+> > ```
 >
-> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-> import { StateGraph, StateSchema, MessagesValue, GraphNode, START } from "@langchain/langgraph";
-> import { MongoDBStore } from "@langchain/langgraph-checkpoint-mongodb";
-> import { ChatOpenAI } from "@langchain/openai";
+> > [tab] MongoDB (manual embedding)
+> >
+> > ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> > import { ChatOpenAI, OpenAIEmbeddings } from "@langchain/openai";
+> > import { MongoDBStore } from "@langchain/langgraph-checkpoint-mongodb";
+> > import { StateGraph, StateSchema, MessagesValue, GraphNode, START } from "@langchain/langgraph";
+> >
+> > const State = new StateSchema({
+> >   messages: MessagesValue,
+> > });
+> >
+> > const model = new ChatOpenAI({ model: "gpt-5.4-mini" });
+> >
+> > // Create store with semantic search enabled
+> > const MONGODB_URI = "mongodb://user:password@localhost:27017";
+> > const store = await MongoDBStore.fromConnString(MONGODB_URI, {
+> >   dbName: "langgraph",
+> >   collectionName: "store",
+> >   embeddings: new OpenAIEmbeddings({ model: "text-embedding-3-small" }),
+> >   indexConfig: {
+> >     name: "store_vector_index",
+> >     dims: 1536,
+> >     embeddingKey: "text",
+> >   },
+> > });
+> >
+> > await store.put(["user_123", "memories"], "1", { text: "I love pizza" });
+> > await store.put(["user_123", "memories"], "2", { text: "I am a plumber" });
+> >
+> > const chat: GraphNode<typeof State> = async (state, runtime) => {
+> >   // Search based on user's last message
+> >   const items = await runtime.store.search(
+> >     ["user_123", "memories"],
+> >     { query: state.messages.at(-1)?.content }
+> >   );
+> >   const memories = items
+> >     .filter((item) => item.score != null && item.score > 0.2)
+> >     .map((item) => item.value.text)
+> >     .join("\n");
+> >   const memoriesText = memories ? `## Memories of user\n${memories}` : "";
+> >
+> >   const response = await model.invoke([
+> >     { role: "system", content: `You are a helpful assistant.\n${memoriesText}` },
+> >     ...state.messages,
+> >   ]);
+> >
+> >   return { messages: [response] };
+> > };
+> >
+> > const builder = new StateGraph(State)
+> >   .addNode("chat", chat)
+> >   .addEdge(START, "chat");
+> > const graph = builder.compile({ store });
+> >
+> > const stream = await graph.streamEvents(
+> >   { messages: [{ role: "user", content: "I'm hungry" }] },
+> >   { version: "v3" }
+> > );
+> > for await (const message of stream.messages) {
+> >   for await (const token of message.text) {
+> >     process.stdout.write(token);
+> >   }
+> > }
+> > ```
 >
-> const State = new StateSchema({
->   messages: MessagesValue,
-> });
->
-> const model = new ChatOpenAI({ model: "gpt-5.4-mini" });
->
-> // Auto embedding: no embeddings instance needed.
-> // Configure the Voyage AI model and the field path MongoDB will read server-side.
-> const MONGODB_URI = "mongodb://user:password@localhost:27017";
-> const store = await MongoDBStore.fromConnString(MONGODB_URI, {
->   dbName: "langgraph",
->   collectionName: "store",
->   indexConfig: {
->     name: "store_vector_index",
->     path: "value.content",  // MongoDB reads this field and embeds it server-side
->     model: "voyage-4",      // Voyage AI model used by MongoDB Atlas
->   },
-> });
->
-> // Values must have the content field matching the configured path (value.content)
-> await store.put(["user_123", "memories"], "1", { content: "I love pizza" });
-> await store.put(["user_123", "memories"], "2", { content: "I am a plumber" });
->
-> const chat: GraphNode<typeof State> = async (state, runtime) => {
->   // MongoDB generates the query embedding server-side
->   const items = await runtime.store.search(
->     ["user_123", "memories"],
->     { query: state.messages.at(-1)?.content }
->   );
->   const memories = items
->     .filter((item) => item.score != null && item.score > 0.2)
->     .map((item) => item.value.content)
->     .join("\n");
->   const memoriesText = memories ? `## Memories of user\n${memories}` : "";
->
->   const response = await model.invoke([
->     { role: "system", content: `You are a helpful assistant.\n${memoriesText}` },
->     ...state.messages,
->   ]);
->
->   return { messages: [response] };
-> };
->
-> const builder = new StateGraph(State)
->   .addNode("chat", chat)
->   .addEdge(START, "chat");
-> const graph = builder.compile({ store });
->
-> const stream = await graph.streamEvents(
->   { messages: [{ role: "user", content: "I'm hungry" }] },
->   { version: "v3" }
-> );
-> for await (const message of stream.messages) {
->   for await (const token of message.text) {
->     process.stdout.write(token);
->   }
-> }
-> ```
+> > [tab] MongoDB (auto embedding)
+> >
+> > > [!NOTE]
+> > >
+> > > Auto embedding requires MongoDB Atlas. MongoDB generates embeddings server-side via Voyage AI. See the [Automated Embedding documentation](https://www.mongodb.com/docs/vector-search/) for more information.
+> >
+> > ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> > import { StateGraph, StateSchema, MessagesValue, GraphNode, START } from "@langchain/langgraph";
+> > import { MongoDBStore } from "@langchain/langgraph-checkpoint-mongodb";
+> > import { ChatOpenAI } from "@langchain/openai";
+> >
+> > const State = new StateSchema({
+> >   messages: MessagesValue,
+> > });
+> >
+> > const model = new ChatOpenAI({ model: "gpt-5.4-mini" });
+> >
+> > // Auto embedding: no embeddings instance needed.
+> > // Configure the Voyage AI model and the field path MongoDB will read server-side.
+> > const MONGODB_URI = "mongodb://user:password@localhost:27017";
+> > const store = await MongoDBStore.fromConnString(MONGODB_URI, {
+> >   dbName: "langgraph",
+> >   collectionName: "store",
+> >   indexConfig: {
+> >     name: "store_vector_index",
+> >     path: "value.content",  // MongoDB reads this field and embeds it server-side
+> >     model: "voyage-4",      // Voyage AI model used by MongoDB Atlas
+> >   },
+> > });
+> >
+> > // Values must have the content field matching the configured path (value.content)
+> > await store.put(["user_123", "memories"], "1", { content: "I love pizza" });
+> > await store.put(["user_123", "memories"], "2", { content: "I am a plumber" });
+> >
+> > const chat: GraphNode<typeof State> = async (state, runtime) => {
+> >   // MongoDB generates the query embedding server-side
+> >   const items = await runtime.store.search(
+> >     ["user_123", "memories"],
+> >     { query: state.messages.at(-1)?.content }
+> >   );
+> >   const memories = items
+> >     .filter((item) => item.score != null && item.score > 0.2)
+> >     .map((item) => item.value.content)
+> >     .join("\n");
+> >   const memoriesText = memories ? `## Memories of user\n${memories}` : "";
+> >
+> >   const response = await model.invoke([
+> >     { role: "system", content: `You are a helpful assistant.\n${memoriesText}` },
+> >     ...state.messages,
+> >   ]);
+> >
+> >   return { messages: [response] };
+> > };
+> >
+> > const builder = new StateGraph(State)
+> >   .addNode("chat", chat)
+> >   .addEdge(START, "chat");
+> > const graph = builder.compile({ store });
+> >
+> > const stream = await graph.streamEvents(
+> >   { messages: [{ role: "user", content: "I'm hungry" }] },
+> >   { version: "v3" }
+> > );
+> > for await (const message of stream.messages) {
+> >   for await (const token of message.text) {
+> >     process.stdout.write(token);
+> >   }
+> > }
+> > ```
 
 ## Manage short-term memory
 
@@ -709,7 +709,7 @@ const builder = new StateGraph(State)
   // ...
 ```
 
-> **Full example: trim messages**
+> [accordion] Full example: trim messages
 >
 > ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > import { trimMessages } from "@langchain/core/messages";
@@ -784,7 +784,7 @@ const deleteMessages = (state) => {
 > * Some providers expect message history to start with a `user` message
 > * Most providers require `assistant` messages with tool calls to be followed by corresponding `tool` result messages.
 
-> **Full example: delete messages**
+> [accordion] Full example: delete messages
 >
 > ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > import { RemoveMessage } from "@langchain/core/messages";
@@ -904,7 +904,7 @@ const summarizeConversation: GraphNode<typeof State> = async (state) => {
 };
 ```
 
-> **Full example: summarize messages**
+> [accordion] Full example: summarize messages
 >
 > ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > import { ChatAnthropic } from "@langchain/anthropic";

@@ -10,27 +10,27 @@
 
 ## 能力
 
-> **[Develop your application](https://docs.langchain.com/langsmith/application-structure.md)**
+> [卡][Develop your application](https://docs.langchain.com/langsmith/application-structure.md)
 >
 > 构建您的应用程序，配置 Python、JavaScript 和 monorepos 的依赖项，并使用 RemoteGraph、语义搜索、TTL 和 CI/CD 连接代理。
 
-> **[Agent Server runtime](https://docs.langchain.com/langsmith/agent-server.md)**
+> [卡][Agent Server runtime](https://docs.langchain.com/langsmith/agent-server.md)
 >
 > 使用助手、线程、运行和 cron 作业。流式传输给用户、暂停以供人工审核、处理并发输入并通过 MCP 和 A2A 连接。
 
-> **[Auth & access control](https://docs.langchain.com/langsmith/auth.md)**
+> [卡][Auth & access control](https://docs.langchain.com/langsmith/auth.md)
 >
 > 对用户进行身份验证、强制实施资源级访问并连接外部 OAuth2 身份提供商。
 
-> **[Server customization](https://docs.langchain.com/langsmith/caching.md)**
+> [卡][Server customization](https://docs.langchain.com/langsmith/caching.md)
 >
 > 添加缓存、自定义存储和检查点、生命周期挂钩、中间件、自定义路由、加密以及可配置标头和日志。
 
-> **[REST API](https://docs.langchain.com/langsmith/server-api-ref.md)**
+> [卡片] [REST API](https://docs.langchain.com/langsmith/server-api-ref.md)
 >
-> 针对助手、线程、运行、cron、存储、A2A、MCP 和系统端点的完整 REST API 参考。
+> 针对助手、线程、运行、cron、存储、A2A、MCP 和系统端点的完整 REST API 参考。## 教程
 
-## 教程* [Collect user feedback for Agent Server runs](https://docs.langchain.com/langsmith/agent-server-feedback.md)：将最终用户反馈附加到运行和跟踪中
+* [Collect user feedback for Agent Server runs](https://docs.langchain.com/langsmith/agent-server-feedback.md)：将最终用户反馈附加到运行和跟踪中
 * [Deploy other frameworks (e.g., Strands, CrewAI)](https://docs.langchain.com/langsmith/deploy-other-frameworks.md)：使用功能 API 包装现有代理并部署
 * [Implement generative user interfaces with LangGraph](https://docs.langchain.com/langsmith/generative-ui-react.md)：将 UI 元素流式传输到 React 客户端
 * [Implement a CI/CD pipeline](https://docs.langchain.com/langsmith/cicd-pipeline-example.md)：使用 GitHub Actions 自动化测试、评估和部署

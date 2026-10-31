@@ -34,7 +34,7 @@ Status: thinking of a joke...
 Node generate_joke updated: {'joke': 'Why did the ice cream go to school? To get a sundae education!'}
 ```
 
-> **完整示例**
+> [手风琴] 完整示例
 >
 > ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > from typing import TypedDict
@@ -138,7 +138,7 @@ for part in graph.stream(
 ## 流模式
 
 将以下一种或多种流模式作为列表传递给 [⟦T72⟧](https://reference.langchain.com/python/langgraph/graphs/#langgraph.graph.state.CompiledStateGraph.stream) 或 [⟦T73⟧](https://reference.langchain.com/python/langgraph/graphs/#langgraph.graph.state.CompiledStateGraph.astream) 方法：|模式|类型 |描述 |
-| :- | :- | :- |
+| :-| :-| :-|
 | [values](#graph-state) | [⟦T74⟧](https://reference.langchain.com/python/langgraph/types/ValuesStreamPart) |每一步后的完整状态。 |
 | [updates](#graph-state) | [⟦T75⟧](https://reference.langchain.com/python/langgraph/types/UpdatesStreamPart) |每个步骤后状态都会更新。同一步骤中的多个更新分别进行流式传输。 |
 | [messages](#llm-tokens) | [⟦T76⟧](https://reference.langchain.com/python/langgraph/types/MessagesStreamPart) |来自 LLM 调用的 2 元组（LLM 令牌、元数据）。 |
@@ -182,47 +182,47 @@ graph = (
 )
 ```
 
-**更新**
+> [标签] 更新
+>
+> 使用此功能仅传输每个步骤后节点返回的**状态更新**。流式输出包括节点的名称以及更新。
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> for chunk in graph.stream(
+>     {"topic": "ice cream"},
+>     stream_mode="updates",  # [!code highlight]
+>     version="v2",  # [!code highlight]
+> ):
+>     if chunk["type"] == "updates":
+>         for node_name, state in chunk["data"].items():
+>             print(f"Node `{node_name}` updated: {state}")
+> ```
+>
+> ```shell title="Output" theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> Node `refine_topic` updated: {'topic': 'ice cream and cats'}
+> Node `generate_joke` updated: {'joke': 'This is a joke about ice cream and cats'}
+> ```
 
-使用它仅流式传输每个步骤后节点返回的**状态更新**。流式输出包括节点的名称以及更新。
+> [选项卡] 值
+>
+> 使用它在每个步骤之后流式传输图表的**完整状态**。
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> for chunk in graph.stream(
+>     {"topic": "ice cream"},
+>     stream_mode="values",  # [!code highlight]
+>     version="v2",  # [!code highlight]
+> ):
+>     if chunk["type"] == "values":
+>         print(f"topic: {chunk['data']['topic']}, joke: {chunk['data']['joke']}")
+> ```
+>
+> ```shell title="Output" theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> topic: ice cream, joke:
+> topic: ice cream and cats, joke:
+> topic: ice cream and cats, joke: This is a joke about ice cream and cats
+> ```### LLM 代币
 
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-for chunk in graph.stream(
-    {"topic": "ice cream"},
-    stream_mode="updates",  # [!code highlight]
-    version="v2",  # [!code highlight]
-):
-    if chunk["type"] == "updates":
-        for node_name, state in chunk["data"].items():
-            print(f"Node `{node_name}` updated: {state}")
-```
-
-```shell title="Output" theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-Node `refine_topic` updated: {'topic': 'ice cream and cats'}
-Node `generate_joke` updated: {'joke': 'This is a joke about ice cream and cats'}
-```
-
-**数值**
-
-使用它可以在每个步骤之后流式传输图表的**完整状态**。
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-for chunk in graph.stream(
-    {"topic": "ice cream"},
-    stream_mode="values",  # [!code highlight]
-    version="v2",  # [!code highlight]
-):
-    if chunk["type"] == "values":
-        print(f"topic: {chunk['data']['topic']}, joke: {chunk['data']['joke']}")
-```
-
-```shell title="Output" theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-topic: ice cream, joke:
-topic: ice cream and cats, joke:
-topic: ice cream and cats, joke: This is a joke about ice cream and cats
-```
-
-### LLM 代币使用 `messages` 流模式从图形的任何部分（包括节点、工具、子图或任务）**逐个令牌**流式传输大型语言模型 (LLM) 输出。
+使用 `messages` 流模式从图形的任何部分（包括节点、工具、子图或任务）**逐个令牌**流式传输大型语言模型 (LLM) 输出。
 
 [⟦T90⟧ mode](#stream-modes) 的流式输出是一个元组 `(message_chunk, metadata)`，其中：
 
@@ -233,7 +233,7 @@ topic: ice cream and cats, joke: This is a joke about ice cream and cats
 
 > [!警告]
 >
-> **Python 中的异步需要手动配置 \< 3.11**
+> **Python 中异步需要手动配置 \< 3.11**
 > 使用 Python 时 \< 3.11 with async code, you must explicitly pass ⟦T224⟧ to ⟦T96⟧ to enable proper streaming. See ⟦T225⟧ for details or upgrade to Python 3.11+.
 
 ⟦T13⟧
@@ -244,7 +244,7 @@ You can associate ⟦T97⟧ with LLM invocations to filter the streamed tokens b
 
 ⟦T14⟧
 
-> **扩展示例：按标签过滤**
+> [accordion] 扩展示例：按标签过滤
 >
 > ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > from typing import TypedDict
@@ -356,7 +356,7 @@ graph = (
 
 initial_state: State = {"topic": "AI", "answer": "", "notes": ""}
 stream = graph.stream_events(initial_state, version="v3")
-```> **[View example trace](https://smith.langchain.com/public/e378901c-6fa4-4f1c-8390-d4e59b74306d/r)**
+```> [卡][View example trace](https://smith.langchain.com/public/e378901c-6fa4-4f1c-8390-d4e59b74306d/r)
 >
 > 为此示例打开公共 LangSmith 运行。
 
@@ -380,7 +380,7 @@ for chunk in graph.stream(
             ...
 ```
 
-> **扩展示例：从特定节点流式传输 LLM 令牌**
+> [accordion] 扩展示例：从特定节点流式传输 LLM 令牌
 >
 > ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > from typing import TypedDict
@@ -451,97 +451,97 @@ for chunk in graph.stream(
 > 相反，将 `writer` 参数添加到节点或工具并手动传递它。
 > 使用示例请参阅[Async with Python \< 3.11](#async)。
 
-**节点**
+> [选项卡] 节点
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> from typing import TypedDict
+> from langgraph.config import get_stream_writer
+> from langgraph.graph import StateGraph, START
+>
+> class State(TypedDict):
+>     query: str
+>     answer: str
+>
+> def node(state: State):
+>     # Get the stream writer to send custom data
+>     writer = get_stream_writer()
+>     # Emit a custom key-value pair (e.g., progress update)
+>     writer({"custom_key": "Generating custom data inside node"})
+>     return {"answer": "some data"}
+>
+> graph = (
+>     StateGraph(State)
+>     .add_node(node)
+>     .add_edge(START, "node")
+>     .compile()
+> )
+>
+> inputs = {"query": "example"}
+>
+> # Set stream_mode="custom" to receive the custom data in the stream
+> for chunk in graph.stream(inputs, stream_mode="custom", version="v2"):
+>     if chunk["type"] == "custom":
+>         print(f"Custom event: {chunk['data']['custom_key']}")
+> ```
 
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-from typing import TypedDict
-from langgraph.config import get_stream_writer
-from langgraph.graph import StateGraph, START
-
-class State(TypedDict):
-    query: str
-    answer: str
-
-def node(state: State):
-    # Get the stream writer to send custom data
-    writer = get_stream_writer()
-    # Emit a custom key-value pair (e.g., progress update)
-    writer({"custom_key": "Generating custom data inside node"})
-    return {"answer": "some data"}
-
-graph = (
-    StateGraph(State)
-    .add_node(node)
-    .add_edge(START, "node")
-    .compile()
-)
-
-inputs = {"query": "example"}
-
-# Set stream_mode="custom" to receive the custom data in the stream
-for chunk in graph.stream(inputs, stream_mode="custom", version="v2"):
-    if chunk["type"] == "custom":
-        print(f"Custom event: {chunk['data']['custom_key']}")
-```
-
-**工具**
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-from langchain.tools import tool
-from langgraph.config import get_stream_writer
-
-@tool
-def query_database(query: str) -> str:
-    """Query the database."""
-    # Access the stream writer to send custom data
-    writer = get_stream_writer()  # [!code highlight]
-    # Emit a custom key-value pair (e.g., progress update)
-    writer({"data": "Retrieved 0/100 records", "type": "progress"})  # [!code highlight]
-    # perform query
-    # Emit another custom key-value pair
-    writer({"data": "Retrieved 100/100 records", "type": "progress"})
-    return "some-answer"
-
-
-graph = ... # define a graph that uses this tool
-
-# Set stream_mode="custom" to receive the custom data in the stream
-for chunk in graph.stream(inputs, stream_mode="custom", version="v2"):
-    if chunk["type"] == "custom":
-        print(f"{chunk['data']['type']}: {chunk['data']['data']}")
-```
+> [选项卡] 工具
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> from langchain.tools import tool
+> from langgraph.config import get_stream_writer
+>
+> @tool
+> def query_database(query: str) -> str:
+>     """Query the database."""
+>     # Access the stream writer to send custom data
+>     writer = get_stream_writer()  # [!code highlight]
+>     # Emit a custom key-value pair (e.g., progress update)
+>     writer({"data": "Retrieved 0/100 records", "type": "progress"})  # [!code highlight]
+>     # perform query
+>     # Emit another custom key-value pair
+>     writer({"data": "Retrieved 100/100 records", "type": "progress"})
+>     return "some-answer"
+>
+>
+> graph = ... # define a graph that uses this tool
+>
+> # Set stream_mode="custom" to receive the custom data in the stream
+> for chunk in graph.stream(inputs, stream_mode="custom", version="v2"):
+>     if chunk["type"] == "custom":
+>         print(f"{chunk['data']['type']}: {chunk['data']['data']}")
+> ```
 
 ### 子图输出
 
 要将 [subgraphs](/oss/python/langgraph/use-subgraphs) 的输出包含在流式输出中，您可以在父图的 `.stream()` 方法中设置 `subgraphs=True`。这将从父图和任何子图流输出。输出将作为元组`(namespace, data)`进行流式传输，其中`namespace`是一个元组，其中包含调用子图的节点的路径，例如`("parent_node:<task_id>", "child_node:<task_id>")`。
 
-**v2（LangGraph 1.1 或更高版本）**
+> [选项卡] v2 (LangGraph 1.1 或更高版本)
+>
+> 对于`version="v2"`，子图事件使用相同的`StreamPart` 格式。 `ns` 字段标识源：
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> for chunk in graph.stream(
+>     {"foo": "foo"},
+>     subgraphs=True,  # [!code highlight]
+>     stream_mode="updates",
+>     version="v2", # [!code highlight]
+> ):
+>     print(chunk["type"])  # "updates"
+>     print(chunk["ns"])    # () for root, ("node_name:<task_id>",) for subgraph
+>     print(chunk["data"])  # {"node_name": {"key": "value"}}
+> ```
 
-对于`version="v2"`，子图事件使用相同的`StreamPart`格式。 `ns` 字段标识源：
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-for chunk in graph.stream(
-    {"foo": "foo"},
-    subgraphs=True,  # [!code highlight]
-    stream_mode="updates",
-    version="v2", # [!code highlight]
-):
-    print(chunk["type"])  # "updates"
-    print(chunk["ns"])    # () for root, ("node_name:<task_id>",) for subgraph
-    print(chunk["data"])  # {"node_name": {"key": "value"}}
-```
-
-**v1（默认）**
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-for chunk in graph.stream(
-    {"foo": "foo"},
-    # Set subgraphs=True to stream outputs from subgraphs
-    subgraphs=True,  # [!code highlight]
-    stream_mode="updates",
-):
-    print(chunk)
-```
+> [选项卡] v1（默认）
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> for chunk in graph.stream(
+>     {"foo": "foo"},
+>     # Set subgraphs=True to stream outputs from subgraphs
+>     subgraphs=True,  # [!code highlight]
+>     stream_mode="updates",
+> ):
+>     print(chunk)
+> ```
 
 > [!注意]
 >
@@ -570,7 +570,7 @@ for chunk in graph.stream(
 >     print(chunk["data"])  # (token, metadata)
 > ```
 
-> **扩展示例：从子图流式传输**
+> [accordion] 扩展示例：从子图流式传输
 >
 > ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > from langgraph.graph import START, StateGraph
@@ -762,7 +762,7 @@ for chunk in graph.stream(
     if chunk["type"] == "custom":
         # The chunk data will contain the custom data streamed from the llm
         print(chunk["data"])
-```> **扩展示例：流式任意聊天模型**
+```> [手风琴]扩展示例：流式任意聊天模型
 >
 > ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > import operator
@@ -890,26 +890,26 @@ for chunk in graph.stream(
 
 初始化模型时设置`streaming=False`。
 
-**初始化\_chat\_model**
+> [选项卡] init\_chat\_model
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> from langchain.chat_models import init_chat_model
+>
+> model = init_chat_model(
+>     "claude-sonnet-4-6",
+>     # Set streaming=False to disable streaming for the chat model
+>     streaming=False  # [!code highlight]
+> )
+> ```
 
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-from langchain.chat_models import init_chat_model
-
-model = init_chat_model(
-    "claude-sonnet-4-6",
-    # Set streaming=False to disable streaming for the chat model
-    streaming=False  # [!code highlight]
-)
-```
-
-**聊天模型界面**
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-from langchain_openai import ChatOpenAI
-
-# Set streaming=False to disable streaming for the chat model
-model = ChatOpenAI(model="gpt-5.5", streaming=False)
-```
+> [tab] 聊天模型界面
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> from langchain_openai import ChatOpenAI
+>
+> # Set streaming=False to disable streaming for the chat model
+> model = ChatOpenAI(model="gpt-5.5", streaming=False)
+> ```
 
 > [!注意]
 >
@@ -917,9 +917,9 @@ model = ChatOpenAI(model="gpt-5.5", streaming=False)
 
 ### 迁移到 v2
 
-v2 流格式（本页中使用）提供了统一的输出格式。以下是主要差异以及如何迁移的摘要：|场景| v1（默认）| v2 (`version="v2"`) |
+v2 流格式（本页中使用）提供了统一的输出格式。以下是主要差异以及如何迁移的摘要：|场景 | v1（默认）| v2 (`version="v2"`) |
 | - | - | - |
-|单流模式|原始数据（字典）| `StreamPart` 字典与 `type`、`ns`、`data` |
+|单流模式 |原始数据（字典）| `StreamPart` 字典与 `type`、`ns`、`data` |
 |多种码流模式 | `(mode, data)` 元组 |相同的 `StreamPart` 字典，在 `chunk["type"]` 上过滤 |
 |子图流 | `(namespace, data)` 元组 |相同的 `StreamPart` 字典，检查 `chunk["ns"]` |
 |多种模式+子图| `(namespace, mode, data)` 三倍|相同的 `StreamPart` 字典 |
@@ -986,7 +986,7 @@ for chunk in graph.stream(
     print(type(chunk["data"]))  # <class 'MyState'>
 ```
 
-### 使用 Python 异步 \< 3.11
+### Async with Python \< 3.11
 
 In Python versions \< 3.11, ⟦T237⟧ do not support the ⟦T186⟧ parameter.
 This limits LangGraph ability to automatically propagate context, and affects LangGraph's streaming mechanisms in two key ways:
@@ -994,7 +994,7 @@ This limits LangGraph ability to automatically propagate context, and affects La
 1. You **must** explicitly pass ⟦T238⟧ into async LLM calls (e.g., ⟦T188⟧), as callbacks are not automatically propagated.
 2. You **cannot** use ⟦T239⟧ in async nodes or tools—you must pass a ⟦T190⟧ argument directly.
 
-> **扩展示例：使用手动配置的异步 LLM 调用**
+> [accordion] 扩展示例：使用手动配置的异步 LLM 调用
 >
 > ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > from typing import TypedDict
@@ -1037,7 +1037,7 @@ This limits LangGraph ability to automatically propagate context, and affects La
 >             print(message_chunk.content, end="|", flush=True)
 > ```
 
-> **扩展示例：使用流编写器的异步自定义流**
+> [accordion] 扩展示例：使用流编写器的异步自定义流
 >
 > ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > from typing import TypedDict

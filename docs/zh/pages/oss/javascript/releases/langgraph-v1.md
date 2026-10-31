@@ -8,15 +8,15 @@
 
 它旨在与 [LangChain v1](/oss/javascript/releases/langchain-v1)（其 `createAgent` 构建于 LangGraph 之上）协同工作，因此您可以从高层开始，并在需要时下降到精细控制。
 
-> **稳定的核心API**
+> [卡片]稳定的核心API
 >
 > 图基元（状态、节点、边）和执行/运行时模型保持不变，使升级变得简单。
 
-> **默认可靠性**
+> [卡] 可靠性，默认
 >
 > 具有检查点、持久性、流式传输和人机交互的持久执行仍然是一流的。
 
-> **与 LangChain v1 无缝连接**
+> [卡片] 与 LangChain v1 无缝连接
 >
 > LangChain 的 `createAgent` 在 LangGraph 上运行。使用LangChain快速启动；下降到 LangGraph 进行自定义编排。
 
@@ -95,7 +95,7 @@ if (graph.isInterrupted(result)) {
 
 ### 事件流编码
 
-低级 `toLangGraphEventStream` 助手已被删除。流式响应现在由 SDK 本机处理，您可以通过将 `encoding` 格式传递到 `graph.stream` 来选择有线格式。这使得 SSE 和普通 JSON 响应之间的切换变得简单，无需更改 UI 逻辑。
+低级 `toLangGraphEventStream` 助手已被删除。流响应现在由 SDK 本机处理，您可以通过将 `encoding` 格式传递到 `graph.stream` 来选择有线格式。这使得 SSE 和普通 JSON 响应之间的切换变得简单，无需更改 UI 逻辑。
 
 请参阅[migration guide](/oss/javascript/migrate/langgraph-v1#event-stream-encoding)了解更多信息。
 
@@ -117,27 +117,27 @@ const stream = useStream({
 
 请使用 [⟦T20⟧ label](https://github.com/langchain-ai/langgraphjs/issues?q=state%3Aopen%20label%3Av1) 在 [GitHub](https://github.com/langchain-ai/langgraphjs/issues) 报告 1.0 中发现的任何问题。
 
-## 其他资源> **[LangGraph 1.0](https://blog.langchain.com/langchain-langchain-1-0-alpha-releases/)**
+## 其他资源> [卡片][LangGraph 1.0](https://blog.langchain.com/langchain-langchain-1-0-alpha-releases/)
 >
 > 阅读公告
 
-> **[Overview](/oss/javascript/langgraph/overview)**
+> [卡][Overview](/oss/javascript/langgraph/overview)
 >
 > LangGraph是什么以及何时使用它
 
-> **[Graph API](/oss/javascript/langgraph/graph-api)**
+> [卡][Graph API](/oss/javascript/langgraph/graph-api)
 >
 > 使用状态、节点和边构建图
 
-> **[LangChain Agents](/oss/javascript/langchain/agents)**
+> [卡][LangChain Agents](/oss/javascript/langchain/agents)
 >
 > 基于LangGraph构建的高级代理
 
-> **[Migration guide](/oss/javascript/migrate/langgraph-v1)**
+> [卡][Migration guide](/oss/javascript/migrate/langgraph-v1)
 >
 > 如何迁移到LangGraph v1
 
-> **[GitHub](https://github.com/langchain-ai/langgraphjs)**
+> [卡][GitHub](https://github.com/langchain-ai/langgraphjs)
 >
 > 报告问题或贡献
 

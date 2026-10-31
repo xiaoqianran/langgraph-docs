@@ -76,7 +76,7 @@ resumed = graph.stream_events(Command(resume=True), config=config, version="v3")
 final = resumed.output
 ```
 
-> **[View example trace](https://smith.langchain.com/public/4741fc73-bfe6-4c7d-a1b8-b19349fa0189/r)**
+> [card] [View example trace](https://smith.langchain.com/public/4741fc73-bfe6-4c7d-a1b8-b19349fa0189/r)
 >
 > Open a public LangSmith run for this example.
 
@@ -200,7 +200,7 @@ while True:
     stream_input = Command(resume=user_response)
 ```
 
-> **[View example trace](https://smith.langchain.com/public/9305def9-923f-419c-9ffd-a44a8492ef45/r)**
+> [card] [View example trace](https://smith.langchain.com/public/9305def9-923f-419c-9ffd-a44a8492ef45/r)
 >
 > Open a public LangSmith run for this example.
 
@@ -268,7 +268,7 @@ print("Final state:", resumed.output)
 # Final state: {'vals': ['a:answer for question_a', 'b:answer for question_b']}
 ```
 
-> **[View example trace](https://smith.langchain.com/public/865aef4a-3f52-4774-936e-0e21756f2cc1/r)**
+> [card] [View example trace](https://smith.langchain.com/public/865aef4a-3f52-4774-936e-0e21756f2cc1/r)
 >
 > Open a public LangSmith run for this example.
 
@@ -304,7 +304,7 @@ graph.stream_events(Command(resume=True), config=config, version="v3").output
 graph.stream_events(Command(resume=False), config=config, version="v3").output
 ```
 
-> **Full example**
+> [accordion] Full example
 >
 > ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > from typing import Literal, Optional, TypedDict
@@ -366,7 +366,7 @@ graph.stream_events(Command(resume=False), config=config, version="v3").output
 > print(resumed.output["status"])
 > ```
 >
-> > **[View example trace](https://smith.langchain.com/public/c2ed3d48-f1f0-4bb8-919b-0fa46ca88ca6/r)**
+> > [card] [View example trace](https://smith.langchain.com/public/c2ed3d48-f1f0-4bb8-919b-0fa46ca88ca6/r)
 > >
 > > Open a public LangSmith run for this example.
 
@@ -398,7 +398,7 @@ graph.stream_events(
 ).output
 ```
 
-> **Full example**
+> [accordion] Full example
 >
 > ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > from typing import TypedDict
@@ -447,7 +447,7 @@ graph.stream_events(
 > print(final_state.output["generated_text"])  # -> "Improved draft after review"
 > ```
 >
-> > **[View example trace](https://smith.langchain.com/public/cb22ff81-2f4f-40ef-9e6c-4a646c284d60/r)**
+> > [card] [View example trace](https://smith.langchain.com/public/cb22ff81-2f4f-40ef-9e6c-4a646c284d60/r)
 > >
 > > Open a public LangSmith run for this example.
 
@@ -485,7 +485,7 @@ def send_email(to: str, subject: str, body: str):
 
 This approach is useful when you want the approval logic to live with the tool itself, making it reusable across different parts of your graph. The LLM can call the tool naturally, and the interrupt will pause execution whenever the tool is invoked, allowing you to approve, edit, or cancel the action.
 
-> **Full example**
+> [accordion] Full example
 >
 > ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > import sqlite3
@@ -637,7 +637,7 @@ builder.add_conditional_edges("collect_age", route)
 
 In this example, an invalid answer causes the node to return the updated question. During the same graph run, the conditional edge invokes the node again, and this new invocation pauses at `interrupt()`. On a later resume, the node still restarts from the beginning, so any code before `interrupt()` runs again. See [Rules of interrupts](#rules-of-interrupts).
 
-> **Full example**
+> [accordion] Full example
 >
 > ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > from typing import TypedDict
@@ -968,62 +968,62 @@ To debug and test a graph, you can use static interrupts as breakpoints to step 
 >
 > Static interrupts are **not** recommended for human-in-the-loop workflows. Use the [`interrupt`](https://reference.langchain.com/python/langgraph/types/interrupt) function instead.
 
-**At compile time**
+> [tab] At compile time
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> graph = builder.compile(
+>     interrupt_before=["node_a"],  # [!code highlight]
+>     interrupt_after=["node_b", "node_c"],  # [!code highlight]
+>     checkpointer=checkpointer,
+> )
+>
+> # Pass a thread ID to the graph
+> config = {
+>     "configurable": {
+>         "thread_id": "some_thread"
+>     }
+> }
+>
+> # Run the graph until the breakpoint
+> graph.invoke(inputs, config=config)  # [!code highlight]
+>
+> # Resume the graph
+> graph.invoke(None, config=config)  # [!code highlight]
+> ```
+>
+> 1. The breakpoints are set during `compile` time.
+> 2. `interrupt_before` specifies the nodes where execution should pause before the node is executed.
+> 3. `interrupt_after` specifies the nodes where execution should pause after the node is executed.
+> 4. A checkpointer is required to enable breakpoints.
+> 5. The graph is run until the first breakpoint is hit.
+> 6. The graph is resumed by passing in `None` for the input. This will run the graph until the next breakpoint is hit.
 
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-graph = builder.compile(
-    interrupt_before=["node_a"],  # [!code highlight]
-    interrupt_after=["node_b", "node_c"],  # [!code highlight]
-    checkpointer=checkpointer,
-)
-
-# Pass a thread ID to the graph
-config = {
-    "configurable": {
-        "thread_id": "some_thread"
-    }
-}
-
-# Run the graph until the breakpoint
-graph.invoke(inputs, config=config)  # [!code highlight]
-
-# Resume the graph
-graph.invoke(None, config=config)  # [!code highlight]
-```
-
-1. The breakpoints are set during `compile` time.
-2. `interrupt_before` specifies the nodes where execution should pause before the node is executed.
-3. `interrupt_after` specifies the nodes where execution should pause after the node is executed.
-4. A checkpointer is required to enable breakpoints.
-5. The graph is run until the first breakpoint is hit.
-6. The graph is resumed by passing in `None` for the input. This will run the graph until the next breakpoint is hit.
-
-**At run time**
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-config = {
-    "configurable": {
-        "thread_id": "some_thread"
-    }
-}
-
-# Run the graph until the breakpoint
-graph.invoke(
-    inputs,
-    interrupt_before=["node_a"],  # [!code highlight]
-    interrupt_after=["node_b", "node_c"],  # [!code highlight]
-    config=config,
-)
-
-# Resume the graph
-graph.invoke(None, config=config)  # [!code highlight]
-```
-
-1. `graph.invoke` is called with the `interrupt_before` and `interrupt_after` parameters. This is a run-time configuration and can be changed for every invocation.
-2. `interrupt_before` specifies the nodes where execution should pause before the node is executed.
-3. `interrupt_after` specifies the nodes where execution should pause after the node is executed.
-4. The graph is run until the first breakpoint is hit.
-5. The graph is resumed by passing in `None` for the input. This will run the graph until the next breakpoint is hit.
+> [tab] At run time
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> config = {
+>     "configurable": {
+>         "thread_id": "some_thread"
+>     }
+> }
+>
+> # Run the graph until the breakpoint
+> graph.invoke(
+>     inputs,
+>     interrupt_before=["node_a"],  # [!code highlight]
+>     interrupt_after=["node_b", "node_c"],  # [!code highlight]
+>     config=config,
+> )
+>
+> # Resume the graph
+> graph.invoke(None, config=config)  # [!code highlight]
+> ```
+>
+> 1. `graph.invoke` is called with the `interrupt_before` and `interrupt_after` parameters. This is a run-time configuration and can be changed for every invocation.
+> 2. `interrupt_before` specifies the nodes where execution should pause before the node is executed.
+> 3. `interrupt_after` specifies the nodes where execution should pause after the node is executed.
+> 4. The graph is run until the first breakpoint is hit.
+> 5. The graph is resumed by passing in `None` for the input. This will run the graph until the next breakpoint is hit.
 
 > [!TIP]
 >

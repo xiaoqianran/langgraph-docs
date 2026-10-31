@@ -6,15 +6,15 @@
 
 It's designed to work hand-in-hand with [LangChain v1](/oss/javascript/releases/langchain-v1) (whose `createAgent` is built on LangGraph) so you can start high-level and drop down to granular control when needed.
 
-> **Stable core APIs**
+> [card] Stable core APIs
 >
 > Graph primitives (state, nodes, edges) and the execution/runtime model are unchanged, making upgrades straightforward.
 
-> **Reliability, by default**
+> [card] Reliability, by default
 >
 > Durable execution with checkpointing, persistence, streaming, and human-in-the-loop continues to be first-class.
 
-> **Seamless with LangChain v1**
+> [card] Seamless with LangChain v1
 >
 > LangChain's `createAgent` runs on LangGraph. Use LangChain for a fast start; drop to LangGraph for custom orchestration.
 
@@ -119,27 +119,27 @@ Please report any issues discovered with 1.0 on [GitHub](https://github.com/lang
 
 ## Additional resources
 
-> **[LangGraph 1.0](https://blog.langchain.com/langchain-langchain-1-0-alpha-releases/)**
+> [card] [LangGraph 1.0](https://blog.langchain.com/langchain-langchain-1-0-alpha-releases/)
 >
 > Read the announcement
 
-> **[Overview](/oss/javascript/langgraph/overview)**
+> [card] [Overview](/oss/javascript/langgraph/overview)
 >
 > What LangGraph is and when to use it
 
-> **[Graph API](/oss/javascript/langgraph/graph-api)**
+> [card] [Graph API](/oss/javascript/langgraph/graph-api)
 >
 > Build graphs with state, nodes, and edges
 
-> **[LangChain Agents](/oss/javascript/langchain/agents)**
+> [card] [LangChain Agents](/oss/javascript/langchain/agents)
 >
 > High-level agents built on LangGraph
 
-> **[Migration guide](/oss/javascript/migrate/langgraph-v1)**
+> [card] [Migration guide](/oss/javascript/migrate/langgraph-v1)
 >
 > How to migrate to LangGraph v1
 
-> **[GitHub](https://github.com/langchain-ai/langgraphjs)**
+> [card] [GitHub](https://github.com/langchain-ai/langgraphjs)
 >
 > Report issues or contribute
 

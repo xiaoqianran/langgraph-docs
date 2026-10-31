@@ -6,13 +6,13 @@ LangSmith Deployment's **Agent Server** offers an API for creating and managing 
 
 Use Agent Server to create and manage:
 
-> **[Assistants](https://docs.langchain.com/langsmith/assistants.md)**
+> [card] [Assistants](https://docs.langchain.com/langsmith/assistants.md)
 
-> **[Threads](https://docs.langchain.com/langsmith/use-threads.md)**
+> [card] [Threads](https://docs.langchain.com/langsmith/use-threads.md)
 
-> **[Runs](https://docs.langchain.com/langsmith/runs.md)**
+> [card] [Runs](https://docs.langchain.com/langsmith/runs.md)
 
-> **[Cron jobs](https://docs.langchain.com/langsmith/cron-jobs.md)**
+> [card] [Cron jobs](https://docs.langchain.com/langsmith/cron-jobs.md)
 
 > [!TIP]
 >

@@ -19,7 +19,7 @@
 | **状态持久性** |内存中并腌制到本地目录 | PostgreSQL |
 | **热重载** |是（默认）|可选（`--watch`标志）|
 | **默认端口** | `2024` | `8123` |
-| **资源使用** |轻量化|更重（为服务器、PostgreSQL 和 Redis 构建和运行单独的 docker 容器）|
+| **资源使用** |轻量化|更重（为服务器、PostgreSQL 和 Redis 构建并运行单独的 docker 容器）|
 | **IDE 调试** |内置[DAP](https://microsoft.github.io/debug-adapter-protocol/)支持 |定期容器调试 |
 | **自定义授权** |是的 |是（带有许可证密钥）|
 
@@ -64,7 +64,7 @@ flowchart LR
 >
 > `dev` 服务器使用与生产相同的集成测试套件进行测试，以确保其行为在开发过程中相同，同时使用最少的资源。
 
-> **开始使用 langgraph 开发**
+> [手风琴] langgraph dev 入门
 >
 > 开始之前，请确保您拥有：
 >
@@ -73,19 +73,19 @@ flowchart LR
 >
 > **1。创建一个LangGraph应用程序**
 >
-> 从 [⟦T45⟧ template](https://github.com/langchain-ai/new-langgraph-project) 或 [⟦T46⟧ template](https://github.com/langchain-ai/new-langgraphjs-project) 创建新应用程序。该模板演示了您可以使用自己的逻辑进行扩展的单节点应用程序。
+> 从 [⟦T45⟧ template](https://github.com/langchain-ai/new-langgraph-project) 或 [⟦T46⟧ template](https://github.com/langchain-ai/new-langgraphjs-project) 创建新应用程序。此模板演示了您可以使用自己的逻辑进行扩展的单节点应用程序。
 >
-> **Python 服务器**
+>> [选项卡] Python 服务器
+>>
+>> ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> > uvx --from langgraph-cli@latest langgraph new path/to/your/app --template new-langgraph-project-python
+> > ```
 >
-> ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-> uvx --from langgraph-cli@latest langgraph new path/to/your/app --template new-langgraph-project-python
-> ```
->
-> **节点服务器**
->
-> ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-> npx @langchain/langgraph-cli new path/to/your/app --template new-langgraph-project-js
-> ```
+>> [选项卡] 节点服务器
+>>
+>> ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> > npx @langchain/langgraph-cli new path/to/your/app --template new-langgraph-project-js
+> > ```
 >
 >> [!提示]
 >>
@@ -95,33 +95,33 @@ flowchart LR
 >
 > **2。安装依赖项**
 >
-> **Python 服务器**
+>> [选项卡] Python 服务器
+>>
+>> ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> > cd path/to/your/app
+> > uv sync --dev -U
+> > ```
 >
-> ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-> cd path/to/your/app
-> uv sync --dev -U
-> ```
->
-> **节点服务器**
->
-> ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-> cd path/to/your/app
-> yarn install
-> ```
+>> [选项卡] 节点服务器
+>>
+>> ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> > cd path/to/your/app
+> > yarn install
+> > ```
 >
 > **3。启动代理服务器**
 >
-> **Python 服务器**
+>> [选项卡] Python 服务器
+>>
+>> ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> > uv run langgraph dev
+> > ```
 >
-> ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-> uv run langgraph dev
-> ```
->
-> **节点服务器**
->
-> ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-> npx @langchain/langgraph-cli dev
-> ```
+>> [选项卡] 节点服务器
+>>
+>> ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> > npx @langchain/langgraph-cli dev
+> > ```
 >
 > 输出示例：
 >
@@ -137,125 +137,125 @@ flowchart LR
 >
 > **4。测试 API**
 >
-> **Python SDK（异步）**
->
-> 1.安装LangGraphPython SDK：
->
-> ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-> pip install langgraph-sdk
-> ```
->
-> 2. 向助手发送消息（无线程运行）：
->
-> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-> from langgraph_sdk import get_client
-> import asyncio
->
-> client = get_client(url="http://localhost:2024")
->
-> async def main():
->     async for chunk in client.runs.stream(
->         None,  # Threadless run
->         "agent", # Name of assistant. Defined in langgraph.json.
->         input={
->         "messages": [{
->             "role": "human",
->             "content": "What is LangGraph?",
->             }],
->         },
->     ):
->         print(f"Receiving new event of type: {chunk.event}...")
->         print(chunk.data)
->         print("\n\n")
->
-> asyncio.run(main())
-> ```
->
-> **Python SDK（同步）**
+>> [选项卡] Python SDK（异步）
+>>
 >> 1.安装LangGraphPython SDK：
+>>
+>> ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> > pip install langgraph-sdk
+> > ```
+>>>> 2.向助手发送消息（无线程运行）：
+>>
+>> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> > from langgraph_sdk import get_client
+> > import asyncio
+> >
+> > client = get_client(url="http://localhost:2024")
+> >
+> > async def main():
+> >     async for chunk in client.runs.stream(
+> >         None,  # Threadless run
+> >         "agent", # Name of assistant. Defined in langgraph.json.
+> >         input={
+> >         "messages": [{
+> >             "role": "human",
+> >             "content": "What is LangGraph?",
+> >             }],
+> >         },
+> >     ):
+> >         print(f"Receiving new event of type: {chunk.event}...")
+> >         print(chunk.data)
+> >         print("\n\n")
+> >
+> > asyncio.run(main())
+> > ```
 >
-> ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-> pip install langgraph-sdk
-> ```
+>> [选项卡] Python SDK（同步）
+>>
+>> 1.安装LangGraphPython SDK：
+>>
+>> ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> > pip install langgraph-sdk
+> > ```
+>>
+>> 2.向助手发送消息（无线程运行）：
+>>
+>> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> > from langgraph_sdk import get_sync_client
+> >
+> > client = get_sync_client(url="http://localhost:2024")
+> >
+> > for chunk in client.runs.stream(
+> >     None,  # Threadless run
+> >     "agent", # Name of assistant. Defined in langgraph.json.
+> >     input={
+> >         "messages": [{
+> >             "role": "human",
+> >             "content": "What is LangGraph?",
+> >         }],
+> >     },
+> >     stream_mode="messages-tuple",
+> > ):
+> >     print(f"Receiving new event of type: {chunk.event}...")
+> >     print(chunk.data)
+> >     print("\n\n")
+> > ```
 >
-> 2. 向助手发送消息（无线程运行）：
+>> [选项卡] Javascript SDK
+>>
+>> 1.安装LangGraphJS SDK：
+>>
+>> ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> > npm install @langchain/langgraph-sdk
+> > ```
+>>
+>> 2.向助手发送消息（无线程运行）：
+>>
+>> ```js theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> > const { Client } = await import("@langchain/langgraph-sdk");
+> >
+> > // only set the apiUrl if you changed the default port when calling langgraph dev
+> > const client = new Client({ apiUrl: "http://localhost:2024"});
+> >
+> > const streamResponse = client.runs.stream(
+> >     null, // Threadless run
+> >     "agent", // Assistant ID
+> >     {
+> >         input: {
+> >             "messages": [
+> >                 { "role": "user", "content": "What is LangGraph?"}
+> >             ]
+> >         },
+> >         streamMode: "messages-tuple",
+> >     }
+> > );
+> >
+> > for await (const chunk of streamResponse) {
+> >     console.log(`Receiving new event of type: ${chunk.event}...`);
+> >     console.log(JSON.stringify(chunk.data));
+> >     console.log("\n\n");
+> > }
+> > ```
 >
-> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-> from langgraph_sdk import get_sync_client
->
-> client = get_sync_client(url="http://localhost:2024")
->
-> for chunk in client.runs.stream(
->     None,  # Threadless run
->     "agent", # Name of assistant. Defined in langgraph.json.
->     input={
->         "messages": [{
->             "role": "human",
->             "content": "What is LangGraph?",
->         }],
->     },
->     stream_mode="messages-tuple",
-> ):
->     print(f"Receiving new event of type: {chunk.event}...")
->     print(chunk.data)
->     print("\n\n")
-> ```
->
-> **Javascript SDK**
->
-> 1.安装LangGraphJS SDK：
->
-> ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-> npm install @langchain/langgraph-sdk
-> ```
->
-> 2. 向助手发送消息（无线程运行）：
->
-> ```js theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-> const { Client } = await import("@langchain/langgraph-sdk");
->
-> // only set the apiUrl if you changed the default port when calling langgraph dev
-> const client = new Client({ apiUrl: "http://localhost:2024"});
->
-> const streamResponse = client.runs.stream(
->     null, // Threadless run
->     "agent", // Assistant ID
->     {
->         input: {
->             "messages": [
->                 { "role": "user", "content": "What is LangGraph?"}
->             ]
->         },
->         streamMode: "messages-tuple",
->     }
-> );
->
-> for await (const chunk of streamResponse) {
->     console.log(`Receiving new event of type: ${chunk.event}...`);
->     console.log(JSON.stringify(chunk.data));
->     console.log("\n\n");
-> }
-> ```
->
-> **休息API**
->
-> ```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-> curl -s --request POST \
->     --url "http://localhost:2024/runs/stream" \
->     --header 'Content-Type: application/json' \
->     --data "{
->         \"assistant_id\": \"agent\",
->         \"input\": {
->             \"messages\": [
->                 {
->                     \"role\": \"human\",
->                     \"content\": \"What is LangGraph?\"
->                 }
->             ]
->         },
->         \"stream_mode\": \"messages-tuple\"
->     }"
-> ```
+>> [选项卡] Rest API
+>>
+>> ```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> > curl -s --request POST \
+> >     --url "http://localhost:2024/runs/stream" \
+> >     --header 'Content-Type: application/json' \
+> >     --data "{
+> >         \"assistant_id\": \"agent\",
+> >         \"input\": {
+> >             \"messages\": [
+> >                 {
+> >                     \"role\": \"human\",
+> >                     \"content\": \"What is LangGraph?\"
+> >                 }
+> >             ]
+> >         },
+> >         \"stream_mode\": \"messages-tuple\"
+> >     }"
+> > ```
 
 ### 用例
 
@@ -278,7 +278,7 @@ flowchart LR
 * **隔离网络**：现实的容器网络。
 * **生产验证**：验证部署准备情况。
 
-> **开始使用 langgraph up**
+> [accordion] 开始使用 langgraph up
 >
 > ```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > # Ensure Docker is running
@@ -306,7 +306,7 @@ flowchart LR
 
 * **Docker 故障排除**：调试仅在生产中出现的容器特定问题、网络问题或环境变量配置时。
 
-## 部署前检查清单
+## 部署前检查表
 
 在部署应用程序之前，请使用 `langgraph up` 验证以下内容：* 所有[dependencies](https://docs.langchain.com/langsmith/setup-app-requirements-txt.md)正确安装在容器中。
 * 应用程序启动时没有错误。
@@ -331,70 +331,70 @@ flowchart LR
 * **特定子目录**：`"dependencies": ["./my_agent"]`
 * **特定包**：`"dependencies": ["my-package==1.0.0"]` (Python) 或 `"dependencies": ["my-package@1.0.0"]` (JavaScript)
 
-**Python**
+> [选项卡] Python
+>
+> ```json theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> {
+>   "dependencies": ["."],
+>   "graphs": {
+>     "my_agent": "./my_agent/agent.py:graph"
+>   },
+>   "env": "./.env"
+> }
+> ```
 
-```json theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-{
-  "dependencies": ["."],
-  "graphs": {
-    "my_agent": "./my_agent/agent.py:graph"
-  },
-  "env": "./.env"
-}
-```
-
-**JavaScript**
-
-```json theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-{
-  "dependencies": ["."],
-  "graphs": {
-    "my_agent": "./my_agent/agent.js:graph"
-  },
-  "env": "./.env"
-}
-```
+> [选项卡] JavaScript
+>
+> ```json theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> {
+>   "dependencies": ["."],
+>   "graphs": {
+>     "my_agent": "./my_agent/agent.js:graph"
+>   },
+>   "env": "./.env"
+> }
+> ```
 
 ### 包依赖文件
 
-这些文件定义了您的应用程序需要的**什么**包：
+这些文件定义了您的应用程序需要的**什么**包：> [选项卡] Python
+>
+> **pyproject.toml 示例：**
+>
+> ```toml theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> [project]
+> name = "my-agent"
+> version = "0.1.0"
+> dependencies = [
+>     "langchain-openai",
+>     "langchain-anthropic",
+>     "langgraph",
+> ]
+> ```
+>
+> **requirements.txt 示例：**
+>
+> ```
+> langchain-openai
+> langchain-anthropic
+> langgraph
+> ```
 
-**Python**
-
-**pyproject.toml 示例：**
-
-```toml theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-[project]
-name = "my-agent"
-version = "0.1.0"
-dependencies = [
-    "langchain-openai",
-    "langchain-anthropic",
-    "langgraph",
-]
-```
-
-**requirements.txt示例：**
-
-```
-langchain-openai
-langchain-anthropic
-langgraph
-```
-
-**JavaScript****package.json 示例：**
-
-```json theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-{
-  "name": "my-agent",
-  "version": "1.0.0",
-  "dependencies": {
-    "@langchain/openai": "^0.3.0",
-    "@langchain/anthropic": "^0.3.0",
-    "@langchain/langgraph": "^0.2.0"
-  }
-}
-```
+> [选项卡] JavaScript
+>
+> **package.json 示例：**
+>
+> ```json theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> {
+>   "name": "my-agent",
+>   "version": "1.0.0",
+>   "dependencies": {
+>     "@langchain/openai": "^0.3.0",
+>     "@langchain/anthropic": "^0.3.0",
+>     "@langchain/langgraph": "^0.2.0"
+>   }
+> }
+> ```
 
 ### 依赖解析过程
 

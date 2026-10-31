@@ -27,7 +27,7 @@ const myWorkflow = entrypoint(
 await myWorkflow.invoke({ value: 1, anotherValue: 2 });
 ```
 
-> **Extended example: simple workflow**
+> [accordion] Extended example: simple workflow
 >
 > ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > import { v7 as uuid7 } from "uuid";
@@ -61,7 +61,7 @@ await myWorkflow.invoke({ value: 1, anotherValue: 2 });
 > console.log(result);
 > ```
 
-> **Extended example: Compose an essay with an LLM**
+> [accordion] Extended example: Compose an essay with an LLM
 >
 > This example demonstrates how to use the `@task` and `@entrypoint` decorators
 > syntactically. Given that a checkpointer is provided, the workflow results will
@@ -118,7 +118,7 @@ const graph = entrypoint(
 );
 ```
 
-> **Extended example: parallel LLM calls**
+> [accordion] Extended example: parallel LLM calls
 >
 > This example demonstrates how to run multiple LLM calls in parallel using `@task`. Each call generates a paragraph on a different topic, and results are joined into a single text output.
 >
@@ -186,7 +186,7 @@ const someWorkflow = entrypoint(
 );
 ```
 
-> **Extended example: calling a simple graph from the functional API**
+> [accordion] Extended example: calling a simple graph from the functional API
 >
 > ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > import { v7 as uuid7 } from "uuid";
@@ -244,7 +244,7 @@ const myWorkflow = entrypoint(
 );
 ```
 
-> **Extended example: calling another entrypoint**
+> [accordion] Extended example: calling another entrypoint
 >
 > ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > import { v7 as uuid7 } from "uuid";
@@ -294,7 +294,7 @@ for await (const chunk of stream.values) {
 // 10
 ```
 
-> **[View example trace](https://smith.langchain.com/public/d666205b-1ade-4880-878c-d4410e1dc4d5/r)**
+> [card] [View example trace](https://smith.langchain.com/public/d666205b-1ade-4880-878c-d4410e1dc4d5/r)
 >
 > Open a public LangSmith run for this example.
 

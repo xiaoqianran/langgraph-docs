@@ -115,11 +115,11 @@ function Pipeline() {
 
 ## 模式
 
-> **[Graph execution](/oss/python/langgraph/frontend/graph-execution)**
+> [卡][Graph execution](/oss/python/langgraph/frontend/graph-execution)
 >
 > 通过每个节点的状态和流内容可视化多步骤图形管道。
 
-> **[Custom stream channels](/oss/python/langgraph/frontend/custom-stream-channels)**
+> [卡][Custom stream channels](/oss/python/langgraph/frontend/custom-stream-channels)
 >
 > 将自定义服务器端数据流式传输到前端并使用`useExtension`和`useChannel`读取它。
 

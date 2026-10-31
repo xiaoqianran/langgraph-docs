@@ -74,7 +74,7 @@ builder.add_edge(START, "node_1")
 graph = builder.compile()
 ```
 
-> **Full example: different state schemas**
+> [accordion] Full example: different state schemas
 >
 > ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > from typing_extensions import TypedDict
@@ -134,7 +134,7 @@ graph = builder.compile()
 > [] {'node_2': {'foo': 'hi! foobaz'}}
 > ```
 
-> **Full example: different state schemas (two levels of subgraphs)**
+> [accordion] Full example: different state schemas (two levels of subgraphs)
 >
 > This is an example with two levels of subgraphs: parent -> child -> grandchild.
 >
@@ -256,7 +256,7 @@ builder.add_edge(START, "node_1")
 graph = builder.compile()
 ```
 
-> **Full example: shared state schemas**
+> [accordion] Full example: shared state schemas
 >
 > ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > from typing_extensions import TypedDict
@@ -404,78 +404,78 @@ agent = create_agent(
 )
 ```
 
-**Interrupts**
-
-Each invocation can use `interrupt()` to pause and resume. Add `interrupt()` to a tool function to require user approval before proceeding:
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-@tool
-def fruit_info(fruit_name: str) -> str:
-    """Look up fruit info."""
-    interrupt("continue?")  # [!code highlight]
-    return f"Info about {fruit_name}"
-```
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-from langgraph.types import Command
-
-config = {"configurable": {"thread_id": "1"}}
-
-# Stream events - the subagent's tool calls interrupt()
-stream = agent.stream_events(
-    {"messages": [{"role": "user", "content": "Tell me about apples"}]},
-    config=config,
-    version="v3",
-)
-output = stream.output  # drive the stream to completion
-# stream.interrupts contains pending interrupts (and stream.interrupted is True)
-
-# Resume - approve the interrupt
-resumed = agent.stream_events(Command(resume=True), config=config, version="v3")
-final = resumed.output
-```
-
-> **[View example trace](https://smith.langchain.com/public/98a5d6e1-b3fc-4248-a3b6-48901419f96b/r)**
+> [tab] Interrupts
 >
-> Open a public LangSmith run for this example.
+> Each invocation can use `interrupt()` to pause and resume. Add `interrupt()` to a tool function to require user approval before proceeding:
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> @tool
+> def fruit_info(fruit_name: str) -> str:
+>     """Look up fruit info."""
+>     interrupt("continue?")  # [!code highlight]
+>     return f"Info about {fruit_name}"
+> ```
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> from langgraph.types import Command
+>
+> config = {"configurable": {"thread_id": "1"}}
+>
+> # Stream events - the subagent's tool calls interrupt()
+> stream = agent.stream_events(
+>     {"messages": [{"role": "user", "content": "Tell me about apples"}]},
+>     config=config,
+>     version="v3",
+> )
+> output = stream.output  # drive the stream to completion
+> # stream.interrupts contains pending interrupts (and stream.interrupted is True)
+>
+> # Resume - approve the interrupt
+> resumed = agent.stream_events(Command(resume=True), config=config, version="v3")
+> final = resumed.output
+> ```
+>
+> > [card] [View example trace](https://smith.langchain.com/public/98a5d6e1-b3fc-4248-a3b6-48901419f96b/r)
+> >
+> > Open a public LangSmith run for this example.
 
-**Multi-turn**
+> [tab] Multi-turn
+>
+> Each invocation starts with a fresh subagent state. The subagent does not remember previous calls:
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> config = {"configurable": {"thread_id": "1"}}
+>
+> # First call
+> response = agent.invoke(
+>     {"messages": [{"role": "user", "content": "Tell me about apples"}]},
+>     config=config,
+> )
+> # Subagent message count: 4
+>
+> # Second call - subagent starts fresh, no memory of apples
+> response = agent.invoke(
+>     {"messages": [{"role": "user", "content": "Now tell me about bananas"}]},
+>     config=config,
+> )
+> # Subagent message count: 4 (still fresh!)
+> ```
 
-Each invocation starts with a fresh subagent state. The subagent does not remember previous calls:
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-config = {"configurable": {"thread_id": "1"}}
-
-# First call
-response = agent.invoke(
-    {"messages": [{"role": "user", "content": "Tell me about apples"}]},
-    config=config,
-)
-# Subagent message count: 4
-
-# Second call - subagent starts fresh, no memory of apples
-response = agent.invoke(
-    {"messages": [{"role": "user", "content": "Now tell me about bananas"}]},
-    config=config,
-)
-# Subagent message count: 4 (still fresh!)
-```
-
-**Multiple subgraph calls**
-
-Multiple calls to the same subgraph work without conflicts, since each invocation gets its own checkpoint namespace:
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-config = {"configurable": {"thread_id": "1"}}
-
-# LLM calls ask_fruit_expert for both apples and bananas
-response = agent.invoke(
-    {"messages": [{"role": "user", "content": "Tell me about apples and bananas"}]},
-    config=config,
-)
-# Subagent message count: 4 (apples - fresh)
-# Subagent message count: 4 (bananas - fresh)
-```
+> [tab] Multiple subgraph calls
+>
+> Multiple calls to the same subgraph work without conflicts, since each invocation gets its own checkpoint namespace:
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> config = {"configurable": {"thread_id": "1"}}
+>
+> # LLM calls ask_fruit_expert for both apples and bananas
+> response = agent.invoke(
+>     {"messages": [{"role": "user", "content": "Tell me about apples and bananas"}]},
+>     config=config,
+> )
+> # Subagent message count: 4 (apples - fresh)
+> # Subagent message count: 4 (bananas - fresh)
+> ```
 
 #### Per-thread
 
@@ -534,111 +534,111 @@ agent = create_agent(
 )
 ```
 
-**Interrupts**
-
-Per-thread subagents support `interrupt()` just like per-invocation. Add `interrupt()` to a tool function to require user approval:
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-@tool
-def fruit_info(fruit_name: str) -> str:
-    """Look up fruit info."""
-    interrupt("continue?")  # [!code highlight]
-    return f"Info about {fruit_name}"
-```
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-from langgraph.types import Command
-
-config = {"configurable": {"thread_id": "1"}}
-
-# Stream events - the subagent's tool calls interrupt()
-stream = agent.stream_events(
-    {"messages": [{"role": "user", "content": "Tell me about apples"}]},
-    config=config,
-    version="v3",
-)
-output = stream.output  # drive the stream to completion
-# stream.interrupts contains pending interrupts (and stream.interrupted is True)
-
-# Resume - approve the interrupt
-resumed = agent.stream_events(Command(resume=True), config=config, version="v3")
-final = resumed.output
-```
-
-> **[View example trace](https://smith.langchain.com/public/98a5d6e1-b3fc-4248-a3b6-48901419f96b/r)**
+> [tab] Interrupts
 >
-> Open a public LangSmith run for this example.
+> Per-thread subagents support `interrupt()` just like per-invocation. Add `interrupt()` to a tool function to require user approval:
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> @tool
+> def fruit_info(fruit_name: str) -> str:
+>     """Look up fruit info."""
+>     interrupt("continue?")  # [!code highlight]
+>     return f"Info about {fruit_name}"
+> ```
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> from langgraph.types import Command
+>
+> config = {"configurable": {"thread_id": "1"}}
+>
+> # Stream events - the subagent's tool calls interrupt()
+> stream = agent.stream_events(
+>     {"messages": [{"role": "user", "content": "Tell me about apples"}]},
+>     config=config,
+>     version="v3",
+> )
+> output = stream.output  # drive the stream to completion
+> # stream.interrupts contains pending interrupts (and stream.interrupted is True)
+>
+> # Resume - approve the interrupt
+> resumed = agent.stream_events(Command(resume=True), config=config, version="v3")
+> final = resumed.output
+> ```
+>
+> > [card] [View example trace](https://smith.langchain.com/public/98a5d6e1-b3fc-4248-a3b6-48901419f96b/r)
+> >
+> > Open a public LangSmith run for this example.
 
-**Multi-turn**
+> [tab] Multi-turn
+>
+> State accumulates across invocations—the subagent remembers past conversations:
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> config = {"configurable": {"thread_id": "1"}}
+>
+> # First call
+> response = agent.invoke(
+>     {"messages": [{"role": "user", "content": "Tell me about apples"}]},
+>     config=config,
+> )
+> # Subagent message count: 4
+>
+> # Second call - subagent REMEMBERS apples conversation
+> response = agent.invoke(
+>     {"messages": [{"role": "user", "content": "Now tell me about bananas"}]},
+>     config=config,
+> )
+> # Subagent message count: 8 (accumulated!)
+> ```
 
-State accumulates across invocations—the subagent remembers past conversations:
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-config = {"configurable": {"thread_id": "1"}}
-
-# First call
-response = agent.invoke(
-    {"messages": [{"role": "user", "content": "Tell me about apples"}]},
-    config=config,
-)
-# Subagent message count: 4
-
-# Second call - subagent REMEMBERS apples conversation
-response = agent.invoke(
-    {"messages": [{"role": "user", "content": "Now tell me about bananas"}]},
-    config=config,
-)
-# Subagent message count: 8 (accumulated!)
-```
-
-**Multiple subgraph calls**
-
-When you have multiple **different** per-thread subgraphs (for example, a fruit expert and a veggie expert), each one needs its own storage space so their checkpoints don't overwrite each other. This is called **namespace isolation**.
-
-If you [call subgraphs inside a node](#call-a-subgraph-inside-a-node), LangGraph assigns namespaces based on call order (first call, second call, etc.). This means reordering your calls can mix up which subgraph loads which state. To avoid this, wrap each subagent in its own `StateGraph` with a unique node name—this gives each subgraph a stable, unique namespace:
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-from langgraph.graph import MessagesState, StateGraph
-
-def create_sub_agent(model, *, name, **kwargs):
-    """Wrap an agent with a unique node name for namespace isolation."""
-    agent = create_agent(model=model, name=name, **kwargs)
-    return (
-        StateGraph(MessagesState)
-        .add_node(name, agent)  # unique name → stable namespace  # [!code highlight]
-        .add_edge("__start__", name)
-        .compile()
-    )
-
-fruit_agent = create_sub_agent(
-    "gpt-5.4-mini", name="fruit_agent",
-    tools=[fruit_info], prompt="...", checkpointer=True,
-)
-veggie_agent = create_sub_agent(
-    "gpt-5.4-mini", name="veggie_agent",
-    tools=[veggie_info], prompt="...", checkpointer=True,
-)
-
-config = {"configurable": {"thread_id": "1"}}
-
-# First call - LLM calls both fruit and veggie experts
-response = agent.invoke(
-    {"messages": [{"role": "user", "content": "Tell me about cherries and broccoli"}]},
-    config=config,
-)
-# Fruit subagent message count: 4
-# Veggie subagent message count: 4
-
-# Second call - both agents accumulate independently
-response = agent.invoke(
-    {"messages": [{"role": "user", "content": "Now tell me about oranges and carrots"}]},
-    config=config,
-)
-# Fruit subagent message count: 8 (remembers cherries!)
-# Veggie subagent message count: 8 (remembers broccoli!)
-```
-
-Subgraphs [added as nodes](#add-a-subgraph-as-a-node) already get name-based namespaces automatically, so they don't need this wrapper.
+> [tab] Multiple subgraph calls
+>
+> When you have multiple **different** per-thread subgraphs (for example, a fruit expert and a veggie expert), each one needs its own storage space so their checkpoints don't overwrite each other. This is called **namespace isolation**.
+>
+> If you [call subgraphs inside a node](#call-a-subgraph-inside-a-node), LangGraph assigns namespaces based on call order (first call, second call, etc.). This means reordering your calls can mix up which subgraph loads which state. To avoid this, wrap each subagent in its own `StateGraph` with a unique node name—this gives each subgraph a stable, unique namespace:
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> from langgraph.graph import MessagesState, StateGraph
+>
+> def create_sub_agent(model, *, name, **kwargs):
+>     """Wrap an agent with a unique node name for namespace isolation."""
+>     agent = create_agent(model=model, name=name, **kwargs)
+>     return (
+>         StateGraph(MessagesState)
+>         .add_node(name, agent)  # unique name → stable namespace  # [!code highlight]
+>         .add_edge("__start__", name)
+>         .compile()
+>     )
+>
+> fruit_agent = create_sub_agent(
+>     "gpt-5.4-mini", name="fruit_agent",
+>     tools=[fruit_info], prompt="...", checkpointer=True,
+> )
+> veggie_agent = create_sub_agent(
+>     "gpt-5.4-mini", name="veggie_agent",
+>     tools=[veggie_info], prompt="...", checkpointer=True,
+> )
+>
+> config = {"configurable": {"thread_id": "1"}}
+>
+> # First call - LLM calls both fruit and veggie experts
+> response = agent.invoke(
+>     {"messages": [{"role": "user", "content": "Tell me about cherries and broccoli"}]},
+>     config=config,
+> )
+> # Fruit subagent message count: 4
+> # Veggie subagent message count: 4
+>
+> # Second call - both agents accumulate independently
+> response = agent.invoke(
+>     {"messages": [{"role": "user", "content": "Now tell me about oranges and carrots"}]},
+>     config=config,
+> )
+> # Fruit subagent message count: 8 (remembers cherries!)
+> # Veggie subagent message count: 8 (remembers broccoli!)
+> ```
+>
+> Subgraphs [added as nodes](#add-a-subgraph-as-a-node) already get name-based namespaces automatically, so they don't need this wrapper.
 
 ### Stateless
 
@@ -684,77 +684,77 @@ When you enable [persistence](/oss/python/langgraph/persistence), you can inspec
 >
 > Viewing subgraph state requires that LangGraph can **statically discover** the subgraph—i.e., it is [added as a node](#add-a-subgraph-as-a-node) or [called inside a node](#call-a-subgraph-inside-a-node). It does not work when a subgraph is called inside a [tool](/oss/python/langchain/tools) function or other indirection (e.g., the [subagents](/oss/python/langchain/multi-agent/subagents) pattern). Interrupts still propagate to the top-level graph regardless of nesting.
 
-**Per-invocation**
+> [tab] Per-invocation
+>
+> Returns subgraph state for the **current invocation only**. Each invocation starts fresh.
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> from langgraph.graph import START, StateGraph
+> from langgraph.checkpoint.memory import MemorySaver
+> from langgraph.types import interrupt, Command
+> from typing_extensions import TypedDict
+>
+> class State(TypedDict):
+>     foo: str
+>
+> # Subgraph
+> def subgraph_node_1(state: State):
+>     value = interrupt("Provide value:")
+>     return {"foo": state["foo"] + value}
+>
+> subgraph_builder = StateGraph(State)
+> subgraph_builder.add_node(subgraph_node_1)
+> subgraph_builder.add_edge(START, "subgraph_node_1")
+> subgraph = subgraph_builder.compile()  # inherits parent checkpointer
+>
+> # Parent graph
+> builder = StateGraph(State)
+> builder.add_node("node_1", subgraph)
+> builder.add_edge(START, "node_1")
+>
+> checkpointer = MemorySaver()
+> graph = builder.compile(checkpointer=checkpointer)
+>
+> config = {"configurable": {"thread_id": "1"}}
+>
+> graph.invoke({"foo": ""}, config)
+>
+> # View subgraph state for the current invocation
+> subgraph_state = graph.get_state(config, subgraphs=True).tasks[0].state  # [!code highlight]
+>
+> # Resume the subgraph
+> graph.invoke(Command(resume="bar"), config)
+> ```
 
-Returns subgraph state for the **current invocation only**. Each invocation starts fresh.
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-from langgraph.graph import START, StateGraph
-from langgraph.checkpoint.memory import MemorySaver
-from langgraph.types import interrupt, Command
-from typing_extensions import TypedDict
-
-class State(TypedDict):
-    foo: str
-
-# Subgraph
-def subgraph_node_1(state: State):
-    value = interrupt("Provide value:")
-    return {"foo": state["foo"] + value}
-
-subgraph_builder = StateGraph(State)
-subgraph_builder.add_node(subgraph_node_1)
-subgraph_builder.add_edge(START, "subgraph_node_1")
-subgraph = subgraph_builder.compile()  # inherits parent checkpointer
-
-# Parent graph
-builder = StateGraph(State)
-builder.add_node("node_1", subgraph)
-builder.add_edge(START, "node_1")
-
-checkpointer = MemorySaver()
-graph = builder.compile(checkpointer=checkpointer)
-
-config = {"configurable": {"thread_id": "1"}}
-
-graph.invoke({"foo": ""}, config)
-
-# View subgraph state for the current invocation
-subgraph_state = graph.get_state(config, subgraphs=True).tasks[0].state  # [!code highlight]
-
-# Resume the subgraph
-graph.invoke(Command(resume="bar"), config)
-```
-
-**Per-thread**
-
-Returns **accumulated** subgraph state across all invocations on this thread.
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-from langgraph.graph import START, StateGraph, MessagesState
-from langgraph.checkpoint.memory import MemorySaver
-
-# Subgraph with its own persistent state
-subgraph_builder = StateGraph(MessagesState)
-# ... add nodes and edges
-subgraph = subgraph_builder.compile(checkpointer=True)  # [!code highlight]
-
-# Parent graph
-builder = StateGraph(MessagesState)
-builder.add_node("agent", subgraph)
-builder.add_edge(START, "agent")
-
-checkpointer = MemorySaver()
-graph = builder.compile(checkpointer=checkpointer)
-
-config = {"configurable": {"thread_id": "1"}}
-
-graph.invoke({"messages": [{"role": "user", "content": "hi"}]}, config)
-graph.invoke({"messages": [{"role": "user", "content": "what did I say?"}]}, config)
-
-# View accumulated subgraph state (includes messages from both invocations)
-subgraph_state = graph.get_state(config, subgraphs=True).tasks[0].state  # [!code highlight]
-```
+> [tab] Per-thread
+>
+> Returns **accumulated** subgraph state across all invocations on this thread.
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> from langgraph.graph import START, StateGraph, MessagesState
+> from langgraph.checkpoint.memory import MemorySaver
+>
+> # Subgraph with its own persistent state
+> subgraph_builder = StateGraph(MessagesState)
+> # ... add nodes and edges
+> subgraph = subgraph_builder.compile(checkpointer=True)  # [!code highlight]
+>
+> # Parent graph
+> builder = StateGraph(MessagesState)
+> builder.add_node("agent", subgraph)
+> builder.add_edge(START, "agent")
+>
+> checkpointer = MemorySaver()
+> graph = builder.compile(checkpointer=checkpointer)
+>
+> config = {"configurable": {"thread_id": "1"}}
+>
+> graph.invoke({"messages": [{"role": "user", "content": "hi"}]}, config)
+> graph.invoke({"messages": [{"role": "user", "content": "what did I say?"}]}, config)
+>
+> # View accumulated subgraph state (includes messages from both invocations)
+> subgraph_state = graph.get_state(config, subgraphs=True).tasks[0].state  # [!code highlight]
+> ```
 
 ## Stream subgraph outputs
 
@@ -781,7 +781,7 @@ for event in stream:
         print(event["params"]["namespace"], event["params"]["data"])
 ```
 
-> **Stream from subgraphs**
+> [accordion] Stream from subgraphs
 >
 > ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > from typing_extensions import TypedDict

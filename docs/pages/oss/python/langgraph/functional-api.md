@@ -63,7 +63,7 @@ def workflow(topic: str) -> dict:
     }
 ```
 
-> **Detailed Explanation**
+> [accordion] Detailed Explanation
 >
 > This workflow will write an essay about the topic "cat" and then pause to get a review from a human. The workflow can be interrupted for an indefinite amount of time until a review is provided.
 >
@@ -154,31 +154,31 @@ Decorating a function with an `entrypoint` produces a [`Pregel`](https://referen
 
 You will usually want to pass a **checkpointer** to the `@entrypoint` decorator to enable persistence and use features like **human-in-the-loop**.
 
-**Sync**
+> [tab] Sync
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> from langgraph.func import entrypoint
+>
+> @entrypoint(checkpointer=checkpointer)
+> def my_workflow(some_input: dict) -> int:
+>     # some logic that may involve long-running tasks like API calls,
+>     # and may be interrupted for human-in-the-loop.
+>     ...
+>     return result
+> ```
 
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-from langgraph.func import entrypoint
-
-@entrypoint(checkpointer=checkpointer)
-def my_workflow(some_input: dict) -> int:
-    # some logic that may involve long-running tasks like API calls,
-    # and may be interrupted for human-in-the-loop.
-    ...
-    return result
-```
-
-**Async**
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-from langgraph.func import entrypoint
-
-@entrypoint(checkpointer=checkpointer)
-async def my_workflow(some_input: dict) -> int:
-    # some logic that may involve long-running tasks like API calls,
-    # and may be interrupted for human-in-the-loop
-    ...
-    return result
-```
+> [tab] Async
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> from langgraph.func import entrypoint
+>
+> @entrypoint(checkpointer=checkpointer)
+> async def my_workflow(some_input: dict) -> int:
+>     # some logic that may involve long-running tasks like API calls,
+>     # and may be interrupted for human-in-the-loop
+>     ...
+>     return result
+> ```
 
 > [!WARNING]
 >
@@ -200,7 +200,7 @@ When declaring an `entrypoint`, you can request access to additional parameters 
 >
 > Declare the parameters with the appropriate name and type annotation.
 
-> **Requesting Injectable Parameters**
+> [accordion] Requesting Injectable Parameters
 >
 > ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > from langchain_core.runnables import RunnableConfig
@@ -231,123 +231,123 @@ When declaring an `entrypoint`, you can request access to additional parameters 
 
 Using the [`@entrypoint`](#entrypoint) yields a [`Pregel`](https://reference.langchain.com/python/langgraph/pregel/#langgraph.pregel.Pregel.stream) object that can be executed using the `invoke`, `ainvoke`, `stream`, and `astream` methods.
 
-**Invoke**
+> [tab] Invoke
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> config = {
+>     "configurable": {
+>         "thread_id": "some_thread_id"
+>     }
+> }
+> my_workflow.invoke(some_input, config)  # Wait for the result synchronously
+> ```
 
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-config = {
-    "configurable": {
-        "thread_id": "some_thread_id"
-    }
-}
-my_workflow.invoke(some_input, config)  # Wait for the result synchronously
-```
+> [tab] Async Invoke
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> config = {
+>     "configurable": {
+>         "thread_id": "some_thread_id"
+>     }
+> }
+> await my_workflow.ainvoke(some_input, config)  # Await result asynchronously
+> ```
 
-**Async Invoke**
+> [tab] Stream
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> config = {
+>     "configurable": {
+>         "thread_id": "some_thread_id"
+>     }
+> }
+>
+> stream = my_workflow.stream_events(some_input, config, version="v3")
+> for message in stream.messages:
+>     for token in message.text:
+>         print(token, end="", flush=True)
+> ```
 
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-config = {
-    "configurable": {
-        "thread_id": "some_thread_id"
-    }
-}
-await my_workflow.ainvoke(some_input, config)  # Await result asynchronously
-```
-
-**Stream**
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-config = {
-    "configurable": {
-        "thread_id": "some_thread_id"
-    }
-}
-
-stream = my_workflow.stream_events(some_input, config, version="v3")
-for message in stream.messages:
-    for token in message.text:
-        print(token, end="", flush=True)
-```
-
-**Async Stream**
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-config = {
-    "configurable": {
-        "thread_id": "some_thread_id"
-    }
-}
-
-stream = await my_workflow.astream_events(some_input, config, version="v3")
-async for message in stream.messages:
-    async for token in message.text:
-        print(token, end="", flush=True)
-```
+> [tab] Async Stream
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> config = {
+>     "configurable": {
+>         "thread_id": "some_thread_id"
+>     }
+> }
+>
+> stream = await my_workflow.astream_events(some_input, config, version="v3")
+> async for message in stream.messages:
+>     async for token in message.text:
+>         print(token, end="", flush=True)
+> ```
 
 ### Resuming
 
 Resuming an execution after an [interrupt](https://reference.langchain.com/python/langgraph/types/interrupt) can be done by passing a **resume** value to the [`Command`](https://reference.langchain.com/python/langgraph/types/Command) primitive.
 
-**Invoke**
+> [tab] Invoke
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> from langgraph.types import Command
+>
+> config = {
+>     "configurable": {
+>         "thread_id": "some_thread_id"
+>     }
+> }
+>
+> my_workflow.invoke(Command(resume=some_resume_value), config)
+> ```
 
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-from langgraph.types import Command
+> [tab] Async Invoke
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> from langgraph.types import Command
+>
+> config = {
+>     "configurable": {
+>         "thread_id": "some_thread_id"
+>     }
+> }
+>
+> await my_workflow.ainvoke(Command(resume=some_resume_value), config)
+> ```
 
-config = {
-    "configurable": {
-        "thread_id": "some_thread_id"
-    }
-}
+> [tab] Stream
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> from langgraph.types import Command
+>
+> config = {
+>     "configurable": {
+>         "thread_id": "some_thread_id"
+>     }
+> }
+>
+> stream = my_workflow.stream_events(Command(resume=some_resume_value), config, version="v3")
+> for message in stream.messages:
+>     for token in message.text:
+>         print(token, end="", flush=True)
+> ```
 
-my_workflow.invoke(Command(resume=some_resume_value), config)
-```
-
-**Async Invoke**
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-from langgraph.types import Command
-
-config = {
-    "configurable": {
-        "thread_id": "some_thread_id"
-    }
-}
-
-await my_workflow.ainvoke(Command(resume=some_resume_value), config)
-```
-
-**Stream**
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-from langgraph.types import Command
-
-config = {
-    "configurable": {
-        "thread_id": "some_thread_id"
-    }
-}
-
-stream = my_workflow.stream_events(Command(resume=some_resume_value), config, version="v3")
-for message in stream.messages:
-    for token in message.text:
-        print(token, end="", flush=True)
-```
-
-**Async Stream**
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-from langgraph.types import Command
-
-config = {
-    "configurable": {
-        "thread_id": "some_thread_id"
-    }
-}
-
-stream = await my_workflow.astream_events(Command(resume=some_resume_value), config, version="v3")
-async for message in stream.messages:
-    async for token in message.text:
-        print(token, end="", flush=True)
-```
+> [tab] Async Stream
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> from langgraph.types import Command
+>
+> config = {
+>     "configurable": {
+>         "thread_id": "some_thread_id"
+>     }
+> }
+>
+> stream = await my_workflow.astream_events(Command(resume=some_resume_value), config, version="v3")
+> async for message in stream.messages:
+>     async for token in message.text:
+>         print(token, end="", flush=True)
+> ```
 
 **Resuming after an error**
 
@@ -355,63 +355,63 @@ To resume after an error, run the `entrypoint` with a `None` and the same **thre
 
 This assumes that the underlying **error** has been resolved and execution can proceed successfully.
 
-**Invoke**
+> [tab] Invoke
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+>
+> config = {
+>     "configurable": {
+>         "thread_id": "some_thread_id"
+>     }
+> }
+>
+> my_workflow.invoke(None, config)
+> ```
 
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> [tab] Async Invoke
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+>
+> config = {
+>     "configurable": {
+>         "thread_id": "some_thread_id"
+>     }
+> }
+>
+> await my_workflow.ainvoke(None, config)
+> ```
 
-config = {
-    "configurable": {
-        "thread_id": "some_thread_id"
-    }
-}
+> [tab] Stream
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+>
+> config = {
+>     "configurable": {
+>         "thread_id": "some_thread_id"
+>     }
+> }
+>
+> stream = my_workflow.stream_events(None, config, version="v3")
+> for message in stream.messages:
+>     for token in message.text:
+>         print(token, end="", flush=True)
+> ```
 
-my_workflow.invoke(None, config)
-```
-
-**Async Invoke**
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-
-config = {
-    "configurable": {
-        "thread_id": "some_thread_id"
-    }
-}
-
-await my_workflow.ainvoke(None, config)
-```
-
-**Stream**
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-
-config = {
-    "configurable": {
-        "thread_id": "some_thread_id"
-    }
-}
-
-stream = my_workflow.stream_events(None, config, version="v3")
-for message in stream.messages:
-    for token in message.text:
-        print(token, end="", flush=True)
-```
-
-**Async Stream**
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-
-config = {
-    "configurable": {
-        "thread_id": "some_thread_id"
-    }
-}
-
-stream = await my_workflow.astream_events(None, config, version="v3")
-async for message in stream.messages:
-    async for token in message.text:
-        print(token, end="", flush=True)
-```
+> [tab] Async Stream
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+>
+> config = {
+>     "configurable": {
+>         "thread_id": "some_thread_id"
+>     }
+> }
+>
+> stream = await my_workflow.astream_events(None, config, version="v3")
+> async for message in stream.messages:
+>     async for token in message.text:
+>         print(token, end="", flush=True)
+> ```
 
 ### Short-term memory
 
@@ -498,22 +498,22 @@ When you call a **task**, it returns *immediately* with a future object. A futur
 
 To obtain the result of a **task**, you can either wait for it synchronously (using `result()`) or await it asynchronously (using `await`).
 
-**Synchronous Invocation**
+> [tab] Synchronous Invocation
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> @entrypoint(checkpointer=checkpointer)
+> def my_workflow(some_input: int) -> int:
+>     future = slow_computation(some_input)
+>     return future.result()  # Wait for the result synchronously
+> ```
 
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-@entrypoint(checkpointer=checkpointer)
-def my_workflow(some_input: int) -> int:
-    future = slow_computation(some_input)
-    return future.result()  # Wait for the result synchronously
-```
-
-**Asynchronous Invocation**
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-@entrypoint(checkpointer=checkpointer)
-async def my_workflow(some_input: int) -> int:
-    return await slow_computation(some_input)  # Await result asynchronously
-```
+> [tab] Asynchronous Invocation
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> @entrypoint(checkpointer=checkpointer)
+> async def my_workflow(some_input: int) -> int:
+>     return await slow_computation(some_input)  # Await result asynchronously
+> ```
 
 ## When to use a task
 
@@ -566,40 +566,40 @@ When a workflow resumes, LangGraph replays completed **task** results from the c
 
 Encapsulate side effects (e.g., writing to a file, sending an email) in tasks to ensure they are not executed multiple times when resuming a workflow.
 
-**Incorrect**
+> [tab] Incorrect
+>
+> In this example, a side effect (writing to a file) is directly included in the workflow, so it will be executed a second time when resuming the workflow.
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> @entrypoint(checkpointer=checkpointer)
+> def my_workflow(inputs: dict) -> int:
+>     # This code will be executed a second time when resuming the workflow.
+>     # Which is likely not what you want.
+>     with open("output.txt", "w") as f:  # [!code highlight]
+>         f.write("Side effect executed")  # [!code highlight]
+>     value = interrupt("question")
+>     return value
+> ```
 
-In this example, a side effect (writing to a file) is directly included in the workflow, so it will be executed a second time when resuming the workflow.
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-@entrypoint(checkpointer=checkpointer)
-def my_workflow(inputs: dict) -> int:
-    # This code will be executed a second time when resuming the workflow.
-    # Which is likely not what you want.
-    with open("output.txt", "w") as f:  # [!code highlight]
-        f.write("Side effect executed")  # [!code highlight]
-    value = interrupt("question")
-    return value
-```
-
-**Correct**
-
-In this example, the side effect is encapsulated in a task, ensuring consistent execution upon resumption.
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-from langgraph.func import task
-
-@task  # [!code highlight]
-def write_to_file():  # [!code highlight]
-    with open("output.txt", "w") as f:
-        f.write("Side effect executed")
-
-@entrypoint(checkpointer=checkpointer)
-def my_workflow(inputs: dict) -> int:
-    # The side effect is now encapsulated in a task.
-    write_to_file().result()
-    value = interrupt("question")
-    return value
-```
+> [tab] Correct
+>
+> In this example, the side effect is encapsulated in a task, ensuring consistent execution upon resumption.
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> from langgraph.func import task
+>
+> @task  # [!code highlight]
+> def write_to_file():  # [!code highlight]
+>     with open("output.txt", "w") as f:
+>         f.write("Side effect executed")
+>
+> @entrypoint(checkpointer=checkpointer)
+> def my_workflow(inputs: dict) -> int:
+>     # The side effect is now encapsulated in a task.
+>     write_to_file().result()
+>     value = interrupt("question")
+>     return value
+> ```
 
 ### Non-deterministic control flow
 
@@ -614,65 +614,65 @@ If order of execution is not maintained when resuming, one [`interrupt`](https:/
 
 Please read the section on [determinism](#determinism) for more details.
 
-**Incorrect**
+> [tab] Incorrect
+>
+> In this example, the workflow uses the current time to determine which task to execute. This is non-deterministic because the result of the workflow depends on the time at which it is executed.
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> from langgraph.func import entrypoint
+>
+> @entrypoint(checkpointer=checkpointer)
+> def my_workflow(inputs: dict) -> int:
+>     t0 = inputs["t0"]
+>     t1 = time.time()  # [!code highlight]
+>
+>     delta_t = t1 - t0
+>
+>     if delta_t > 1:
+>         result = slow_task(1).result()
+>         value = interrupt("question")
+>     else:
+>         result = slow_task(2).result()
+>         value = interrupt("question")
+>
+>     return {
+>         "result": result,
+>         "value": value
+>     }
+> ```
 
-In this example, the workflow uses the current time to determine which task to execute. This is non-deterministic because the result of the workflow depends on the time at which it is executed.
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-from langgraph.func import entrypoint
-
-@entrypoint(checkpointer=checkpointer)
-def my_workflow(inputs: dict) -> int:
-    t0 = inputs["t0"]
-    t1 = time.time()  # [!code highlight]
-
-    delta_t = t1 - t0
-
-    if delta_t > 1:
-        result = slow_task(1).result()
-        value = interrupt("question")
-    else:
-        result = slow_task(2).result()
-        value = interrupt("question")
-
-    return {
-        "result": result,
-        "value": value
-    }
-```
-
-**Correct**
-
-In this example, the workflow uses the input `t0` to determine which task to execute. This is deterministic because the result of the workflow depends only on the input.
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-import time
-
-from langgraph.func import task
-
-@task  # [!code highlight]
-def get_time() -> float:  # [!code highlight]
-    return time.time()
-
-@entrypoint(checkpointer=checkpointer)
-def my_workflow(inputs: dict) -> int:
-    t0 = inputs["t0"]
-    t1 = get_time().result()  # [!code highlight]
-
-    delta_t = t1 - t0
-
-    if delta_t > 1:
-        result = slow_task(1).result()
-        value = interrupt("question")
-    else:
-        result = slow_task(2).result()
-        value = interrupt("question")
-
-    return {
-        "result": result,
-        "value": value
-    }
-```
+> [tab] Correct
+>
+> In this example, the workflow uses the input `t0` to determine which task to execute. This is deterministic because the result of the workflow depends only on the input.
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import time
+>
+> from langgraph.func import task
+>
+> @task  # [!code highlight]
+> def get_time() -> float:  # [!code highlight]
+>     return time.time()
+>
+> @entrypoint(checkpointer=checkpointer)
+> def my_workflow(inputs: dict) -> int:
+>     t0 = inputs["t0"]
+>     t1 = get_time().result()  # [!code highlight]
+>
+>     delta_t = t1 - t0
+>
+>     if delta_t > 1:
+>         result = slow_task(1).result()
+>         value = interrupt("question")
+>     else:
+>         result = slow_task(2).result()
+>         value = interrupt("question")
+>
+>     return {
+>         "result": result,
+>         "value": value
+>     }
+> ```
 
 ## Learn more
 

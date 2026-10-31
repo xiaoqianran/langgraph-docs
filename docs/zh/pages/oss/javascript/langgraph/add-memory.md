@@ -31,32 +31,32 @@ await graph.invoke(
 
 在生产中，使用由数据库支持的检查指针：
 
-**Postgres**
+> [选项卡] Postgres
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import { PostgresSaver } from "@langchain/langgraph-checkpoint-postgres";
+>
+> const DB_URI = "postgresql://postgres:postgres@localhost:5432/postgres?sslmode=disable";
+> const checkpointer = PostgresSaver.fromConnString(DB_URI);
+>
+> const builder = new StateGraph(...);
+> const graph = builder.compile({ checkpointer });
+> ```
 
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-import { PostgresSaver } from "@langchain/langgraph-checkpoint-postgres";
+> [选项卡] MongoDB
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import { MongoClient } from "mongodb";
+> import { MongoDBSaver } from "@langchain/langgraph-checkpoint-mongodb";
+>
+> const client = new MongoClient("mongodb://user:password@localhost:27017");
+> const checkpointer = new MongoDBSaver({ client });
+>
+> const builder = new StateGraph(...);
+> const graph = builder.compile({ checkpointer });
+> ```
 
-const DB_URI = "postgresql://postgres:postgres@localhost:5432/postgres?sslmode=disable";
-const checkpointer = PostgresSaver.fromConnString(DB_URI);
-
-const builder = new StateGraph(...);
-const graph = builder.compile({ checkpointer });
-```
-
-**MongoDB**
-
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-import { MongoClient } from "mongodb";
-import { MongoDBSaver } from "@langchain/langgraph-checkpoint-mongodb";
-
-const client = new MongoClient("mongodb://user:password@localhost:27017");
-const checkpointer = new MongoDBSaver({ client });
-
-const builder = new StateGraph(...);
-const graph = builder.compile({ checkpointer });
-```
-
-> **示例：使用 Postgres 检查点**
+> [accordion] 示例：使用 Postgres 检查点
 >
 > ```
 > npm install @langchain/langgraph-checkpoint-postgres
@@ -115,7 +115,7 @@ const graph = builder.compile({ checkpointer });
 > }
 > ```
 
-> **示例：使用 MongoDB 检查点**
+> [accordion] 示例：使用 MongoDB 检查点
 >
 > ```
 > npm install @langchain/langgraph-checkpoint-mongodb
@@ -173,9 +173,7 @@ const graph = builder.compile({ checkpointer });
 
 ### 在子图中使用
 
-如果您的图包含[subgraphs](/oss/javascript/langgraph/use-subgraphs)，则只需在编译父图时提供检查点即可。 LangGraph 会自动将检查指针传播到子子图。
-
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+如果您的图包含[subgraphs](/oss/javascript/langgraph/use-subgraphs)，则只需在编译父图时提供检查点即可。 LangGraph 会自动将检查指针传播到子子图。```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { StateGraph, StateSchema, START, MemorySaver } from "@langchain/langgraph";
 import { z } from "zod/v4";
 
@@ -194,7 +192,9 @@ const builder = new StateGraph(State)
 
 const checkpointer = new MemorySaver();
 const graph = builder.compile({ checkpointer });
-```您可以配置特定于子图的检查点行为。有关持久性级别（包括中断支持和有状态延续）的详细信息，请参阅[subgraph persistence](/oss/javascript/langgraph/use-subgraphs#subgraph-persistence)。
+```
+
+您可以配置特定于子图的检查点行为。有关持久性级别（包括中断支持和有状态延续）的详细信息，请参阅[subgraph persistence](/oss/javascript/langgraph/use-subgraphs#subgraph-persistence)。
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 const subgraphBuilder = new StateGraph(...);
@@ -259,34 +259,34 @@ await graph.invoke(
 
 在生产中，使用由数据库支持的存储：
 
-**Postgres**
+> [选项卡] Postgres
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import { PostgresStore } from "@langchain/langgraph-checkpoint-postgres/store";
+>
+> const DB_URI = "postgresql://postgres:postgres@localhost:5432/postgres?sslmode=disable";
+> const store = PostgresStore.fromConnString(DB_URI);
+>
+> const builder = new StateGraph(...);
+> const graph = builder.compile({ store });
+> ```
 
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-import { PostgresStore } from "@langchain/langgraph-checkpoint-postgres/store";
+> [选项卡] MongoDB
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import { MongoDBStore } from "@langchain/langgraph-checkpoint-mongodb";
+>
+> const MONGODB_URI = "mongodb://user:password@localhost:27017";
+> const store = await MongoDBStore.fromConnString(MONGODB_URI, {
+>   dbName: "langgraph",
+>   collectionName: "store",
+> });
+>
+> const builder = new StateGraph(...);
+> const graph = builder.compile({ store });
+> ```
 
-const DB_URI = "postgresql://postgres:postgres@localhost:5432/postgres?sslmode=disable";
-const store = PostgresStore.fromConnString(DB_URI);
-
-const builder = new StateGraph(...);
-const graph = builder.compile({ store });
-```
-
-**MongoDB**
-
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-import { MongoDBStore } from "@langchain/langgraph-checkpoint-mongodb";
-
-const MONGODB_URI = "mongodb://user:password@localhost:27017";
-const store = await MongoDBStore.fromConnString(MONGODB_URI, {
-  dbName: "langgraph",
-  collectionName: "store",
-});
-
-const builder = new StateGraph(...);
-const graph = builder.compile({ store });
-```
-
-> **示例：使用 Postgres 存储**
+> [手风琴] 示例：使用 Postgres 存储
 >
 > ```
 > npm install @langchain/langgraph-checkpoint-postgres
@@ -363,7 +363,7 @@ const graph = builder.compile({ store });
 > }
 > ```
 
-> **示例：使用 MongoDB 存储**
+> [手风琴] 示例：使用 MongoDB 存储
 >
 > ```
 > npm install @langchain/langgraph-checkpoint-mongodb
@@ -462,206 +462,206 @@ const items = await store.search(["user_123", "memories"], {
   query: "I'm hungry",
   limit: 1,
 });
-```
+```> [!提示]
+>
+> `InMemoryStore`适合开发。对于生产，请使用持久存储，例如 `PostgresStore`、`MongoDBStore` 或 `RedisStore`。
 
-> [!提示]
+> [手风琴] 具有语义搜索的长期记忆
 >
-> `InMemoryStore`适合开发。对于生产，请使用持久存储，例如 `PostgresStore`、`MongoDBStore` 或 `RedisStore`。> **带有语义搜索的长期记忆**
->
-> **内存存储**
->
-> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-> import { OpenAIEmbeddings, ChatOpenAI } from "@langchain/openai";
-> import { StateGraph, StateSchema, MessagesValue, GraphNode, START, InMemoryStore } from "@langchain/langgraph";
->
-> const State = new StateSchema({
->   messages: MessagesValue,
-> });
->
-> const model = new ChatOpenAI({ model: "gpt-5.4-mini" });
->
-> // Create store with semantic search enabled
-> const embeddings = new OpenAIEmbeddings({ model: "text-embedding-3-small" });
-> const store = new InMemoryStore({
->   index: {
->     embeddings,
->     dims: 1536,
->   }
-> });
->
-> await store.put(["user_123", "memories"], "1", { text: "I love pizza" });
-> await store.put(["user_123", "memories"], "2", { text: "I am a plumber" });
->
-> const chat: GraphNode<typeof State> = async (state, runtime) => {
->   // Search based on user's last message
->   const items = await runtime.store.search(
->     ["user_123", "memories"],
->     { query: state.messages.at(-1)?.content }
->   );
->   const memories = items
->     .filter((item) => item.score != null && item.score > 0.2)
->     .map((item) => item.value.text)
->     .join("\n");
->   const memoriesText = memories ? `## Memories of user\n${memories}` : "";
->
->   const response = await model.invoke([
->     { role: "system", content: `You are a helpful assistant.\n${memoriesText}` },
->     ...state.messages,
->   ]);
->
->   return { messages: [response] };
-> };
->
-> const builder = new StateGraph(State)
->   .addNode("chat", chat)
->   .addEdge(START, "chat");
-> const graph = builder.compile({ store });
->
-> const stream = await graph.streamEvents(
->   { messages: [{ role: "user", content: "I'm hungry" }] },
->   { version: "v3" }
-> );
-> for await (const message of stream.messages) {
->   for await (const token of message.text) {
->     process.stdout.write(token);
->   }
-> }
-> ```
->
-> **MongoDB（手动嵌入）**
->
-> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-> import { ChatOpenAI, OpenAIEmbeddings } from "@langchain/openai";
-> import { MongoDBStore } from "@langchain/langgraph-checkpoint-mongodb";
-> import { StateGraph, StateSchema, MessagesValue, GraphNode, START } from "@langchain/langgraph";
->
-> const State = new StateSchema({
->   messages: MessagesValue,
-> });
->
-> const model = new ChatOpenAI({ model: "gpt-5.4-mini" });
->
-> // Create store with semantic search enabled
-> const MONGODB_URI = "mongodb://user:password@localhost:27017";
-> const store = await MongoDBStore.fromConnString(MONGODB_URI, {
->   dbName: "langgraph",
->   collectionName: "store",
->   embeddings: new OpenAIEmbeddings({ model: "text-embedding-3-small" }),
->   indexConfig: {
->     name: "store_vector_index",
->     dims: 1536,
->     embeddingKey: "text",
->   },
-> });
->
-> await store.put(["user_123", "memories"], "1", { text: "I love pizza" });
-> await store.put(["user_123", "memories"], "2", { text: "I am a plumber" });
->
-> const chat: GraphNode<typeof State> = async (state, runtime) => {
->   // Search based on user's last message
->   const items = await runtime.store.search(
->     ["user_123", "memories"],
->     { query: state.messages.at(-1)?.content }
->   );
->   const memories = items
->     .filter((item) => item.score != null && item.score > 0.2)
->     .map((item) => item.value.text)
->     .join("\n");
->   const memoriesText = memories ? `## Memories of user\n${memories}` : "";
->
->   const response = await model.invoke([
->     { role: "system", content: `You are a helpful assistant.\n${memoriesText}` },
->     ...state.messages,
->   ]);
->
->   return { messages: [response] };
-> };
->
-> const builder = new StateGraph(State)
->   .addNode("chat", chat)
->   .addEdge(START, "chat");
-> const graph = builder.compile({ store });
->
-> const stream = await graph.streamEvents(
->   { messages: [{ role: "user", content: "I'm hungry" }] },
->   { version: "v3" }
-> );
-> for await (const message of stream.messages) {
->   for await (const token of message.text) {
->     process.stdout.write(token);
->   }
-> }
-> ```
->
-> **MongoDB（自动嵌入）**
->
->> [!注意]
+>> [选项卡] InMemoryStore
 >>
->> 自动嵌入需要 MongoDB Atlas。 MongoDB 通过 Voyage AI 在服务器端生成嵌入。请参阅[Automated Embedding documentation](https://www.mongodb.com/docs/vector-search/)了解更多信息。
+>> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> > import { OpenAIEmbeddings, ChatOpenAI } from "@langchain/openai";
+> > import { StateGraph, StateSchema, MessagesValue, GraphNode, START, InMemoryStore } from "@langchain/langgraph";
+> >
+> > const State = new StateSchema({
+> >   messages: MessagesValue,
+> > });
+> >
+> > const model = new ChatOpenAI({ model: "gpt-5.4-mini" });
+> >
+> > // Create store with semantic search enabled
+> > const embeddings = new OpenAIEmbeddings({ model: "text-embedding-3-small" });
+> > const store = new InMemoryStore({
+> >   index: {
+> >     embeddings,
+> >     dims: 1536,
+> >   }
+> > });
+> >
+> > await store.put(["user_123", "memories"], "1", { text: "I love pizza" });
+> > await store.put(["user_123", "memories"], "2", { text: "I am a plumber" });
+> >
+> > const chat: GraphNode<typeof State> = async (state, runtime) => {
+> >   // Search based on user's last message
+> >   const items = await runtime.store.search(
+> >     ["user_123", "memories"],
+> >     { query: state.messages.at(-1)?.content }
+> >   );
+> >   const memories = items
+> >     .filter((item) => item.score != null && item.score > 0.2)
+> >     .map((item) => item.value.text)
+> >     .join("\n");
+> >   const memoriesText = memories ? `## Memories of user\n${memories}` : "";
+> >
+> >   const response = await model.invoke([
+> >     { role: "system", content: `You are a helpful assistant.\n${memoriesText}` },
+> >     ...state.messages,
+> >   ]);
+> >
+> >   return { messages: [response] };
+> > };
+> >
+> > const builder = new StateGraph(State)
+> >   .addNode("chat", chat)
+> >   .addEdge(START, "chat");
+> > const graph = builder.compile({ store });
+> >
+> > const stream = await graph.streamEvents(
+> >   { messages: [{ role: "user", content: "I'm hungry" }] },
+> >   { version: "v3" }
+> > );
+> > for await (const message of stream.messages) {
+> >   for await (const token of message.text) {
+> >     process.stdout.write(token);
+> >   }
+> > }
+> > ```
 >
-> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-> import { StateGraph, StateSchema, MessagesValue, GraphNode, START } from "@langchain/langgraph";
-> import { MongoDBStore } from "@langchain/langgraph-checkpoint-mongodb";
-> import { ChatOpenAI } from "@langchain/openai";
+>> [选项卡] MongoDB（手动嵌入）
+>>
+>> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> > import { ChatOpenAI, OpenAIEmbeddings } from "@langchain/openai";
+> > import { MongoDBStore } from "@langchain/langgraph-checkpoint-mongodb";
+> > import { StateGraph, StateSchema, MessagesValue, GraphNode, START } from "@langchain/langgraph";
+> >
+> > const State = new StateSchema({
+> >   messages: MessagesValue,
+> > });
+> >
+> > const model = new ChatOpenAI({ model: "gpt-5.4-mini" });
+> >
+> > // Create store with semantic search enabled
+> > const MONGODB_URI = "mongodb://user:password@localhost:27017";
+> > const store = await MongoDBStore.fromConnString(MONGODB_URI, {
+> >   dbName: "langgraph",
+> >   collectionName: "store",
+> >   embeddings: new OpenAIEmbeddings({ model: "text-embedding-3-small" }),
+> >   indexConfig: {
+> >     name: "store_vector_index",
+> >     dims: 1536,
+> >     embeddingKey: "text",
+> >   },
+> > });
+> >
+> > await store.put(["user_123", "memories"], "1", { text: "I love pizza" });
+> > await store.put(["user_123", "memories"], "2", { text: "I am a plumber" });
+> >
+> > const chat: GraphNode<typeof State> = async (state, runtime) => {
+> >   // Search based on user's last message
+> >   const items = await runtime.store.search(
+> >     ["user_123", "memories"],
+> >     { query: state.messages.at(-1)?.content }
+> >   );
+> >   const memories = items
+> >     .filter((item) => item.score != null && item.score > 0.2)
+> >     .map((item) => item.value.text)
+> >     .join("\n");
+> >   const memoriesText = memories ? `## Memories of user\n${memories}` : "";
+> >
+> >   const response = await model.invoke([
+> >     { role: "system", content: `You are a helpful assistant.\n${memoriesText}` },
+> >     ...state.messages,
+> >   ]);
+> >
+> >   return { messages: [response] };
+> > };
+> >
+> > const builder = new StateGraph(State)
+> >   .addNode("chat", chat)
+> >   .addEdge(START, "chat");
+> > const graph = builder.compile({ store });
+> >
+> > const stream = await graph.streamEvents(
+> >   { messages: [{ role: "user", content: "I'm hungry" }] },
+> >   { version: "v3" }
+> > );
+> > for await (const message of stream.messages) {
+> >   for await (const token of message.text) {
+> >     process.stdout.write(token);
+> >   }
+> > }
+> > ```
 >
-> const State = new StateSchema({
->   messages: MessagesValue,
-> });
->
-> const model = new ChatOpenAI({ model: "gpt-5.4-mini" });
->
-> // Auto embedding: no embeddings instance needed.
-> // Configure the Voyage AI model and the field path MongoDB will read server-side.
-> const MONGODB_URI = "mongodb://user:password@localhost:27017";
-> const store = await MongoDBStore.fromConnString(MONGODB_URI, {
->   dbName: "langgraph",
->   collectionName: "store",
->   indexConfig: {
->     name: "store_vector_index",
->     path: "value.content",  // MongoDB reads this field and embeds it server-side
->     model: "voyage-4",      // Voyage AI model used by MongoDB Atlas
->   },
-> });
->
-> // Values must have the content field matching the configured path (value.content)
-> await store.put(["user_123", "memories"], "1", { content: "I love pizza" });
-> await store.put(["user_123", "memories"], "2", { content: "I am a plumber" });
->
-> const chat: GraphNode<typeof State> = async (state, runtime) => {
->   // MongoDB generates the query embedding server-side
->   const items = await runtime.store.search(
->     ["user_123", "memories"],
->     { query: state.messages.at(-1)?.content }
->   );
->   const memories = items
->     .filter((item) => item.score != null && item.score > 0.2)
->     .map((item) => item.value.content)
->     .join("\n");
->   const memoriesText = memories ? `## Memories of user\n${memories}` : "";
->
->   const response = await model.invoke([
->     { role: "system", content: `You are a helpful assistant.\n${memoriesText}` },
->     ...state.messages,
->   ]);
->
->   return { messages: [response] };
-> };
->
-> const builder = new StateGraph(State)
->   .addNode("chat", chat)
->   .addEdge(START, "chat");
-> const graph = builder.compile({ store });
->
-> const stream = await graph.streamEvents(
->   { messages: [{ role: "user", content: "I'm hungry" }] },
->   { version: "v3" }
-> );
-> for await (const message of stream.messages) {
->   for await (const token of message.text) {
->     process.stdout.write(token);
->   }
-> }
-> ```
+>> [选项卡] MongoDB（自动嵌入）
+>>
+> > > [！注意]
+>>>
+>>> 自动嵌入需要 MongoDB Atlas。 MongoDB 通过 Voyage AI 在服务器端生成嵌入。请参阅[Automated Embedding documentation](https://www.mongodb.com/docs/vector-search/)了解更多信息。
+>>
+>> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> > import { StateGraph, StateSchema, MessagesValue, GraphNode, START } from "@langchain/langgraph";
+> > import { MongoDBStore } from "@langchain/langgraph-checkpoint-mongodb";
+> > import { ChatOpenAI } from "@langchain/openai";
+> >
+> > const State = new StateSchema({
+> >   messages: MessagesValue,
+> > });
+> >
+> > const model = new ChatOpenAI({ model: "gpt-5.4-mini" });
+> >
+> > // Auto embedding: no embeddings instance needed.
+> > // Configure the Voyage AI model and the field path MongoDB will read server-side.
+> > const MONGODB_URI = "mongodb://user:password@localhost:27017";
+> > const store = await MongoDBStore.fromConnString(MONGODB_URI, {
+> >   dbName: "langgraph",
+> >   collectionName: "store",
+> >   indexConfig: {
+> >     name: "store_vector_index",
+> >     path: "value.content",  // MongoDB reads this field and embeds it server-side
+> >     model: "voyage-4",      // Voyage AI model used by MongoDB Atlas
+> >   },
+> > });
+> >
+> > // Values must have the content field matching the configured path (value.content)
+> > await store.put(["user_123", "memories"], "1", { content: "I love pizza" });
+> > await store.put(["user_123", "memories"], "2", { content: "I am a plumber" });
+> >
+> > const chat: GraphNode<typeof State> = async (state, runtime) => {
+> >   // MongoDB generates the query embedding server-side
+> >   const items = await runtime.store.search(
+> >     ["user_123", "memories"],
+> >     { query: state.messages.at(-1)?.content }
+> >   );
+> >   const memories = items
+> >     .filter((item) => item.score != null && item.score > 0.2)
+> >     .map((item) => item.value.content)
+> >     .join("\n");
+> >   const memoriesText = memories ? `## Memories of user\n${memories}` : "";
+> >
+> >   const response = await model.invoke([
+> >     { role: "system", content: `You are a helpful assistant.\n${memoriesText}` },
+> >     ...state.messages,
+> >   ]);
+> >
+> >   return { messages: [response] };
+> > };
+> >
+> > const builder = new StateGraph(State)
+> >   .addNode("chat", chat)
+> >   .addEdge(START, "chat");
+> > const graph = builder.compile({ store });
+> >
+> > const stream = await graph.streamEvents(
+> >   { messages: [{ role: "user", content: "I'm hungry" }] },
+> >   { version: "v3" }
+> > );
+> > for await (const message of stream.messages) {
+> >   for await (const token of message.text) {
+> >     process.stdout.write(token);
+> >   }
+> > }
+> > ```
 
 ## 管理短期记忆
 
@@ -671,11 +671,11 @@ const items = await store.search(["user_123", "memories"], {
 * [Delete messages](#delete-messages)从LangGraph状态永久
 * [Summarize messages](#summarize-messages)：总结历史记录中较早的消息并用摘要替换它们
 * [Manage checkpoints](#manage-checkpoints) 存储和检索消息历史记录
-* 自定义策略（例如消息过滤等）
+* 自定义策略（例如消息过滤等）这允许代理在不超出 LLM 上下文窗口的情况下跟踪对话。
 
-这允许代理在不超出 LLM 上下文窗口的情况下跟踪对话。
+### 修剪消息
 
-### 修剪消息大多数法学硕士都有最大支持的上下文窗口（以令牌计价）。决定何时截断消息的一种方法是计算消息历史记录中的标记，并在接近该限制时进行截断。如果您使用 LangChain，则可以使用修剪消息实用程序并指定要从列表中保留的标记数量，以及用于处理边界的 `strategy`（例如，保留最后一个 `maxTokens`）。
+大多数法学硕士都有最大支持的上下文窗口（以令牌计价）。决定何时截断消息的一种方法是计算消息历史记录中的标记，并在接近该限制时进行截断。如果您使用 LangChain，则可以使用修剪消息实用程序并指定要从列表中保留的标记数量，以及用于处理边界的 `strategy`（例如，保留最后一个 `maxTokens`）。
 
 在以下示例中，节点将修剪后的消息列表传递给模型，而不从状态中删除消息。
 
@@ -705,7 +705,7 @@ const builder = new StateGraph(State)
   // ...
 ```
 
-> **完整示例：修剪消息**
+> [accordion] 完整示例：修剪消息
 >
 > ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > import { trimMessages } from "@langchain/core/messages";
@@ -778,7 +778,7 @@ const deleteMessages = (state) => {
 > * 一些提供商希望消息历史记录以 `user` 消息开始
 > * 大多数提供商要求带有工具调用的 `assistant` 消息后跟相应的 `tool` 结果消息。
 
-> **完整示例：删除消息**
+> [手风琴] 完整示例：删除消息
 >
 > ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > import { RemoveMessage } from "@langchain/core/messages";
@@ -898,7 +898,7 @@ const summarizeConversation: GraphNode<typeof State> = async (state) => {
 };
 ```
 
-> **完整示例：总结消息**
+> [手风琴] 完整示例：总结消息
 >
 > ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > import { ChatAnthropic } from "@langchain/anthropic";

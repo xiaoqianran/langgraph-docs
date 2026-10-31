@@ -55,7 +55,7 @@ uv sync
 
 > [!注意]
 >
-> 在发送跟踪之前，在[agent-based workspace](/langsmith/agents)、[create an agent](/langsmith/create-an-agent) 中进行一次。使用[agent addressing](/langsmith/log-traces-to-agent)选择其标识符和环境。如果集成需要 `project_name`，请使用所选环境的 [⟦T21⟧](/langsmith/create-an-agent#use-an-environment-project) 作为兼容性值。
+> 在发送跟踪之前，在[agent-based workspace](/langsmith/agent-registry)、[create an agent](/langsmith/create-an-agent) 中进行一次。使用[agent addressing](/langsmith/log-traces-to-agent)选择其标识符和环境。如果集成需要 `project_name`，请使用所选环境的 [⟦T21⟧](/langsmith/create-an-agent#use-an-environment-project) 作为兼容性值。
 
 您将在新的 LangGraph 应用程序的根目录中找到 `.env.example`。在新的LangGraph应用程序的根目录中创建一个`.env`文件，并将`.env.example`文件的内容复制到其中，填写必要的API密钥：
 
@@ -106,7 +106,7 @@ For production use, please use LangSmith Deployment.
 https://smith.langchain.com/studio/?baseUrl=http://myhost:3000
 ```
 
-> **Safari 兼容性**
+> [手风琴] Safari 兼容性
 >
 > 在命令中使用 `--tunnel` 标志来创建安全隧道，因为 Safari 在连接到本地主机服务器时有限制：
 >
@@ -116,82 +116,82 @@ https://smith.langchain.com/studio/?baseUrl=http://myhost:3000
 
 ## 7. 测试 API
 
-**Python SDK（异步）**
+> [选项卡] Python SDK（异步）
+>
+> 1.安装LangGraphPython SDK：
+> ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+>    pip install langgraph-sdk
+>    ```
+> 2. 向助手发送消息（无线程运行）：
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+>    from langgraph_sdk import get_client
+>    import asyncio
+>
+>    client = get_client(url="http://localhost:2024")
+>
+>    async def main():
+>        async for chunk in client.runs.stream(
+>            None,  # Threadless run
+>            "agent", # Name of assistant. Defined in langgraph.json.
+>            input={
+>            "messages": [{
+>                "role": "human",
+>                "content": "What is LangGraph?",
+>                }],
+>            },
+>        ):
+>            print(f"Receiving new event of type: {chunk.event}...")
+>            print(chunk.data)
+>            print("\n\n")
+>
+>    asyncio.run(main())
+>    ```> [选项卡] Python SDK（同步）
+>
+> 1.安装LangGraphPython SDK：
+> ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+>    pip install langgraph-sdk
+>    ```
+> 2. 向助手发送消息（无线程运行）：
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+>    from langgraph_sdk import get_sync_client
+>
+>    client = get_sync_client(url="http://localhost:2024")
+>
+>    for chunk in client.runs.stream(
+>        None,  # Threadless run
+>        "agent", # Name of assistant. Defined in langgraph.json.
+>        input={
+>            "messages": [{
+>                "role": "human",
+>                "content": "What is LangGraph?",
+>            }],
+>        },
+>        stream_mode="messages-tuple",
+>    ):
+>        print(f"Receiving new event of type: {chunk.event}...")
+>        print(chunk.data)
+>        print("\n\n")
+>    ```
 
-1.安装LangGraphPython SDK：
-   ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-   pip install langgraph-sdk
-   ```
-2.向助手发送消息（无线程运行）：
-   ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-   from langgraph_sdk import get_client
-   import asyncio
-
-   client = get_client(url="http://localhost:2024")
-
-   async def main():
-       async for chunk in client.runs.stream(
-           None,  # Threadless run
-           "agent", # Name of assistant. Defined in langgraph.json.
-           input={
-           "messages": [{
-               "role": "human",
-               "content": "What is LangGraph?",
-               }],
-           },
-       ):
-           print(f"Receiving new event of type: {chunk.event}...")
-           print(chunk.data)
-           print("\n\n")
-
-   asyncio.run(main())
-   ```
-
-**Python SDK（同步）**
-
-1.安装LangGraphPython SDK：
-   ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-   pip install langgraph-sdk
-   ```
-2.向助手发送消息（无线程运行）：
-   ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-   from langgraph_sdk import get_sync_client
-
-   client = get_sync_client(url="http://localhost:2024")
-
-   for chunk in client.runs.stream(
-       None,  # Threadless run
-       "agent", # Name of assistant. Defined in langgraph.json.
-       input={
-           "messages": [{
-               "role": "human",
-               "content": "What is LangGraph?",
-           }],
-       },
-       stream_mode="messages-tuple",
-   ):
-       print(f"Receiving new event of type: {chunk.event}...")
-       print(chunk.data)
-       print("\n\n")
-   ```**休息API**
-
-```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-curl -s --request POST \
-    --url "http://localhost:2024/runs/stream" \
-    --header 'Content-Type: application/json' \
-    --data "{
-        \"assistant_id\": \"agent\",
-        \"input\": {
-            \"messages\": [
-                {
-                    \"role\": \"human\",
-                    \"content\": \"What is LangGraph?\"
-                }
-            ]
-        },
-        \"stream_mode\": \"messages-tuple\"
-    }"
-```
+> [选项卡] 休息 API
+>
+> ```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> curl -s --request POST \
+>     --url "http://localhost:2024/runs/stream" \
+>     --header 'Content-Type: application/json' \
+>     --data "{
+>         \"assistant_id\": \"agent\",
+>         \"input\": {
+>             \"messages\": [
+>                 {
+>                     \"role\": \"human\",
+>                     \"content\": \"What is LangGraph?\"
+>                 }
+>             ]
+>         },
+>         \"stream_mode\": \"messages-tuple\"
+>     }"
+> ```
 
 ## 后续步骤
 

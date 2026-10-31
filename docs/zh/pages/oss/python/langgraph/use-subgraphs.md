@@ -74,7 +74,7 @@ builder.add_edge(START, "node_1")
 graph = builder.compile()
 ```
 
-> **完整示例：不同的状态模式**
+> [手风琴] 完整示例：不同的状态模式
 >
 > ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > from typing_extensions import TypedDict
@@ -134,7 +134,7 @@ graph = builder.compile()
 > [] {'node_2': {'foo': 'hi! foobaz'}}
 > ```
 
-> **完整示例：不同的状态模式（两级子图）**
+> [手风琴] 完整示例：不同的状态模式（两级子图）
 >
 > 这是一个具有两级子图的示例：父级 -> 子级 -> 孙级。
 >
@@ -227,7 +227,7 @@ graph = builder.compile()
 如果您的子图与父图共享状态键，您可以按照以下步骤将其添加到您的图中：
 
 1.定义子图工作流程（下例中的`subgraph_builder`）并编译
-2.定义父图工作流程时将编译后的子图传递给[⟦T31⟧](https://reference.langchain.com/python/langgraph/graph/state/StateGraph/add_node)方法
+2.定义父图工作流程时，将编译后的子图传递给[⟦T31⟧](https://reference.langchain.com/python/langgraph/graph/state/StateGraph/add_node)方法
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from typing_extensions import TypedDict
@@ -254,7 +254,7 @@ builder.add_edge(START, "node_1")
 graph = builder.compile()
 ```
 
-> **完整示例：共享状态模式**
+> [accordion] 完整示例：共享状态模式
 >
 > ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > from typing_extensions import TypedDict
@@ -396,78 +396,78 @@ agent = create_agent(
     ),
     checkpointer=MemorySaver(),
 )
-```
-
-**中断**
-
-每次调用都可以使用`interrupt()`来暂停和恢复。将 `interrupt()` 添加到工具函数中，以在继续之前需要用户批准：
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-@tool
-def fruit_info(fruit_name: str) -> str:
-    """Look up fruit info."""
-    interrupt("continue?")  # [!code highlight]
-    return f"Info about {fruit_name}"
-```
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-from langgraph.types import Command
-
-config = {"configurable": {"thread_id": "1"}}
-
-# Stream events - the subagent's tool calls interrupt()
-stream = agent.stream_events(
-    {"messages": [{"role": "user", "content": "Tell me about apples"}]},
-    config=config,
-    version="v3",
-)
-output = stream.output  # drive the stream to completion
-# stream.interrupts contains pending interrupts (and stream.interrupted is True)
-
-# Resume - approve the interrupt
-resumed = agent.stream_events(Command(resume=True), config=config, version="v3")
-final = resumed.output
-```> **[View example trace](https://smith.langchain.com/public/98a5d6e1-b3fc-4248-a3b6-48901419f96b/r)**
+```> [选项卡] 中断
 >
-> 为此示例打开公共 LangSmith 运行。
+> 每次调用都可以使用`interrupt()`来暂停和恢复。将 `interrupt()` 添加到工具函数中，以在继续之前需要用户批准：
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> @tool
+> def fruit_info(fruit_name: str) -> str:
+>     """Look up fruit info."""
+>     interrupt("continue?")  # [!code highlight]
+>     return f"Info about {fruit_name}"
+> ```
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> from langgraph.types import Command
+>
+> config = {"configurable": {"thread_id": "1"}}
+>
+> # Stream events - the subagent's tool calls interrupt()
+> stream = agent.stream_events(
+>     {"messages": [{"role": "user", "content": "Tell me about apples"}]},
+>     config=config,
+>     version="v3",
+> )
+> output = stream.output  # drive the stream to completion
+> # stream.interrupts contains pending interrupts (and stream.interrupted is True)
+>
+> # Resume - approve the interrupt
+> resumed = agent.stream_events(Command(resume=True), config=config, version="v3")
+> final = resumed.output
+> ```
+>
+>>【卡】[View example trace](https://smith.langchain.com/public/98a5d6e1-b3fc-4248-a3b6-48901419f96b/r)
+>>
+>> 为此示例打开公共 LangSmith 运行。
 
-**多圈**
+> [选项卡] 多圈
+>
+> 每次调用都以新的子代理状态开始。子代理不记得以前的调用：
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> config = {"configurable": {"thread_id": "1"}}
+>
+> # First call
+> response = agent.invoke(
+>     {"messages": [{"role": "user", "content": "Tell me about apples"}]},
+>     config=config,
+> )
+> # Subagent message count: 4
+>
+> # Second call - subagent starts fresh, no memory of apples
+> response = agent.invoke(
+>     {"messages": [{"role": "user", "content": "Now tell me about bananas"}]},
+>     config=config,
+> )
+> # Subagent message count: 4 (still fresh!)
+> ```
 
-每次调用都以新的子代理状态开始。子代理不记得以前的调用：
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-config = {"configurable": {"thread_id": "1"}}
-
-# First call
-response = agent.invoke(
-    {"messages": [{"role": "user", "content": "Tell me about apples"}]},
-    config=config,
-)
-# Subagent message count: 4
-
-# Second call - subagent starts fresh, no memory of apples
-response = agent.invoke(
-    {"messages": [{"role": "user", "content": "Now tell me about bananas"}]},
-    config=config,
-)
-# Subagent message count: 4 (still fresh!)
-```
-
-**多个子图调用**
-
-对同一子图的多次调用不会发生冲突，因为每次调用都有自己的检查点名称空间：
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-config = {"configurable": {"thread_id": "1"}}
-
-# LLM calls ask_fruit_expert for both apples and bananas
-response = agent.invoke(
-    {"messages": [{"role": "user", "content": "Tell me about apples and bananas"}]},
-    config=config,
-)
-# Subagent message count: 4 (apples - fresh)
-# Subagent message count: 4 (bananas - fresh)
-```
+> [tab] 多个子图调用
+>
+> 对同一子图的多次调用不会发生冲突，因为每次调用都有自己的检查点名称空间：
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> config = {"configurable": {"thread_id": "1"}}
+>
+> # LLM calls ask_fruit_expert for both apples and bananas
+> response = agent.invoke(
+>     {"messages": [{"role": "user", "content": "Tell me about apples and bananas"}]},
+>     config=config,
+> )
+> # Subagent message count: 4 (apples - fresh)
+> # Subagent message count: 4 (bananas - fresh)
+> ```
 
 #### 每线程
 
@@ -524,113 +524,113 @@ agent = create_agent(
 )
 ```
 
-**中断**
-
-每线程子代理支持 `interrupt()` 就像每次调用一样。将`interrupt()`添加到工具功能中以要求用户批准：
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-@tool
-def fruit_info(fruit_name: str) -> str:
-    """Look up fruit info."""
-    interrupt("continue?")  # [!code highlight]
-    return f"Info about {fruit_name}"
-```
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-from langgraph.types import Command
-
-config = {"configurable": {"thread_id": "1"}}
-
-# Stream events - the subagent's tool calls interrupt()
-stream = agent.stream_events(
-    {"messages": [{"role": "user", "content": "Tell me about apples"}]},
-    config=config,
-    version="v3",
-)
-output = stream.output  # drive the stream to completion
-# stream.interrupts contains pending interrupts (and stream.interrupted is True)
-
-# Resume - approve the interrupt
-resumed = agent.stream_events(Command(resume=True), config=config, version="v3")
-final = resumed.output
-```
-
-> **[View example trace](https://smith.langchain.com/public/98a5d6e1-b3fc-4248-a3b6-48901419f96b/r)**
+> [选项卡] 中断
 >
-> 为此示例打开公共 LangSmith 运行。
+> 每线程子代理支持 `interrupt()` 就像每次调用一样。将`interrupt()`添加到工具功能中以要求用户批准：
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> @tool
+> def fruit_info(fruit_name: str) -> str:
+>     """Look up fruit info."""
+>     interrupt("continue?")  # [!code highlight]
+>     return f"Info about {fruit_name}"
+> ```
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> from langgraph.types import Command
+>
+> config = {"configurable": {"thread_id": "1"}}
+>
+> # Stream events - the subagent's tool calls interrupt()
+> stream = agent.stream_events(
+>     {"messages": [{"role": "user", "content": "Tell me about apples"}]},
+>     config=config,
+>     version="v3",
+> )
+> output = stream.output  # drive the stream to completion
+> # stream.interrupts contains pending interrupts (and stream.interrupted is True)
+>
+> # Resume - approve the interrupt
+> resumed = agent.stream_events(Command(resume=True), config=config, version="v3")
+> final = resumed.output
+> ```
+>
+>>【卡牌】[View example trace](https://smith.langchain.com/public/98a5d6e1-b3fc-4248-a3b6-48901419f96b/r)
+>>
+>> 为此示例打开公共 LangSmith 运行。
 
-**多圈**
-
-状态在调用中累积——子代理会记住过去的对话：
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-config = {"configurable": {"thread_id": "1"}}
-
-# First call
-response = agent.invoke(
-    {"messages": [{"role": "user", "content": "Tell me about apples"}]},
-    config=config,
-)
-# Subagent message count: 4
-
-# Second call - subagent REMEMBERS apples conversation
-response = agent.invoke(
-    {"messages": [{"role": "user", "content": "Now tell me about bananas"}]},
-    config=config,
-)
-# Subagent message count: 8 (accumulated!)
-```
-
-**多个子图调用**当您有多个**不同的**每线程子图（例如，水果专家和蔬菜专家）时，每个子图都需要自己的存储空间，以便它们的检查点不会相互覆盖。这称为**命名空间隔离**。
-
-如果您[call subgraphs inside a node](#call-a-subgraph-inside-a-node)，LangGraph 根据调用顺序（第一次调用、第二次调用等）分配命名空间。这意味着重新排序您的调用可能会混淆哪个子图加载哪个状态。为了避免这种情况，请使用唯一的节点名称将每个子代理包装在自己的 `StateGraph` 中 - 这为每个子图提供了稳定、唯一的命名空间：
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-from langgraph.graph import MessagesState, StateGraph
-
-def create_sub_agent(model, *, name, **kwargs):
-    """Wrap an agent with a unique node name for namespace isolation."""
-    agent = create_agent(model=model, name=name, **kwargs)
-    return (
-        StateGraph(MessagesState)
-        .add_node(name, agent)  # unique name → stable namespace  # [!code highlight]
-        .add_edge("__start__", name)
-        .compile()
-    )
-
-fruit_agent = create_sub_agent(
-    "gpt-5.4-mini", name="fruit_agent",
-    tools=[fruit_info], prompt="...", checkpointer=True,
-)
-veggie_agent = create_sub_agent(
-    "gpt-5.4-mini", name="veggie_agent",
-    tools=[veggie_info], prompt="...", checkpointer=True,
-)
-
-config = {"configurable": {"thread_id": "1"}}
-
-# First call - LLM calls both fruit and veggie experts
-response = agent.invoke(
-    {"messages": [{"role": "user", "content": "Tell me about cherries and broccoli"}]},
-    config=config,
-)
-# Fruit subagent message count: 4
-# Veggie subagent message count: 4
-
-# Second call - both agents accumulate independently
-response = agent.invoke(
-    {"messages": [{"role": "user", "content": "Now tell me about oranges and carrots"}]},
-    config=config,
-)
-# Fruit subagent message count: 8 (remembers cherries!)
-# Veggie subagent message count: 8 (remembers broccoli!)
-```
-
-子图[added as nodes](#add-a-subgraph-as-a-node)已经自动获取基于名称的命名空间，因此它们不需要这个包装器。
+> [选项卡] 多圈
+>
+> 状态在调用中累积——子代理会记住过去的对话：
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> config = {"configurable": {"thread_id": "1"}}
+>
+> # First call
+> response = agent.invoke(
+>     {"messages": [{"role": "user", "content": "Tell me about apples"}]},
+>     config=config,
+> )
+> # Subagent message count: 4
+>
+> # Second call - subagent REMEMBERS apples conversation
+> response = agent.invoke(
+>     {"messages": [{"role": "user", "content": "Now tell me about bananas"}]},
+>     config=config,
+> )
+> # Subagent message count: 8 (accumulated!)
+> ```> [tab] 多个子图调用
+>
+> 当您有多个**不同的**每线程子图（例如，水果专家和蔬菜专家）时，每个子图都需要自己的存储空间，以便它们的检查点不会相互覆盖。这称为**命名空间隔离**。
+>
+> 如果您[call subgraphs inside a node](#call-a-subgraph-inside-a-node)，LangGraph 根据调用顺序（第一次调用、第二次调用等）分配命名空间。这意味着重新排序您的调用可能会混淆哪个子图加载哪个状态。为了避免这种情况，请将每个子代理包装在其自己的 `StateGraph` 中，并使用唯一的节点名称 - 这为每个子图提供了稳定、唯一的命名空间：
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> from langgraph.graph import MessagesState, StateGraph
+>
+> def create_sub_agent(model, *, name, **kwargs):
+>     """Wrap an agent with a unique node name for namespace isolation."""
+>     agent = create_agent(model=model, name=name, **kwargs)
+>     return (
+>         StateGraph(MessagesState)
+>         .add_node(name, agent)  # unique name → stable namespace  # [!code highlight]
+>         .add_edge("__start__", name)
+>         .compile()
+>     )
+>
+> fruit_agent = create_sub_agent(
+>     "gpt-5.4-mini", name="fruit_agent",
+>     tools=[fruit_info], prompt="...", checkpointer=True,
+> )
+> veggie_agent = create_sub_agent(
+>     "gpt-5.4-mini", name="veggie_agent",
+>     tools=[veggie_info], prompt="...", checkpointer=True,
+> )
+>
+> config = {"configurable": {"thread_id": "1"}}
+>
+> # First call - LLM calls both fruit and veggie experts
+> response = agent.invoke(
+>     {"messages": [{"role": "user", "content": "Tell me about cherries and broccoli"}]},
+>     config=config,
+> )
+> # Fruit subagent message count: 4
+> # Veggie subagent message count: 4
+>
+> # Second call - both agents accumulate independently
+> response = agent.invoke(
+>     {"messages": [{"role": "user", "content": "Now tell me about oranges and carrots"}]},
+>     config=config,
+> )
+> # Fruit subagent message count: 8 (remembers cherries!)
+> # Veggie subagent message count: 8 (remembers broccoli!)
+> ```
+>
+> 子图[added as nodes](#add-a-subgraph-as-a-node)已经自动获取基于名称的命名空间，因此它们不需要这个包装器。
 
 ### 无状态
 
-当您想要像普通函数调用一样运行子代理而没有检查点开销时，请使用此选项。子图无法暂停/恢复，并且不会从 [durable execution](/oss/python/langgraph/persistence) 中受益。使用`checkpointer=False`编译。
+当您想要像普通函数调用一样运行子代理而没有检查点开销时，请使用此选项。子图无法暂停/恢复，并且无法从 [durable execution](/oss/python/langgraph/persistence) 中受益。使用`checkpointer=False`编译。
 
 > [!警告]
 >
@@ -647,12 +647,12 @@ subgraph = subgraph_builder.compile(checkpointer=False)  # [!code highlight]
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 subgraph = builder.compile(checkpointer=False)  # or True / None
-```|特色 |每次调用（默认）|每线程 |无国籍|
+```|特色|每次调用（默认）|每线程 |无国籍|
 | - | - | - | - |
 | `checkpointer=` | `None` | `True` | `False` |
 |中断（HITL）| ✅ | ✅ | ❌ |
 |多圈记忆| ❌ | ✅ | ❌ |
-|多次调用（不同子图）| ✅ | ⚠️（调用同一节点中的多个每线程子图可能会导致命名空间冲突。有解决方法。） ✅ |
+|多次调用（不同子图）| ✅ | ⚠️（调用同一节点中的多个每线程子图可能会导致命名空间冲突。解决方法是可用的。） ✅ |
 |多次调用（同一子图）| ✅ | ❌ | ✅ |
 |国家检验| ⚠️（具有每次调用持久性的状态检查仅适用于当前调用（在中断时）。每个调用都是全新开始的，因此在调用完成后没有累积的状态可供检查。） ✅ | ❌ |* **中断（HITL）**：子图可以使用[interrupt()](/oss/python/langgraph/interrupts)暂停执行并等待用户输入，然后从中断处恢复。
 * **多轮记忆**：子图在同一[thread](/oss/python/langgraph/checkpointers#threads)内的多次调用中保留其状态。每次调用都会从上一个调用的地方继续，而不是重新开始。
@@ -666,77 +666,77 @@ subgraph = builder.compile(checkpointer=False)  # or True / None
 >
 > 查看子图状态要求LangGraph可以**静态发现**子图，即它是[added as a node](#add-a-subgraph-as-a-node)或[called inside a node](#call-a-subgraph-inside-a-node)。当在 [tool](/oss/python/langchain/tools) 函数或其他间接（例如 [subagents](/oss/python/langchain/multi-agent/subagents) 模式）内调用子图时，它不起作用。无论嵌套如何，中断仍然会传播到顶层图。
 
-**每次调用**
+> [选项卡] 每次调用
+>
+> 仅返回**当前调用**的子图状态。每次调用都是全新的。
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> from langgraph.graph import START, StateGraph
+> from langgraph.checkpoint.memory import MemorySaver
+> from langgraph.types import interrupt, Command
+> from typing_extensions import TypedDict
+>
+> class State(TypedDict):
+>     foo: str
+>
+> # Subgraph
+> def subgraph_node_1(state: State):
+>     value = interrupt("Provide value:")
+>     return {"foo": state["foo"] + value}
+>
+> subgraph_builder = StateGraph(State)
+> subgraph_builder.add_node(subgraph_node_1)
+> subgraph_builder.add_edge(START, "subgraph_node_1")
+> subgraph = subgraph_builder.compile()  # inherits parent checkpointer
+>
+> # Parent graph
+> builder = StateGraph(State)
+> builder.add_node("node_1", subgraph)
+> builder.add_edge(START, "node_1")
+>
+> checkpointer = MemorySaver()
+> graph = builder.compile(checkpointer=checkpointer)
+>
+> config = {"configurable": {"thread_id": "1"}}
+>
+> graph.invoke({"foo": ""}, config)
+>
+> # View subgraph state for the current invocation
+> subgraph_state = graph.get_state(config, subgraphs=True).tasks[0].state  # [!code highlight]
+>
+> # Resume the subgraph
+> graph.invoke(Command(resume="bar"), config)
+> ```
 
-仅返回**当前调用**的子图状态。每次调用都是全新的。
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-from langgraph.graph import START, StateGraph
-from langgraph.checkpoint.memory import MemorySaver
-from langgraph.types import interrupt, Command
-from typing_extensions import TypedDict
-
-class State(TypedDict):
-    foo: str
-
-# Subgraph
-def subgraph_node_1(state: State):
-    value = interrupt("Provide value:")
-    return {"foo": state["foo"] + value}
-
-subgraph_builder = StateGraph(State)
-subgraph_builder.add_node(subgraph_node_1)
-subgraph_builder.add_edge(START, "subgraph_node_1")
-subgraph = subgraph_builder.compile()  # inherits parent checkpointer
-
-# Parent graph
-builder = StateGraph(State)
-builder.add_node("node_1", subgraph)
-builder.add_edge(START, "node_1")
-
-checkpointer = MemorySaver()
-graph = builder.compile(checkpointer=checkpointer)
-
-config = {"configurable": {"thread_id": "1"}}
-
-graph.invoke({"foo": ""}, config)
-
-# View subgraph state for the current invocation
-subgraph_state = graph.get_state(config, subgraphs=True).tasks[0].state  # [!code highlight]
-
-# Resume the subgraph
-graph.invoke(Command(resume="bar"), config)
-```
-
-**每线程**
-
-返回此线程上所有调用的**累积**子图状态。
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-from langgraph.graph import START, StateGraph, MessagesState
-from langgraph.checkpoint.memory import MemorySaver
-
-# Subgraph with its own persistent state
-subgraph_builder = StateGraph(MessagesState)
-# ... add nodes and edges
-subgraph = subgraph_builder.compile(checkpointer=True)  # [!code highlight]
-
-# Parent graph
-builder = StateGraph(MessagesState)
-builder.add_node("agent", subgraph)
-builder.add_edge(START, "agent")
-
-checkpointer = MemorySaver()
-graph = builder.compile(checkpointer=checkpointer)
-
-config = {"configurable": {"thread_id": "1"}}
-
-graph.invoke({"messages": [{"role": "user", "content": "hi"}]}, config)
-graph.invoke({"messages": [{"role": "user", "content": "what did I say?"}]}, config)
-
-# View accumulated subgraph state (includes messages from both invocations)
-subgraph_state = graph.get_state(config, subgraphs=True).tasks[0].state  # [!code highlight]
-```
+> [选项卡] 每线程
+>
+> 返回该线程上所有调用的**累积**子图状态。
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> from langgraph.graph import START, StateGraph, MessagesState
+> from langgraph.checkpoint.memory import MemorySaver
+>
+> # Subgraph with its own persistent state
+> subgraph_builder = StateGraph(MessagesState)
+> # ... add nodes and edges
+> subgraph = subgraph_builder.compile(checkpointer=True)  # [!code highlight]
+>
+> # Parent graph
+> builder = StateGraph(MessagesState)
+> builder.add_node("agent", subgraph)
+> builder.add_edge(START, "agent")
+>
+> checkpointer = MemorySaver()
+> graph = builder.compile(checkpointer=checkpointer)
+>
+> config = {"configurable": {"thread_id": "1"}}
+>
+> graph.invoke({"messages": [{"role": "user", "content": "hi"}]}, config)
+> graph.invoke({"messages": [{"role": "user", "content": "what did I say?"}]}, config)
+>
+> # View accumulated subgraph state (includes messages from both invocations)
+> subgraph_state = graph.get_state(config, subgraphs=True).tasks[0].state  # [!code highlight]
+> ```
 
 ## 流子图输出
 
@@ -763,7 +763,7 @@ for event in stream:
         print(event["params"]["namespace"], event["params"]["data"])
 ```
 
-> **来自子图的流**
+> [手风琴] 来自子图的流
 >
 > ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > from typing_extensions import TypedDict

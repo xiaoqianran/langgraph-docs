@@ -61,58 +61,58 @@
 
 您现在可以测试 API：
 
-**Python**
+> [选项卡] Python
+>
+> 1.安装LangGraph SDK：
+>
+> ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> pip install langgraph-sdk
+> ```
+>
+> 2. 向代理发送消息：
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> from langgraph_sdk import get_sync_client # or get_client for async
+>
+> client = get_sync_client(url="your-deployment-url", api_key="your-langsmith-api-key")
+>
+> for chunk in client.runs.stream(
+>     None,    # Threadless run
+>     "agent", # Name of agent. Defined in langgraph.json.
+>     input={
+>         "messages": [{
+>             "role": "human",
+>             "content": "What is LangGraph?",
+>         }],
+>     },
+>     stream_mode="updates",
+> ):
+>     print(f"Receiving new event of type: {chunk.event}...")
+>     print(chunk.data)
+>     print("\n\n")
+> ```> [选项卡] 休息 API
+>
+> ```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> curl -s --request POST \
+>     --url <DEPLOYMENT_URL>/runs/stream \
+>     --header 'Content-Type: application/json' \
+>     --header "X-Api-Key: <LANGSMITH API KEY> \
+>     --data "{
+>         \"assistant_id\": \"agent\", `# Name of agent. Defined in langgraph.json.`
+>         \"input\": {
+>             \"messages\": [
+>                 {
+>                     \"role\": \"human\",
+>                     \"content\": \"What is LangGraph?\"
+>                 }
+>             ]
+>         },
+>         \"stream_mode\": \"updates\"
+>     }"
+> ```
 
-1.安装LangGraph SDK：
+***
 
-```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-pip install langgraph-sdk
-```
-
-2. 向代理发送消息：
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-from langgraph_sdk import get_sync_client # or get_client for async
-
-client = get_sync_client(url="your-deployment-url", api_key="your-langsmith-api-key")
-
-for chunk in client.runs.stream(
-    None,    # Threadless run
-    "agent", # Name of agent. Defined in langgraph.json.
-    input={
-        "messages": [{
-            "role": "human",
-            "content": "What is LangGraph?",
-        }],
-    },
-    stream_mode="updates",
-):
-    print(f"Receiving new event of type: {chunk.event}...")
-    print(chunk.data)
-    print("\n\n")
-```
-
-**休息API**
-
-```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-curl -s --request POST \
-    --url <DEPLOYMENT_URL>/runs/stream \
-    --header 'Content-Type: application/json' \
-    --header "X-Api-Key: <LANGSMITH API KEY> \
-    --data "{
-        \"assistant_id\": \"agent\", `# Name of agent. Defined in langgraph.json.`
-        \"input\": {
-            \"messages\": [
-                {
-                    \"role\": \"human\",
-                    \"content\": \"What is LangGraph?\"
-                }
-            ]
-        },
-        \"stream_mode\": \"updates\"
-    }"
-```
-
-***[Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
+[Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
 
 [Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/deploy.mdx) 或 [file an issue](https://github.com/langchain-ai/docs/issues/new/choose)。

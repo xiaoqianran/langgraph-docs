@@ -1201,7 +1201,7 @@ result = graph.invoke(
 )
 ```
 
-> **[View example trace](https://smith.langchain.com/public/cca682e6-baf9-4d9f-90a2-c6a3e255a483/r)**
+> [card] [View example trace](https://smith.langchain.com/public/cca682e6-baf9-4d9f-90a2-c6a3e255a483/r)
 >
 > Open a public LangSmith run for this example.
 

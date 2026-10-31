@@ -147,7 +147,7 @@ class State(TypedDict):
         list[str],
         DeltaChannel(my_reducer, snapshot_frequency=5),
     ]
-```较高的 `snapshot_frequency` 值可减少存储开销，但会增加读取延迟。较低的值会更紧密地限制延迟，但代价是检查点较大。 `None`（默认）完全跳过快照——适用于读取很少或线程较短的情况。
+```较高的 `snapshot_frequency` 值可减少存储开销，但会增加读取延迟。较低的值会更紧密地限制延迟，但代价是检查点更大。 `None`（默认）完全跳过快照——适用于读取很少或线程较短的情况。
 
 #### 版本兼容性和回滚
 
@@ -161,295 +161,295 @@ class State(TypedDict):
 
 下面是几个不同的示例，可帮助您了解 Pregel API。
 
-**单节点**
+> [选项卡] 单节点
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> from langgraph.channels import EphemeralValue
+> from langgraph.pregel import Pregel, NodeBuilder
+>
+> node1 = (
+>     NodeBuilder().subscribe_only("a")
+>     .do(lambda x: x + x)
+>     .write_to("b")
+> )
+>
+> app = Pregel(
+>     nodes={"node1": node1},
+>     channels={
+>         "a": EphemeralValue(str),
+>         "b": EphemeralValue(str),
+>     },
+>     input_channels=["a"],
+>     output_channels=["b"],
+> )
+>
+> app.invoke({"a": "foo"})
+> ```
+>
+> ```con theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> {'b': 'foofoo'}
+> ```
 
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-from langgraph.channels import EphemeralValue
-from langgraph.pregel import Pregel, NodeBuilder
+> [选项卡] 多个节点
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> from langgraph.channels import LastValue, EphemeralValue
+> from langgraph.pregel import Pregel, NodeBuilder
+>
+> node1 = (
+>     NodeBuilder().subscribe_only("a")
+>     .do(lambda x: x + x)
+>     .write_to("b")
+> )
+>
+> node2 = (
+>     NodeBuilder().subscribe_only("b")
+>     .do(lambda x: x + x)
+>     .write_to("c")
+> )
+>
+>
+> app = Pregel(
+>     nodes={"node1": node1, "node2": node2},
+>     channels={
+>         "a": EphemeralValue(str),
+>         "b": LastValue(str),
+>         "c": EphemeralValue(str),
+>     },
+>     input_channels=["a"],
+>     output_channels=["b", "c"],
+> )
+>
+> app.invoke({"a": "foo"})
+> ```
+>
+> ```con theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> {'b': 'foofoo', 'c': 'foofoofoofoo'}
+> ```
 
-node1 = (
-    NodeBuilder().subscribe_only("a")
-    .do(lambda x: x + x)
-    .write_to("b")
-)
+> [选项卡] 主题
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> from langgraph.channels import EphemeralValue, Topic
+> from langgraph.pregel import Pregel, NodeBuilder
+>
+> node1 = (
+>     NodeBuilder().subscribe_only("a")
+>     .do(lambda x: x + x)
+>     .write_to("b", "c")
+> )
+>
+> node2 = (
+>     NodeBuilder().subscribe_to("b")
+>     .do(lambda x: x["b"] + x["b"])
+>     .write_to("c")
+> )
+>
+> app = Pregel(
+>     nodes={"node1": node1, "node2": node2},
+>     channels={
+>         "a": EphemeralValue(str),
+>         "b": EphemeralValue(str),
+>         "c": Topic(str, accumulate=True),
+>     },
+>     input_channels=["a"],
+>     output_channels=["c"],
+> )
+>
+> app.invoke({"a": "foo"})
+> ```
+>
+> ```pycon theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> {'c': ['foofoo', 'foofoofoofoo']}
+> ```
 
-app = Pregel(
-    nodes={"node1": node1},
-    channels={
-        "a": EphemeralValue(str),
-        "b": EphemeralValue(str),
-    },
-    input_channels=["a"],
-    output_channels=["b"],
-)
+> [选项卡] BinaryOperatorAggregate
+>
+> 这个例子演示了如何使用[⟦T59⟧](https://reference.langchain.com/python/langgraph/channels/binop/BinaryOperatorAggregate)通道来实现reducer。
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> from langgraph.channels import EphemeralValue, BinaryOperatorAggregate
+> from langgraph.pregel import Pregel, NodeBuilder
+>
+>
+> node1 = (
+>     NodeBuilder().subscribe_only("a")
+>     .do(lambda x: x + x)
+>     .write_to("b", "c")
+> )
+>
+> node2 = (
+>     NodeBuilder().subscribe_only("b")
+>     .do(lambda x: x + x)
+>     .write_to("c")
+> )
+>
+> def reducer(current, update):
+>     if current:
+>         return current + " | " + update
+>     else:
+>         return update
+>
+> app = Pregel(
+>     nodes={"node1": node1, "node2": node2},
+>     channels={
+>         "a": EphemeralValue(str),
+>         "b": EphemeralValue(str),
+>         "c": BinaryOperatorAggregate(str, operator=reducer),
+>     },
+>     input_channels=["a"],
+>     output_channels=["c"],
+> )
+>
+> app.invoke({"a": "foo"})
+> ```
+>
+> ```console theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> { 'c': 'foofoo | foofoofoofoo' }
+> ```
 
-app.invoke({"a": "foo"})
-```
-
-```con theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-{'b': 'foofoo'}
-```
-
-**多个节点**
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-from langgraph.channels import LastValue, EphemeralValue
-from langgraph.pregel import Pregel, NodeBuilder
-
-node1 = (
-    NodeBuilder().subscribe_only("a")
-    .do(lambda x: x + x)
-    .write_to("b")
-)
-
-node2 = (
-    NodeBuilder().subscribe_only("b")
-    .do(lambda x: x + x)
-    .write_to("c")
-)
-
-
-app = Pregel(
-    nodes={"node1": node1, "node2": node2},
-    channels={
-        "a": EphemeralValue(str),
-        "b": LastValue(str),
-        "c": EphemeralValue(str),
-    },
-    input_channels=["a"],
-    output_channels=["b", "c"],
-)
-
-app.invoke({"a": "foo"})
-```
-
-```con theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-{'b': 'foofoo', 'c': 'foofoofoofoo'}
-```
-
-**主题**
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-from langgraph.channels import EphemeralValue, Topic
-from langgraph.pregel import Pregel, NodeBuilder
-
-node1 = (
-    NodeBuilder().subscribe_only("a")
-    .do(lambda x: x + x)
-    .write_to("b", "c")
-)
-
-node2 = (
-    NodeBuilder().subscribe_to("b")
-    .do(lambda x: x["b"] + x["b"])
-    .write_to("c")
-)
-
-app = Pregel(
-    nodes={"node1": node1, "node2": node2},
-    channels={
-        "a": EphemeralValue(str),
-        "b": EphemeralValue(str),
-        "c": Topic(str, accumulate=True),
-    },
-    input_channels=["a"],
-    output_channels=["c"],
-)
-
-app.invoke({"a": "foo"})
-```
-
-```pycon theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-{'c': ['foofoo', 'foofoofoofoo']}
-```
-
-**二元运算符聚合**
-
-这个例子演示了如何使用[⟦T59⟧](https://reference.langchain.com/python/langgraph/channels/binop/BinaryOperatorAggregate)通道来实现reducer。
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-from langgraph.channels import EphemeralValue, BinaryOperatorAggregate
-from langgraph.pregel import Pregel, NodeBuilder
-
-
-node1 = (
-    NodeBuilder().subscribe_only("a")
-    .do(lambda x: x + x)
-    .write_to("b", "c")
-)
-
-node2 = (
-    NodeBuilder().subscribe_only("b")
-    .do(lambda x: x + x)
-    .write_to("c")
-)
-
-def reducer(current, update):
-    if current:
-        return current + " | " + update
-    else:
-        return update
-
-app = Pregel(
-    nodes={"node1": node1, "node2": node2},
-    channels={
-        "a": EphemeralValue(str),
-        "b": EphemeralValue(str),
-        "c": BinaryOperatorAggregate(str, operator=reducer),
-    },
-    input_channels=["a"],
-    output_channels=["c"],
-)
-
-app.invoke({"a": "foo"})
-```
-
-```console theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-{ 'c': 'foofoo | foofoofoofoo' }
-```
-
-**循环**
-
-此示例演示了如何在图中引入循环，方法是：
-链写入其订阅的通道。执行将继续
-直到`None`值写入通道。
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-from langgraph.channels import EphemeralValue
-from langgraph.pregel import Pregel, NodeBuilder, ChannelWriteEntry
-
-example_node = (
-    NodeBuilder().subscribe_only("value")
-    .do(lambda x: x + x if len(x) < 10 else None)
-    .write_to(ChannelWriteEntry("value", skip_none=True))
-)
-
-app = Pregel(
-    nodes={"example_node": example_node},
-    channels={
-        "value": EphemeralValue(str),
-    },
-    input_channels=["value"],
-    output_channels=["value"],
-)
-
-app.invoke({"value": "a"})
-```
-
-```pycon theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-{'value': 'aaaaaaaaaaaaaaaa'}
-```
+> [选项卡] 循环
+>
+> 这个例子演示了如何在图中引入一个循环，通过
+> 链写入其订阅的频道。执行将继续
+> 直到 `None` 值写入通道。
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> from langgraph.channels import EphemeralValue
+> from langgraph.pregel import Pregel, NodeBuilder, ChannelWriteEntry
+>
+> example_node = (
+>     NodeBuilder().subscribe_only("value")
+>     .do(lambda x: x + x if len(x) < 10 else None)
+>     .write_to(ChannelWriteEntry("value", skip_none=True))
+> )
+>
+> app = Pregel(
+>     nodes={"example_node": example_node},
+>     channels={
+>         "value": EphemeralValue(str),
+>     },
+>     input_channels=["value"],
+>     output_channels=["value"],
+> )
+>
+> app.invoke({"value": "a"})
+> ```
+>
+> ```pycon theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> {'value': 'aaaaaaaaaaaaaaaa'}
+> ```
 
 ## 高级 API
 
-LangGraph 提供了两个用于创建 Pregel 应用程序的高级 API：[StateGraph (Graph API)](/oss/python/langgraph/graph-api) 和 [Functional API](/oss/python/langgraph/functional-api)。
+LangGraph 提供了两个用于创建 Pregel 应用程序的高级 API：[StateGraph (Graph API)](/oss/python/langgraph/graph-api) 和 [Functional API](/oss/python/langgraph/functional-api)。> [选项卡] StateGraph（图 API）
+>
+> [StateGraph (Graph API)](https://reference.langchain.com/python/langgraph/graph/state/StateGraph) 是一个更高级别的抽象，可以简化 Pregel 应用程序的创建。它允许您定义节点和边的图。当您编译图时，StateGraph API 会自动为您创建 Pregel 应用程序。
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> from typing import TypedDict
+>
+> from langgraph.constants import START
+> from langgraph.graph import StateGraph
+>
+> class Essay(TypedDict):
+>     topic: str
+>     content: str | None
+>     score: float | None
+>
+> def write_essay(essay: Essay):
+>     return {
+>         "content": f"Essay about {essay['topic']}",
+>     }
+>
+> def score_essay(essay: Essay):
+>     return {
+>         "score": 10
+>     }
+>
+> builder = StateGraph(Essay)
+> builder.add_node(write_essay)
+> builder.add_node(score_essay)
+> builder.add_edge(START, "write_essay")
+> builder.add_edge("write_essay", "score_essay")
+>
+> # Compile the graph.
+> # This will return a Pregel instance.
+> graph = builder.compile()
+> ```
+>
+> 编译后的 Pregel 实例将与节点和通道列表相关联。您可以通过打印来检查节点和通道。
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> print(graph.nodes)
+> ```
+>
+> 你会看到类似这样的内容：
+>
+> ```pycon theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> {'__start__': <langgraph.pregel.read.PregelNode at 0x7d05e3ba1810>,
+>  'write_essay': <langgraph.pregel.read.PregelNode at 0x7d05e3ba14d0>,
+>  'score_essay': <langgraph.pregel.read.PregelNode at 0x7d05e3ba1710>}
+> ```
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> print(graph.channels)
+> ```
+>
+> 你应该看到类似这样的东西
+>
+> ```pycon theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> {'topic': <langgraph.channels.last_value.LastValue at 0x7d05e3294d80>,
+>  'content': <langgraph.channels.last_value.LastValue at 0x7d05e3295040>,
+>  'score': <langgraph.channels.last_value.LastValue at 0x7d05e3295980>,
+>  '__start__': <langgraph.channels.ephemeral_value.EphemeralValue at 0x7d05e3297e00>,
+>  'write_essay': <langgraph.channels.ephemeral_value.EphemeralValue at 0x7d05e32960c0>,
+>  'score_essay': <langgraph.channels.ephemeral_value.EphemeralValue at 0x7d05e2d8ab80>,
+>  'branch:__start__:__self__:write_essay': <langgraph.channels.ephemeral_value.EphemeralValue at 0x7d05e32941c0>,
+>  'branch:__start__:__self__:score_essay': <langgraph.channels.ephemeral_value.EphemeralValue at 0x7d05e2d88800>,
+>  'branch:write_essay:__self__:write_essay': <langgraph.channels.ephemeral_value.EphemeralValue at 0x7d05e3295ec0>,
+>  'branch:write_essay:__self__:score_essay': <langgraph.channels.ephemeral_value.EphemeralValue at 0x7d05e2d8ac00>,
+>  'branch:score_essay:__self__:write_essay': <langgraph.channels.ephemeral_value.EphemeralValue at 0x7d05e2d89700>,
+>  'branch:score_essay:__self__:score_essay': <langgraph.channels.ephemeral_value.EphemeralValue at 0x7d05e2d8b400>,
+>  'start:write_essay': <langgraph.channels.ephemeral_value.EphemeralValue at 0x7d05e2d8b280>}
+> ```
 
-**StateGraph（图 API）**
-
-[StateGraph (Graph API)](https://reference.langchain.com/python/langgraph/graph/state/StateGraph) 是一个更高级别的抽象，可以简化 Pregel 应用程序的创建。它允许您定义节点和边的图。当您编译图时，StateGraph API 会自动为您创建 Pregel 应用程序。
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-from typing import TypedDict
-
-from langgraph.constants import START
-from langgraph.graph import StateGraph
-
-class Essay(TypedDict):
-    topic: str
-    content: str | None
-    score: float | None
-
-def write_essay(essay: Essay):
-    return {
-        "content": f"Essay about {essay['topic']}",
-    }
-
-def score_essay(essay: Essay):
-    return {
-        "score": 10
-    }
-
-builder = StateGraph(Essay)
-builder.add_node(write_essay)
-builder.add_node(score_essay)
-builder.add_edge(START, "write_essay")
-builder.add_edge("write_essay", "score_essay")
-
-# Compile the graph.
-# This will return a Pregel instance.
-graph = builder.compile()
-```
-
-编译后的 Pregel 实例将与节点和通道列表相关联。您可以通过打印来检查节点和通道。
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-print(graph.nodes)
-```你会看到这样的东西：
-
-```pycon theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-{'__start__': <langgraph.pregel.read.PregelNode at 0x7d05e3ba1810>,
- 'write_essay': <langgraph.pregel.read.PregelNode at 0x7d05e3ba14d0>,
- 'score_essay': <langgraph.pregel.read.PregelNode at 0x7d05e3ba1710>}
-```
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-print(graph.channels)
-```
-
-你应该看到这样的东西
-
-```pycon theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-{'topic': <langgraph.channels.last_value.LastValue at 0x7d05e3294d80>,
- 'content': <langgraph.channels.last_value.LastValue at 0x7d05e3295040>,
- 'score': <langgraph.channels.last_value.LastValue at 0x7d05e3295980>,
- '__start__': <langgraph.channels.ephemeral_value.EphemeralValue at 0x7d05e3297e00>,
- 'write_essay': <langgraph.channels.ephemeral_value.EphemeralValue at 0x7d05e32960c0>,
- 'score_essay': <langgraph.channels.ephemeral_value.EphemeralValue at 0x7d05e2d8ab80>,
- 'branch:__start__:__self__:write_essay': <langgraph.channels.ephemeral_value.EphemeralValue at 0x7d05e32941c0>,
- 'branch:__start__:__self__:score_essay': <langgraph.channels.ephemeral_value.EphemeralValue at 0x7d05e2d88800>,
- 'branch:write_essay:__self__:write_essay': <langgraph.channels.ephemeral_value.EphemeralValue at 0x7d05e3295ec0>,
- 'branch:write_essay:__self__:score_essay': <langgraph.channels.ephemeral_value.EphemeralValue at 0x7d05e2d8ac00>,
- 'branch:score_essay:__self__:write_essay': <langgraph.channels.ephemeral_value.EphemeralValue at 0x7d05e2d89700>,
- 'branch:score_essay:__self__:score_essay': <langgraph.channels.ephemeral_value.EphemeralValue at 0x7d05e2d8b400>,
- 'start:write_essay': <langgraph.channels.ephemeral_value.EphemeralValue at 0x7d05e2d8b280>}
-```
-
-**功能性API**
-
-在[Functional API](/oss/python/langgraph/functional-api)中，您可以使用[⟦T61⟧](https://reference.langchain.com/python/langgraph/func/entrypoint)来创建Pregel应用程序。 `entrypoint` 装饰器允许您定义一个接受输入并返回输出的函数。
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-from typing import TypedDict
-
-from langgraph.checkpoint.memory import InMemorySaver
-from langgraph.func import entrypoint
-
-class Essay(TypedDict):
-    topic: str
-    content: str | None
-    score: float | None
-
-
-checkpointer = InMemorySaver()
-
-@entrypoint(checkpointer=checkpointer)
-def write_essay(essay: Essay):
-    return {
-        "content": f"Essay about {essay['topic']}",
-    }
-
-print("Nodes: ")
-print(write_essay.nodes)
-print("Channels: ")
-print(write_essay.channels)
-```
-
-```pycon theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-Nodes:
-{'write_essay': <langgraph.pregel.read.PregelNode object at 0x7d05e2f9aad0>}
-Channels:
-{'__start__': <langgraph.channels.ephemeral_value.EphemeralValue object at 0x7d05e2c906c0>, '__end__': <langgraph.channels.last_value.LastValue object at 0x7d05e2c90c40>, '__previous__': <langgraph.channels.last_value.LastValue object at 0x7d05e1007280>}
-```
+> [选项卡] 功能 API
+>
+> 在[Functional API](/oss/python/langgraph/functional-api)中，您可以使用[⟦T61⟧](https://reference.langchain.com/python/langgraph/func/entrypoint)来创建Pregel应用程序。 `entrypoint` 装饰器允许您定义一个接受输入并返回输出的函数。
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> from typing import TypedDict
+>
+> from langgraph.checkpoint.memory import InMemorySaver
+> from langgraph.func import entrypoint
+>
+> class Essay(TypedDict):
+>     topic: str
+>     content: str | None
+>     score: float | None
+>
+>
+> checkpointer = InMemorySaver()
+>
+> @entrypoint(checkpointer=checkpointer)
+> def write_essay(essay: Essay):
+>     return {
+>         "content": f"Essay about {essay['topic']}",
+>     }
+>
+> print("Nodes: ")
+> print(write_essay.nodes)
+> print("Channels: ")
+> print(write_essay.channels)
+> ```
+>
+> ```pycon theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> Nodes:
+> {'write_essay': <langgraph.pregel.read.PregelNode object at 0x7d05e2f9aad0>}
+> Channels:
+> {'__start__': <langgraph.channels.ephemeral_value.EphemeralValue object at 0x7d05e2c906c0>, '__end__': <langgraph.channels.last_value.LastValue object at 0x7d05e2c90c40>, '__previous__': <langgraph.channels.last_value.LastValue object at 0x7d05e1007280>}
+> ```
 
 ***
 

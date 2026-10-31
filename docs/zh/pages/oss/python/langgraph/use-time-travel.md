@@ -199,88 +199,88 @@ result = graph.invoke(None, fork_config)
 
 [subgraphs](https://docs.langchain.com/oss/python/langgraph/use-subgraphs.md) 的时间旅行取决于子图是否有自己的检查点。这决定了您可以进行时间旅行的检查点的粒度。
 
-**继承的检查指针（默认）**
+> [tab] 继承的检查点（默认）
+>
+> 默认情况下，子图继承父图的检查点。父级将整个子图视为**单个超级步骤** - 整个子图执行只有一个父级检查点。从子图重新执行之前开始的时间旅行。
+>
+> 您无法时间旅行到默认子图中*节点之间的点 - 您只能从父级开始时间旅行。
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> # Subgraph without its own checkpointer (default)
+> subgraph = (
+>     StateGraph(State)
+>     .add_node("step_a", step_a)       # Has interrupt()
+>     .add_node("step_b", step_b)       # Has interrupt()
+>     .add_edge(START, "step_a")
+>     .add_edge("step_a", "step_b")
+>     .compile()  # No checkpointer — inherits from parent
+> )
+>
+> graph = (
+>     StateGraph(State)
+>     .add_node("subgraph_node", subgraph)
+>     .add_edge(START, "subgraph_node")
+>     .compile(checkpointer=InMemorySaver())
+> )
+>
+> config = {"configurable": {"thread_id": "1"}}
+>
+> # Complete both interrupts
+> graph.invoke({"value": []}, config)            # Hits step_a interrupt
+> graph.invoke(Command(resume="Alice"), config)  # Hits step_b interrupt
+> graph.invoke(Command(resume="30"), config)     # Completes
+>
+> # Time travel from before the subgraph
+> history = list(graph.get_state_history(config))
+> before_sub = [s for s in history if s.next == ("subgraph_node",)][-1]
+>
+> fork_config = graph.update_state(before_sub.config, {"value": ["forked"]})
+> result = graph.invoke(None, fork_config)
+> # The entire subgraph re-executes from scratch
+> # You cannot time travel to a point between step_a and step_b
+> ```
 
-默认情况下，子图继承父图的检查点。父级将整个子图视为**单个超级步骤** - 整个子图执行只有一个父级检查点。从子图重新执行之前开始的时间旅行。
-
-您无法时间旅行到默认子图中*节点之间的点 - 您只能从父级开始时间旅行。
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-# Subgraph without its own checkpointer (default)
-subgraph = (
-    StateGraph(State)
-    .add_node("step_a", step_a)       # Has interrupt()
-    .add_node("step_b", step_b)       # Has interrupt()
-    .add_edge(START, "step_a")
-    .add_edge("step_a", "step_b")
-    .compile()  # No checkpointer — inherits from parent
-)
-
-graph = (
-    StateGraph(State)
-    .add_node("subgraph_node", subgraph)
-    .add_edge(START, "subgraph_node")
-    .compile(checkpointer=InMemorySaver())
-)
-
-config = {"configurable": {"thread_id": "1"}}
-
-# Complete both interrupts
-graph.invoke({"value": []}, config)            # Hits step_a interrupt
-graph.invoke(Command(resume="Alice"), config)  # Hits step_b interrupt
-graph.invoke(Command(resume="30"), config)     # Completes
-
-# Time travel from before the subgraph
-history = list(graph.get_state_history(config))
-before_sub = [s for s in history if s.next == ("subgraph_node",)][-1]
-
-fork_config = graph.update_state(before_sub.config, {"value": ["forked"]})
-result = graph.invoke(None, fork_config)
-# The entire subgraph re-executes from scratch
-# You cannot time travel to a point between step_a and step_b
-```
-
-**子图检查点**
-
-在子图上设置`checkpointer=True`以赋予其自己的检查点历史记录。这会在子图**内**的每个步骤创建检查点，允许您从子图中的特定点进行时间旅行 - 例如，在两个中断之间。
-
-使用 [⟦T23⟧](https://reference.langchain.com/python/langgraph/graphs/#langgraph.graph.state.CompiledStateGraph.get_state) 和 `subgraphs=True` 来访问子图自己的检查点配置，然后从中分叉：
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-# Subgraph with its own checkpointer
-subgraph = (
-    StateGraph(State)
-    .add_node("step_a", step_a)       # Has interrupt()
-    .add_node("step_b", step_b)       # Has interrupt()
-    .add_edge(START, "step_a")
-    .add_edge("step_a", "step_b")
-    .compile(checkpointer=True)  # Own checkpoint history
-)
-
-graph = (
-    StateGraph(State)
-    .add_node("subgraph_node", subgraph)
-    .add_edge(START, "subgraph_node")
-    .compile(checkpointer=InMemorySaver())
-)
-
-config = {"configurable": {"thread_id": "1"}}
-
-# Run until step_a interrupt
-graph.invoke({"value": []}, config)
-
-# Resume step_a -> hits step_b interrupt
-graph.invoke(Command(resume="Alice"), config)
-
-# Get the subgraph's own checkpoint (between step_a and step_b)
-parent_state = graph.get_state(config, subgraphs=True)
-sub_config = parent_state.tasks[0].state.config
-
-# Fork from the subgraph checkpoint
-fork_config = graph.update_state(sub_config, {"value": ["forked"]})
-result = graph.invoke(None, fork_config)
-# step_b re-executes, step_a's result is preserved
-```有关配置子图检查点的更多信息，请参阅[subgraph persistence](https://docs.langchain.com/oss/python/langgraph/use-subgraphs.md#subgraph-persistence)。
+> [tab] 子图检查点
+>
+> 在子图上设置 `checkpointer=True` 以赋予其自己的检查点历史记录。这会在子图**内**的每个步骤创建检查点，允许您从子图中的特定点进行时间旅行 - 例如，在两个中断之间。
+>
+> 使用 [⟦T23⟧](https://reference.langchain.com/python/langgraph/graphs/#langgraph.graph.state.CompiledStateGraph.get_state) 和 `subgraphs=True` 访问子图自己的检查点配置，然后从中分叉：
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> # Subgraph with its own checkpointer
+> subgraph = (
+>     StateGraph(State)
+>     .add_node("step_a", step_a)       # Has interrupt()
+>     .add_node("step_b", step_b)       # Has interrupt()
+>     .add_edge(START, "step_a")
+>     .add_edge("step_a", "step_b")
+>     .compile(checkpointer=True)  # Own checkpoint history
+> )
+>
+> graph = (
+>     StateGraph(State)
+>     .add_node("subgraph_node", subgraph)
+>     .add_edge(START, "subgraph_node")
+>     .compile(checkpointer=InMemorySaver())
+> )
+>
+> config = {"configurable": {"thread_id": "1"}}
+>
+> # Run until step_a interrupt
+> graph.invoke({"value": []}, config)
+>
+> # Resume step_a -> hits step_b interrupt
+> graph.invoke(Command(resume="Alice"), config)
+>
+> # Get the subgraph's own checkpoint (between step_a and step_b)
+> parent_state = graph.get_state(config, subgraphs=True)
+> sub_config = parent_state.tasks[0].state.config
+>
+> # Fork from the subgraph checkpoint
+> fork_config = graph.update_state(sub_config, {"value": ["forked"]})
+> result = graph.invoke(None, fork_config)
+> # step_b re-executes, step_a's result is preserved
+> ```有关配置子图检查点的更多信息，请参阅[subgraph persistence](https://docs.langchain.com/oss/python/langgraph/use-subgraphs.md#subgraph-persistence)。
 
 ***
 

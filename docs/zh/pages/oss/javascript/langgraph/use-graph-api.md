@@ -18,7 +18,7 @@ npm install @langchain/langgraph
 >
 > **设置LangSmith以更好地调试**
 >
-> 注册 [LangSmith](https://smith.langchain.com?utm_source=docs\&utm_medium=cta\&utm_campaign=langsmith-signup\&utm_content=oss-langgraph-use-graph-api) 以快速发现问题并提高 LangGraph 项目的性能。 LangSmith 允许您使用跟踪数据来调试、测试和监控使用 LangGraph 构建的 LLM 应用程序 — 在 [docs](/langsmith/observability) 中了解有关如何开始的更多信息。
+> 注册 [LangSmith](https://smith.langchain.com?utm_source=docs\&utm_medium=cta\&utm_campaign=langsmith-signup\&utm_content=oss-langgraph-use-graph-api) 快速发现问题并提高 LangGraph 项目的性能。 LangSmith 允许您使用跟踪数据来调试、测试和监控使用 LangGraph 构建的 LLM 应用程序 — 在 [docs](/langsmith/observability) 中了解有关如何开始的更多信息。
 
 ## 定义和更新状态
 
@@ -210,7 +210,7 @@ human: Hi
 ai: Hello!
 ```
 
-对于涉及[chat models](/oss/javascript/langchain/models)的应用程序来说，这是一种通用的状态表示。为了方便起见，LangGraph包含了预建的`MessagesValue`，这样我们就可以：
+对于涉及[chat models](/oss/javascript/langchain/models)的应用程序来说，这是一种通用的状态表示。为了方便起见，LangGraph包含了预建的`MessagesValue`，这样我们就可以拥有：
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { StateSchema, MessagesValue } from "@langchain/langgraph";
@@ -622,7 +622,7 @@ console.log(await graph.invoke({}, { context: { myRuntimeValue: "b" } }));  // [
 { myStateValue: 2 }
 ```
 
-> **扩展示例：在运行时指定 LLM**
+> [accordion] 扩展示例：在运行时指定LLM
 >
 > 下面我们演示一个实际示例，其中我们配置运行时使用的 LLM。我们将使用OpenAI和Anthropic型号。
 >
@@ -677,7 +677,7 @@ console.log(await graph.invoke({}, { context: { myRuntimeValue: "b" } }));  // [
 > gpt-5.4-mini
 > ```
 
-> **扩展示例：在运行时指定模型和系统消息**
+> [accordion] 扩展示例：运行时指定模型和系统消息
 >
 > 下面我们演示一个实际示例，其中配置两个参数：运行时使用的 LLM 和系统消息。
 >
@@ -763,7 +763,7 @@ const graph = new StateGraph(State)
 * `SyntaxError`
 * `ReferenceError`
 
-> **扩展示例：自定义重试策略**
+> [accordion]扩展示例：自定义重试策略
 >
 > 考虑一个我们正在从 SQL 数据库读取数据的示例。下面我们向节点传递两种不同的重试策略：
 >
@@ -818,7 +818,7 @@ const graph = new StateGraph(State)
 
 ### 访问节点内的执行信息
 
-您可以通过`runtime.executionInfo`访问执行身份和重试信息。这会显示线程、运行和检查点标识符以及重试状态，而无需直接从 `config` 读取。|属性|类型 |描述 |
+您可以通过`runtime.executionInfo`访问执行身份和重试信息。这会显示线程、运行和检查点标识符以及重试状态，而无需直接从 `config` 读取。|属性 |类型 |描述 |
 | - | - | - |
 | `threadId` | `string \| undefined` |当前执行的线程 ID。 |
 | `runId` | `string \| undefined` |当前执行的运行 ID。 |
@@ -885,7 +885,7 @@ const graph = new StateGraph(State)
 
 ### 访问节点内的服务器信息
 
-当您的图表在LangGraph服务器上运行时，您可以通过`runtime.serverInfo`访问特定于服务器的元数据。|属性|类型 |描述 |
+当您的图表在LangGraph服务器上运行时，您可以通过`runtime.serverInfo`访问特定于服务器的元数据。|属性 |类型 |描述 |
 | - | - | - |
 | `assistantId` | `string` |当前部署的助手 ID。 |
 | `graphId` | `string` |当前部署的图形 ID。 |
@@ -934,7 +934,7 @@ const builder = new StateGraph(State)
   .addEdge(START, "step1")
   .addEdge("step1", "step2")
   .addEdge("step2", "step3");
-```> **为什么使用 LangGraph 将应用程序步骤拆分为一个序列？**
+```> [手风琴] 为什么使用 LangGraph 将应用程序步骤拆分为序列？
 >
 > LangGraph 可以轻松地向您的应用程序添加底层持久层。
 > 这允许在节点执行之间设置状态检查点，因此您的 LangGraph 节点可以管理：
@@ -1135,7 +1135,7 @@ Adding "D" to ['A', 'B', 'C']
 >
 > 在上面的例子中，节点`"b"`和`"c"`在同一个[superstep](/oss/javascript/langgraph/graph-api#graphs)中并发执行。由于它们处于同一步骤，因此节点 `"d"` 在 `"b"` 和 `"c"` 都完成后执行。
 >
-> 重要的是，来自并行超级步的更新的顺序可能不一致。如果您需要从并行超级步中对更新进行一致的、预定的排序，则应将输出连同用于排序的值一起写入状态中的单独字段。> **异常处理？**
+> 重要的是，来自并行超级步的更新的顺序可能不一致。如果您需要从并行超级步中对更新进行一致的、预定的排序，则应将输出连同用于排序的值一起写入状态中的单独字段。> [手风琴] 异常处理？
 >
 > LangGraph 执行[supersteps](/oss/javascript/langgraph/graph-api#graphs) 内的节点，这意味着虽然并行分支是并行执行的，但整个超级步骤是**事务性的**。如果这些分支中的任何一个引发异常，则不会将任何更新应用于状态（整个超级步错误）。
 >

@@ -8,23 +8,23 @@ Configure and build applications on the [Agent Server](https://docs.langchain.co
 
 ## Capabilities
 
-> **[Develop your application](https://docs.langchain.com/langsmith/application-structure.md)**
+> [card] [Develop your application](https://docs.langchain.com/langsmith/application-structure.md)
 >
 > Structure your app, configure dependencies for Python, JavaScript, and monorepos, and connect agents with RemoteGraph, semantic search, TTLs, and CI/CD.
 
-> **[Agent Server runtime](https://docs.langchain.com/langsmith/agent-server.md)**
+> [card] [Agent Server runtime](https://docs.langchain.com/langsmith/agent-server.md)
 >
 > Work with assistants, threads, runs, and cron jobs. Stream to users, pause for human review, handle concurrent input, and connect via MCP and A2A.
 
-> **[Auth & access control](https://docs.langchain.com/langsmith/auth.md)**
+> [card] [Auth & access control](https://docs.langchain.com/langsmith/auth.md)
 >
 > Authenticate users, enforce resource-level access, and connect external OAuth2 identity providers.
 
-> **[Server customization](https://docs.langchain.com/langsmith/caching.md)**
+> [card] [Server customization](https://docs.langchain.com/langsmith/caching.md)
 >
 > Add caching, custom stores and checkpointers, lifespan hooks, middleware, custom routes, encryption, and configurable headers and logs.
 
-> **[REST API](https://docs.langchain.com/langsmith/server-api-ref.md)**
+> [card] [REST API](https://docs.langchain.com/langsmith/server-api-ref.md)
 >
 > Full REST API reference for assistants, threads, runs, crons, store, A2A, MCP, and system endpoints.
 

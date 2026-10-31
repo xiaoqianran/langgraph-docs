@@ -170,7 +170,7 @@ await graph.invoke({ userInput: "My" });
 // { graphOutput: 'My name is Lance' }
 ```
 
-> **[View example trace](https://smith.langchain.com/public/24861731-481e-4b13-babb-d21813227380/r)**
+> [card] [View example trace](https://smith.langchain.com/public/24861731-481e-4b13-babb-d21813227380/r)
 >
 > Open a public LangSmith run for this example.
 
@@ -244,7 +244,7 @@ There are two subtle and important points to note here:
 > // { foo: 'My name', userInput: 'My', graphOutput: 'My name is Lance', bar: 'My name is' }
 > ```
 >
-> > **[View example trace](https://smith.langchain.com/public/9cbbe1f1-0913-498b-be17-fcf8cc1848c9/r)**
+> > [card] [View example trace](https://smith.langchain.com/public/9cbbe1f1-0913-498b-be17-fcf8cc1848c9/r)
 > >
 > > Open a public LangSmith run for this example.
 >
@@ -299,7 +299,7 @@ const State = new StateSchema({
 });
 ```
 
-> **[View example trace](https://smith.langchain.com/public/7ec49f29-72d1-4308-8740-abc471d83569/r)**
+> [card] [View example trace](https://smith.langchain.com/public/7ec49f29-72d1-4308-8740-abc471d83569/r)
 >
 > Open a public LangSmith run for this example.
 
@@ -329,7 +329,7 @@ const State = new StateSchema({
 });
 ```
 
-> **[View example trace](https://smith.langchain.com/public/0f30e4c6-1a15-4dbf-ba92-761df436a4a9/r)**
+> [card] [View example trace](https://smith.langchain.com/public/0f30e4c6-1a15-4dbf-ba92-761df436a4a9/r)
 >
 > Open a public LangSmith run for this example.
 
@@ -354,7 +354,7 @@ const State = new StateSchema({
 });
 ```
 
-> **[View example trace](https://smith.langchain.com/public/e2be75db-1c52-482a-b89f-ef30c15d08eb/r)**
+> [card] [View example trace](https://smith.langchain.com/public/e2be75db-1c52-482a-b89f-ef30c15d08eb/r)
 >
 > Open a public LangSmith run for this example.
 
@@ -382,7 +382,7 @@ const State = new StateSchema({
 // state.errors is still ["bad sql"]; the empty array is merged in, not cleared
 ```
 
-> **[View example trace](https://smith.langchain.com/public/9dca9849-c6f2-4e74-8c82-fdc44d6f6c22/r)**
+> [card] [View example trace](https://smith.langchain.com/public/9dca9849-c6f2-4e74-8c82-fdc44d6f6c22/r)
 >
 > Open a public LangSmith run for this example.
 
@@ -402,7 +402,7 @@ const State = new StateSchema({
 // node can now clear the field with { errors: [] }
 ```
 
-> **[View example trace](https://smith.langchain.com/public/f06a3f2e-6876-4ab1-9b29-3be0aac1cdac/r)**
+> [card] [View example trace](https://smith.langchain.com/public/f06a3f2e-6876-4ab1-9b29-3be0aac1cdac/r)
 >
 > Open a public LangSmith run for this example.
 
@@ -692,101 +692,101 @@ When you compile with a [checkpointer](/oss/javascript/langgraph/persistence), L
 
 If a [node](#nodes) contains multiple operations, you may find it easier to implement each operation as a [**task**](/oss/javascript/langgraph/functional-api#task) instead of splitting the logic across multiple nodes. Task results are checkpointed when the graph uses a checkpointer, so resuming a thread can skip completed **task** work inside the node.
 
-**Original**
-
-```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-import * as z from "zod";
-import { uuid7 } from "langsmith";
-
-import {
-  END,
-  MemorySaver,
-  START,
-  StateGraph,
-  StateSchema,
-} from "@langchain/langgraph";
-import type { GraphNode } from "@langchain/langgraph";
-
-const State = new StateSchema({
-  url: z.string(),
-  result: z.string().optional(),
-});
-
-const callApi: GraphNode<typeof State> = async (state) => {
-  const response = await fetch(state.url); // [!code highlight]
-  const text = await response.text();
-  const result = text.slice(0, 100);
-  return { result };
-};
-
-const builder = new StateGraph(State)
-  .addNode("callApi", callApi)
-  .addEdge(START, "callApi")
-  .addEdge("callApi", END);
-
-const checkpointer = new MemorySaver();
-const graph = builder.compile({ checkpointer });
-
-const threadId = uuid7();
-const config = { configurable: { thread_id: threadId } };
-
-await graph.invoke({ url: "https://www.example.com" }, config);
-```
-
-> **[View example trace](https://smith.langchain.com/public/f6485847-0dd8-471a-b79a-fd5a4d97f4eb/r)**
+> [tab] Original
 >
-> Open a public LangSmith run for this example.
-
-**With task**
-
-```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-import * as z from "zod";
-import { uuid7 } from "langsmith";
-
-import {
-  END,
-  MemorySaver,
-  START,
-  StateGraph,
-  StateSchema,
-  task,
-} from "@langchain/langgraph";
-import type { GraphNode } from "@langchain/langgraph";
-
-const State = new StateSchema({
-  urls: z.array(z.string()),
-  results: z.array(z.string()).optional(),
-});
-
-const makeRequest = task("makeRequest", async (url: string) => {
-  const response = await fetch(url); // [!code highlight]
-  const text = await response.text();
-  return text.slice(0, 100);
-});
-
-const callApi: GraphNode<typeof State> = async (state) => {
-  const pending = state.urls.map((url) => makeRequest(url)); // [!code highlight]
-  const results = await Promise.all(pending);
-  return { results };
-};
-
-const builder = new StateGraph(State)
-  .addNode("callApi", callApi)
-  .addEdge(START, "callApi")
-  .addEdge("callApi", END);
-
-const checkpointer = new MemorySaver();
-const graph = builder.compile({ checkpointer });
-
-const threadId = uuid7();
-const config = { configurable: { thread_id: threadId } };
-
-await graph.invoke({ urls: ["https://www.example.com"] }, config);
-```
-
-> **[View example trace](https://smith.langchain.com/public/551a4dee-6b2c-455f-97fc-11f2e1467a44/r)**
+> ```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import * as z from "zod";
+> import { uuid7 } from "langsmith";
 >
-> Open a public LangSmith run for this example.
+> import {
+>   END,
+>   MemorySaver,
+>   START,
+>   StateGraph,
+>   StateSchema,
+> } from "@langchain/langgraph";
+> import type { GraphNode } from "@langchain/langgraph";
+>
+> const State = new StateSchema({
+>   url: z.string(),
+>   result: z.string().optional(),
+> });
+>
+> const callApi: GraphNode<typeof State> = async (state) => {
+>   const response = await fetch(state.url); // [!code highlight]
+>   const text = await response.text();
+>   const result = text.slice(0, 100);
+>   return { result };
+> };
+>
+> const builder = new StateGraph(State)
+>   .addNode("callApi", callApi)
+>   .addEdge(START, "callApi")
+>   .addEdge("callApi", END);
+>
+> const checkpointer = new MemorySaver();
+> const graph = builder.compile({ checkpointer });
+>
+> const threadId = uuid7();
+> const config = { configurable: { thread_id: threadId } };
+>
+> await graph.invoke({ url: "https://www.example.com" }, config);
+> ```
+>
+> > [card] [View example trace](https://smith.langchain.com/public/f6485847-0dd8-471a-b79a-fd5a4d97f4eb/r)
+> >
+> > Open a public LangSmith run for this example.
+
+> [tab] With task
+>
+> ```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import * as z from "zod";
+> import { uuid7 } from "langsmith";
+>
+> import {
+>   END,
+>   MemorySaver,
+>   START,
+>   StateGraph,
+>   StateSchema,
+>   task,
+> } from "@langchain/langgraph";
+> import type { GraphNode } from "@langchain/langgraph";
+>
+> const State = new StateSchema({
+>   urls: z.array(z.string()),
+>   results: z.array(z.string()).optional(),
+> });
+>
+> const makeRequest = task("makeRequest", async (url: string) => {
+>   const response = await fetch(url); // [!code highlight]
+>   const text = await response.text();
+>   return text.slice(0, 100);
+> });
+>
+> const callApi: GraphNode<typeof State> = async (state) => {
+>   const pending = state.urls.map((url) => makeRequest(url)); // [!code highlight]
+>   const results = await Promise.all(pending);
+>   return { results };
+> };
+>
+> const builder = new StateGraph(State)
+>   .addNode("callApi", callApi)
+>   .addEdge(START, "callApi")
+>   .addEdge("callApi", END);
+>
+> const checkpointer = new MemorySaver();
+> const graph = builder.compile({ checkpointer });
+>
+> const threadId = uuid7();
+> const config = { configurable: { thread_id: threadId } };
+>
+> await graph.invoke({ urls: ["https://www.example.com"] }, config);
+> ```
+>
+> > [card] [View example trace](https://smith.langchain.com/public/551a4dee-6b2c-455f-97fc-11f2e1467a44/r)
+> >
+> > Open a public LangSmith run for this example.
 
 ### `START` node
 

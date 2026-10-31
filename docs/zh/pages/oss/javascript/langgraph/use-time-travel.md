@@ -182,77 +182,77 @@ const result = await graph.invoke(null, forkConfig);
 
 [subgraphs](https://docs.langchain.com/oss/javascript/langgraph/use-subgraphs.md) 的时间旅行取决于子图是否有自己的检查点。这决定了您可以进行时间旅行的检查点的粒度。
 
-**继承的检查指针（默认）**
+> [tab] 继承的检查点（默认）
+>
+> 默认情况下，子图继承父图的检查点。父级将整个子图视为**单个超级步骤** - 整个子图执行只有一个父级检查点。从子图重新执行之前开始的时间旅行。
+>
+> 您无法时间旅行到默认子图中*节点之间的点 - 您只能从父级开始时间旅行。
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> // Subgraph without its own checkpointer (default)
+> const subgraph = new StateGraph(StateAnnotation)
+>   .addNode("stepA", stepA)       // Has interrupt()
+>   .addNode("stepB", stepB)       // Has interrupt()
+>   .addEdge(START, "stepA")
+>   .addEdge("stepA", "stepB")
+>   .compile();  // No checkpointer — inherits from parent
+>
+> const graph = new StateGraph(StateAnnotation)
+>   .addNode("subgraphNode", subgraph)
+>   .addEdge(START, "subgraphNode")
+>   .compile({ checkpointer });
+>
+> // Complete both interrupts
+> await graph.invoke({ value: [] }, config);
+> await graph.invoke(new Command({ resume: "Alice" }), config);
+> await graph.invoke(new Command({ resume: "30" }), config);
+>
+> // Time travel from before the subgraph
+> const states = [];
+> for await (const state of graph.getStateHistory(config)) {
+>   states.push(state);
+> }
+> const beforeSub = states.filter((s) => s.next.includes("subgraphNode")).pop();
+>
+> const forkConfig = await graph.updateState(beforeSub.config, { value: ["forked"] });
+> const result = await graph.invoke(null, forkConfig);
+> // The entire subgraph re-executes from scratch
+> // You cannot time travel to a point between stepA and stepB
+> ```
 
-默认情况下，子图继承父图的检查点。父级将整个子图视为**单个超级步骤** - 整个子图执行只有一个父级检查点。从子图重新执行之前开始的时间旅行。
-
-您无法时间旅行到默认子图中*节点之间的点 - 您只能从父级开始时间旅行。
-
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-// Subgraph without its own checkpointer (default)
-const subgraph = new StateGraph(StateAnnotation)
-  .addNode("stepA", stepA)       // Has interrupt()
-  .addNode("stepB", stepB)       // Has interrupt()
-  .addEdge(START, "stepA")
-  .addEdge("stepA", "stepB")
-  .compile();  // No checkpointer — inherits from parent
-
-const graph = new StateGraph(StateAnnotation)
-  .addNode("subgraphNode", subgraph)
-  .addEdge(START, "subgraphNode")
-  .compile({ checkpointer });
-
-// Complete both interrupts
-await graph.invoke({ value: [] }, config);
-await graph.invoke(new Command({ resume: "Alice" }), config);
-await graph.invoke(new Command({ resume: "30" }), config);
-
-// Time travel from before the subgraph
-const states = [];
-for await (const state of graph.getStateHistory(config)) {
-  states.push(state);
-}
-const beforeSub = states.filter((s) => s.next.includes("subgraphNode")).pop();
-
-const forkConfig = await graph.updateState(beforeSub.config, { value: ["forked"] });
-const result = await graph.invoke(null, forkConfig);
-// The entire subgraph re-executes from scratch
-// You cannot time travel to a point between stepA and stepB
-```
-
-**子图检查点**
-
-在子图上设置`checkpointer=True`以赋予其自己的检查点历史记录。这会在子图**内**的每个步骤创建检查点，允许您从子图中的特定点进行时间旅行 - 例如，在两个中断之间。
-
-使用 [⟦T23⟧](https://reference.langchain.com/javascript/langchain-langgraph/pregel/Pregel/getState) 和 `subgraphs=True` 来访问子图自己的检查点配置，然后从中分叉：
-
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-// Subgraph with its own checkpointer
-const subgraph = new StateGraph(StateAnnotation)
-  .addNode("stepA", stepA)       // Has interrupt()
-  .addNode("stepB", stepB)       // Has interrupt()
-  .addEdge(START, "stepA")
-  .addEdge("stepA", "stepB")
-  .compile({ checkpointer: true });  // Own checkpoint history
-
-const graph = new StateGraph(StateAnnotation)
-  .addNode("subgraphNode", subgraph)
-  .addEdge(START, "subgraphNode")
-  .compile({ checkpointer });
-
-// Run until stepA interrupt, then resume -> hits stepB interrupt
-await graph.invoke({ value: [] }, config);
-await graph.invoke(new Command({ resume: "Alice" }), config);
-
-// Get the subgraph's own checkpoint (between stepA and stepB)
-const parentState = await graph.getState(config, { subgraphs: true });
-const subConfig = parentState.tasks[0].state.config;
-
-// Fork from the subgraph checkpoint
-const forkConfig = await graph.updateState(subConfig, { value: ["forked"] });
-const result = await graph.invoke(null, forkConfig);
-// stepB re-executes, stepA's result is preserved
-```有关配置子图检查点的更多信息，请参阅[subgraph persistence](https://docs.langchain.com/oss/javascript/langgraph/use-subgraphs.md#subgraph-persistence)。
+> [tab] 子图检查点
+>
+> 在子图上设置 `checkpointer=True` 以赋予其自己的检查点历史记录。这会在子图**内**的每个步骤创建检查点，允许您从子图中的特定点进行时间旅行 - 例如，在两个中断之间。
+>
+> 使用 [⟦T23⟧](https://reference.langchain.com/javascript/langchain-langgraph/pregel/Pregel/getState) 和 `subgraphs=True` 访问子图自己的检查点配置，然后从中分叉：
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> // Subgraph with its own checkpointer
+> const subgraph = new StateGraph(StateAnnotation)
+>   .addNode("stepA", stepA)       // Has interrupt()
+>   .addNode("stepB", stepB)       // Has interrupt()
+>   .addEdge(START, "stepA")
+>   .addEdge("stepA", "stepB")
+>   .compile({ checkpointer: true });  // Own checkpoint history
+>
+> const graph = new StateGraph(StateAnnotation)
+>   .addNode("subgraphNode", subgraph)
+>   .addEdge(START, "subgraphNode")
+>   .compile({ checkpointer });
+>
+> // Run until stepA interrupt, then resume -> hits stepB interrupt
+> await graph.invoke({ value: [] }, config);
+> await graph.invoke(new Command({ resume: "Alice" }), config);
+>
+> // Get the subgraph's own checkpoint (between stepA and stepB)
+> const parentState = await graph.getState(config, { subgraphs: true });
+> const subConfig = parentState.tasks[0].state.config;
+>
+> // Fork from the subgraph checkpoint
+> const forkConfig = await graph.updateState(subConfig, { value: ["forked"] });
+> const result = await graph.invoke(null, forkConfig);
+> // stepB re-executes, stepA's result is preserved
+> ```有关配置子图检查点的更多信息，请参阅[subgraph persistence](https://docs.langchain.com/oss/javascript/langgraph/use-subgraphs.md#subgraph-persistence)。
 
 ***
 

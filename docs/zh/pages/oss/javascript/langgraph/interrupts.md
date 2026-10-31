@@ -183,7 +183,7 @@ while (true) {
 }
 ```
 
-> **[View example trace](https://smith.langchain.com/public/4aeb7a2d-5aa5-45e2-afd8-0a4c5ef9ac2a/r)**
+> [卡][View example trace](https://smith.langchain.com/public/4aeb7a2d-5aa5-45e2-afd8-0a4c5ef9ac2a/r)
 >
 > 为此示例打开公共 LangSmith 运行。* **`stream.messages`**：聊天模型输出为内容块；迭代 `message.text` 以获得代币增量。对于嵌套子图，从`stream.subgraphs[*].messages`读取消息块。
 * **`stream.values`**：每一步后的完整状态快照
@@ -303,7 +303,7 @@ await graph.invoke(new Command({ resume: true }), config);
 await graph.invoke(new Command({ resume: false }), config);
 ```
 
-> **完整示例**
+> [手风琴] 完整示例
 >
 > ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > import {
@@ -354,7 +354,7 @@ await graph.invoke(new Command({ resume: false }), config);
 > console.log(resumed.status); // -> "approved"
 > ```
 
-### 查看和编辑状态有时您希望在继续之前让人工检查并编辑部分图形状态。这对于纠正法学硕士、添加缺失的信息或进行调整非常有用。
+### 查看和编辑状态有时，您希望在继续之前让人工检查并编辑部分图形状态。这对于纠正法学硕士、添加缺失的信息或进行调整非常有用。
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { interrupt } from "@langchain/langgraph";
@@ -380,7 +380,7 @@ await graph.invoke(
 );
 ```
 
-> **完整示例**
+> [手风琴] 完整示例
 >
 > ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > import {
@@ -471,7 +471,7 @@ const sendEmailTool = tool(
 
 当您希望批准逻辑与工具本身一起存在时，这种方法非常有用，使其可以在图表的不同部分中重复使用。 LLM 可以自然地调用该工具，每当调用该工具时中断就会暂停执行，允许您批准、编辑或取消操作。
 
-> **完整示例**
+> [手风琴] 完整示例
 >
 > ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > import { tool } from "@langchain/core/tools";
@@ -607,11 +607,11 @@ const getAgeNode: typeof State.Node = (state) => {
 // );
 ```
 
-> **[View example trace](https://smith.langchain.com/public/68000848-fccd-4c6a-9f64-0951306122fe/r)**
+> [卡][View example trace](https://smith.langchain.com/public/68000848-fccd-4c6a-9f64-0951306122fe/r)
 >
 > 为此示例打开公共 LangSmith 运行。在此示例中，无效答案会导致节点返回更新后的问题。在同一图运行期间，条件边再次调用该节点，并且此新调用在`interrupt()`处暂停。在稍后的恢复中，节点仍然从头开始重新启动，因此 `interrupt()` 之前的任何代码都会再次运行。参见[Rules of interrupts](#rules-of-interrupts)。
 
-> **完整示例**
+> [手风琴] 完整示例
 >
 > ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > import {
@@ -845,7 +845,7 @@ const nodeA: GraphNode<typeof State> = async (state) => {
 
 * ✅ 在[⟦T132⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt)之前使用幂等操作
 * ✅ 在 [⟦T133⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 调用之后放置副作用
-* ✅尽可能将副作用分离到单独的节点中
+* ✅ 如果可能，将副作用分离到单独的节点中
 
 在下面的批准后示例中，副作用仅在批准成功时运行。如果节点在提交副作用后但完成之前失败，重试该节点可以重复该效果。在外部系统中使用幂等操作或重复写入。
 
@@ -904,7 +904,7 @@ const notificationNode: GraphNode<typeof State> = async (state) => {
 ```
 
 * 🔴[⟦T134⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt)之前不要进行非幂等操作
-* 🔴 在未检查记录是否存在的情况下不要创建新记录
+* 🔴 在未检查新记录是否存在的情况下不要创建新记录
 
 ```typescript Creating records theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 const nodeA: GraphNode<typeof State> = async (state) => {
@@ -960,54 +960,54 @@ async function nodeInSubgraph(state: State) {
 >
 > **不**建议将静态中断用于人机交互工作流程。请改用 [⟦T139⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 函数。
 
-**编译时**
-
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-const graph = builder.compile({
-    interruptBefore: ["node_a"],  // [!code highlight]
-    interruptAfter: ["node_b", "node_c"],  // [!code highlight]
-    checkpointer,
-});
-
-// Pass a thread ID to the graph
-const config = {
-    configurable: {
-        thread_id: "some_thread"
-    }
-};
-
-// Run the graph until the breakpoint
-await graph.invoke(inputs, config);# [!code highlight]
-
-await graph.invoke(null, config);  # [!code highlight]
-```
-
-1. 断点设置在`compile`时间内。
-2. `interruptBefore` 指定执行该节点之前应暂停执行的节点。
-3. `interruptAfter` 指定该节点执行完毕后应暂停执行的节点。
-4. 需要一个检查点来启用断点。
-5. 运行图表直到遇到第一个断点。
-6. 通过传入 `null` 作为输入来恢复图表。这将运行图表直到遇到下一个断点。
-
-**运行时**
-
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-// Run the graph until the breakpoint
-graph.invoke(inputs, {
-    interruptBefore: ["node_a"],  // [!code highlight]
-    interruptAfter: ["node_b", "node_c"],  // [!code highlight]
-    configurable: {
-        thread_id: "some_thread"
-    }
-});
-
-// Resume the graph
-await graph.invoke(null, config);  // [!code highlight]
-```1. 使用`interruptBefore`和`interruptAfter`参数调用`graph.invoke`。这是一个运行时配置，可以在每次调用时更改。
-2. `interruptBefore` 指定执行该节点之前应暂停执行的节点。
-3. `interruptAfter` 指定该节点执行完毕后应暂停执行的节点。
-4. 运行图表直到遇到第一个断点。
-5. 通过传入 `null` 作为输入来恢复图表。这将运行图表直到遇到下一个断点。
+> [选项卡] 编译时
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> const graph = builder.compile({
+>     interruptBefore: ["node_a"],  // [!code highlight]
+>     interruptAfter: ["node_b", "node_c"],  // [!code highlight]
+>     checkpointer,
+> });
+>
+> // Pass a thread ID to the graph
+> const config = {
+>     configurable: {
+>         thread_id: "some_thread"
+>     }
+> };
+>
+> // Run the graph until the breakpoint
+> await graph.invoke(inputs, config);# [!code highlight]
+>
+> await graph.invoke(null, config);  # [!code highlight]
+> ```
+>
+> 1. 断点在`compile`时间内设置。
+> 2. `interruptBefore` 指定执行该节点之前应暂停执行的节点。
+> 3. `interruptAfter` 指定该节点执行完毕后应暂停执行的节点。
+> 4. 需要一个检查点来启用断点。
+> 5. 运行图表直至遇到第一个断点。
+> 6. 通过传入 `null` 作为输入来恢复图表。这将运行图表直到遇到下一个断点。> [选项卡] 在运行时
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> // Run the graph until the breakpoint
+> graph.invoke(inputs, {
+>     interruptBefore: ["node_a"],  // [!code highlight]
+>     interruptAfter: ["node_b", "node_c"],  // [!code highlight]
+>     configurable: {
+>         thread_id: "some_thread"
+>     }
+> });
+>
+> // Resume the graph
+> await graph.invoke(null, config);  // [!code highlight]
+> ```
+>
+> 1. 使用`interruptBefore`和`interruptAfter`参数调用`graph.invoke`。这是一个运行时配置，可以针对每次调用进行更改。
+> 2. `interruptBefore` 指定执行该节点之前应暂停执行的节点。
+> 3. `interruptAfter` 指定该节点执行完毕后应暂停执行的节点。
+> 4. 运行图表直至遇到第一个断点。
+> 5. 通过传入 `null` 作为输入来恢复图表。这将运行图表直到遇到下一个断点。
 
 > [!提示]
 >

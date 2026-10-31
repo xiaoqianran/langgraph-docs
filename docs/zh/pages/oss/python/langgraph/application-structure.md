@@ -25,39 +25,39 @@ LangGraph 应用程序由一个或多个图、一个配置文件 (`langgraph.jso
 
 以下是应用程序目录结构的示例：
 
-**Python（需求.txt）**
+> [选项卡] Python (requirements.txt)
+>
+> ```plaintext theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> my-app/
+> ├── my_agent # all project code lies within here
+> │   ├── utils # utilities for your graph
+> │   │   ├── __init__.py
+> │   │   ├── tools.py # tools for your graph
+> │   │   ├── nodes.py # node functions for your graph
+> │   │   └── state.py # state definition of your graph
+> │   ├── __init__.py
+> │   └── agent.py # code for constructing your graph
+> ├── .env # environment variables
+> ├── requirements.txt # package dependencies
+> └── langgraph.json # configuration file for LangGraph
+> ```
 
-```plaintext theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-my-app/
-├── my_agent # all project code lies within here
-│   ├── utils # utilities for your graph
-│   │   ├── __init__.py
-│   │   ├── tools.py # tools for your graph
-│   │   ├── nodes.py # node functions for your graph
-│   │   └── state.py # state definition of your graph
-│   ├── __init__.py
-│   └── agent.py # code for constructing your graph
-├── .env # environment variables
-├── requirements.txt # package dependencies
-└── langgraph.json # configuration file for LangGraph
-```
-
-**Python (pyproject.toml)**
-
-```plaintext theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-my-app/
-├── my_agent # all project code lies within here
-│   ├── utils # utilities for your graph
-│   │   ├── __init__.py
-│   │   ├── tools.py # tools for your graph
-│   │   ├── nodes.py # node functions for your graph
-│   │   └── state.py # state definition of your graph
-│   ├── __init__.py
-│   └── agent.py # code for constructing your graph
-├── .env # environment variables
-├── langgraph.json  # configuration file for LangGraph
-└── pyproject.toml # dependencies for your project
-```> [!注意]
+> [选项卡] Python (pyproject.toml)
+>
+> ```plaintext theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> my-app/
+> ├── my_agent # all project code lies within here
+> │   ├── utils # utilities for your graph
+> │   │   ├── __init__.py
+> │   │   ├── tools.py # tools for your graph
+> │   │   ├── nodes.py # node functions for your graph
+> │   │   └── state.py # state definition of your graph
+> │   ├── __init__.py
+> │   └── agent.py # code for constructing your graph
+> ├── .env # environment variables
+> ├── langgraph.json  # configuration file for LangGraph
+> └── pyproject.toml # dependencies for your project
+> ```> [!注意]
 >
 > LangGraph 应用程序的目录结构可能会根据所使用的编程语言和包管理器而有所不同。
 

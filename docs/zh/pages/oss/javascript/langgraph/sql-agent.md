@@ -1,32 +1,30 @@
-<!-- langgraph-docs: translation failed; English fallback -->
+<!-- langgraph-docs: machine-translated zh-CN from English source -->
 
 <!-- langgraph-docs: Build a custom SQL agent | https://docs.langchain.com/oss/javascript/langgraph/sql-agent -->
 
-# Build a custom SQL agent
+# 构建自定义 SQL 代理
 
-In this tutorial we will build a custom agent that can answer questions about a SQL database using LangGraph.
+在本教程中，我们将构建一个自定义代理，它可以使用 LangGraph 回答有关 SQL 数据库的问题。
 
-LangChain offers built-in [agent](/oss/javascript/langchain/agents) implementations, implemented using [LangGraph](/oss/javascript/langgraph/overview) primitives. If deeper customization is required, agents can be implemented directly in LangGraph. This guide demonstrates an example implementation of a SQL agent. For a practical introduction, see [building a SQL agent using higher-level LangChain abstractions](/oss/javascript/langchain/sql-agent).
+LangChain 提供内置 [agent](/oss/javascript/langchain/agents) 实现，使用 [LangGraph](/oss/javascript/langgraph/overview) 原语实现。如果需要更深入的定制，可以直接在LangGraph中实现代理。本指南演示了 SQL 代理的示例实现。实用介绍请参见[building a SQL agent using higher-level LangChain abstractions](/oss/javascript/langchain/sql-agent)。
 
-> [!WARNING]
+> [!警告]
 >
-> Building Q\&A systems of SQL databases requires executing model-generated SQL queries. There are inherent risks in doing this. Make sure that your database connection permissions are always scoped as narrowly as possible for your agent's needs. This will mitigate, though not eliminate, the risks of building a model-driven system.
+> 构建 SQL 数据库的问答系统需要执行模型生成的 SQL 查询。这样做存在固有的风险。确保数据库连接权限的范围始终尽可能缩小，以满足代理的需求。这将减轻（但不能消除）构建模型驱动系统的风险。
 
-The [prebuilt agent](/oss/javascript/langchain/sql-agent) lets us get started quickly, but we relied on the system prompt to constrain its behavior—for example, we instructed the agent to always start with the "list tables" tool, and to always run a query-checker tool before executing the query.
+[prebuilt agent](/oss/javascript/langchain/sql-agent)让我们快速上手，但我们依靠系统提示来限制其行为 - 例如，我们指示代理始终从“列表表”工具开始，并始终在执行查询之前运行查询检查器工具。我们可以通过定制代理来在LangGraph中实施更高程度的控制。在这里，我们实现了一个简单的 ReAct-agent 设置，其中包含用于特定工具调用的专用节点。我们将使用与预构建代理相同的 \[state]。
 
-We can enforce a higher degree of control in LangGraph by customizing the agent. Here, we implement a simple ReAct-agent setup, with dedicated nodes for specific tool-calls. We will use the same \[state] as the prebuilt agent.
+### 概念
 
-### Concepts
+我们将涵盖以下概念：
 
-We will cover the following concepts:
+* [Tools](/oss/javascript/langchain/tools) 用于从 SQL 数据库读取
+* LangGraph [Graph API](/oss/javascript/langgraph/graph-api)，包括状态、节点、边和条件边。
+* [Human-in-the-loop](/oss/javascript/langgraph/interrupts)流程
 
-* [Tools](/oss/javascript/langchain/tools) for reading from SQL databases
-* The LangGraph [Graph API](/oss/javascript/langgraph/graph-api), including state, nodes, edges, and conditional edges.
-* [Human-in-the-loop](/oss/javascript/langgraph/interrupts) processes
+## 设置
 
-## Setup
-
-### Installation
+### 安装
 
 ```bash npm theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 npm i langchain @langchain/core @langchain/langgraph @langchain/openai sqlite3 zod
@@ -42,217 +40,215 @@ pnpm add langchain @langchain/core @langchain/langgraph @langchain/openai sqlite
 
 ### LangSmith
 
-Set up [LangSmith](https://smith.langchain.com?utm_source=docs\&utm_medium=cta\&utm_campaign=langsmith-signup\&utm_content=oss-langgraph-sql-agent) to inspect what is happening inside your chain or agent. Then set the following environment variables:
+设置 [LangSmith](https://smith.langchain.com?utm_source=docs\&utm_medium=cta\&utm_campaign=langsmith-signup\&utm_content=oss-langgraph-sql-agent) 来检查您的连锁店或代理内部发生的情况。然后设置以下环境变量：
 
 ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 export LANGSMITH_TRACING="true"
 export LANGSMITH_API_KEY="..."
 ```
 
-## 1. Select an LLM
+## 1. 选择法学硕士
 
-Select a model that supports [tool-calling](/oss/javascript/integrations/providers/overview):
+选择支持[tool-calling](/oss/javascript/integrations/providers/overview)的型号：
 
-**OpenAI**
+> [标签] OpenAI
+>
+> 👉 阅读[OpenAI chat model integration docs](/oss/javascript/integrations/chat/openai/)
+>
+> ```bash npm theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> npm install @langchain/openai
+> ```
+>
+> ```bash pnpm theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> pnpm install @langchain/openai
+> ```
+>
+> ```bash yarn theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> yarn add @langchain/openai
+> ```
+>
+> ```bash bun theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> bun add @langchain/openai
+> ```
+>
+> ```typescript initChatModel theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import { initChatModel } from "langchain";
+>
+> process.env.OPENAI_API_KEY = "your-api-key";
+>
+> const model = await initChatModel("gpt-5.5");
+> ```
+>
+> ```typescript Model Class theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import { ChatOpenAI } from "@langchain/openai";
+>
+> const model = new ChatOpenAI({
+>   model: "gpt-5.5",
+>   apiKey: "your-api-key"
+> });
+> ```
 
-👉 Read the [OpenAI chat model integration docs](/oss/javascript/integrations/chat/openai/)
+> [标签] Anthropic
+>
+> 👉 阅读[Anthropic chat model integration docs](/oss/javascript/integrations/chat/anthropic/)
+>
+> ```bash npm theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> npm install @langchain/anthropic
+> ```
+>
+> ```bash pnpm theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> pnpm install @langchain/anthropic
+> ```
+>
+> ```bash yarn theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> yarn add @langchain/anthropic
+> ```
+>
+> ```bash pnpm theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> pnpm add @langchain/anthropic
+> ```
+>
+> ```typescript initChatModel theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import { initChatModel } from "langchain";
+>
+> process.env.ANTHROPIC_API_KEY = "your-api-key";
+>
+> const model = await initChatModel("claude-sonnet-4-6");
+> ```
+>
+> ```typescript Model Class theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import { ChatAnthropic } from "@langchain/anthropic";
+>
+> const model = new ChatAnthropic({
+>   model: "claude-sonnet-4-6",
+>   apiKey: "your-api-key"
+> });
+> ```
 
-```bash npm theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-npm install @langchain/openai
-```
+> [选项卡] 天蓝色
+>
+> 👉 阅读[Azure chat model integration docs](/oss/javascript/integrations/chat/azure/)
+>
+> ```bash npm theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> npm install @langchain/azure
+> ```
+>
+> ```bash pnpm theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> pnpm install @langchain/azure
+> ```
+>
+> ```bash yarn theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> yarn add @langchain/azure
+> ```
+>
+> ```bash bun theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> bun add @langchain/azure
+> ```
+>
+> ```typescript initChatModel theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import { initChatModel } from "langchain";
+>
+> process.env.AZURE_OPENAI_API_KEY = "your-api-key";
+> process.env.AZURE_OPENAI_ENDPOINT = "your-endpoint";
+> process.env.OPENAI_API_VERSION = "your-api-version";
+>
+> const model = await initChatModel("azure_openai:gpt-5.5");
+> ```
+>
+> ```typescript Model Class theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import { AzureChatOpenAI } from "@langchain/openai";
+>
+> const model = new AzureChatOpenAI({
+>   model: "gpt-5.5",
+>   azureOpenAIApiKey: "your-api-key",
+>   azureOpenAIApiEndpoint: "your-endpoint",
+>   azureOpenAIApiVersion: "your-api-version"
+> });
+> ```
 
-```bash pnpm theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-pnpm install @langchain/openai
-```
+> [选项卡] 谷歌双子座
+>
+> 👉 阅读[ChatGoogle chat model integration docs](/oss/javascript/integrations/chat/google)
+>
+> ```bash npm theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> npm install @langchain/google
+> ```
+>
+> ```bash pnpm theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> pnpm install @langchain/google
+> ```
+>
+> ```bash yarn theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> yarn add @langchain/google
+> ```
+>
+> ```bash bun theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> bun add @langchain/google
+> ```
+>
+> ```typescript initChatModel theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import { initChatModel } from "langchain";
+>
+> process.env.GOOGLE_API_KEY = "your-api-key";
+>
+> const model = await initChatModel("google:gemini-3.7-flash");
+> ```
+>
+> ```typescript Model Class theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import { ChatGoogle } from "@langchain/google/node";
+>
+> const model = new ChatGoogle({
+>   model: "gemini-3.7-flash",
+>   apiKey: "your-api-key"
+> });
+> ```
 
-```bash yarn theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-yarn add @langchain/openai
-```
+> [标签] 基岩匡威
+>
+> 👉 阅读[AWS Bedrock chat model integration docs](/oss/javascript/integrations/chat/bedrock_converse/)
+>
+> ```bash npm theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> npm install @langchain/aws
+> ```
+>
+> ```bash pnpm theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> pnpm install @langchain/aws
+> ```
+>
+> ```bash yarn theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> yarn add @langchain/aws
+> ```
+>
+> ```bash bun theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> bun add @langchain/aws
+> ```
+>
+> ```typescript initChatModel theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import { initChatModel } from "langchain";
+>
+> // Follow the steps here to configure your credentials:
+> // https://docs.aws.amazon.com/bedrock/latest/userguide/getting-started.html
+>
+> const model = await initChatModel("bedrock:gpt-5.5");
+> ```
+>
+> ```typescript Model Class theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import { ChatBedrockConverse } from "@langchain/aws";
+>
+> // Follow the steps here to configure your credentials:
+> // https://docs.aws.amazon.com/bedrock/latest/userguide/getting-started.html
+>
+> const model = new ChatBedrockConverse({
+>   model: "gpt-5.5",
+>   region: "us-east-2"
+> });
+> ```
 
-```bash bun theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-bun add @langchain/openai
-```
+以下示例中显示的输出使用OpenAI。## 2.配置数据库
 
-```typescript initChatModel theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-import { initChatModel } from "langchain";
+您将为本教程创建一个 [SQLite database](https://www.sqlitetutorial.net/sqlite-sample-database/)。 SQLite 是一个轻量级数据库，易于设置和使用。我们将加载 `chinook` 数据库，这是代表数字媒体商店的示例数据库。
 
-process.env.OPENAI_API_KEY = "your-api-key";
-
-const model = await initChatModel("gpt-5.5");
-```
-
-```typescript Model Class theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-import { ChatOpenAI } from "@langchain/openai";
-
-const model = new ChatOpenAI({
-  model: "gpt-5.5",
-  apiKey: "your-api-key"
-});
-```
-
-**Anthropic**
-
-👉 Read the [Anthropic chat model integration docs](/oss/javascript/integrations/chat/anthropic/)
-
-```bash npm theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-npm install @langchain/anthropic
-```
-
-```bash pnpm theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-pnpm install @langchain/anthropic
-```
-
-```bash yarn theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-yarn add @langchain/anthropic
-```
-
-```bash pnpm theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-pnpm add @langchain/anthropic
-```
-
-```typescript initChatModel theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-import { initChatModel } from "langchain";
-
-process.env.ANTHROPIC_API_KEY = "your-api-key";
-
-const model = await initChatModel("claude-sonnet-4-6");
-```
-
-```typescript Model Class theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-import { ChatAnthropic } from "@langchain/anthropic";
-
-const model = new ChatAnthropic({
-  model: "claude-sonnet-4-6",
-  apiKey: "your-api-key"
-});
-```
-
-**Azure**
-
-👉 Read the [Azure chat model integration docs](/oss/javascript/integrations/chat/azure/)
-
-```bash npm theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-npm install @langchain/azure
-```
-
-```bash pnpm theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-pnpm install @langchain/azure
-```
-
-```bash yarn theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-yarn add @langchain/azure
-```
-
-```bash bun theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-bun add @langchain/azure
-```
-
-```typescript initChatModel theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-import { initChatModel } from "langchain";
-
-process.env.AZURE_OPENAI_API_KEY = "your-api-key";
-process.env.AZURE_OPENAI_ENDPOINT = "your-endpoint";
-process.env.OPENAI_API_VERSION = "your-api-version";
-
-const model = await initChatModel("azure_openai:gpt-5.5");
-```
-
-```typescript Model Class theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-import { AzureChatOpenAI } from "@langchain/openai";
-
-const model = new AzureChatOpenAI({
-  model: "gpt-5.5",
-  azureOpenAIApiKey: "your-api-key",
-  azureOpenAIApiEndpoint: "your-endpoint",
-  azureOpenAIApiVersion: "your-api-version"
-});
-```
-
-**Google Gemini**
-
-👉 Read the [ChatGoogle chat model integration docs](/oss/javascript/integrations/chat/google)
-
-```bash npm theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-npm install @langchain/google
-```
-
-```bash pnpm theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-pnpm install @langchain/google
-```
-
-```bash yarn theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-yarn add @langchain/google
-```
-
-```bash bun theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-bun add @langchain/google
-```
-
-```typescript initChatModel theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-import { initChatModel } from "langchain";
-
-process.env.GOOGLE_API_KEY = "your-api-key";
-
-const model = await initChatModel("google:gemini-3.7-flash");
-```
-
-```typescript Model Class theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-import { ChatGoogle } from "@langchain/google/node";
-
-const model = new ChatGoogle({
-  model: "gemini-3.7-flash",
-  apiKey: "your-api-key"
-});
-```
-
-**Bedrock Converse**
-
-👉 Read the [AWS Bedrock chat model integration docs](/oss/javascript/integrations/chat/bedrock_converse/)
-
-```bash npm theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-npm install @langchain/aws
-```
-
-```bash pnpm theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-pnpm install @langchain/aws
-```
-
-```bash yarn theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-yarn add @langchain/aws
-```
-
-```bash bun theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-bun add @langchain/aws
-```
-
-```typescript initChatModel theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-import { initChatModel } from "langchain";
-
-// Follow the steps here to configure your credentials:
-// https://docs.aws.amazon.com/bedrock/latest/userguide/getting-started.html
-
-const model = await initChatModel("bedrock:gpt-5.5");
-```
-
-```typescript Model Class theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-import { ChatBedrockConverse } from "@langchain/aws";
-
-// Follow the steps here to configure your credentials:
-// https://docs.aws.amazon.com/bedrock/latest/userguide/getting-started.html
-
-const model = new ChatBedrockConverse({
-  model: "gpt-5.5",
-  region: "us-east-2"
-});
-```
-
-The output shown in the examples below used OpenAI.
-
-## 2. Configure the database
-
-You will be creating a [SQLite database](https://www.sqlitetutorial.net/sqlite-sample-database/) for this tutorial. SQLite is a lightweight database that is easy to set up and use. We will be loading the `chinook` database, which is a sample database that represents a digital media store.
-
-For convenience, we have hosted the database (`Chinook.db`) on a public GCS bucket.
+为了方便起见，我们将数据库 (`Chinook.db`) 托管在公共 GCS 存储桶上。
 
 ```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import fs from "node:fs/promises";
@@ -281,7 +277,7 @@ async function resolveDbPath() {
 }
 ```
 
-We will use the `sqlite3` library to interact with the database:
+我们将使用`sqlite3`库与数据库交互：
 
 ```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import sqlite3 from "sqlite3";
@@ -316,13 +312,13 @@ Available tables: Album, Artist, Customer, Employee, Genre, Invoice, InvoiceLine
 Sample output: [{"ArtistId":1,"Name":"AC/DC"},{"ArtistId":2,"Name":"Accept"},{"ArtistId":3,"Name":"Aerosmith"},{"ArtistId":4,"Name":"Alanis Morissette"},{"ArtistId":5,"Name":"Alice In Chains"}]
 ```
 
-## 3. Add tools for database interactions
+## 3.添加数据库交互工具
 
-> [!WARNING]
+> [!警告]
 >
-> The following database tools are minimal wrappers for demonstration purposes only. They are not intended to be secure or used in production. Use narrowly scoped database permissions and add application-specific validation before executing model-generated SQL.
+> 以下数据库工具是最小包装器，仅用于演示目的。它们的目的不是为了安全或在生产中使用。在执行模型生成的 SQL 之前，使用范围狭窄的数据库权限并添加特定于应用程序的验证。
 
-We'll create custom tools to interact with the database:
+我们将创建自定义工具来与数据库交互：
 
 ```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { tool } from "langchain";
@@ -435,16 +431,16 @@ sql_db_schema: Input to this tool is a comma-separated list of tables, output is
 sql_db_query: Input to this tool is a detailed and correct SQL query, output is a result from the database. If the query is not correct, an error message will be returned. If an error is returned, rewrite the query, check the query, and try again.
 ```
 
-## 4. Define application steps
+## 4. 定义应用步骤
 
-We construct dedicated nodes for the following steps:
+我们构建专用节点的步骤如下：
 
-* Listing DB tables
-* Calling the "get schema" tool
-* Generating a query
-* Checking the query
+* 列出数据库表
+* 调用“获取模式”工具
+* 生成查询
+* 检查查询
 
-Putting these steps in dedicated nodes lets us (1) force tool-calls when needed, and (2) customize the prompts associated with each step.
+将这些步骤放入专用节点中可以让我们 (1) 在需要时强制调用工具，以及 (2) 自定义与每个步骤相关的提示。
 
 ```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import {
@@ -575,9 +571,7 @@ const checkQuery: GraphNode<typeof MessagesState> = async (state) => {
 };
 ```
 
-## 5. Implement the agent
-
-We can now assemble these steps into a workflow using the [Graph API](/oss/javascript/langgraph/graph-api). We define a [conditional edge](/oss/javascript/langgraph/graph-api#conditional-edges) at the query generation step that will route to the query checker if a query is generated, or end if there are no tool calls present, such that the LLM has delivered a response to the query.
+## 5. 实现代理现在，我们可以使用 [Graph API](/oss/javascript/langgraph/graph-api) 将这些步骤组装到工作流程中。我们在查询生成步骤定义一个[conditional edge](/oss/javascript/langgraph/graph-api#conditional-edges)，如果生成了查询，它将路由到查询检查器，或者如果不存在工具调用则结束，以便LLM已交付对查询的响应。
 
 ```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { ConditionalEdgeRouter } from "@langchain/langgraph";
@@ -610,7 +604,7 @@ const builder = new StateGraph(MessagesState)
 const agent = builder.compile();
 ```
 
-We visualize the application below:
+我们将应用程序可视化如下：
 
 ```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import * as fs from "node:fs/promises";
@@ -624,7 +618,7 @@ await fs.writeFile("graph.png", imageBuffer);
 
 ![SQL agent graph](https://mintcdn.com/langchain-5e9cc07a/aAi4RLdXQAh8fThS/oss/images/sql-agent-langgraph.png?fit=max\&auto=format\&n=aAi4RLdXQAh8fThS\&q=85\&s=1ddd4aae369fb8c143edaccb0a09c81f)
 
-We can now invoke the graph:
+我们现在可以调用该图：
 
 ```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 const question = "Which genre on average has the longest tracks?";
@@ -719,17 +713,17 @@ Name: sql_db_query
 The genre with the longest tracks on average is "Sci Fi & Fantasy," with an average track length of approximately 2,911,783 milliseconds. Other genres with relatively long tracks include "Science Fiction," "Drama," "TV Shows," and "Comedy."
 ```
 
-> [!TIP]
+> [!提示]
 >
-> See [LangSmith trace](https://smith.langchain.com/public/a6a96896-686a-4040-b9b5-28d701453d6f/r) for the above run.
+> 上述运行请参见[LangSmith trace](https://smith.langchain.com/public/a6a96896-686a-4040-b9b5-28d701453d6f/r)。
 
-## 6. Implement human-in-the-loop review
+## 6. 实施人机交互审核
 
-It can be prudent to check the agent's SQL queries before they are executed for any unintended actions or inefficiencies.
+在执行代理的 SQL 查询之前检查是否存在任何意外操作或效率低下，这可能是谨慎的做法。
 
-Here we leverage LangGraph's [human-in-the-loop](/oss/javascript/langgraph/interrupts) features to pause the run before executing a SQL query and wait for human review. Using LangGraph's [persistence layer](/oss/javascript/langgraph/persistence), we can pause the run indefinitely (or at least as long as the persistence layer is alive).
+在这里，我们利用 LangGraph 的 [human-in-the-loop](/oss/javascript/langgraph/interrupts) 功能在执行 SQL 查询之前暂停运行并等待人工审核。使用LangGraph的[persistence layer](/oss/javascript/langgraph/persistence)，我们可以无限期地暂停运行（或者至少只要持久层还活着）。
 
-Let's wrap the `sql_db_query` tool in a node that receives human input. We can implement this using the [interrupt](/oss/javascript/langgraph/interrupts) function. Below, we allow for input to approve the tool call, edit its arguments, or provide user feedback.
+让我们将 `sql_db_query` 工具包装在接收人工输入的节点中。我们可以使用 [interrupt](/oss/javascript/langgraph/interrupts) 函数来实现这一点。下面，我们允许输入以批准工具调用、编辑其参数或提供用户反馈。
 
 ```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { RunnableConfig } from "@langchain/core/runnables";
@@ -770,11 +764,9 @@ const queryToolWithInterrupt = tool(
 );
 ```
 
-> [!NOTE]
+> [!注意]
 >
-> The above implementation follows the [tool interrupt example](/oss/javascript/langgraph/interrupts#interrupts-in-tools) in the broader [human-in-the-loop](/oss/javascript/langgraph/interrupts) guide. Refer to that guide for details and alternatives.
-
-Let's now re-assemble our graph. We will replace the programmatic check with human review. Note that we now include a [checkpointer](/oss/javascript/langgraph/persistence); this is required to pause and resume the run.
+> 上述实现遵循更广泛的 [human-in-the-loop](/oss/javascript/langgraph/interrupts) 指南中的 [tool interrupt example](/oss/javascript/langgraph/interrupts#interrupts-in-tools)。有关详细信息和替代方案，请参阅该指南。现在让我们重新组装我们的图表。我们将用人工审核取代程序检查。请注意，我们现在包含一个 [checkpointer](/oss/javascript/langgraph/persistence)；这是暂停和恢复运行所必需的。
 
 ```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { Command, MemorySaver } from "@langchain/langgraph";
@@ -806,7 +798,7 @@ const checkpointer = new MemorySaver(); // [!code highlight]
 const agentWithHuman = builderWithHuman.compile({ checkpointer }); // [!code highlight]
 ```
 
-We can invoke the graph as before. This time, execution is interrupted:
+我们可以像以前一样调用该图。这次，执行被中断：
 
 ```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 const hitlQuestion = "Which genre on average has the longest tracks?";
@@ -842,7 +834,7 @@ INTERRUPTED:
 }
 ```
 
-We can accept or edit the tool call using [Command](/oss/javascript/langgraph/use-graph-api#combine-control-flow-and-state-updates-with-command):
+我们可以使用[Command](/oss/javascript/langgraph/use-graph-api#combine-control-flow-and-state-updates-with-command)接受或编辑工具调用：
 
 ```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 const resumeStream = await agentWithHuman.streamEvents(
@@ -874,14 +866,14 @@ Name: sql_db_query
 The genre with the longest average track length is "Sci Fi & Fantasy" with an average length of about 2,911,783 milliseconds. Other genres with long average track lengths include "Science Fiction," "Drama," "TV Shows," and "Comedy."
 ```
 
-Refer to the [human-in-the-loop guide](/oss/javascript/langgraph/interrupts) for details.
+详情请参阅[human-in-the-loop guide](/oss/javascript/langgraph/interrupts)。
 
-## Next steps
+## 后续步骤
 
-Check out the [Evaluate a graph](/langsmith/evaluate-graph) guide for evaluating LangGraph applications, including SQL agents like this one, using LangSmith.
+查看 [Evaluate a graph](/langsmith/evaluate-graph) 指南，以评估 LangGraph 应用程序，包括使用 LangSmith 的 SQL 代理。
 
 ***
 
-[Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
+[Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
 
-[Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/sql-agent.mdx) or [file an issue](https://github.com/langchain-ai/docs/issues/new/choose).
+[Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/sql-agent.mdx) 或 [file an issue](https://github.com/langchain-ai/docs/issues/new/choose)。

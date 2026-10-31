@@ -24,7 +24,7 @@ Create agent code from the [`new-langgraph-project-js` template](https://github.
 npm create langgraph
 ```
 
-> **Adding LangGraph to an existing project**
+> [accordion] Adding LangGraph to an existing project
 >
 > If you have an existing project with LangGraph agents, you can automatically generate a `langgraph.json` configuration file using the `config` command:
 >
@@ -64,7 +64,7 @@ npm install
 
 > [!NOTE]
 >
-> In an [agent-based workspace](/langsmith/agents), [create an agent](/langsmith/create-an-agent) once before sending traces. Use [agent addressing](/langsmith/log-traces-to-agent) to select its identifier and environment. If an integration requires `project_name`, use the selected environment's [`tracer_session_name`](/langsmith/create-an-agent#use-an-environment-project) as a compatibility value.
+> In an [agent-based workspace](/langsmith/agent-registry), [create an agent](/langsmith/create-an-agent) once before sending traces. Use [agent addressing](/langsmith/log-traces-to-agent) to select its identifier and environment. If an integration requires `project_name`, use the selected environment's [`tracer_session_name`](/langsmith/create-an-agent#use-an-environment-project) as a compatibility value.
 
 You will find a `.env.example` in the root of your new LangGraph app. Create a `.env` file in the root of your new LangGraph app and copy the contents of the `.env.example` file into it, filling in the necessary API keys:
 
@@ -117,7 +117,7 @@ For an Agent Server running on a custom host/port, update the `baseUrl` query pa
 https://smith.langchain.com/studio/?baseUrl=http://myhost:3000
 ```
 
-> **Safari compatibility**
+> [accordion] Safari compatibility
 >
 > Use the `--tunnel` flag with your command to create a secure tunnel, as Safari has limitations when connecting to localhost servers:
 >
@@ -127,59 +127,59 @@ https://smith.langchain.com/studio/?baseUrl=http://myhost:3000
 
 ## 7. Test the API
 
-**Javascript SDK**
+> [tab] Javascript SDK
+>
+> 1. Install the LangGraph JS SDK:
+>    ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+>    npm install @langchain/langgraph-sdk
+>    ```
+> 2. Send a message to the assistant (threadless run):
+>
+> ```js theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import { Client } from "@langchain/langgraph-sdk";
+>
+> // only set the apiUrl if you changed the default port when calling langgraph dev
+> const client = new Client({ apiUrl: "http://localhost:2024"});
+>
+> const streamResponse = client.runs.stream(
+>   null, // Threadless run
+>   "agent", // Assistant ID
+>   {
+>     input: {
+>       "messages": [
+>         { "role": "user", "content": "What is LangGraph?"}
+>       ]
+>     },
+>     streamMode: "messages-tuple",
+>   }
+> );
+>
+> for await (const chunk of streamResponse) {
+>   console.log(`Receiving new event of type: ${chunk.event}...`);
+>   console.log(JSON.stringify(chunk.data));
+>   console.log("\n\n");
+> }
+> ```
 
-1. Install the LangGraph JS SDK:
-   ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-   npm install @langchain/langgraph-sdk
-   ```
-2. Send a message to the assistant (threadless run):
-
-```js theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-import { Client } from "@langchain/langgraph-sdk";
-
-// only set the apiUrl if you changed the default port when calling langgraph dev
-const client = new Client({ apiUrl: "http://localhost:2024"});
-
-const streamResponse = client.runs.stream(
-  null, // Threadless run
-  "agent", // Assistant ID
-  {
-    input: {
-      "messages": [
-        { "role": "user", "content": "What is LangGraph?"}
-      ]
-    },
-    streamMode: "messages-tuple",
-  }
-);
-
-for await (const chunk of streamResponse) {
-  console.log(`Receiving new event of type: ${chunk.event}...`);
-  console.log(JSON.stringify(chunk.data));
-  console.log("\n\n");
-}
-```
-
-**Rest API**
-
-```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-curl -s --request POST \
-    --url "http://localhost:2024/runs/stream" \
-    --header 'Content-Type: application/json' \
-    --data "{
-        \"assistant_id\": \"agent\",
-        \"input\": {
-            \"messages\": [
-                {
-                    \"role\": \"human\",
-                    \"content\": \"What is LangGraph?\"
-                }
-            ]
-        },
-        \"stream_mode\": \"messages-tuple\"
-    }"
-```
+> [tab] Rest API
+>
+> ```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> curl -s --request POST \
+>     --url "http://localhost:2024/runs/stream" \
+>     --header 'Content-Type: application/json' \
+>     --data "{
+>         \"assistant_id\": \"agent\",
+>         \"input\": {
+>             \"messages\": [
+>                 {
+>                     \"role\": \"human\",
+>                     \"content\": \"What is LangGraph?\"
+>                 }
+>             ]
+>         },
+>         \"stream_mode\": \"messages-tuple\"
+>     }"
+> ```
 
 ## Next steps
 

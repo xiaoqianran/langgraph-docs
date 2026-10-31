@@ -25,7 +25,7 @@ npm install @langchain/langgraph
 
 ## 定义子图通信
 
-添加子图时，需要定义父图和子图如何通信：|图案|何时使用 |状态模式|
+添加子图时，需要定义父图和子图如何通信：|图案|何时使用 |状态模式 |
 | - | - | - |
 | [Call a subgraph inside a node](#call-a-subgraph-inside-a-node) |父图和子图具有**不同的状态模式**（没有共享密钥），或者您需要在它们之间转换状态 |您编写一个包装函数，将父状态映射到子图输入，并将子图输出映射回父状态 |
 | [Add a subgraph as a node](#add-a-subgraph-as-a-node) |父图和子图 **共享状态键** - 子图与父图读取和写入相同的通道 |您将编译后的子图直接传递给`add_node`——无需包装函数 |
@@ -69,7 +69,7 @@ const builder = new StateGraph(State)
 const graph = builder.compile();
 ```
 
-> **完整示例：不同的状态模式**
+> [手风琴] 完整示例：不同的状态模式
 >
 > ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > import { StateGraph, StateSchema, START } from "@langchain/langgraph";
@@ -131,7 +131,7 @@ const graph = builder.compile();
 > [['node2:9c36dd0f-151a-cb42-cbad-fa2f851f9ab7'], { subgraphNode1: { baz: 'baz' } }]
 > [['node2:9c36dd0f-151a-cb42-cbad-fa2f851f9ab7'], { subgraphNode2: { bar: 'hi! foobaz' } }]
 > [[], { node2: { foo: 'hi! foobaz' } }]
-> ```> **完整示例：不同的状态模式（两级子图）**
+> ```> [手风琴] 完整示例：不同的状态模式（两级子图）
 >
 > 这是一个具有两级子图的示例：父级 -> 子级 -> 孙级。
 >
@@ -229,7 +229,7 @@ const graph = builder.compile();
 ![SQL agent graph](https://mintcdn.com/langchain-5e9cc07a/ybiAaBfoBvFquMDz/oss/images/subgraph.png?fit=max\&auto=format\&n=ybiAaBfoBvFquMDz\&q=85\&s=c280df5c968cd4237b0b5d03823d8946)如果您的子图与父图共享状态键，您可以按照以下步骤将其添加到您的图中：
 
 1.定义子图工作流程（下例中的`subgraphBuilder`）并编译
-2.定义父图工作流程时将编译后的子图传递给`.addNode`方法
+2.定义父图工作流程时，将编译后的子图传递给`.addNode`方法
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { StateGraph, StateSchema, START } from "@langchain/langgraph";
@@ -256,7 +256,7 @@ const builder = new StateGraph(State)
 const graph = builder.compile();
 ```
 
-> **完整示例：共享状态模式**
+> [accordion] 完整示例：共享状态模式
 >
 > ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > import { StateGraph, StateSchema, START } from "@langchain/langgraph";
@@ -306,7 +306,7 @@ const graph = builder.compile();
 > ```
 >
 > 1. 该键与父图状态共享
-> 2. 该键是`SubgraphState`私有的，对父图不可见
+> 2. 该密钥是`SubgraphState`私有的，对父图不可见
 >
 > ```
 > { node1: { foo: 'hi! foo' } }
@@ -423,74 +423,74 @@ const agent = createAgent({
 });
 ```
 
-**中断**
+> [选项卡] 中断
+>
+> 每次调用都可以使用`interrupt()`来暂停和恢复。将 `interrupt()` 添加到工具函数中，以在继续之前需要用户批准：
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> const fruitInfo = tool(
+>   (input) => {
+>     interrupt("continue?");  // [!code highlight]
+>     return `Info about ${input.fruitName}`;
+>   },
+>   {
+>     name: "fruit_info",
+>     description: "Look up fruit info.",
+>     schema: z.object({ fruitName: z.string() }),
+>   }
+> );
+> ```
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> const config = { configurable: { thread_id: "1" } };
+>
+> // Invoke - the subagent's tool calls interrupt()
+> let response = await agent.invoke(
+>   { messages: [{ role: "user", content: "Tell me about apples" }] },
+>   config,
+> );
+> // response contains __interrupt__
+>
+> // Resume - approve the interrupt
+> response = await agent.invoke(new Command({ resume: true }), config);  // [!code highlight]
+> // Subagent message count: 4
+> ```> [选项卡] 多圈
+>
+> 每次调用都以新的子代理状态开始。子代理不记得以前的调用：
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> const config = { configurable: { thread_id: "1" } };
+>
+> // First call
+> let response = await agent.invoke(
+>   { messages: [{ role: "user", content: "Tell me about apples" }] },
+>   config,
+> );
+> // Subagent message count: 4
+>
+> // Second call - subagent starts fresh, no memory of apples
+> response = await agent.invoke(
+>   { messages: [{ role: "user", content: "Now tell me about bananas" }] },
+>   config,
+> );
+> // Subagent message count: 4 (still fresh!)
+> ```
 
-每次调用都可以使用`interrupt()`来暂停和恢复。将 `interrupt()` 添加到工具函数中，以在继续之前需要用户批准：
-
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-const fruitInfo = tool(
-  (input) => {
-    interrupt("continue?");  // [!code highlight]
-    return `Info about ${input.fruitName}`;
-  },
-  {
-    name: "fruit_info",
-    description: "Look up fruit info.",
-    schema: z.object({ fruitName: z.string() }),
-  }
-);
-```
-
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-const config = { configurable: { thread_id: "1" } };
-
-// Invoke - the subagent's tool calls interrupt()
-let response = await agent.invoke(
-  { messages: [{ role: "user", content: "Tell me about apples" }] },
-  config,
-);
-// response contains __interrupt__
-
-// Resume - approve the interrupt
-response = await agent.invoke(new Command({ resume: true }), config);  // [!code highlight]
-// Subagent message count: 4
-```
-
-**多圈**每次调用都以新的子代理状态开始。子代理不记得以前的调用：
-
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-const config = { configurable: { thread_id: "1" } };
-
-// First call
-let response = await agent.invoke(
-  { messages: [{ role: "user", content: "Tell me about apples" }] },
-  config,
-);
-// Subagent message count: 4
-
-// Second call - subagent starts fresh, no memory of apples
-response = await agent.invoke(
-  { messages: [{ role: "user", content: "Now tell me about bananas" }] },
-  config,
-);
-// Subagent message count: 4 (still fresh!)
-```
-
-**多个子图调用**
-
-对同一子图的多次调用不会发生冲突，因为每次调用都有自己的检查点名称空间：
-
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-const config = { configurable: { thread_id: "1" } };
-
-// LLM calls ask_fruit_expert for both apples and bananas
-const response = await agent.invoke(
-  { messages: [{ role: "user", content: "Tell me about apples and bananas" }] },
-  config,
-);
-// Subagent message count: 4 (apples - fresh)
-// Subagent message count: 4 (bananas - fresh)
-```
+> [tab] 多个子图调用
+>
+> 对同一子图的多次调用不会发生冲突，因为每次调用都有自己的检查点名称空间：
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> const config = { configurable: { thread_id: "1" } };
+>
+> // LLM calls ask_fruit_expert for both apples and bananas
+> const response = await agent.invoke(
+>   { messages: [{ role: "user", content: "Tell me about apples and bananas" }] },
+>   config,
+> );
+> // Subagent message count: 4 (apples - fresh)
+> // Subagent message count: 4 (bananas - fresh)
+> ```
 
 #### 每线程
 
@@ -555,102 +555,102 @@ const agent = createAgent({
 });
 ```
 
-**中断**
+> [选项卡] 中断
+>
+> 每线程子代理支持 `interrupt()` 就像每次调用一样。将`interrupt()`添加到工具功能中以要求用户批准：
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> const fruitInfo = tool(
+>   (input) => {
+>     interrupt("continue?");  // [!code highlight]
+>     return `Info about ${input.fruitName}`;
+>   },
+>   {
+>     name: "fruit_info",
+>     description: "Look up fruit info.",
+>     schema: z.object({ fruitName: z.string() }),
+>   }
+> );
+> ```
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> const config = { configurable: { thread_id: "1" } };
+>
+> // Invoke - the subagent's tool calls interrupt()
+> let response = await agent.invoke(
+>   { messages: [{ role: "user", content: "Tell me about apples" }] },
+>   config,
+> );
+> // response contains __interrupt__
+>
+> // Resume - approve the interrupt
+> response = await agent.invoke(new Command({ resume: true }), config);  // [!code highlight]
+> // Subagent message count: 4
+> ```
 
-每线程子代理支持 `interrupt()` 就像每次调用一样。将`interrupt()`添加到工具功能中以要求用户批准：
-
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-const fruitInfo = tool(
-  (input) => {
-    interrupt("continue?");  // [!code highlight]
-    return `Info about ${input.fruitName}`;
-  },
-  {
-    name: "fruit_info",
-    description: "Look up fruit info.",
-    schema: z.object({ fruitName: z.string() }),
-  }
-);
-```
-
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-const config = { configurable: { thread_id: "1" } };
-
-// Invoke - the subagent's tool calls interrupt()
-let response = await agent.invoke(
-  { messages: [{ role: "user", content: "Tell me about apples" }] },
-  config,
-);
-// response contains __interrupt__
-
-// Resume - approve the interrupt
-response = await agent.invoke(new Command({ resume: true }), config);  // [!code highlight]
-// Subagent message count: 4
-```
-
-**多圈**
-
-状态在调用中累积——子代理会记住过去的对话：
-
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-const config = { configurable: { thread_id: "1" } };
-
-// First call
-let response = await agent.invoke(
-  { messages: [{ role: "user", content: "Tell me about apples" }] },
-  config,
-);
-// Subagent message count: 4
-
-// Second call - subagent REMEMBERS apples conversation
-response = await agent.invoke(
-  { messages: [{ role: "user", content: "Now tell me about bananas" }] },
-  config,
-);
-// Subagent message count: 8 (accumulated!)
-```
-
-**多个子图调用**当您有多个**不同的**每线程子图（例如，水果专家和蔬菜专家）时，每个子图都需要自己的存储空间，以便它们的检查点不会相互覆盖。这称为**命名空间隔离**。
-
-如果您 [call subgraphs inside a node](#call-a-subgraph-inside-a-node)，LangGraph 根据调用顺序（第一次调用、第二次调用等）分配命名空间。这意味着重新排序您的调用可能会混淆哪个子图加载哪个状态。为了避免这种情况，请将每个子代理包装在其自己的 `StateGraph` 中，并使用唯一的节点名称 - 这为每个子图提供了一个稳定、唯一的命名空间：
-
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-import { StateGraph, StateSchema, MessagesValue, START } from "@langchain/langgraph";
-
-function createSubAgent(model: string, { name, ...kwargs }: { name: string; [key: string]: any }) {
-  const agent = createAgent({ model, name, ...kwargs });
-  return new StateGraph(new StateSchema({ messages: MessagesValue }))
-    .addNode(name, agent)  // unique name → stable namespace  // [!code highlight]
-    .addEdge(START, name)
-    .compile();
-}
-
-const fruitAgent = createSubAgent("gpt-5.4-mini", {
-  name: "fruit_agent", tools: [fruitInfo], prompt: "...", checkpointer: true,
-});
-const veggieAgent = createSubAgent("gpt-5.4-mini", {
-  name: "veggie_agent", tools: [veggieInfo], prompt: "...", checkpointer: true,
-});
-const config = { configurable: { thread_id: "1" } };
-
-// First call - LLM calls both fruit and veggie experts
-let response = await agent.invoke(
-  { messages: [{ role: "user", content: "Tell me about cherries and broccoli" }] },
-  config,
-);
-// Fruit subagent message count: 4
-// Veggie subagent message count: 4
-
-// Second call - both agents accumulate independently
-response = await agent.invoke(
-  { messages: [{ role: "user", content: "Now tell me about oranges and carrots" }] },
-  config,
-);
-// Fruit subagent message count: 8 (remembers cherries!)
-// Veggie subagent message count: 8 (remembers broccoli!)
-```
-
-子图[added as nodes](#add-a-subgraph-as-a-node)已经自动获取基于名称的命名空间，因此它们不需要这个包装器。
+> [选项卡] 多圈
+>
+> 状态在调用中累积——子代理会记住过去的对话：
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> const config = { configurable: { thread_id: "1" } };
+>
+> // First call
+> let response = await agent.invoke(
+>   { messages: [{ role: "user", content: "Tell me about apples" }] },
+>   config,
+> );
+> // Subagent message count: 4
+>
+> // Second call - subagent REMEMBERS apples conversation
+> response = await agent.invoke(
+>   { messages: [{ role: "user", content: "Now tell me about bananas" }] },
+>   config,
+> );
+> // Subagent message count: 8 (accumulated!)
+> ```> [tab] 多个子图调用
+>
+> 当您有多个**不同的**每线程子图（例如，水果专家和蔬菜专家）时，每个子图都需要自己的存储空间，以便它们的检查点不会相互覆盖。这称为**命名空间隔离**。
+>
+> 如果您[call subgraphs inside a node](#call-a-subgraph-inside-a-node)，LangGraph 根据调用顺序（第一次调用、第二次调用等）分配命名空间。这意味着重新排序您的调用可能会混淆哪个子图加载哪个状态。为了避免这种情况，请使用唯一的节点名称将每个子代理包装在自己的 `StateGraph` 中 - 这为每个子图提供了稳定、唯一的命名空间：
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import { StateGraph, StateSchema, MessagesValue, START } from "@langchain/langgraph";
+>
+> function createSubAgent(model: string, { name, ...kwargs }: { name: string; [key: string]: any }) {
+>   const agent = createAgent({ model, name, ...kwargs });
+>   return new StateGraph(new StateSchema({ messages: MessagesValue }))
+>     .addNode(name, agent)  // unique name → stable namespace  // [!code highlight]
+>     .addEdge(START, name)
+>     .compile();
+> }
+>
+> const fruitAgent = createSubAgent("gpt-5.4-mini", {
+>   name: "fruit_agent", tools: [fruitInfo], prompt: "...", checkpointer: true,
+> });
+> const veggieAgent = createSubAgent("gpt-5.4-mini", {
+>   name: "veggie_agent", tools: [veggieInfo], prompt: "...", checkpointer: true,
+> });
+> const config = { configurable: { thread_id: "1" } };
+>
+> // First call - LLM calls both fruit and veggie experts
+> let response = await agent.invoke(
+>   { messages: [{ role: "user", content: "Tell me about cherries and broccoli" }] },
+>   config,
+> );
+> // Fruit subagent message count: 4
+> // Veggie subagent message count: 4
+>
+> // Second call - both agents accumulate independently
+> response = await agent.invoke(
+>   { messages: [{ role: "user", content: "Now tell me about oranges and carrots" }] },
+>   config,
+> );
+> // Fruit subagent message count: 8 (remembers cherries!)
+> // Veggie subagent message count: 8 (remembers broccoli!)
+> ```
+>
+> 子图[added as nodes](#add-a-subgraph-as-a-node)已经自动获取基于名称的命名空间，因此它们不需要这个包装器。
 
 ### 无状态
 
@@ -671,12 +671,12 @@ const subgraph = subgraphBuilder.compile({ checkpointer: false });  // [!code hi
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 const subgraph = builder.compile({ checkpointer: false });  // or true, or null
-```|特色 |每次调用（默认）|每线程 |无国籍|
+```|特色|每次调用（默认）|每线程 |无国籍|
 | - | - | - | - |
 | `checkpointer=` | `None` | `True` | `False` |
 |中断（HITL）| ✅ | ✅ | ❌ |
 |多圈记忆| ❌ | ✅ | ❌ |
-|多次调用（不同子图）| ✅ | ⚠️（调用同一节点中的多个每线程子图可能会导致命名空间冲突。有解决方法。） ✅ |
+|多次调用（不同子图）| ✅ | ⚠️（调用同一节点中的多个每线程子图可能会导致命名空间冲突。解决方法是可用的。） ✅ |
 |多次调用（同一子图）| ✅ | ❌ | ✅ |
 |国家检验| ⚠️（具有每次调用持久性的状态检查仅适用于当前调用（在中断时）。每个调用都是全新开始的，因此在调用完成后没有累积的状态可供检查。） ✅ | ❌ |* **中断（HITL）**：子图可以使用[interrupt()](/oss/javascript/langgraph/interrupts)暂停执行并等待用户输入，然后从中断处恢复。
 * **多轮记忆**：子图在同一[thread](/oss/javascript/langgraph/checkpointers#threads)内的多次调用中保留其状态。每次调用都会从上一个调用的地方继续，而不是重新开始。
@@ -690,79 +690,79 @@ const subgraph = builder.compile({ checkpointer: false });  // or true, or null
 >
 > 查看子图状态要求LangGraph可以**静态发现**子图，即，它是[added as a node](#add-a-subgraph-as-a-node)或[called inside a node](#call-a-subgraph-inside-a-node)。当在 [tool](/oss/javascript/langchain/tools) 函数或其他间接（例如 [subagents](/oss/javascript/langchain/multi-agent/subagents) 模式）内调用子图时，它不起作用。无论嵌套如何，中断仍然会传播到顶层图。
 
-**每次调用**
+> [选项卡] 每次调用
+>
+> 仅返回**当前调用**的子图状态。每次调用都是全新的。
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import { StateGraph, StateSchema, START, MemorySaver, interrupt, Command } from "@langchain/langgraph";
+> import * as z from "zod";
+>
+> const State = new StateSchema({
+>   foo: z.string(),
+> });
+>
+> // Subgraph
+> const subgraphBuilder = new StateGraph(State)
+>   .addNode("subgraphNode1", (state) => {
+>     const value = interrupt("Provide value:");
+>     return { foo: state.foo + value };
+>   })
+>   .addEdge(START, "subgraphNode1");
+>
+> const subgraph = subgraphBuilder.compile();  // inherits parent checkpointer
+>
+> // Parent graph
+> const builder = new StateGraph(State)
+>   .addNode("node1", subgraph)
+>   .addEdge(START, "node1");
+>
+> const checkpointer = new MemorySaver();
+> const graph = builder.compile({ checkpointer });
+>
+> const config = { configurable: { thread_id: "1" } };
+>
+> await graph.invoke({ foo: "" }, config);
+>
+> // View subgraph state for the current invocation
+> const subgraphState = (await graph.getState(config, { subgraphs: true })).tasks[0].state;  // [!code highlight]
+>
+> // Resume the subgraph
+> await graph.invoke(new Command({ resume: "bar" }), config);
+> ```
 
-仅返回**当前调用**的子图状态。每次调用都是全新的。
-
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-import { StateGraph, StateSchema, START, MemorySaver, interrupt, Command } from "@langchain/langgraph";
-import * as z from "zod";
-
-const State = new StateSchema({
-  foo: z.string(),
-});
-
-// Subgraph
-const subgraphBuilder = new StateGraph(State)
-  .addNode("subgraphNode1", (state) => {
-    const value = interrupt("Provide value:");
-    return { foo: state.foo + value };
-  })
-  .addEdge(START, "subgraphNode1");
-
-const subgraph = subgraphBuilder.compile();  // inherits parent checkpointer
-
-// Parent graph
-const builder = new StateGraph(State)
-  .addNode("node1", subgraph)
-  .addEdge(START, "node1");
-
-const checkpointer = new MemorySaver();
-const graph = builder.compile({ checkpointer });
-
-const config = { configurable: { thread_id: "1" } };
-
-await graph.invoke({ foo: "" }, config);
-
-// View subgraph state for the current invocation
-const subgraphState = (await graph.getState(config, { subgraphs: true })).tasks[0].state;  // [!code highlight]
-
-// Resume the subgraph
-await graph.invoke(new Command({ resume: "bar" }), config);
-```
-
-**每线程**
-
-返回此线程上所有调用的**累积**子图状态。
-
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-import { StateGraph, StateSchema, MessagesValue, START, MemorySaver } from "@langchain/langgraph";
-
-// Subgraph with its own persistent state
-const SubgraphState = new StateSchema({
-  messages: MessagesValue,
-});
-
-const subgraphBuilder = new StateGraph(SubgraphState);
-// ... add nodes and edges
-const subgraph = subgraphBuilder.compile({ checkpointer: true });  // [!code highlight]
-
-// Parent graph
-const builder = new StateGraph(SubgraphState)
-  .addNode("agent", subgraph)
-  .addEdge(START, "agent");
-
-const checkpointer = new MemorySaver();
-const graph = builder.compile({ checkpointer });
-
-const config = { configurable: { thread_id: "1" } };
-
-await graph.invoke({ messages: [{ role: "user", content: "hi" }] }, config);
-await graph.invoke({ messages: [{ role: "user", content: "what did I say?" }] }, config);
-
-// View accumulated subgraph state (includes messages from both invocations)
-const subgraphState = (await graph.getState(config, { subgraphs: true })).tasks[0].state;  // [!code highlight]
-```
+> [选项卡] 每线程
+>
+> 返回该线程上所有调用的**累积**子图状态。
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import { StateGraph, StateSchema, MessagesValue, START, MemorySaver } from "@langchain/langgraph";
+>
+> // Subgraph with its own persistent state
+> const SubgraphState = new StateSchema({
+>   messages: MessagesValue,
+> });
+>
+> const subgraphBuilder = new StateGraph(SubgraphState);
+> // ... add nodes and edges
+> const subgraph = subgraphBuilder.compile({ checkpointer: true });  // [!code highlight]
+>
+> // Parent graph
+> const builder = new StateGraph(SubgraphState)
+>   .addNode("agent", subgraph)
+>   .addEdge(START, "agent");
+>
+> const checkpointer = new MemorySaver();
+> const graph = builder.compile({ checkpointer });
+>
+> const config = { configurable: { thread_id: "1" } };
+>
+> await graph.invoke({ messages: [{ role: "user", content: "hi" }] }, config);
+> await graph.invoke({ messages: [{ role: "user", content: "what did I say?" }] }, config);
+>
+> // View accumulated subgraph state (includes messages from both invocations)
+> const subgraphState = (await graph.getState(config, { subgraphs: true })).tasks[0].state;  // [!code highlight]
+> ```
 
 ## 流子图输出
 
@@ -783,7 +783,7 @@ for await (const snapshot of stream.values) {
 
 1. 设置 `subgraphs: true` 以流式传输子图的输出。
 
-> **来自子图的流**
+> [手风琴] 来自子图的流
 >
 > ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > import { StateGraph, StateSchema, START } from "@langchain/langgraph";

@@ -184,77 +184,77 @@ const result = await graph.invoke(null, forkConfig);
 
 Time travel with [subgraphs](https://docs.langchain.com/oss/javascript/langgraph/use-subgraphs.md) depends on whether the subgraph has its own checkpointer. This determines the granularity of checkpoints you can time travel from.
 
-**Inherited checkpointer (default)**
+> [tab] Inherited checkpointer (default)
+>
+> By default, a subgraph inherits the parent's checkpointer. The parent treats the entire subgraph as a **single super-step** — there is only one parent-level checkpoint for the whole subgraph execution. Time traveling from before the subgraph re-executes it from scratch.
+>
+> You cannot time travel to a point *between* nodes in a default subgraph — you can only time travel from the parent level.
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> // Subgraph without its own checkpointer (default)
+> const subgraph = new StateGraph(StateAnnotation)
+>   .addNode("stepA", stepA)       // Has interrupt()
+>   .addNode("stepB", stepB)       // Has interrupt()
+>   .addEdge(START, "stepA")
+>   .addEdge("stepA", "stepB")
+>   .compile();  // No checkpointer — inherits from parent
+>
+> const graph = new StateGraph(StateAnnotation)
+>   .addNode("subgraphNode", subgraph)
+>   .addEdge(START, "subgraphNode")
+>   .compile({ checkpointer });
+>
+> // Complete both interrupts
+> await graph.invoke({ value: [] }, config);
+> await graph.invoke(new Command({ resume: "Alice" }), config);
+> await graph.invoke(new Command({ resume: "30" }), config);
+>
+> // Time travel from before the subgraph
+> const states = [];
+> for await (const state of graph.getStateHistory(config)) {
+>   states.push(state);
+> }
+> const beforeSub = states.filter((s) => s.next.includes("subgraphNode")).pop();
+>
+> const forkConfig = await graph.updateState(beforeSub.config, { value: ["forked"] });
+> const result = await graph.invoke(null, forkConfig);
+> // The entire subgraph re-executes from scratch
+> // You cannot time travel to a point between stepA and stepB
+> ```
 
-By default, a subgraph inherits the parent's checkpointer. The parent treats the entire subgraph as a **single super-step** — there is only one parent-level checkpoint for the whole subgraph execution. Time traveling from before the subgraph re-executes it from scratch.
-
-You cannot time travel to a point *between* nodes in a default subgraph — you can only time travel from the parent level.
-
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-// Subgraph without its own checkpointer (default)
-const subgraph = new StateGraph(StateAnnotation)
-  .addNode("stepA", stepA)       // Has interrupt()
-  .addNode("stepB", stepB)       // Has interrupt()
-  .addEdge(START, "stepA")
-  .addEdge("stepA", "stepB")
-  .compile();  // No checkpointer — inherits from parent
-
-const graph = new StateGraph(StateAnnotation)
-  .addNode("subgraphNode", subgraph)
-  .addEdge(START, "subgraphNode")
-  .compile({ checkpointer });
-
-// Complete both interrupts
-await graph.invoke({ value: [] }, config);
-await graph.invoke(new Command({ resume: "Alice" }), config);
-await graph.invoke(new Command({ resume: "30" }), config);
-
-// Time travel from before the subgraph
-const states = [];
-for await (const state of graph.getStateHistory(config)) {
-  states.push(state);
-}
-const beforeSub = states.filter((s) => s.next.includes("subgraphNode")).pop();
-
-const forkConfig = await graph.updateState(beforeSub.config, { value: ["forked"] });
-const result = await graph.invoke(null, forkConfig);
-// The entire subgraph re-executes from scratch
-// You cannot time travel to a point between stepA and stepB
-```
-
-**Subgraph checkpointer**
-
-Set `checkpointer=True` on the subgraph to give it its own checkpoint history. This creates checkpoints at each step **within** the subgraph, allowing you to time travel from a specific point inside it — for example, between two interrupts.
-
-Use [`get_state`](https://reference.langchain.com/javascript/langchain-langgraph/pregel/Pregel/getState) with `subgraphs=True` to access the subgraph's own checkpoint config, then fork from it:
-
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-// Subgraph with its own checkpointer
-const subgraph = new StateGraph(StateAnnotation)
-  .addNode("stepA", stepA)       // Has interrupt()
-  .addNode("stepB", stepB)       // Has interrupt()
-  .addEdge(START, "stepA")
-  .addEdge("stepA", "stepB")
-  .compile({ checkpointer: true });  // Own checkpoint history
-
-const graph = new StateGraph(StateAnnotation)
-  .addNode("subgraphNode", subgraph)
-  .addEdge(START, "subgraphNode")
-  .compile({ checkpointer });
-
-// Run until stepA interrupt, then resume -> hits stepB interrupt
-await graph.invoke({ value: [] }, config);
-await graph.invoke(new Command({ resume: "Alice" }), config);
-
-// Get the subgraph's own checkpoint (between stepA and stepB)
-const parentState = await graph.getState(config, { subgraphs: true });
-const subConfig = parentState.tasks[0].state.config;
-
-// Fork from the subgraph checkpoint
-const forkConfig = await graph.updateState(subConfig, { value: ["forked"] });
-const result = await graph.invoke(null, forkConfig);
-// stepB re-executes, stepA's result is preserved
-```
+> [tab] Subgraph checkpointer
+>
+> Set `checkpointer=True` on the subgraph to give it its own checkpoint history. This creates checkpoints at each step **within** the subgraph, allowing you to time travel from a specific point inside it — for example, between two interrupts.
+>
+> Use [`get_state`](https://reference.langchain.com/javascript/langchain-langgraph/pregel/Pregel/getState) with `subgraphs=True` to access the subgraph's own checkpoint config, then fork from it:
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> // Subgraph with its own checkpointer
+> const subgraph = new StateGraph(StateAnnotation)
+>   .addNode("stepA", stepA)       // Has interrupt()
+>   .addNode("stepB", stepB)       // Has interrupt()
+>   .addEdge(START, "stepA")
+>   .addEdge("stepA", "stepB")
+>   .compile({ checkpointer: true });  // Own checkpoint history
+>
+> const graph = new StateGraph(StateAnnotation)
+>   .addNode("subgraphNode", subgraph)
+>   .addEdge(START, "subgraphNode")
+>   .compile({ checkpointer });
+>
+> // Run until stepA interrupt, then resume -> hits stepB interrupt
+> await graph.invoke({ value: [] }, config);
+> await graph.invoke(new Command({ resume: "Alice" }), config);
+>
+> // Get the subgraph's own checkpoint (between stepA and stepB)
+> const parentState = await graph.getState(config, { subgraphs: true });
+> const subConfig = parentState.tasks[0].state.config;
+>
+> // Fork from the subgraph checkpoint
+> const forkConfig = await graph.updateState(subConfig, { value: ["forked"] });
+> const result = await graph.invoke(null, forkConfig);
+> // stepB re-executes, stepA's result is preserved
+> ```
 
 See [subgraph persistence](https://docs.langchain.com/oss/javascript/langgraph/use-subgraphs.md#subgraph-persistence) for more on configuring subgraph checkpointers.
 

@@ -71,15 +71,15 @@ graph.invoke({"messages": [{"role": "user", "content": "hi!"}]})
 
 虽然LangGraph可以独立使用，但它也可以与任何LangChain产品无缝集成，为开发人员提供了一整套用于构建代理的工具。为了改进您的 LLM 申请开发，请将 LangGraph 与：
 
-> **[LangSmith Observability](/langsmith/observability)**
+> [卡][LangSmith Observability](/langsmith/observability)
 >
 > 在一处跟踪请求、评估输出并监控部署。使用LangGraph在本地进行原型设计，然后通过集成的可观察性和评估进行生产，以构建更可靠的代理系统。
 
-> **[LangSmith Deployment](/langsmith/deployment)**
+> [卡][LangSmith Deployment](/langsmith/deployment)
 >
 > 使用专门构建的部署平台轻松部署和扩展代理，以实现长期运行、有状态的工作流程。跨团队发现、重用、配置和共享代理，并通过 Studio 中的可视化原型快速迭代。
 
-> **[LangChain](/oss/python/langchain/overview)**
+> [卡][LangChain](/oss/python/langchain/overview)
 >
 > 提供集成和可组合组件以简化法学硕士应用程序开发。包含构建在 LangGraph 之上的代理抽象。
 

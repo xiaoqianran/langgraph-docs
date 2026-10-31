@@ -634,7 +634,7 @@ console.log(await graph.invoke({}, { context: { myRuntimeValue: "b" } }));  // [
 { myStateValue: 2 }
 ```
 
-> **Extended example: specifying LLM at runtime**
+> [accordion] Extended example: specifying LLM at runtime
 >
 > Below we demonstrate a practical example in which we configure what LLM to use at runtime. We will use both OpenAI and Anthropic models.
 >
@@ -689,7 +689,7 @@ console.log(await graph.invoke({}, { context: { myRuntimeValue: "b" } }));  // [
 > gpt-5.4-mini
 > ```
 
-> **Extended example: specifying model and system message at runtime**
+> [accordion] Extended example: specifying model and system message at runtime
 >
 > Below we demonstrate a practical example in which we configure two parameters: the LLM and system message to use at runtime.
 >
@@ -777,7 +777,7 @@ By default, the retry policy retries on any exception except for the following:
 * `SyntaxError`
 * `ReferenceError`
 
-> **Extended example: customizing retry policies**
+> [accordion] Extended example: customizing retry policies
 >
 > Consider an example in which we are reading from a SQL database. Below we pass two different retry policies to nodes:
 >
@@ -954,7 +954,7 @@ const builder = new StateGraph(State)
   .addEdge("step2", "step3");
 ```
 
-> **Why split application steps into a sequence with LangGraph?**
+> [accordion] Why split application steps into a sequence with LangGraph?
 >
 > LangGraph makes it easy to add an underlying persistence layer to your application.
 > This allows state to be checkpointed in between the execution of nodes, so your LangGraph nodes govern:
@@ -1161,7 +1161,7 @@ Adding "D" to ['A', 'B', 'C']
 >
 > Importantly, updates from a parallel superstep may not be ordered consistently. If you need a consistent, predetermined ordering of updates from a parallel superstep, you should write the outputs to a separate field in the state together with a value with which to order them.
 
-> **Exception handling?**
+> [accordion] Exception handling?
 >
 > LangGraph executes nodes within [supersteps](/oss/javascript/langgraph/graph-api#graphs), meaning that while parallel branches are executed in parallel, the entire superstep is **transactional**. If any of these branches raises an exception, **none** of the updates are applied to the state (the entire superstep errors).
 >

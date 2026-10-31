@@ -201,88 +201,88 @@ result = graph.invoke(None, fork_config)
 
 Time travel with [subgraphs](https://docs.langchain.com/oss/python/langgraph/use-subgraphs.md) depends on whether the subgraph has its own checkpointer. This determines the granularity of checkpoints you can time travel from.
 
-**Inherited checkpointer (default)**
+> [tab] Inherited checkpointer (default)
+>
+> By default, a subgraph inherits the parent's checkpointer. The parent treats the entire subgraph as a **single super-step** — there is only one parent-level checkpoint for the whole subgraph execution. Time traveling from before the subgraph re-executes it from scratch.
+>
+> You cannot time travel to a point *between* nodes in a default subgraph — you can only time travel from the parent level.
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> # Subgraph without its own checkpointer (default)
+> subgraph = (
+>     StateGraph(State)
+>     .add_node("step_a", step_a)       # Has interrupt()
+>     .add_node("step_b", step_b)       # Has interrupt()
+>     .add_edge(START, "step_a")
+>     .add_edge("step_a", "step_b")
+>     .compile()  # No checkpointer — inherits from parent
+> )
+>
+> graph = (
+>     StateGraph(State)
+>     .add_node("subgraph_node", subgraph)
+>     .add_edge(START, "subgraph_node")
+>     .compile(checkpointer=InMemorySaver())
+> )
+>
+> config = {"configurable": {"thread_id": "1"}}
+>
+> # Complete both interrupts
+> graph.invoke({"value": []}, config)            # Hits step_a interrupt
+> graph.invoke(Command(resume="Alice"), config)  # Hits step_b interrupt
+> graph.invoke(Command(resume="30"), config)     # Completes
+>
+> # Time travel from before the subgraph
+> history = list(graph.get_state_history(config))
+> before_sub = [s for s in history if s.next == ("subgraph_node",)][-1]
+>
+> fork_config = graph.update_state(before_sub.config, {"value": ["forked"]})
+> result = graph.invoke(None, fork_config)
+> # The entire subgraph re-executes from scratch
+> # You cannot time travel to a point between step_a and step_b
+> ```
 
-By default, a subgraph inherits the parent's checkpointer. The parent treats the entire subgraph as a **single super-step** — there is only one parent-level checkpoint for the whole subgraph execution. Time traveling from before the subgraph re-executes it from scratch.
-
-You cannot time travel to a point *between* nodes in a default subgraph — you can only time travel from the parent level.
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-# Subgraph without its own checkpointer (default)
-subgraph = (
-    StateGraph(State)
-    .add_node("step_a", step_a)       # Has interrupt()
-    .add_node("step_b", step_b)       # Has interrupt()
-    .add_edge(START, "step_a")
-    .add_edge("step_a", "step_b")
-    .compile()  # No checkpointer — inherits from parent
-)
-
-graph = (
-    StateGraph(State)
-    .add_node("subgraph_node", subgraph)
-    .add_edge(START, "subgraph_node")
-    .compile(checkpointer=InMemorySaver())
-)
-
-config = {"configurable": {"thread_id": "1"}}
-
-# Complete both interrupts
-graph.invoke({"value": []}, config)            # Hits step_a interrupt
-graph.invoke(Command(resume="Alice"), config)  # Hits step_b interrupt
-graph.invoke(Command(resume="30"), config)     # Completes
-
-# Time travel from before the subgraph
-history = list(graph.get_state_history(config))
-before_sub = [s for s in history if s.next == ("subgraph_node",)][-1]
-
-fork_config = graph.update_state(before_sub.config, {"value": ["forked"]})
-result = graph.invoke(None, fork_config)
-# The entire subgraph re-executes from scratch
-# You cannot time travel to a point between step_a and step_b
-```
-
-**Subgraph checkpointer**
-
-Set `checkpointer=True` on the subgraph to give it its own checkpoint history. This creates checkpoints at each step **within** the subgraph, allowing you to time travel from a specific point inside it — for example, between two interrupts.
-
-Use [`get_state`](https://reference.langchain.com/python/langgraph/graphs/#langgraph.graph.state.CompiledStateGraph.get_state) with `subgraphs=True` to access the subgraph's own checkpoint config, then fork from it:
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-# Subgraph with its own checkpointer
-subgraph = (
-    StateGraph(State)
-    .add_node("step_a", step_a)       # Has interrupt()
-    .add_node("step_b", step_b)       # Has interrupt()
-    .add_edge(START, "step_a")
-    .add_edge("step_a", "step_b")
-    .compile(checkpointer=True)  # Own checkpoint history
-)
-
-graph = (
-    StateGraph(State)
-    .add_node("subgraph_node", subgraph)
-    .add_edge(START, "subgraph_node")
-    .compile(checkpointer=InMemorySaver())
-)
-
-config = {"configurable": {"thread_id": "1"}}
-
-# Run until step_a interrupt
-graph.invoke({"value": []}, config)
-
-# Resume step_a -> hits step_b interrupt
-graph.invoke(Command(resume="Alice"), config)
-
-# Get the subgraph's own checkpoint (between step_a and step_b)
-parent_state = graph.get_state(config, subgraphs=True)
-sub_config = parent_state.tasks[0].state.config
-
-# Fork from the subgraph checkpoint
-fork_config = graph.update_state(sub_config, {"value": ["forked"]})
-result = graph.invoke(None, fork_config)
-# step_b re-executes, step_a's result is preserved
-```
+> [tab] Subgraph checkpointer
+>
+> Set `checkpointer=True` on the subgraph to give it its own checkpoint history. This creates checkpoints at each step **within** the subgraph, allowing you to time travel from a specific point inside it — for example, between two interrupts.
+>
+> Use [`get_state`](https://reference.langchain.com/python/langgraph/graphs/#langgraph.graph.state.CompiledStateGraph.get_state) with `subgraphs=True` to access the subgraph's own checkpoint config, then fork from it:
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> # Subgraph with its own checkpointer
+> subgraph = (
+>     StateGraph(State)
+>     .add_node("step_a", step_a)       # Has interrupt()
+>     .add_node("step_b", step_b)       # Has interrupt()
+>     .add_edge(START, "step_a")
+>     .add_edge("step_a", "step_b")
+>     .compile(checkpointer=True)  # Own checkpoint history
+> )
+>
+> graph = (
+>     StateGraph(State)
+>     .add_node("subgraph_node", subgraph)
+>     .add_edge(START, "subgraph_node")
+>     .compile(checkpointer=InMemorySaver())
+> )
+>
+> config = {"configurable": {"thread_id": "1"}}
+>
+> # Run until step_a interrupt
+> graph.invoke({"value": []}, config)
+>
+> # Resume step_a -> hits step_b interrupt
+> graph.invoke(Command(resume="Alice"), config)
+>
+> # Get the subgraph's own checkpoint (between step_a and step_b)
+> parent_state = graph.get_state(config, subgraphs=True)
+> sub_config = parent_state.tasks[0].state.config
+>
+> # Fork from the subgraph checkpoint
+> fork_config = graph.update_state(sub_config, {"value": ["forked"]})
+> result = graph.invoke(None, fork_config)
+> # step_b re-executes, step_a's result is preserved
+> ```
 
 See [subgraph persistence](https://docs.langchain.com/oss/python/langgraph/use-subgraphs.md#subgraph-persistence) for more on configuring subgraph checkpointers.
 

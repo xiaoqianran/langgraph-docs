@@ -16,7 +16,7 @@ LangGraph 将代理工作流程建模为图形：使用 StateGraph 定义状态�
 
 3. [⟦T52⟧](#edges)：根据当前状态决定接下来执行哪个`Node`的函数。它们可以是条件分支或固定转换。
 
-通过组合 `Nodes` 和 `Edges`，您可以创建复杂的循环工作流程，随着时间的推移不断演变状态。然而，真正的力量来自于LangGraph如何管理该状态。
+通过组合 `Nodes` 和 `Edges`，您可以创建复杂的循环工作流程，这些工作流程会随着时间的推移而演变状态。然而，真正的力量来自于 LangGraph 如何管理该状态。
 
 强调一下：`Nodes`和`Edges`只不过是函数——它们可以包含LLM或只是好的代码。
 
@@ -164,19 +164,19 @@ await graph.invoke({ userInput: "My" });
 // { graphOutput: 'My name is Lance' }
 ```
 
-> **[View example trace](https://smith.langchain.com/public/24861731-481e-4b13-babb-d21813227380/r)**
+> [卡][View example trace](https://smith.langchain.com/public/24861731-481e-4b13-babb-d21813227380/r)
 >
 > 为此示例打开公共 LangSmith 运行。
 
 这里有两个微妙而重要的点需要注意：
 
-1. 我们将`state`作为输入模式传递给`node1`。但是，我们写入`foo`，`OverallState` 中的一个通道。我们如何写入不包含在输入模式中的状态通道？这是因为节点*可以写入图状态中的任何状态通道。*图状态是初始化时定义的状态通道的并集，其中包括`OverallState`以及过滤器`InputState`和`OutputState`。2. We initialize the graph with `StateGraph({ state: OverallState, input: InputState, output: OutputState })`. How can we write to `PrivateState` in `node2`?如果未在 `StateGraph` 初始化中传递该架构，那么该图如何访问该架构？我们可以这样做，因为只要状态模式定义存在，*节点也可以声明额外的状态通道*。在这种情况下，定义了`PrivateState`模式，因此我们可以将`bar`添加为图中的新状态通道并写入它。
+1. 我们将`state`作为输入模式传递给`node1`。但是，我们写入`foo`，`OverallState` 中的一个通道。我们如何写入不包含在输入模式中的状态通道？这是因为节点*可以写入图状态中的任何状态通道。*图状态是初始化时定义的状态通道的并集，其中包括`OverallState`以及过滤器`InputState`和`OutputState`。2. 我们用`StateGraph({ state: OverallState, input: InputState, output: OutputState })`初始化图。我们如何在`node2`中写入`PrivateState`？如果未在 `StateGraph` 初始化中传递该架构，那么该图如何访问该架构？我们可以这样做，因为只要状态模式定义存在，*节点也可以声明额外的状态通道*。在这种情况下，定义了`PrivateState`模式，因此我们可以将`bar`添加为图中的新状态通道并写入它。
 
 > [!警告]
 >
 > **私人频道在流式传输时不会被编辑。**
 >
-> 输入、输出和私有模式限制每个节点*读取*的内容（其输入模式）以及`invoke`*返回*（输出模式）。 They do **not** hide channels from `stream`.
+> 输入、输出和私有模式限制每个节点*读取*的内容（其输入模式）以及`invoke`*返回*（输出模式）。他们**不会**隐藏`stream`的频道。
 >
 > 当您使用 `streamMode: "values"` 进行流式传输时，图表默认会发出其**所有**状态通道（包括私有通道），因为值流式传输默认为完整的状态通道集而不是输出模式。这就是为什么像 `bar` 这样的私人频道被 `invoke` 隐藏但在流式传输时可见：
 >
@@ -236,7 +236,7 @@ await graph.invoke({ userInput: "My" });
 > // { foo: 'My name', userInput: 'My', graphOutput: 'My name is Lance', bar: 'My name is' }
 > ```
 >
->> **[View example trace](https://smith.langchain.com/public/9cbbe1f1-0913-498b-be17-fcf8cc1848c9/r)**
+>>【卡】[View example trace](https://smith.langchain.com/public/9cbbe1f1-0913-498b-be17-fcf8cc1848c9/r)
 >>
 >> 为此示例打开公共 LangSmith 运行。
 >
@@ -290,7 +290,7 @@ const State = new StateSchema({
 });
 ```
 
-> **[View example trace](https://smith.langchain.com/public/7ec49f29-72d1-4308-8740-abc471d83569/r)**
+> [卡][View example trace](https://smith.langchain.com/public/7ec49f29-72d1-4308-8740-abc471d83569/r)
 >
 > 为此示例打开公共 LangSmith 运行。
 
@@ -318,7 +318,7 @@ const State = new StateSchema({
 });
 ```
 
-> **[View example trace](https://smith.langchain.com/public/0f30e4c6-1a15-4dbf-ba92-761df436a4a9/r)**
+> [卡][View example trace](https://smith.langchain.com/public/0f30e4c6-1a15-4dbf-ba92-761df436a4a9/r)
 >
 > 为此示例打开公共 LangSmith 运行。
 
@@ -343,13 +343,13 @@ const State = new StateSchema({
 });
 ```
 
-> **[View example trace](https://smith.langchain.com/public/e2be75db-1c52-482a-b89f-ef30c15d08eb/r)**
+> [卡][View example trace](https://smith.langchain.com/public/e2be75db-1c52-482a-b89f-ef30c15d08eb/r)
 >
 > 为此示例打开公共 LangSmith 运行。在此示例中，我们使用 `ReducedValue` 为第二个键 (`bar`) 指定减速器函数。请注意，第一个键保持不变。我们假设图的输入是`{ foo: 1, bar: ["hi"] }`。然后我们假设第一个 `Node` 返回 `{ foo: 2 }`。这被视为对状态的更新。请注意，`Node` 不需要返回整个 `State` 模式 - 只需要更新即可。应用此更新后，`State` 将变为 `{ foo: 2, bar: ["hi"] }`。如果第二个节点返回`{ bar: ["bye"] }`，则`State`将是`{ foo: 2, bar: ["hi", "bye"] }`。请注意，`bar` 键是通过将两个数组连接在一起来更新的。
 
 #### 重置reducer字段
 
-减速器常见的混淆来源：使用合并减速器时，返回空值不会**不**清除字段。因为reducer将右边的参数合并到左边的参数中，所以合并了一个空的更新，并且保留了之前累积的值。
+减速器常见的混淆来源：使用合并减速器时，返回空值并不会清除字段。因为reducer将右边的参数合并到左边的参数中，所以合并了一个空的更新，并且保留了之前累积的值。
 
 此模式对于必须在重试尝试之间清除的错误缓冲区或重试计数器很重要：
 
@@ -369,7 +369,7 @@ const State = new StateSchema({
 // state.errors is still ["bad sql"]; the empty array is merged in, not cleared
 ```
 
-> **[View example trace](https://smith.langchain.com/public/9dca9849-c6f2-4e74-8c82-fdc44d6f6c22/r)**
+> [卡][View example trace](https://smith.langchain.com/public/9dca9849-c6f2-4e74-8c82-fdc44d6f6c22/r)
 >
 > 为此示例打开公共 LangSmith 运行。
 
@@ -387,7 +387,7 @@ const State = new StateSchema({
 });
 
 // node can now clear the field with { errors: [] }
-```> **[View example trace](https://smith.langchain.com/public/f06a3f2e-6876-4ab1-9b29-3be0aac1cdac/r)**
+```> [卡][View example trace](https://smith.langchain.com/public/f06a3f2e-6876-4ab1-9b29-3be0aac1cdac/r)
 >
 > 为此示例打开公共 LangSmith 运行。
 
@@ -667,101 +667,101 @@ builder.addNode(myNode);
 
 如果 [node](#nodes) 包含多个操作，您可能会发现将每个操作实现为 [**task**](/oss/javascript/langgraph/functional-api#task) 比将逻辑拆分到多个节点更容易。当图表使用检查点时，任务结果会被设置检查点，因此恢复线程可以跳过节点内已完成的**任务**工作。
 
-**原创**
-
-```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-import * as z from "zod";
-import { uuid7 } from "langsmith";
-
-import {
-  END,
-  MemorySaver,
-  START,
-  StateGraph,
-  StateSchema,
-} from "@langchain/langgraph";
-import type { GraphNode } from "@langchain/langgraph";
-
-const State = new StateSchema({
-  url: z.string(),
-  result: z.string().optional(),
-});
-
-const callApi: GraphNode<typeof State> = async (state) => {
-  const response = await fetch(state.url); // [!code highlight]
-  const text = await response.text();
-  const result = text.slice(0, 100);
-  return { result };
-};
-
-const builder = new StateGraph(State)
-  .addNode("callApi", callApi)
-  .addEdge(START, "callApi")
-  .addEdge("callApi", END);
-
-const checkpointer = new MemorySaver();
-const graph = builder.compile({ checkpointer });
-
-const threadId = uuid7();
-const config = { configurable: { thread_id: threadId } };
-
-await graph.invoke({ url: "https://www.example.com" }, config);
-```
-
-> **[View example trace](https://smith.langchain.com/public/f6485847-0dd8-471a-b79a-fd5a4d97f4eb/r)**
+> [选项卡] 原创
 >
-> 为此示例打开公共 LangSmith 运行。
-
-**有任务**
-
-```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-import * as z from "zod";
-import { uuid7 } from "langsmith";
-
-import {
-  END,
-  MemorySaver,
-  START,
-  StateGraph,
-  StateSchema,
-  task,
-} from "@langchain/langgraph";
-import type { GraphNode } from "@langchain/langgraph";
-
-const State = new StateSchema({
-  urls: z.array(z.string()),
-  results: z.array(z.string()).optional(),
-});
-
-const makeRequest = task("makeRequest", async (url: string) => {
-  const response = await fetch(url); // [!code highlight]
-  const text = await response.text();
-  return text.slice(0, 100);
-});
-
-const callApi: GraphNode<typeof State> = async (state) => {
-  const pending = state.urls.map((url) => makeRequest(url)); // [!code highlight]
-  const results = await Promise.all(pending);
-  return { results };
-};
-
-const builder = new StateGraph(State)
-  .addNode("callApi", callApi)
-  .addEdge(START, "callApi")
-  .addEdge("callApi", END);
-
-const checkpointer = new MemorySaver();
-const graph = builder.compile({ checkpointer });
-
-const threadId = uuid7();
-const config = { configurable: { thread_id: threadId } };
-
-await graph.invoke({ urls: ["https://www.example.com"] }, config);
-```
-
-> **[View example trace](https://smith.langchain.com/public/551a4dee-6b2c-455f-97fc-11f2e1467a44/r)**
+> ```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import * as z from "zod";
+> import { uuid7 } from "langsmith";
 >
-> 为此示例打开公共 LangSmith 运行。
+> import {
+>   END,
+>   MemorySaver,
+>   START,
+>   StateGraph,
+>   StateSchema,
+> } from "@langchain/langgraph";
+> import type { GraphNode } from "@langchain/langgraph";
+>
+> const State = new StateSchema({
+>   url: z.string(),
+>   result: z.string().optional(),
+> });
+>
+> const callApi: GraphNode<typeof State> = async (state) => {
+>   const response = await fetch(state.url); // [!code highlight]
+>   const text = await response.text();
+>   const result = text.slice(0, 100);
+>   return { result };
+> };
+>
+> const builder = new StateGraph(State)
+>   .addNode("callApi", callApi)
+>   .addEdge(START, "callApi")
+>   .addEdge("callApi", END);
+>
+> const checkpointer = new MemorySaver();
+> const graph = builder.compile({ checkpointer });
+>
+> const threadId = uuid7();
+> const config = { configurable: { thread_id: threadId } };
+>
+> await graph.invoke({ url: "https://www.example.com" }, config);
+> ```
+>
+>>【卡】[View example trace](https://smith.langchain.com/public/f6485847-0dd8-471a-b79a-fd5a4d97f4eb/r)
+>>
+>> 为此示例打开公共 LangSmith 运行。
+
+> [选项卡] 有任务
+>
+> ```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import * as z from "zod";
+> import { uuid7 } from "langsmith";
+>
+> import {
+>   END,
+>   MemorySaver,
+>   START,
+>   StateGraph,
+>   StateSchema,
+>   task,
+> } from "@langchain/langgraph";
+> import type { GraphNode } from "@langchain/langgraph";
+>
+> const State = new StateSchema({
+>   urls: z.array(z.string()),
+>   results: z.array(z.string()).optional(),
+> });
+>
+> const makeRequest = task("makeRequest", async (url: string) => {
+>   const response = await fetch(url); // [!code highlight]
+>   const text = await response.text();
+>   return text.slice(0, 100);
+> });
+>
+> const callApi: GraphNode<typeof State> = async (state) => {
+>   const pending = state.urls.map((url) => makeRequest(url)); // [!code highlight]
+>   const results = await Promise.all(pending);
+>   return { results };
+> };
+>
+> const builder = new StateGraph(State)
+>   .addNode("callApi", callApi)
+>   .addEdge(START, "callApi")
+>   .addEdge("callApi", END);
+>
+> const checkpointer = new MemorySaver();
+> const graph = builder.compile({ checkpointer });
+>
+> const threadId = uuid7();
+> const config = { configurable: { thread_id: threadId } };
+>
+> await graph.invoke({ urls: ["https://www.example.com"] }, config);
+> ```
+>
+>>【卡】[View example trace](https://smith.langchain.com/public/551a4dee-6b2c-455f-97fc-11f2e1467a44/r)
+>>
+>> 为此示例打开公共 LangSmith 运行。
 
 ### `START` 节点
 
@@ -822,7 +822,7 @@ await graph.invoke({ x: 5 }, { streamMode: "updates" });   // [!code highlight]
 边定义逻辑如何路由以及图形如何决定停止。这是代理如何工作以及不同节点如何相互通信的重要组成部分。有几种关键的边类型：
 
 * 普通边：直接从一个节点到下一个节点。
-* 条件边：调用函数来确定下一个要转到哪个节点。
+* 条件边：调用函数来确定下一个要转到哪个或哪些节点。
 * 入口点：当用户输入到达时首先调用哪个节点。
 * 条件入口点：调用函数来确定当用户输入到达时首先调用哪个节点。一个节点可以有多个出边。如果一个节点有多个传出边缘，则所有这些目标节点将作为下一个超级步骤的一部分并行执行。
 
@@ -863,7 +863,7 @@ graph.addConditionalEdges("nodeA", routingFunction, {
 
 ### 入口点
 
-入口点是图启动时运行的第一个节点。您可以使用从虚拟[⟦T196⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/START)节点到第一个要执行的节点的[⟦T195⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/StateGraph/addEdge)方法来指定从哪里进入图形。
+入口点是图启动时运行的第一个节点。您可以使用从虚拟[⟦T196⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/START)节点到第一个要执行的节点的[⟦T195⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/StateGraph/addEdge)方法来指定从何处进入图形。
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { START } from "@langchain/langgraph";
@@ -906,7 +906,7 @@ graph.addConditionalEdges("nodeA", (state) => {
 
 ## `Command`
 
-[⟦T209⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/Command)是用于控制图执行的通用原语。它接受四个参数：* `update`：应用状态更新（类似于从节点返回更新）。
+[⟦T209⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/Command)是一种用于控制图形执行的多功能原语。它接受四个参数：* `update`：应用状态更新（类似于从节点返回更新）。
 * `goto`：导航到特定节点（类似于[conditional edges](#conditional-edges)）。
 * `graph`：从[subgraphs](/oss/javascript/langgraph/use-subgraphs)导航时定位父图。
 * `resume`：提供一个值以在[interrupt](/oss/javascript/langgraph/interrupts)之后恢复执行。

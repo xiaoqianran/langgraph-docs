@@ -8,7 +8,7 @@ LangSmith 与 LangGraph（Python 和 JS）顺利集成，以帮助您跟踪代�
 
 > [!注意]
 >
-> 在发送跟踪之前，在[agent-based workspace](/langsmith/agents)、[create an agent](/langsmith/create-an-agent) 中进行一次。使用[agent addressing](/langsmith/log-traces-to-agent)选择其标识符和环境。如果集成需要 `project_name`，请使用所选环境的 [⟦T15⟧](/langsmith/create-an-agent#use-an-environment-project) 作为兼容性值。
+> 在发送跟踪之前，在[agent-based workspace](/langsmith/agent-registry)、[create an agent](/langsmith/create-an-agent) 中进行一次。使用[agent addressing](/langsmith/log-traces-to-agent)选择其标识符和环境。如果集成需要 `project_name`，请使用所选环境的 [⟦T15⟧](/langsmith/create-an-agent#use-an-environment-project) 作为兼容性值。
 
 ## 与 LangChain
 
@@ -51,7 +51,7 @@ export OPENAI_API_KEY=<your-openai-api-key>
 export LANGSMITH_WORKSPACE_ID=<your-workspace-id>
 ```> [!注意]
 >
-> 如果您的账户位于美国以外的区域（默认），还需将 `LANGSMITH_ENDPOINT` 设置为您所在区域的 API URL。如果没有这个，您的 API 密钥将不会被识别，并且请求将无法通过身份验证。
+> 如果您的帐户位于美国以外的区域（默认），还需将 `LANGSMITH_ENDPOINT` 设置为您所在区域的 API URL。如果没有这个，您的 API 密钥将不会被识别，并且请求将无法通过身份验证。
 >
 > <table>
 > <thead>

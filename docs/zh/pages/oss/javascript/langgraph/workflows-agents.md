@@ -1138,7 +1138,7 @@ const toolNode = new ToolNode([search, calculator]);
 
 #### 从工具访问图形状态和上下文
 
-由`ToolNode`执行的工具接收模型生成的参数：
+由`ToolNode`执行的工具接收模型生成的参数，如下所示
 他们的第一个论点。读取不是由生成的图端数据
 模型，使用以下选项之一：* 在Python中，从注入的状态和运行范围的上下文中读取
   [⟦T27⟧](https://reference.langchain.com/javascript/langchain/index/Runtime) 论证。
@@ -1148,7 +1148,7 @@ const toolNode = new ToolNode([search, calculator]);
 > [!注意]
 >
 > 工具只能访问传递给`ToolNode` 的状态值。当
-> `ToolNode`直接添加为`StateGraph`节点，输入为当前
+> `ToolNode` 直接添加为 `StateGraph` 节点，输入为当前
 > 图形状态。如果您从另一个节点手动调用 `ToolNode`，请传递
 > 当工具需要自定义状态字段时的完整状态。例如，`tool_node.invoke(state)`
 > 或 `toolNode.invoke(state, config)` 公开完整状态，同时仅传递
@@ -1225,7 +1225,7 @@ const result = await graph.invoke(
 );
 ```
 
-> **[View example trace](https://smith.langchain.com/public/a7d4f6bb-6847-4c92-b20c-c32f53b58db8/r)**
+> [卡][View example trace](https://smith.langchain.com/public/a7d4f6bb-6847-4c92-b20c-c32f53b58db8/r)
 >
 > 为此示例打开公共 LangSmith 运行。
 

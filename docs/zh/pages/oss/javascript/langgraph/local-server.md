@@ -26,7 +26,7 @@ npm install --save-dev @langchain/langgraph-cli
 npm create langgraph
 ```
 
-> **将 LangGraph 添加到现有项目**
+> [手风琴] 将 LangGraph 添加到现有项目
 >
 > 如果您已有包含LangGraph代理的项目，则可以使用`config`命令自动生成`langgraph.json`配置文件：
 >
@@ -64,7 +64,7 @@ npm install
 
 ## 4. 创建`.env`文件> [!注意]
 >
-> 在发送跟踪之前，在[agent-based workspace](/langsmith/agents)、[create an agent](/langsmith/create-an-agent) 中进行一次。使用[agent addressing](/langsmith/log-traces-to-agent)选择其标识符和环境。如果集成需要 `project_name`，请使用所选环境的 [⟦T24⟧](/langsmith/create-an-agent#use-an-environment-project) 作为兼容性值。
+> 在发送跟踪之前，在[agent-based workspace](/langsmith/agent-registry)、[create an agent](/langsmith/create-an-agent) 中进行一次。使用[agent addressing](/langsmith/log-traces-to-agent)选择其标识符和环境。如果集成需要 `project_name`，请使用所选环境的 [⟦T24⟧](/langsmith/create-an-agent#use-an-environment-project) 作为兼容性值。
 
 您将在新的 LangGraph 应用程序的根目录中找到 `.env.example`。在新的LangGraph应用程序的根目录中创建一个`.env`文件，并将`.env.example`文件的内容复制到其中，填写必要的API密钥：
 
@@ -105,7 +105,7 @@ For production use, please use LangSmith Deployment.
 
 ## 6. 在 Studio 中测试您的代理
 
-[Studio](/langsmith/studio) 是一个专门的 UI，您可以连接到 LangGraph API 服务器以在本地可视化、交互和调试代理。通过访问 `langgraph dev` 命令输出中提供的 URL 来测试您的图形：
+[Studio](/langsmith/studio) 是一个专用 UI，您可以连接到 LangGraph API 服务器以在本地可视化、交互和调试代理。通过访问 `langgraph dev` 命令输出中提供的 URL 来测试您的图形：
 
 ```
 >    - LangGraph Studio Web UI: https://smith.langchain.com/studio/?baseUrl=http://127.0.0.1:2024
@@ -115,7 +115,7 @@ For production use, please use LangSmith Deployment.
 
 ```
 https://smith.langchain.com/studio/?baseUrl=http://myhost:3000
-```> **Safari 兼容性**
+```> [手风琴] Safari 兼容性
 >
 > 在命令中使用 `--tunnel` 标志来创建安全隧道，因为 Safari 在连接到本地主机服务器时有限制：
 >
@@ -125,59 +125,59 @@ https://smith.langchain.com/studio/?baseUrl=http://myhost:3000
 
 ## 7. 测试 API
 
-**Javascript SDK**
+> [选项卡] Javascript SDK
+>
+> 1.安装LangGraphJS SDK：
+> ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+>    npm install @langchain/langgraph-sdk
+>    ```
+> 2. 向助手发送消息（无线程运行）：
+>
+> ```js theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import { Client } from "@langchain/langgraph-sdk";
+>
+> // only set the apiUrl if you changed the default port when calling langgraph dev
+> const client = new Client({ apiUrl: "http://localhost:2024"});
+>
+> const streamResponse = client.runs.stream(
+>   null, // Threadless run
+>   "agent", // Assistant ID
+>   {
+>     input: {
+>       "messages": [
+>         { "role": "user", "content": "What is LangGraph?"}
+>       ]
+>     },
+>     streamMode: "messages-tuple",
+>   }
+> );
+>
+> for await (const chunk of streamResponse) {
+>   console.log(`Receiving new event of type: ${chunk.event}...`);
+>   console.log(JSON.stringify(chunk.data));
+>   console.log("\n\n");
+> }
+> ```
 
-1.安装LangGraphJS SDK：
-   ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-   npm install @langchain/langgraph-sdk
-   ```
-2.向助手发送消息（无线程运行）：
-
-```js theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-import { Client } from "@langchain/langgraph-sdk";
-
-// only set the apiUrl if you changed the default port when calling langgraph dev
-const client = new Client({ apiUrl: "http://localhost:2024"});
-
-const streamResponse = client.runs.stream(
-  null, // Threadless run
-  "agent", // Assistant ID
-  {
-    input: {
-      "messages": [
-        { "role": "user", "content": "What is LangGraph?"}
-      ]
-    },
-    streamMode: "messages-tuple",
-  }
-);
-
-for await (const chunk of streamResponse) {
-  console.log(`Receiving new event of type: ${chunk.event}...`);
-  console.log(JSON.stringify(chunk.data));
-  console.log("\n\n");
-}
-```
-
-**休息API**
-
-```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-curl -s --request POST \
-    --url "http://localhost:2024/runs/stream" \
-    --header 'Content-Type: application/json' \
-    --data "{
-        \"assistant_id\": \"agent\",
-        \"input\": {
-            \"messages\": [
-                {
-                    \"role\": \"human\",
-                    \"content\": \"What is LangGraph?\"
-                }
-            ]
-        },
-        \"stream_mode\": \"messages-tuple\"
-    }"
-```
+> [选项卡] 休息 API
+>
+> ```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> curl -s --request POST \
+>     --url "http://localhost:2024/runs/stream" \
+>     --header 'Content-Type: application/json' \
+>     --data "{
+>         \"assistant_id\": \"agent\",
+>         \"input\": {
+>             \"messages\": [
+>                 {
+>                     \"role\": \"human\",
+>                     \"content\": \"What is LangGraph?\"
+>                 }
+>             ]
+>         },
+>         \"stream_mode\": \"messages-tuple\"
+>     }"
+> ```
 
 ## 后续步骤
 

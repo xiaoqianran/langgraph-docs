@@ -36,7 +36,7 @@
 
 ### 快速命令
 
-|命令 |它有什么作用 |
+|命令|它有什么作用 |
 | - | - |
 | [⟦T53⟧](#dev) |启动轻量级本地开发服务器（不需要 Docker），非常适合快速测试。 |
 | [⟦T54⟧](#build) |构建 LangGraph API 服务器的 Docker 映像以进行部署。 |
@@ -52,995 +52,1009 @@
 >
 > LangGraph CLI 默认使用当前目录中名为 **langgraph.json** 的配置文件。
 
-**Python**
-
-|关键|描述 |
-| - | - |
-| `dependencies` | **必需**，除非设置了 [⟦T61⟧](#configuration-file)。 LangSmith API 服务器的依赖项数组。依赖项可以是以下之一： <ul><li>单个句点（`"."`），它将查找本地Python包。</li><li>`pyproject.toml`、`setup.py`或`requirements.txt`所在的目录路径。例如，如果`requirements.txt`位于项目目录的根目录中，则指定`"./"`。如果它位于名为 `local_package` 的子目录中，请指定 `"./local_package"`。请勿指定字符串 `"requirements.txt"` 本身。</li><li>Python 包名称。</li></ul> |
-| `graphs` | **必需的**。从图形 ID 映射到定义已编译图形或生成图形的函数的路径。示例：<ul><li>`./your_package/your_file.py:variable`，其中`variable`是`langgraph.graph.state.CompiledStateGraph`</li><li>`./your_package/your_file.py:make_graph`的实例，其中`make_graph`是采用配置字典的函数(`langchain_core.runnables.RunnableConfig`) 并返回`langgraph.graph.state.StateGraph`或`langgraph.graph.state.CompiledStateGraph`的实例。更多详情请参阅[how to rebuild a graph at runtime](https://docs.langchain.com/langsmith/graph-rebuild.md)。</li></ul> || `auth` | *（v0.0.11中添加）* 身份验证和授权配置。包含： <ul><li>`path`（必需）：身份验证处理程序的路径（例如，`./your_package/auth.py:auth`），其中`auth`是`langgraph_sdk.Auth`的实例。请参阅 [authentication guide](https://docs.langchain.com/langsmith/auth.md)。</li><li>`disable_studio_auth`（可选）：如果 `true`，Studio 无法使用 LangSmith 身份验证作为后备。默认为 `false`.</li><li>`allow_langsmith_api_keys`（可选，代理服务器 v0.14.0rc2+）：如果 `true`，请与自定义身份验证一起运行 LangSmith API 密钥身份验证。带有 `Authorization` 标头的请求将进入自定义身份验证；所有其他人都转到LangSmith (`x-api-key`)。自定义 `@auth.on` 处理程序仍在运行。默认为`false`。</li><li>`openapi`（可选）：在 OpenAPI 中记录的安全方案。参见[OpenAPI security](https://docs.langchain.com/langsmith/openapi-security.md)。</li></ul> |
-| `base_image` |选修的。用于 LangGraph API 服务器的基础镜像。默认为 `langchain/langgraph-api` 或 `langchain/langgraphjs-api`。使用它可以将您的构建固定到 langgraph API 的特定版本，例如 `"langchain/langgraph-server:0.2"`。更多详情请参见[https://hub.docker.com/r/langchain/langgraph-server/tags](https://hub.docker.com/r/langchain/langgraph-server/tags)。 （在`langgraph-cli==0.2.8`添加）|
-| `image_distro` |选修的。基础镜像的 Linux 发行版。必须是 `"debian"`、`"wolfi"`、`"bookworm"` 或 `"bullseye"` 之一。如果省略，则默认为`"debian"`。提供`langgraph-cli>=0.2.11`。 |
-| `env` | `.env` 文件的路径或从环境变量到其值的映射。 || `store` |用于向 BaseStore 添加语义搜索和/或生存时间 (TTL) 的配置。包含以下字段： <ul><li>`index`（可选）：使用字段 `embed`、`dims` 和可选字段进行语义搜索索引配置`fields`.</li><li>`ttl`（可选）：项目过期配置。具有可选字段的对象：`refresh_on_read`（布尔值，默认为`true`），`default_ttl`（浮点型，生命周期以**分钟**为单位；仅适用于新创建的项目；现有项目不变；默认不过期）和`sweep_interval_minutes`（整数，检查过期项目的频率，默认为否扫）。</li></ul> |
-| `ui` |选修的。代理发出的 UI 组件的命名定义，每个组件都指向一个 JS/TS 文件。 （在`langgraph-cli==0.1.84`中添加）|
-| `python_version` | `3.11`、`3.12` 或 `3.13`。默认为`3.11`。 |
-| `node_version` |指定`node_version: 20`以使用LangGraph.js。 |
-| `pip_config_file` | `pip` 配置文件的路径。 || `pip_installer` | *（在 v0.3 中添加）* 可选。基于 `dependencies` 的安装路径的 Python 包安装程序选择器。可设置为 `"auto"`、`"pip"` 或 `"uv"`。从版本 0.3 开始，默认策略是运行 `uv pip`，它通常可以提供更快的构建，同时保持直接替代。在 `uv` 无法处理您的依赖图或 `pyproject.toml` 结构的罕见情况下，请在此处指定 `"pip"` 以恢复到之前的行为。该字段不控制构建是否使用`uv.lock`文件；使用 [⟦T140⟧](#configuration-file) 进行锁定文件安装。 || `source` | *（添加于`langgraph-cli>=0.4.20`）* 可选。从 [uv](https://docs.astral.sh/uv/) 项目或工作区锁定文件而不是从 `dependencies` 安装 Python 依赖项。对象字段： <ul><li>`kind`（必填）：必须是 `"uv"`。</li><li>`root`（可选）：包含 `pyproject.toml` 和 `uv.lock` 的目录路径。默认为 `"."`（`langgraph.json` 旁边）。当`langgraph.json`位于工作空间成员内部时，请使用相对路径，例如`"../.."`。</li><li>`package`（可选）：当`root`是uv工作空间并且目标是时要部署的工作空间成员包名称不明确。</li></ul> 需要 `python_version`。与`dependencies`互斥：设置`source`时省略`dependencies`。构建从锁定文件运行`uv export --frozen`，然后安装导出的需求。当项目已经使用 uv 管理依赖项时更喜欢这样做，因此云和本地安装使用相同的固定版本。 || `keep_pkg_tools` | *（在 v0.3.4 中添加）* 可选。控制最终镜像中是否保留Python打包工具（`pip`、`setuptools`、`wheel`）。接受的值： <ul><li>`true` ：保留所有三个工具（跳过卸载）。</li><li>`false` / 省略：卸载所有三个工具（默认）行为）。</li><li>`list[str]`：**要保留**的工具名称。每个值必须是“pip”、“setuptools”、“wheel”之一。</li></ul>。默认情况下，所有三个工具均已卸载。 |
-| `dockerfile_lines` |从父映像导入后添加到 Dockerfile 的附加行数组。 |
-| `checkpointer` |检查点的配置。支持：<ul><li>`backend`（可选）：`"default"`、`"mongo"`或`"custom"`。默认为 `"default"` (PostgreSQL)。请参阅[Configure checkpointer backend](https://docs.langchain.com/langsmith/configure-checkpointer.md)。</li><li>`path`（可选）：自定义检查点工厂的路径（当`backend`为`"custom"`时）。请参阅 [Custom checkpointer](https://docs.langchain.com/langsmith/custom-checkpointer.md)。</li><li>`ttl`（可选）：具有 `strategy`、`sweep_interval_minutes`、`default_ttl` 和 `sweep_limit`（代理服务器 v0.8+）控制检查点的对象</li><li>`serde`（可选，代理服务器 v0.5+）：带有 `allowed_json_modules` 和 `pickle_fallback` 的对象，用于调整反序列化行为。</li></ul> || `http` |具有以下字段的 HTTP 服务器配置： <ul><li>`app`：自定义 Starlette/FastAPI 应用程序的路径（例如，`"./src/agent/webapp.py:app"`）。请参阅[custom routes guide](https://docs.langchain.com/langsmith/custom-routes.md)。</li><li>`cors`：CORS 配置，包含`allow_origins`、`allow_methods`、`allow_headers`、`allow_credentials`、`allow_origin_regex`、 `expose_headers` 和 `max_age`。</li><li>`configurable_headers`：通过 `includes` / `excludes` 定义要公开为可配置值的请求标头</li><li>`logging_headers`：`configurable_headers`的镜像，用于从日志中排除敏感标头。</li><li>`middleware_order`：选择自定义中间件和身份验证的交互方式。 `auth_first` 在自定义中间件之前运行身份验证挂钩，而`middleware_first`（默认）首先运行中间件。</li><li>`enable_custom_route_auth`：对通过`app`添加的路由应用身份验证检查。</li><li>路由禁用标志，选择性地关闭内置端点组：<ul><li>`disable_meta`：禁用`/`（根）、`/info`、`/metrics`、`/docs`和`/openapi.json`系统路由。 `/ok` 健康检查仍然可用。</li><li>`disable_assistants`：禁用所有 `/assistants/*` 路由。</li><li>`disable_runs`：禁用所有 `/runs/*`路线。</li><li>`disable_threads`：禁用所有`/threads/*`路线。</li><li>`disable_store`：禁用所有`/store/*` </li><li>`disable_ui`：禁用所有 `/ui/*` 路由。</li><li>`disable_mcp`：禁用`/mcp` 端点。请参阅[Disable MCP](https://docs.langchain.com/langsmith/server-mcp.md#disable-mcp)。</li><li>`disable_a2a`：禁用`/a2a/*`端点。请参阅[Disable A2A](https://docs.langchain.com/langsmith/server-a2a.md#disable-a2a)。</li><li>`disable_webhooks`：在运行完成时禁用 Webhook 传递（不是路由切换）。请参阅 [Disable webhooks](https://docs.langchain.com/langsmith/use-webhooks.md#disable-webhooks)。</li></ul></li><li>`mount_prefix`：挂载路由的前缀（例如“/my-deployment/api”）。</li></ul> |
-| `webhooks` | *（在 v0.5.36 中添加）* 出站 Webhook 传递的配置。包含： <ul><li>`env_prefix`：标头模板中引用的环境变量所需的前缀（默认为`LG_WEBHOOK_`）。</li><li>`headers`：要包含在 Webhook 请求中的静态标头。值可能包含类似 `${{ env.VAR }}`.</li><li>`url` 的模板：具有 `allowed_domains`、`allowed_ports`、`require_https`、`disable_loopback` 的 URL 验证策略和`max_url_length`.</li></ul> |
-| `api_version` | *（在 v0.3.7 中添加）* 使用LangGraph API 服务器的语义版本（例如，`"0.3"`）。默认为最新。检查服务器[changelog](https://docs.langchain.com/langsmith/agent-server-changelog.md)以获取每个版本的详细信息。 |
-
-**JS**|关键|描述 |
-| - | - |
-| `graphs` | **必需的**。从图形 ID 映射到定义已编译图形或生成图形的函数的路径。示例：<ul><li>`./src/graph.ts:variable`，其中`variable`是[⟦T245⟧](https://reference.langchain.com/python/langgraph/graph/state/CompiledStateGraph)</li><li>`./src/graph.ts:makeGraph`的实例，其中`makeGraph`是采用配置字典的函数(`LangGraphRunnableConfig`) 并返回[⟦T249⟧](https://reference.langchain.com/python/langgraph/graph/state/StateGraph)或[⟦T250⟧](https://reference.langchain.com/python/langgraph/graph/state/CompiledStateGraph)的实例。更多详情请参阅[how to rebuild a graph at runtime](https://docs.langchain.com/langsmith/graph-rebuild.md)。</li></ul> |
-| `env` | `.env` 文件的路径或从环境变量到其值的映射。 |
-| `store` |用于向 BaseStore 添加语义搜索和/或生存时间 (TTL) 的配置。包含以下字段： <ul><li>`index`（可选）：使用字段 `embed`、`dims` 和可选字段进行语义搜索索引的配置`fields`.</li><li>`ttl`（可选）：项目过期配置。具有可选字段的对象：`refresh_on_read`（布尔值，默认为`true`），`default_ttl`（浮点型，生命周期以**分钟**为单位；仅适用于新创建的项目；现有项目不变；默认不过期）和`sweep_interval_minutes`（整数，检查过期项目的频率，默认为否扫地）。</li></ul> |
-| `node_version` |指定`node_version: 20`以使用LangGraph.js。 || `dockerfile_lines` |从父映像导入后添加到 Dockerfile 的附加行数组。 |
-| `checkpointer` |检查点的配置。支持：<ul><li>`backend`（可选）：`"default"`、`"mongo"`或`"custom"`。默认为 `"default"` (PostgreSQL)。请参阅[Configure checkpointer backend](https://docs.langchain.com/langsmith/configure-checkpointer.md)。</li><li>`path`（可选）：自定义检查点工厂的路径（当`backend`为`"custom"`时）。请参阅 [Custom checkpointer](https://docs.langchain.com/langsmith/custom-checkpointer.md)。</li><li>`ttl`（可选）：具有 `strategy`、`sweep_interval_minutes`、`default_ttl` 和 `sweep_limit`（代理服务器 v0.8+）控制检查点的对象</li><li>`serde`（可选，代理服务器 v0.5+）：具有 `allowed_json_modules` 和 `pickle_fallback` 的对象，用于调整反序列化行为。</li></ul> |
-| `http` | HTTP 服务器配置镜像 Python 选项：<ul><li>`cors` 与 `allow_origins`、`allow_methods`、`allow_headers`、`allow_credentials`、`allow_origin_regex`、`expose_headers`、 `max_age`。</li><li>`configurable_headers` 和 `logging_headers` 模式列表。</li><li>`middleware_order`（`auth_first` 或`middleware_first`)。</li><li>`enable_custom_route_auth`加上与上面相同的布尔路由切换。</li></ul> || `webhooks` | *（在 v0.5.36 中添加）* 出站 Webhook 传递的配置。包含： <ul><li>`env_prefix`：标头模板中引用的环境变量所需的前缀（默认为`LG_WEBHOOK_`）。</li><li>`headers`：Webhook 请求中包含的静态标头。值可能包含类似 `${{ env.VAR }}`.</li><li>`url` 的模板：具有 `allowed_domains`、`allowed_ports`、`require_https`、`disable_loopback` 的 URL 验证策略和`max_url_length`.</li></ul> |
-| `api_version` | *（在 v0.3.7 中添加）* 使用LangGraph API 服务器的语义版本（例如，`"0.3"`）。默认为最新。检查服务器[changelog](https://docs.langchain.com/langsmith/agent-server-changelog.md)以了解每个版本的详细信息。 |
-
-### 示例
-
-**Python**
-
-#### 基本配置
-
-```json theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-{
-  "$schema": "https://langgra.ph/schema.json",
-  "dependencies": ["."],
-  "graphs": {
-    "chat": "chat.graph:graph"
-  }
-}
-```
-
-#### 从 uv 锁定文件安装
-
-当项目已有 `uv.lock` 时，将 `source.kind` 设置为 `"uv"`，以便映像构建安装锁定版本。在此模式下省略`dependencies`。 CLI 使用 `uv export --frozen` 导出需求并将其安装到映像中。
-
-**单包项目**（`pyproject.toml`和`uv.lock`旁边`langgraph.json`）：
-
-```json theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-{
-  "$schema": "https://langgra.ph/schema.json",
-  "python_version": "3.12",
-  "graphs": {
-    "chat": "./src/agent/graph.py:graph"
-  },
-  "source": {
-    "kind": "uv"
-  }
-}
-```
-
-**uv 工作区**（成员内的`langgraph.json`；工作区根目录下的锁定文件）：
-
-```json theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-{
-  "$schema": "https://langgra.ph/schema.json",
-  "python_version": "3.12",
-  "graphs": {
-    "chat": "./src/agent/graph.py:graph"
-  },
-  "source": {
-    "kind": "uv",
-    "root": "../..",
-    "package": "agent"
-  }
-}
-```如果没有 `source`，`"dependencies": ["."]` 构建会在映像构建时重新解析来自 `pyproject.toml` 的包，并且不使用 `uv.lock`。当锁定文件可重复性很重要时，将版本固定在`pyproject.toml`或使用`source.kind: "uv"`。
-
-#### 使用 Wolfi 基础镜像
-
-您可以使用 `image_distro` 字段指定基础映像的 Linux 发行版。有效选项为 `debian`、`wolfi`、`bookworm` 或 `bullseye`。 Wolfi 是推荐的选项，因为它提供更小、更安全的图像。这在 `langgraph-cli>=0.2.11` 中可用。
-
-```json theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-{
-  "$schema": "https://langgra.ph/schema.json",
-  "dependencies": ["."],
-  "graphs": {
-    "chat": "chat.graph:graph"
-  },
-  "image_distro": "wolfi"
-}
-```
-
-#### 向商店添加语义搜索
-
-所有部署都带有数据库支持的 BaseStore。向 `langgraph.json` 添加“索引”配置将在部署的 BaseStore 中启用 [semantic search](https://docs.langchain.com/langsmith/semantic-search.md)。
-
-`index.fields` 配置决定要嵌入文档的哪些部分：
-
-* 如果省略或设置为`["$"]`，则将嵌入整个文档
-* 要嵌入特定字段，请使用 JSON 路径表示法：`["metadata.title", "content.text"]`
-* 缺少指定字段的文档仍将被存储，但不会嵌入这些字段
-* 您仍然可以使用 `index` 参数覆盖在 `put` 时间嵌入特定项目的字段
-
-```json theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-{
-  "dependencies": ["."],
-  "graphs": {
-    "memory_agent": "./agent/graph.py:graph"
-  },
-  "store": {
-    "index": {
-      "embed": "openai:text-embedding-3-small",
-      "dims": 1536,
-      "fields": ["$"]
-    }
-  }
-}
-```> [!注意]
+> [选项卡] Python
 >
-> **常用型号尺寸**
+> |关键|描述 |
+> | - | - |
+> | `dependencies` | **必需**，除非设置了 [⟦T61⟧](#configuration-file)。 LangSmith API 服务器的依赖项数组。依赖项可以是以下之一： <ul><li>单个句点（`"."`），它将查找本地Python包。</li><li>`pyproject.toml`、`setup.py`或`requirements.txt`所在的目录路径。例如，如果`requirements.txt`位于项目目录的根目录中，则指定`"./"`。如果它位于名为 `local_package` 的子目录中，请指定 `"./local_package"`。请勿指定字符串 `"requirements.txt"` 本身。</li><li>Python 包名称。</li></ul> |
+> | `graphs` | **必需的**。从图形 ID 映射到定义已编译图形或生成图形的函数的路径。示例：<ul><li>`./your_package/your_file.py:variable`，其中`variable`是`langgraph.graph.state.CompiledStateGraph`</li><li>`./your_package/your_file.py:make_graph`的实例，其中`make_graph`是采用配置字典的函数(`langchain_core.runnables.RunnableConfig`) 并返回`langgraph.graph.state.StateGraph`或`langgraph.graph.state.CompiledStateGraph`的实例。更多详情请参阅[how to rebuild a graph at runtime](https://docs.langchain.com/langsmith/graph-rebuild.md)。</li></ul> |> | `auth` | *（v0.0.11中添加）* 身份验证和授权配置。包含： <ul><li>`path`（必需）：身份验证处理程序的路径（例如，`./your_package/auth.py:auth`），其中`auth`是`langgraph_sdk.Auth`的实例。请参阅 [authentication guide](https://docs.langchain.com/langsmith/auth.md)。</li><li>`disable_studio_auth`（可选）：如果 `true`，Studio 无法使用 LangSmith 身份验证作为后备。默认为 `false`.</li><li>`allow_langsmith_api_keys`（可选，代理服务器 v0.14.0rc2+）：如果 `true`，请与自定义身份验证一起运行 LangSmith API 密钥身份验证。带有 `Authorization` 标头的请求将进入自定义身份验证；所有其他人都转到LangSmith (`x-api-key`)。自定义 `@auth.on` 处理程序仍在运行。默认为`false`。</li><li>`openapi`（可选）：在 OpenAPI 中记录的安全方案。参见[OpenAPI security](https://docs.langchain.com/langsmith/openapi-security.md)。</li></ul> |
+> | `base_image` |选修的。用于 LangGraph API 服务器的基础镜像。默认为 `langchain/langgraph-api` 或 `langchain/langgraphjs-api`。使用它可以将您的构建固定到 langgraph API 的特定版本，例如 `"langchain/langgraph-server:0.2"`。更多详情请参见[https://hub.docker.com/r/langchain/langgraph-server/tags](https://hub.docker.com/r/langchain/langgraph-server/tags)。 （在`langgraph-cli==0.2.8`添加）|
+> | `image_distro` |选修的。基础镜像的 Linux 发行版。必须是 `"debian"`、`"wolfi"`、`"bookworm"` 或 `"bullseye"` 之一。如果省略，则默认为`"debian"`。提供`langgraph-cli>=0.2.11`。 |
+> | `env` | `.env` 文件的路径或从环境变量到其值的映射。 |> | `store` |用于向 BaseStore 添加语义搜索和/或生存时间 (TTL) 的配置。包含以下字段： <ul><li>`index`（可选）：使用字段 `embed`、`dims` 和可选字段进行语义搜索索引配置`fields`.</li><li>`ttl`（可选）：项目过期配置。具有可选字段的对象：`refresh_on_read`（布尔值，默认为`true`），`default_ttl`（浮点型，生命周期以**分钟**为单位；仅适用于新创建的项目；现有项目不变；默认不过期）和`sweep_interval_minutes`（整数，检查过期项目的频率，默认为否扫）。</li></ul> |
+> | `ui` |选修的。代理发出的 UI 组件的命名定义，每个组件都指向一个 JS/TS 文件。 （在`langgraph-cli==0.1.84`中添加）|
+> | `python_version` | `3.11`、`3.12` 或 `3.13`。默认为`3.11`。 |
+> | `node_version` |指定`node_version: 20`以使用LangGraph.js。 |
+> | `pip_config_file` | `pip` 配置文件的路径。 |> | `pip_installer` | *（在 v0.3 中添加）* 可选。基于 `dependencies` 的安装路径的 Python 包安装程序选择器。可设置为 `"auto"`、`"pip"` 或 `"uv"`。从版本 0.3 开始，默认策略是运行 `uv pip`，它通常可以提供更快的构建，同时保持直接替代。在 `uv` 无法处理您的依赖图或 `pyproject.toml` 结构的罕见情况下，请在此处指定 `"pip"` 以恢复到之前的行为。该字段不控制构建是否使用`uv.lock`文件；使用 [⟦T140⟧](#configuration-file) 进行锁定文件安装。 |> | `source` | *（添加于`langgraph-cli>=0.4.20`）* 可选。从 [uv](https://docs.astral.sh/uv/) 项目或工作区锁定文件而不是从 `dependencies` 安装 Python 依赖项。对象字段： <ul><li>`kind`（必填）：必须是 `"uv"`。</li><li>`root`（可选）：包含 `pyproject.toml` 和 `uv.lock` 的目录路径。默认为 `"."`（`langgraph.json` 旁边）。当`langgraph.json`位于工作空间成员内部时，请使用相对路径，例如`"../.."`。</li><li>`package`（可选）：当`root`是uv工作空间并且目标是时要部署的工作空间成员包名称不明确。</li></ul> 需要 `python_version`。与`dependencies`互斥：设置`source`时省略`dependencies`。构建从锁定文件运行`uv export --frozen`，然后安装导出的需求。当项目已经使用 uv 管理依赖项时更喜欢这样做，因此云和本地安装使用相同的固定版本。 |> | `keep_pkg_tools` | *（在 v0.3.4 中添加）* 可选。控制最终镜像中是否保留Python打包工具（`pip`、`setuptools`、`wheel`）。接受的值： <ul><li>`true` ：保留所有三个工具（跳过卸载）。</li><li>`false` / 省略：卸载所有三个工具（默认）行为）。</li><li>`list[str]`：**要保留**的工具名称。每个值必须是“pip”、“setuptools”、“wheel”之一。</li></ul>。默认情况下，所有三个工具均已卸载。 |
+> | `dockerfile_lines` |从父映像导入后添加到 Dockerfile 的附加行数组。 |
+> | `checkpointer` |检查点的配置。支持：<ul><li>`backend`（可选）：`"default"`、`"mongo"`或`"custom"`。默认为 `"default"` (PostgreSQL)。请参阅[Configure checkpointer backend](https://docs.langchain.com/langsmith/configure-checkpointer.md)。</li><li>`path`（可选）：自定义检查点工厂的路径（当`backend`为`"custom"`时）。请参阅 [Custom checkpointer](https://docs.langchain.com/langsmith/custom-checkpointer.md)。</li><li>`ttl`（可选）：具有 `strategy`、`sweep_interval_minutes`、`default_ttl` 和 `sweep_limit`（代理服务器 v0.8+）控制检查点的对象</li><li>`serde`（可选，代理服务器 v0.5+）：带有 `allowed_json_modules` 和 `pickle_fallback` 的对象，用于调整反序列化行为。</li></ul> |> | `http` |具有以下字段的 HTTP 服务器配置： <ul><li>`app`：自定义 Starlette/FastAPI 应用程序的路径（例如，`"./src/agent/webapp.py:app"`）。请参阅[custom routes guide](https://docs.langchain.com/langsmith/custom-routes.md)。</li><li>`cors`：CORS 配置，包含`allow_origins`、`allow_methods`、`allow_headers`、`allow_credentials`、`allow_origin_regex`、 `expose_headers` 和 `max_age`。</li><li>`configurable_headers`：通过 `includes` / `excludes` 定义要公开为可配置值的请求标头</li><li>`logging_headers`：`configurable_headers`的镜像，用于从日志中排除敏感标头。</li><li>`middleware_order`：选择自定义中间件和身份验证的交互方式。 `auth_first` 在自定义中间件之前运行身份验证挂钩，而`middleware_first`（默认）首先运行中间件。</li><li>`enable_custom_route_auth`：对通过`app`添加的路由应用身份验证检查。</li><li>路由禁用标志，选择性地关闭内置端点组：<ul><li>`disable_meta`：禁用`/`（根）、`/info`、`/metrics`、`/docs`和`/openapi.json`系统路由。 `/ok` 健康检查仍然可用。</li><li>`disable_assistants`：禁用所有 `/assistants/*` 路由。</li><li>`disable_runs`：禁用所有 `/runs/*`路线。</li><li>`disable_threads`：禁用所有`/threads/*`路线。</li><li>`disable_store`：禁用所有`/store/*` </li><li>`disable_ui`：禁用所有 `/ui/*` 路由。</li><li>`disable_mcp`：禁用e `/mcp` 端点。请参阅[Disable MCP](https://docs.langchain.com/langsmith/server-mcp.md#disable-mcp)。</li><li>`disable_a2a`：禁用`/a2a/*`端点。请参阅[Disable A2A](https://docs.langchain.com/langsmith/server-a2a.md#disable-a2a)。</li><li>`disable_webhooks`：在运行完成时禁用 Webhook 传递（不是路由切换）。请参阅 [Disable webhooks](https://docs.langchain.com/langsmith/use-webhooks.md#disable-webhooks)。</li></ul></li><li>`mount_prefix`：挂载路由的前缀（例如“/my-deployment/api”）。</li></ul> |
+> | `webhooks` | *（在 v0.5.36 中添加）* 出站 Webhook 传递的配置。包含： <ul><li>`env_prefix`：标头模板中引用的环境变量所需的前缀（默认为`LG_WEBHOOK_`）。</li><li>`headers`：要包含在 Webhook 请求中的静态标头。值可能包含类似 `${{ env.VAR }}`.</li><li>`url` 的模板：具有 `allowed_domains`、`allowed_ports`、`require_https`、`disable_loopback` 的 URL 验证策略和`max_url_length`.</li></ul> |
+> | `api_version` | *（在 v0.3.7 中添加）* 使用LangGraph API 服务器的语义版本（例如，`"0.3"`）。默认为最新。检查服务器[changelog](https://docs.langchain.com/langsmith/agent-server-changelog.md)以获取每个版本的详细信息。 |> [标签] JS
 >
-> *`openai:text-embedding-3-large`：3072
-> *`openai:text-embedding-3-small`：1536
-> *`openai:text-embedding-ada-002`：1536
-> *`cohere:embed-english-v3.0`：1024
-> *`cohere:embed-english-light-v3.0`：384
-> *`cohere:embed-multilingual-v3.0`：1024
-> *`cohere:embed-multilingual-light-v3.0`：384
+> |关键|描述 |
+> | - | - |
+> | `graphs` | **必需的**。从图形 ID 映射到定义已编译图形或生成图形的函数的路径。示例：<ul><li>`./src/graph.ts:variable`，其中`variable`是[⟦T245⟧](https://reference.langchain.com/python/langgraph/graph/state/CompiledStateGraph)</li><li>`./src/graph.ts:makeGraph`的实例，其中`makeGraph`是采用配置字典的函数(`LangGraphRunnableConfig`) 并返回[⟦T249⟧](https://reference.langchain.com/python/langgraph/graph/state/StateGraph)或[⟦T250⟧](https://reference.langchain.com/python/langgraph/graph/state/CompiledStateGraph)的实例。更多详情请参阅[how to rebuild a graph at runtime](https://docs.langchain.com/langsmith/graph-rebuild.md)。</li></ul> |
+> | `env` | `.env` 文件的路径或从环境变量到其值的映射。 |
+> | `store` |用于向 BaseStore 添加语义搜索和/或生存时间 (TTL) 的配置。包含以下字段： <ul><li>`index`（可选）：使用字段 `embed`、`dims` 和可选字段进行语义搜索索引的配置`fields`.</li><li>`ttl`（可选）：项目过期配置。具有可选字段的对象：`refresh_on_read`（布尔值，默认为`true`），`default_ttl`（浮点型，生命周期以**分钟**为单位；仅适用于新创建的项目；现有项目不变；默认不过期）和`sweep_interval_minutes`（整数，检查过期项目的频率，默认为否扫地）。</li></ul> |
+> | `node_version` |指定`node_version: 20`以使用LangGraph.js。 |> | `dockerfile_lines` |从父映像导入后添加到 Dockerfile 的附加行数组。 |
+> | `checkpointer` |检查点的配置。支持：<ul><li>`backend`（可选）：`"default"`、`"mongo"`或`"custom"`。默认为 `"default"` (PostgreSQL)。请参阅[Configure checkpointer backend](https://docs.langchain.com/langsmith/configure-checkpointer.md)。</li><li>`path`（可选）：自定义检查点工厂的路径（当`backend`为`"custom"`时）。请参阅 [Custom checkpointer](https://docs.langchain.com/langsmith/custom-checkpointer.md)。</li><li>`ttl`（可选）：具有 `strategy`、`sweep_interval_minutes`、`default_ttl` 和 `sweep_limit`（代理服务器 v0.8+）控制检查点的对象</li><li>`serde`（可选，代理服务器 v0.5+）：具有 `allowed_json_modules` 和 `pickle_fallback` 的对象，用于调整反序列化行为。</li></ul> |
+> | `http` | HTTP 服务器配置镜像 Python 选项：<ul><li>`cors` 与 `allow_origins`、`allow_methods`、`allow_headers`、`allow_credentials`、`allow_origin_regex`、`expose_headers`、 `max_age`。</li><li>`configurable_headers` 和 `logging_headers` 模式列表。</li><li>`middleware_order`（`auth_first` 或`middleware_first`)。</li><li>`enable_custom_route_auth`加上与上面相同的布尔路由切换。</li></ul> |> | `webhooks` | *（在 v0.5.36 中添加）* 出站 Webhook 传递的配置。包含： <ul><li>`env_prefix`：标头模板中引用的环境变量所需的前缀（默认为`LG_WEBHOOK_`）。</li><li>`headers`：Webhook 请求中包含的静态标头。值可能包含类似 `${{ env.VAR }}`.</li><li>`url` 的模板：具有 `allowed_domains`、`allowed_ports`、`require_https`、`disable_loopback` 的 URL 验证策略和`max_url_length`.</li></ul> |
+> | `api_version` | *（在 v0.3.7 中添加）* 使用LangGraph API 服务器的语义版本（例如，`"0.3"`）。默认为最新。检查服务器[changelog](https://docs.langchain.com/langsmith/agent-server-changelog.md)以了解每个版本的详细信息。 |
 
-#### 使用自定义嵌入函数进行语义搜索
-
-如果您想将语义搜索与自定义嵌入函数一起使用，您可以将路径传递给自定义嵌入函数：
-
-```json theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-{
-  "dependencies": ["."],
-  "graphs": {
-    "memory_agent": "./agent/graph.py:graph"
-  },
-  "store": {
-    "index": {
-      "embed": "./embeddings.py:embed_texts",
-      "dims": 768,
-      "fields": ["text", "summary"]
-    }
-  }
-}
-```
-
-商店配置中的 `embed` 字段可以引用自定义函数，该函数接受字符串列表并返回嵌入列表。实施示例：
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-# embeddings.py
-def embed_texts(texts: list[str]) -> list[list[float]]:
-    """Custom embedding function for semantic search."""
-    # Implementation using your preferred embedding model
-    return [[0.1, 0.2, ...] for _ in texts]  # dims-dimensional vectors
-```
-
-#### 添加自定义身份验证
-
-```json theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-{
-  "$schema": "https://langgra.ph/schema.json",
-  "dependencies": ["."],
-  "graphs": {
-    "chat": "chat.graph:graph"
-  },
-  "auth": {
-    "path": "./auth.py:auth",
-    "openapi": {
-      "securitySchemes": {
-        "apiKeyAuth": {
-          "type": "apiKey",
-          "in": "header",
-          "name": "X-API-Key"
-        }
-      },
-      "security": [{ "apiKeyAuth": [] }]
-    },
-    "disable_studio_auth": false,
-    "allow_langsmith_api_keys": false
-  }
-}
-```
-
-有关详细信息，请参阅 [authentication conceptual guide](https://docs.langchain.com/langsmith/auth.md)，有关该过程的实际演练，请参阅 [setting up custom authentication](https://docs.langchain.com/langsmith/set-up-custom-auth.md) 指南。
-
-#### 配置商店商品的生存时间
-
-您可以使用 `store.ttl` 键为 BaseStore 中的项目/内存配置默认数据过期时间。这决定了项目在上次访问后保留的时间（读取可能会根据`refresh_on_read`刷新计时器）。请注意，可以通过修改 `get`、`search` 等中的相应参数来覆盖每次调用的默认值。
-
-`ttl` 配置是一个包含可选字段的对象：* `refresh_on_read`：如果`true`（默认），通过`get`或`search`访问项目会重置其过期计时器。设置为 `false` 仅在写入时刷新 TTL (`put`)。
-* `default_ttl`：项目的默认寿命（以**分钟**为单位）。仅适用于新创建的项目；现有项目不会被修改。如果未设置，则默认情况下项目不会过期。
-* `sweep_interval_minutes`：系统应运行后台进程来删除过期项目的频率（以分钟为单位）。如果未设置，则不会自动进行扫描。
-
-以下是启用 7 天 TTL（10080 分钟）、读取刷新并每小时扫描的示例：
-
-```json theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-{
-  "$schema": "https://langgra.ph/schema.json",
-  "dependencies": ["."],
-  "graphs": {
-    "memory_agent": "./agent/graph.py:graph"
-  },
-  "store": {
-    "ttl": {
-      "refresh_on_read": true,
-      "sweep_interval_minutes": 60,
-      "default_ttl": 10080
-    }
-  }
-}
-```
-
-#### 配置检查点生存时间
-
-您可以使用 `checkpointer` 键配置检查点的生存时间 (TTL)。这决定了检查点数据在根据指定策略（例如删除）自动处理之前保留多长时间。支持两个可选的子对象：
-
-* `ttl`：包括`strategy`、`sweep_interval_minutes`、`default_ttl`和`sweep_limit`（代理服务器 v0.8+），它们共同设置检查点的过期方式。
-* `serde` *(代理服务器 v0.5+)* ：允许您控制检查点有效负载的反序列化行为。
-
-以下是将默认 TTL 设置为 30 天（43200 分钟）的示例：```json theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-{
-  "$schema": "https://langgra.ph/schema.json",
-  "dependencies": ["."],
-  "graphs": {
-    "chat": "chat.graph:graph"
-  },
-  "checkpointer": {
-    "ttl": {
-      "strategy": "delete",
-      "sweep_interval_minutes": 10,
-      "default_ttl": 43200
-    }
-  }
-}
-```
-
-在此示例中，超过 30 天的检查点将被删除，并且检查每 10 分钟运行一次。
-
-#### 配置检查点 serde
-
-`checkpointer.serde`对象形状反序列化：
-
-* `allowed_json_modules` 定义自定义 Python 对象的允许列表，您希望服务器能够从以“json”模式保存的有效负载进行反序列化。这是`[path, to, module, file, symbol]`序列的列表。如果省略，则仅允许使用LangChain安全默认值。您可以不安全地设置为 `true` 以允许任何模块被反序列化。
-* `pickle_fallback`：JSON解码失败时是否回退到pickle反序列化。
-
-```json theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-{
-  "checkpointer": {
-    "serde": {
-      "allowed_json_modules": [
-        ["my_agent", "auth", "SessionState"]
-      ]
-    }
-  }
-}
-```
-
-#### 自定义 HTTP 中间件和标头
-
-`http` 块可让您微调请求处理：
-
-* `middleware_order`：选择 `"auth_first"` 在中间件之前运行身份验证，或选择 `"middleware_first"`（默认）来反转该顺序。
-* `enable_custom_route_auth`：将身份验证扩展到通过`http.app`挂载的路由。
-* `configurable_headers` / `logging_headers`：每个都接受一个带有可选 `includes` 和 `excludes` 数组的对象；支持通配符，并且排除在包含之前运行。
-* `cors`：自定义服务器的 CORS（跨域资源共享）配置。用于配置 CORS 的示例 `langgraph.json` 文件：
-
-  ```json theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-  {
-    ...
-    "http": {
-      "cors": {
-        "allow_origins": ["https://example.com", "https://app.example.com"],
-        "allow_methods": ["GET", "POST"],
-        "allow_headers": ["Authorization", "Content-Type"],
-        "allow_credentials": true,
-        "allow_origin_regex": "^https://.*\\.example\\.com$",
-        "expose_headers": ["x-pagination-total", "x-pagination-next", "x-request-id"],
-        "max_age": 600
-      }
-    },
-    ...
-  }
-  ```> [!注意]
-  >
-  > 自定义服务器的 CORS 配置将覆盖设置 [⟦T383⟧ environment variable](https://docs.langchain.com/langsmith/env-var-cloud) 的功能。
-
-#### 配置网络钩子
-
-您可以为出站 Webhook 请求配置自定义标头和 URL 限制：
-
-```json theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-{
-  "$schema": "https://langgra.ph/schema.json",
-  "dependencies": ["."],
-  "graphs": {
-    "chat": "chat.graph:graph"
-  },
-  "webhooks": {
-    "headers": {
-      "Authorization": "Bearer ${{ env.LG_WEBHOOK_TOKEN }}"
-    },
-    "url": {
-      "allowed_domains": ["*.mycompany.com"],
-      "require_https": true
-    }
-  }
-}
-```
-
-有关标头配置、环境变量模板和 URL 限制的详细信息，请参阅 [Use webhooks](https://docs.langchain.com/langsmith/use-webhooks.md#add-headers-to-webhook-requests)。
-
-#### 固定 API 版本
-
-*（在 v0.3.7 中添加）*
-
-您可以使用 `api_version` 键固定代理服务器的 API 版本。如果您想确保您的服务器使用特定版本的 API，这非常有用。
-默认情况下，云部署中的构建使用服务器的最新稳定版本。这可以通过将 `api_version` 键设置为特定版本来固定。
-
-```json theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-{
-  "$schema": "https://langgra.ph/schema.json",
-  "dependencies": ["."],
-  "graphs": {
-    "chat": "chat.graph:graph"
-  },
-  "api_version": "0.2"
-}
-```
-
-#### 禁用内置路由
-
-您可以使用 `http` 配置块中的布尔标志有选择地禁用内置 HTTP 路由组。这对于您想要最小化服务器暴露表面积的生产部署非常有用。
-
-例如，要禁用系统信息和文档路由：
-
-```json theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-{
-  "$schema": "https://langgra.ph/schema.json",
-  "dependencies": ["."],
-  "graphs": {
-    "chat": "chat.graph:graph"
-  },
-  "http": {
-    "disable_meta": true
-  }
-}
-```
-
-将 `disable_meta` 设置为 `true` 会禁用以下路由：* `/` — 根健康检查
-* `/info` — 服务器版本和配置信息
-* `/metrics` — Prometheus 和 JSON 指标
-* `/docs` — API 文档 UI
-* `/openapi.json` — OpenAPI 规范
-
-即使设置了 `disable_meta`，`/ok` 运行状况检查端点仍然可用，因此 Kubernetes 等编排器仍然可以执行活性和就绪性探测。
-
-其他路由禁用标志包括 `disable_assistants`、`disable_runs`、`disable_threads`、`disable_store` 和 `disable_ui`​​。对于 MCP、A2A 和 webhook，请参阅各自的指南：[Disable MCP](https://docs.langchain.com/langsmith/server-mcp.md#disable-mcp)、[Disable A2A](https://docs.langchain.com/langsmith/server-a2a.md#disable-a2a)、[Disable webhooks](https://docs.langchain.com/langsmith/use-webhooks.md#disable-webhooks)。
-
-**JS**
-
-#### 基本配置
-
-```json theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-{
-  "$schema": "https://langgra.ph/schema.json",
-  "graphs": {
-    "chat": "./src/graph.ts:graph"
-  }
-}
-```
-
-#### 固定 API 版本
-
-*（在 v0.3.7 中添加）*
-
-您可以使用 `api_version` 键固定代理服务器的 API 版本。如果您想确保您的服务器使用特定版本的 API，这非常有用。
-默认情况下，云部署中的构建使用服务器的最新稳定版本。这可以通过将 `api_version` 键设置为特定版本来固定。
-
-```json theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-{
-  "$schema": "https://langgra.ph/schema.json",
-  "dependencies": ["."],
-  "graphs": {
-    "chat": "./src/chat/graph.ts:graph"
-  },
-  "api_version": "0.2"
-}
-```
-
-#### 禁用内置路由
-
-您可以使用 `http` 配置块中的布尔标志有选择地禁用内置 HTTP 路由组。这对于您想要最小化服务器暴露表面积的生产部署非常有用。例如，要禁用系统信息和文档路由：
-
-```json theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-{
-  "$schema": "https://langgra.ph/schema.json",
-  "graphs": {
-    "chat": "./src/chat/graph.ts:graph"
-  },
-  "http": {
-    "disable_meta": true
-  }
-}
-```
-
-将 `disable_meta` 设置为 `true` 会禁用以下路由：
-
-* `/` — 根健康检查
-* `/info` — 服务器版本和配置信息
-* `/metrics` — Prometheus 和 JSON 指标
-* `/docs` — API 文档 UI
-* `/openapi.json` — OpenAPI 规范
-
-即使设置了 `disable_meta`，`/ok` 运行状况检查端点仍然可用，因此 Kubernetes 等编排器仍然可以执行活性和就绪性探测。
-
-其他路由禁用标志包括 `disable_assistants`、`disable_runs`、`disable_threads`、`disable_store` 和 `disable_ui`。对于 MCP、A2A 和 webhook，请参阅各自的指南：[Disable MCP](https://docs.langchain.com/langsmith/server-mcp.md#disable-mcp)、[Disable A2A](https://docs.langchain.com/langsmith/server-a2a.md#disable-a2a)、[Disable webhooks](https://docs.langchain.com/langsmith/use-webhooks.md#disable-webhooks)。
+### 示例> [选项卡] Python
+>
+> #### 基本配置
+>
+> ```json theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> {
+>   "$schema": "https://langgra.ph/schema.json",
+>   "dependencies": ["."],
+>   "graphs": {
+>     "chat": "chat.graph:graph"
+>   }
+> }
+> ```
+>
+> #### 从 uv 锁定文件安装
+>
+> 当项目已有 `uv.lock` 时，将 `source.kind` 设置为 `"uv"`，以便映像构建安装锁定版本。在此模式下省略`dependencies`。 CLI 使用 `uv export --frozen` 导出需求并将其安装到映像中。
+>
+> **单包项目**（`pyproject.toml` 和 `uv.lock` 位于 `langgraph.json` 旁边）：
+>
+> ```json theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> {
+>   "$schema": "https://langgra.ph/schema.json",
+>   "python_version": "3.12",
+>   "graphs": {
+>     "chat": "./src/agent/graph.py:graph"
+>   },
+>   "source": {
+>     "kind": "uv"
+>   }
+> }
+> ```
+>
+> **uv 工作区**（成员内的`langgraph.json`；工作区根目录下的锁定文件）：
+>
+> ```json theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> {
+>   "$schema": "https://langgra.ph/schema.json",
+>   "python_version": "3.12",
+>   "graphs": {
+>     "chat": "./src/agent/graph.py:graph"
+>   },
+>   "source": {
+>     "kind": "uv",
+>     "root": "../..",
+>     "package": "agent"
+>   }
+> }
+> ```
+>
+> 如果没有 `source`，`"dependencies": ["."]` 构建会在映像构建时重新解析来自 `pyproject.toml` 的包，并且不使用 `uv.lock`。当锁定文件可重复性很重要时，将版本固定在`pyproject.toml`或使用`source.kind: "uv"`。
+>
+> #### 使用 Wolfi 基础镜像
+>
+> 您可以使用 `image_distro` 字段指定基础映像的 Linux 发行版。有效选项为 `debian`、`wolfi`、`bookworm` 或 `bullseye`。 Wolfi 是推荐的选项，因为它提供更小、更安全的图像。这在 `langgraph-cli>=0.2.11` 中可用。
+>
+> ```json theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> {
+>   "$schema": "https://langgra.ph/schema.json",
+>   "dependencies": ["."],
+>   "graphs": {
+>     "chat": "chat.graph:graph"
+>   },
+>   "image_distro": "wolfi"
+> }
+> ```
+>
+> #### 向商店添加语义搜索
+>
+> 所有部署都带有数据库支持的 BaseStore。向 `langgraph.json` 添加“索引”配置将在部署的 BaseStore 中启用 [semantic search](https://docs.langchain.com/langsmith/semantic-search.md)。
+>> `index.fields` 配置决定要嵌入文档的哪些部分：
+>
+> * 如果省略或设置为`["$"]`，则将嵌入整个文档
+> * 要嵌入特定字段，请使用 JSON 路径表示法：`["metadata.title", "content.text"]`
+> * 缺少指定字段的文档仍将被存储，但不会嵌入这些字段
+> * 您仍然可以使用 `index` 参数覆盖在 `put` 时间嵌入特定项目的字段
+>
+> ```json theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> {
+>   "dependencies": ["."],
+>   "graphs": {
+>     "memory_agent": "./agent/graph.py:graph"
+>   },
+>   "store": {
+>     "index": {
+>       "embed": "openai:text-embedding-3-small",
+>       "dims": 1536,
+>       "fields": ["$"]
+>     }
+>   }
+> }
+> ```
+>
+>> [!注意]
+>>
+>> **常用型号尺寸**
+>>
+>> * `openai:text-embedding-3-large`: 3072
+>> * `openai:text-embedding-3-small`: 1536
+>> * `openai:text-embedding-ada-002`: 1536
+>> * `cohere:embed-english-v3.0`: 1024
+>> * `cohere:embed-english-light-v3.0`: 384
+>> * `cohere:embed-multilingual-v3.0`: 1024
+>> *`cohere:embed-multilingual-light-v3.0`：384
+>
+> #### 使用自定义嵌入函数进行语义搜索
+>
+> 如果您想将语义搜索与自定义嵌入函数一起使用，您可以将路径传递给自定义嵌入函数：
+>
+> ```json theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> {
+>   "dependencies": ["."],
+>   "graphs": {
+>     "memory_agent": "./agent/graph.py:graph"
+>   },
+>   "store": {
+>     "index": {
+>       "embed": "./embeddings.py:embed_texts",
+>       "dims": 768,
+>       "fields": ["text", "summary"]
+>     }
+>   }
+> }
+> ```
+>
+> 商店配置中的 `embed` 字段可以引用自定义函数，该函数接受字符串列表并返回嵌入列表。实施示例：
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> # embeddings.py
+> def embed_texts(texts: list[str]) -> list[list[float]]:
+>     """Custom embedding function for semantic search."""
+>     # Implementation using your preferred embedding model
+>     return [[0.1, 0.2, ...] for _ in texts]  # dims-dimensional vectors
+> ```
+>
+> #### 添加自定义身份验证
+>
+> ```json theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> {
+>   "$schema": "https://langgra.ph/schema.json",
+>   "dependencies": ["."],
+>   "graphs": {
+>     "chat": "chat.graph:graph"
+>   },
+>   "auth": {
+>     "path": "./auth.py:auth",
+>     "openapi": {
+>       "securitySchemes": {
+>         "apiKeyAuth": {
+>           "type": "apiKey",
+>           "in": "header",
+>           "name": "X-API-Key"
+>         }
+>       },
+>       "security": [{ "apiKeyAuth": [] }]
+>     },
+>     "disable_studio_auth": false,
+>     "allow_langsmith_api_keys": false
+>   }
+> }
+> ```
+>
+> 请参阅 [authentication conceptual guide](https://docs.langchain.com/langsmith/auth.md) 了解详细信息，并参阅 [setting up custom authentication](https://docs.langchain.com/langsmith/set-up-custom-auth.md) 指南了解该过程的实际演练。
+>
+> #### 配置商店商品生存时间
+>> 您可以使用 `store.ttl` 键为 BaseStore 中的项目/内存配置默认数据过期时间。这决定了项目在上次访问后保留的时间（读取可能会根据`refresh_on_read`刷新计时器）。请注意，可以通过修改 `get`、`search` 等中的相应参数来覆盖每次调用的默认值。
+>
+> `ttl` 配置是一个包含可选字段的对象：
+>
+> * `refresh_on_read`：如果`true`（默认），通过 `get` 或 `search` 访问项目会重置其过期计时器。设置为 `false` 仅在写入时刷新 TTL (`put`)。
+> * `default_ttl`：项目的默认寿命（以**分钟**为单位）。仅适用于新创建的项目；现有项目不会被修改。如果未设置，则默认情况下项目不会过期。
+> * `sweep_interval_minutes`：系统应运行后台进程来删除过期项目的频率（以分钟为单位）。如果未设置，则不会自动进行扫描。
+>
+> 下面是一个启用 7 天 TTL（10080 分钟）、读取刷新并每小时扫描的示例：
+>
+> ```json theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> {
+>   "$schema": "https://langgra.ph/schema.json",
+>   "dependencies": ["."],
+>   "graphs": {
+>     "memory_agent": "./agent/graph.py:graph"
+>   },
+>   "store": {
+>     "ttl": {
+>       "refresh_on_read": true,
+>       "sweep_interval_minutes": 60,
+>       "default_ttl": 10080
+>     }
+>   }
+> }
+> ```
+>
+> #### 配置检查点生存时间
+>> 您可以使用 `checkpointer` 键配置检查点的生存时间 (TTL)。这决定了检查点数据在根据指定策略（例如删除）自动处理之前保留多长时间。支持两个可选的子对象：
+>
+> * `ttl`：包括 `strategy`、`sweep_interval_minutes`、`default_ttl` 和 `sweep_limit`（代理服务器 v0.8+），它们共同设置检查点的过期方式。
+> * `serde` *(代理服务器 v0.5+)* ：允许您控制检查点有效负载的反序列化行为。
+>
+> 以下是将默认 TTL 设置为 30 天（43200 分钟）的示例：
+>
+> ```json theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> {
+>   "$schema": "https://langgra.ph/schema.json",
+>   "dependencies": ["."],
+>   "graphs": {
+>     "chat": "chat.graph:graph"
+>   },
+>   "checkpointer": {
+>     "ttl": {
+>       "strategy": "delete",
+>       "sweep_interval_minutes": 10,
+>       "default_ttl": 43200
+>     }
+>   }
+> }
+> ```
+>
+> 在此示例中，超过 30 天的检查点将被删除，并且检查每 10 分钟运行一次。
+>
+> #### 配置检查点 serde
+>
+> `checkpointer.serde` 对象形状反序列化：
+>
+> * `allowed_json_modules` 定义自定义 Python 对象的允许列表，您希望服务器能够从以“json”模式保存的有效负载进行反序列化。这是`[path, to, module, file, symbol]`序列的列表。如果省略，则仅允许使用LangChain安全默认值。您可以不安全地设置为 `true` 以允许任何模块被反序列化。
+> * `pickle_fallback`：当 JSON 解码失败时是否回退到 pickle 反序列化。
+>
+> ```json theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> {
+>   "checkpointer": {
+>     "serde": {
+>       "allowed_json_modules": [
+>         ["my_agent", "auth", "SessionState"]
+>       ]
+>     }
+>   }
+> }
+> ```
+>> #### 自定义 HTTP 中间件和标头
+>
+> `http` 块可让您微调请求处理：
+>
+> * `middleware_order`：选择 `"auth_first"` 在中间件之前运行身份验证，或选择 `"middleware_first"`（默认）来反转该顺序。
+> * `enable_custom_route_auth`：将身份验证扩展到通过 `http.app` 挂载的路由。
+> * `configurable_headers` / `logging_headers`：每个都接受一个带有可选 `includes` 和 `excludes` 数组的对象；支持通配符，并且排除在包含之前运行。
+> * `cors`：自定义服务器的 CORS（跨源资源共享）配置。用于配置 CORS 的示例 `langgraph.json` 文件：
+>
+> ```json theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+>   {
+>     ...
+>     "http": {
+>       "cors": {
+>         "allow_origins": ["https://example.com", "https://app.example.com"],
+>         "allow_methods": ["GET", "POST"],
+>         "allow_headers": ["Authorization", "Content-Type"],
+>         "allow_credentials": true,
+>         "allow_origin_regex": "^https://.*\\.example\\.com$",
+>         "expose_headers": ["x-pagination-total", "x-pagination-next", "x-request-id"],
+>         "max_age": 600
+>       }
+>     },
+>     ...
+>   }
+>   ```
+>
+>> [!注意]
+>>
+>> 自定义服务器的 CORS 配置将覆盖设置[⟦T383⟧ environment variable](https://docs.langchain.com/langsmith/env-var-cloud) 的功能。
+>
+> #### 配置 webhook
+>
+> 您可以为出站 Webhook 请求配置自定义标头和 URL 限制：
+>
+> ```json theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> {
+>   "$schema": "https://langgra.ph/schema.json",
+>   "dependencies": ["."],
+>   "graphs": {
+>     "chat": "chat.graph:graph"
+>   },
+>   "webhooks": {
+>     "headers": {
+>       "Authorization": "Bearer ${{ env.LG_WEBHOOK_TOKEN }}"
+>     },
+>     "url": {
+>       "allowed_domains": ["*.mycompany.com"],
+>       "require_https": true
+>     }
+>   }
+> }
+> ```
+>
+> 有关标头配置、环境变量模板和 URL 限制的详细信息，请参阅 [Use webhooks](https://docs.langchain.com/langsmith/use-webhooks.md#add-headers-to-webhook-requests)。
+>
+> #### 固定 API 版本
+>
+> *（在 v0.3.7 中添加）*
+>
+> 您可以使用 `api_version` 键固定代理服务器的 API 版本。如果您想确保您的服务器使用特定版本的 API，这非常有用。> 默认情况下，云部署中的构建使用服务器的最新稳定版本。这可以通过将 `api_version` 键设置为特定版本来固定。
+>
+> ```json theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> {
+>   "$schema": "https://langgra.ph/schema.json",
+>   "dependencies": ["."],
+>   "graphs": {
+>     "chat": "chat.graph:graph"
+>   },
+>   "api_version": "0.2"
+> }
+> ```
+>
+> #### 禁用内置路由
+>
+> 您可以使用 `http` 配置块中的布尔标志有选择地禁用内置 HTTP 路由组。这对于您想要最小化服务器暴露表面积的生产部署非常有用。
+>
+> 例如，要禁用系统信息和文档路由：
+>
+> ```json theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> {
+>   "$schema": "https://langgra.ph/schema.json",
+>   "dependencies": ["."],
+>   "graphs": {
+>     "chat": "chat.graph:graph"
+>   },
+>   "http": {
+>     "disable_meta": true
+>   }
+> }
+> ```
+>
+> 将 `disable_meta` 设置为 `true` 会禁用以下路由：
+>
+> * `/` — 根健康检查
+> * `/info` — 服务器版本和配置信息
+> * `/metrics` — Prometheus 和 JSON 指标
+> * `/docs` — API 文档 UI
+> * `/openapi.json` — OpenAPI 规范
+>
+> 即使设置了 `disable_meta`，`/ok` 健康检查端点仍然可用，因此像 Kubernetes 这样的编排器仍然可以执行活性和就绪性探测。
+>
+> 其他路由禁用标志包括 `disable_assistants`、`disable_runs`、`disable_threads`、`disable_store` 和 `disable_ui`。对于 MCP、A2A 和 webhook，请参阅各自的指南：[Disable MCP](https://docs.langchain.com/langsmith/server-mcp.md#disable-mcp)、[Disable A2A](https://docs.langchain.com/langsmith/server-a2a.md#disable-a2a)、[Disable webhooks](https://docs.langchain.com/langsmith/use-webhooks.md#disable-webhooks)。> [标签] JS
+>
+> #### 基本配置
+>
+> ```json theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> {
+>   "$schema": "https://langgra.ph/schema.json",
+>   "graphs": {
+>     "chat": "./src/graph.ts:graph"
+>   }
+> }
+> ```
+>
+> #### 固定 API 版本
+>
+> *（在 v0.3.7 中添加）*
+>
+> 您可以使用 `api_version` 键固定代理服务器的 API 版本。如果您想确保您的服务器使用特定版本的 API，这非常有用。
+> 默认情况下，云部署中的构建使用服务器的最新稳定版本。这可以通过将 `api_version` 键设置为特定版本来固定。
+>
+> ```json theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> {
+>   "$schema": "https://langgra.ph/schema.json",
+>   "dependencies": ["."],
+>   "graphs": {
+>     "chat": "./src/chat/graph.ts:graph"
+>   },
+>   "api_version": "0.2"
+> }
+> ```
+>
+> #### 禁用内置路由
+>
+> 您可以使用 `http` 配置块中的布尔标志有选择地禁用内置 HTTP 路由组。这对于您想要最小化服务器暴露表面积的生产部署非常有用。
+>
+> 例如，要禁用系统信息和文档路由：
+>
+> ```json theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> {
+>   "$schema": "https://langgra.ph/schema.json",
+>   "graphs": {
+>     "chat": "./src/chat/graph.ts:graph"
+>   },
+>   "http": {
+>     "disable_meta": true
+>   }
+> }
+> ```
+>
+> 将 `disable_meta` 设置为 `true` 会禁用以下路由：
+>
+> * `/` — 根健康检查
+> * `/info` — 服务器版本和配置信息
+> * `/metrics` — Prometheus 和 JSON 指标
+> * `/docs` — API 文档 UI
+> * `/openapi.json` — OpenAPI 规范
+>
+> 即使设置了 `disable_meta`，`/ok` 运行状况检查端点仍然可用，因此 Kubernetes 等编排器仍然可以执行活性和就绪性探测。
+>> 其他路由禁用标志包括 `disable_assistants`、`disable_runs`、`disable_threads`、`disable_store` 和 `disable_ui`。对于 MCP、A2A 和 webhook，请参阅各自的指南：[Disable MCP](https://docs.langchain.com/langsmith/server-mcp.md#disable-mcp)、[Disable A2A](https://docs.langchain.com/langsmith/server-a2a.md#disable-a2a)、[Disable webhooks](https://docs.langchain.com/langsmith/use-webhooks.md#disable-webhooks)。
 
 ## 命令
 
 **使用**
 
-**Python**
+> [选项卡] Python
+>
+> LangGraph CLI 的基本命令是 `langgraph`。
+>
+> ```
+> langgraph [OPTIONS] COMMAND [ARGS]
+> ```
 
-LangGraph CLI 的基本命令是 `langgraph`。
-
-```
-langgraph [OPTIONS] COMMAND [ARGS]
-```
-
-**JS**
-
-LangGraph.js CLI 的基本命令是 `langgraphjs`。
-
-```
-npx @langchain/langgraph-cli [OPTIONS] COMMAND [ARGS]
-```
-
-我们建议使用 `npx` 来始终使用最新版本的 CLI。
+> [标签] JS
+>
+> LangGraph.js CLI 的基本命令是 `langgraphjs`。
+>
+> ```
+> npx @langchain/langgraph-cli [OPTIONS] COMMAND [ARGS]
+> ```
+>
+> 我们建议使用 `npx` 始终使用最新版本的 CLI。
 
 ### `dev`
 
-**Python**
-
-在开发模式下运行LangGraph API服务器，具有热重载和调试功能。这种轻量级服务器不需要安装 Docker，适合开发和测试。状态保存到本地目录。
-
-> [!注意]
+> [选项卡] Python
 >
-> 目前CLI仅支持Python 3.11及以上版本> [!提示]
+> 以开发模式运行LangGraph API 服务器，具有热重载和调试功能。这种轻量级服务器不需要安装 Docker，适合开发和测试。状态保存到本地目录。
 >
-> 如果您需要了解何时使用 `langgraph dev` 与 `langgraph up` 的更多信息，请参阅 [Local development & testing guide](https://docs.langchain.com/langsmith/local-dev-testing.md) 进行详细比较。
-
-**安装**
-
-此命令需要安装额外的“inmem”：
-
-```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-pip install -U "langgraph-cli[inmem]"
-```
-
-**使用**
-
-```
-langgraph dev [OPTIONS]
-```
-
-**选项**
-
-|选项 |默认 |描述 |
-| - | - | - |
-| `-c, --config FILE` | `langgraph.json` |声明依赖项、图形和环境变量的配置文件路径 |
-| `--host TEXT` | `127.0.0.1` |将服务器绑定到的主机 |
-| `--port INTEGER` | `2024` |将服务器绑定到的端口 |
-| `--no-reload` | |禁用自动重新加载 |
-| `--n-jobs-per-worker INTEGER` | `1` |每个工人的最大并发作业数 |
-| `--debug-port INTEGER` | |调试器监听的端口 |
-| `--wait-for-client` | `False` |在启动服务器之前等待调试器客户端连接到调试端口 |
-| `--no-browser` | |跳过服务器启动时自动打开浏览器 |
-| `--studio-url TEXT` | |要连接的 Studio 实例的 URL。默认为 [https://smith.langchain.com](https://smith.langchain.com) |
-| `--allow-blocking` | `False` |不要在代码中引发同步 I/O 阻塞操作的错误（在 `0.2.6` 中添加）|| `--tunnel` | `False` |通过公共隧道 (Cloudflare) 公开本地服务器以进行远程前端访问。这可以避免 Safari 等浏览器或网络阻止本地主机连接出现问题 |
-| `--help` | |显示命令文档 |
-
-**JS**
-
-以开发模式运行LangGraph API 服务器，具有热重载功能。这种轻量级服务器不需要安装 Docker，适合开发和测试。状态保存到本地目录。
-
-**使用**
-
-```
-npx @langchain/langgraph-cli dev [OPTIONS]
-```
-
-**选项**|选项 |默认 |描述 |
-| - | - | - |
-| `-c, --config FILE` | `langgraph.json` |声明依赖项、图形和环境变量的配置文件路径 |
-| `--host TEXT` | `127.0.0.1` |将服务器绑定到的主机 |
-| `--port INTEGER` | `2024` |将服务器绑定到的端口 |
-| `--no-reload` | |禁用自动重新加载 |
-| `--n-jobs-per-worker INTEGER` | |每个工人的工作数量。默认值为 10 |
-| `--debug-port INTEGER` | |调试器监听的端口 |
-| `--wait-for-client` | `False` |在启动服务器之前等待调试器客户端连接到调试端口 |
-| `--no-browser` | |跳过服务器启动时自动打开浏览器 |
-| `--studio-url TEXT` | |要连接的 Studio 实例的 URL。默认为 [https://smith.langchain.com](https://smith.langchain.com) |
-| `--allow-blocking` | `False` |不要在代码中引发同步 I/O 阻塞操作的错误 |
-| `--tunnel` | `False` |通过公共隧道 (Cloudflare) 公开本地服务器以进行远程前端访问。这可以避免浏览器或网络阻止本地主机连接的问题 |
-| `--help` | |显示命令文档 |
+>> [!注意]
+>>
+>> 目前CLI仅支持Python 3.11及以上版本
+>
+>> [!提示]
+>>
+>> 如果您需要更多关于何时使用`langgraph dev` vs `langgraph up`的信息，请参阅[Local development & testing guide](https://docs.langchain.com/langsmith/local-dev-testing.md)进行详细比较。
+>
+> **安装**
+>
+> 此命令需要安装额外的“inmem”：
+>
+> ```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> pip install -U "langgraph-cli[inmem]"
+> ```
+>
+> **使用**
+>
+> ```
+> langgraph dev [OPTIONS]
+> ```
+>
+> **选项**
+>
+> |选项 |默认 |描述 |
+> | - | - | - |
+> | `-c, --config FILE` | `langgraph.json` |声明依赖项、图形和环境变量的配置文件路径 |> | `--host TEXT` | `127.0.0.1` |将服务器绑定到的主机 |
+> | `--port INTEGER` | `2024` |将服务器绑定到的端口 |
+> | `--no-reload` | |禁用自动重新加载 |
+> | `--n-jobs-per-worker INTEGER` | `1` |每个工人的最大并发作业数 |
+> | `--debug-port INTEGER` | |调试器监听的端口 |
+> | `--wait-for-client` | `False` |在启动服务器之前等待调试器客户端连接到调试端口 |
+> | `--no-browser` | |跳过服务器启动时自动打开浏览器 |
+> | `--studio-url TEXT` | |要连接的 Studio 实例的 URL。默认为 [https://smith.langchain.com](https://smith.langchain.com) |
+> | `--allow-blocking` | `False` |不要在代码中引发同步 I/O 阻塞操作的错误（在 `0.2.6` 中添加）|
+> | `--tunnel` | `False` |通过公共隧道 (Cloudflare) 公开本地服务器以进行远程前端访问。这可以避免 Safari 等浏览器或网络阻止本地主机连接出现问题 |
+> | `--help` | |显示命令文档 |> [标签] JS
+>
+> 以开发模式运行LangGraph API 服务器，并具有热重载功能。这种轻量级服务器不需要安装 Docker，适合开发和测试。状态保存到本地目录。
+>
+> **使用**
+>
+> ```
+> npx @langchain/langgraph-cli dev [OPTIONS]
+> ```
+>
+> **选项**
+>
+> |选项 |默认 |描述 |
+> | - | - | - |
+> | `-c, --config FILE` | `langgraph.json` |声明依赖项、图形和环境变量的配置文件路径 |
+> | `--host TEXT` | `127.0.0.1` |将服务器绑定到的主机 |
+> | `--port INTEGER` | `2024` |将服务器绑定到的端口 |
+> | `--no-reload` | |禁用自动重新加载 |
+> | `--n-jobs-per-worker INTEGER` | |每个工人的工作数量。默认值为 10 |
+> | `--debug-port INTEGER` | |调试器监听的端口 |
+> | `--wait-for-client` | `False` |在启动服务器之前等待调试器客户端连接到调试端口 |
+> | `--no-browser` | |跳过服务器启动时自动打开浏览器 |
+> | `--studio-url TEXT` | |要连接的 Studio 实例的 URL。默认为 [https://smith.langchain.com](https://smith.langchain.com) |
+> | `--allow-blocking` | `False` |不要在代码中引发同步 I/O 阻塞操作的错误 |> | `--tunnel` | `False` |通过公共隧道 (Cloudflare) 公开本地服务器以进行远程前端访问。这可以避免浏览器或网络阻止本地主机连接的问题 |
+> | `--help` | |显示命令文档 |
 
 ### `build`
 
-**Python**
-
-构建 LangSmith API 服务器 Docker 镜像。
-
-**使用**
-
-```
-langgraph build [OPTIONS]
-```
-
-**选项**|选项 |默认 |描述 |
-| - | - | - |
-| `--platform TEXT` | |要为其构建 Docker 映像的目标平台。示例：`langgraph build --platform linux/amd64,linux/arm64` |
-| `-t, --tag TEXT` | | **必需的**。 Docker 镜像的标签。示例：`langgraph build -t my-image` |
-| `--pull / --no-pull` | `--pull` |使用最新的远程 Docker 镜像进行构建。使用 `--no-pull` 运行带有本地构建的镜像的 LangSmith API 服务器。 |
-| `-c, --config FILE` | `langgraph.json` |声明依赖项、图表和环境变量的配置文件的路径。 |
-| `--build-command TEXT`<sup>\*</sup> | |构建要运行的命令。从 `langgraph.json` 文件所在的目录运行。示例：`langgraph build --build-command "yarn run turbo build"` |
-| `--install-command TEXT`<sup>\*</sup> | |安装命令运行。从您调用 `langgraph build` 的目录运行。示例：`langgraph build --install-command "yarn install"` |
-| `--help` | |显示命令文档。 |
-
-<sup>\*</sup>仅支持 JS 部署，对 Python 部署没有影响。
-
-**JS**
-
-构建 LangSmith API 服务器 Docker 镜像。
-
-**使用**
-
-```
-npx @langchain/langgraph-cli build [OPTIONS]
-```
-
-**选项**|选项 |默认 |描述 |
-| - | - | - |
-| `--platform TEXT` | |要为其构建 Docker 映像的目标平台。示例：`langgraph build --platform linux/amd64,linux/arm64` |
-| `-t, --tag TEXT` | | **必需的**。 Docker 镜像的标签。示例：`langgraph build -t my-image` |
-| `--no-pull` | |使用本地构建的图像。默认为 `false` 使用最新的远程 Docker 镜像进行构建。 |
-| `-c, --config FILE` | `langgraph.json` |声明依赖项、图表和环境变量的配置文件的路径。 |
-| `--help` | |显示命令文档。 |
-
-### `deploy`
-
-**Python**
-
-> [!注意]
+> [选项卡] Python
 >
-> 该命令位于 [beta](https://docs.langchain.com/langsmith/release-stages.md) 中并正在积极开发中。期待频繁的更新和改进。在 AWS 中的 LangSmith 云 (SaaS) 上，本地构建需要 `langgraph-cli` 0.4.35 或更高版本。
-
-构建LangGraph镜像并将其直接部署到[LangSmith Deployments](https://docs.langchain.com/langsmith/deployment.md)。此命令在本地构建 Docker 映像，将其推送到托管注册表，并创建或更新部署 - 所有这些都只需一步即可完成。如果未安装 Docker，则会触发远程构建。
-
-**先决条件**
-
-* 可以访问部署的[**LangSmith API key**](https://docs.langchain.com/langsmith/create-account-api-key.md)。
-*（可选）必须安装 **Docker** 并且必须运行 Docker 守护进程以进行本地构建。远程构建不需要。 [Install Docker Desktop](https://docs.docker.com/get-docker/)。> [!注意]
+> 构建 LangSmith API 服务器 Docker 镜像。
 >
-> 在 LangSmith 云上，CLI 推送到托管注册表。自托管 LangSmith 以及通过您自己的集群中的 [listener](https://docs.langchain.com/langsmith/control-plane.md#listeners) 部署的云工作区，推送到​​您使用 `--push-to` 管理的注册表。参见[Deploy from a registry you manage](#deploy-from-a-registry-you-manage)。
-
-**使用**
-
-```
-langgraph deploy [OPTIONS] [DOCKER_BUILD_ARGS]
-```
-
-此命令还接受所有 [⟦T491⟧](#build) 标志（`--platform`、`-t`、`--pull`、`--no-pull`、`-c`）。详情请参阅`langgraph build --help`。
-
-**选项**
-
-|选项 |默认 |描述 |
-| - | - | - |
-| `--api-key TEXT` | | LangSmith 部署的 API 密钥。也可以通过 `LANGGRAPH_HOST_API_KEY`、`LANGSMITH_API_KEY` 或 `LANGCHAIN_API_KEY` 环境变量或 `.env` 文件进行设置。 |
-| `--name TEXT` |当前目录名称 |部署名称。也可以通过 `LANGSMITH_DEPLOYMENT_NAME` 环境变量或 `.env` 文件设置。 |
-| `--deployment-id TEXT` | |要更新的现有部署的 ID。如果省略，则使用 `--name` 查找或创建部署。 |
-| `--agent-id TEXT` | |通过标识符部署到基于代理的工作区中的代理。需要`--agent-environment`，且不能与`--name`或`--deployment-id`组合使用。也可以通过`LANGSMITH_AGENT_ID`设置。参见[Deploy to an agent environment](https://docs.langchain.com/langsmith/deploy-to-agent-environment.md)。提供`langgraph-cli>=0.4.32`。 |
-| `--agent-environment TEXT` | |部署报告到的环境：`development`、`staging` 或`production`。需要`--agent-id`。也可以通过`LANGSMITH_AGENT_ENVIRONMENT`设置。提供`langgraph-cli>=0.4.32`。 || `--deployment-type TEXT` | `serverless` |在云上创建新部署时的部署类型。通过 `dedicated` 以获得始终在线的容量。旧版 `dev` 和 `prod` 也被接受。 |
-| `--remote / --no-remote` | |强制远程或本地构建。默认情况下，如果 Docker 本地不可用，则远程构建。 |
-| `--push-to TEXT` | |将映像推送到您管理的注册表中的此存储库（例如`123456789.dkr.ecr.us-east-1.amazonaws.com/agents/my-agent`），然后从中进行部署。自托管 LangSmith 和通过侦听器部署的工作区是必需的，除非您使用 `--image-uri` 代替。使用您现有的 Docker 凭据。在值中给出标签或使用`-t`。不能与`--remote`或`--image-uri`组合使用。 |
-| `--image TEXT` | |使用现有的本地镜像（例如`my-agent:dev`）而不是构建。该图像必须定位`linux/amd64`。使用`--push-to`，图像会被重新标记并推送。 |
-| `-t, --tag TEXT` | `latest` |推送图像的标签。 || `--image-uri TEXT` | |部署您管理的注册表中已有的映像（例如 `123456789.dkr.ecr.us-east-1.amazonaws.com/agents/my-agent@sha256:<digest>`），无需构建、重新标记或推送。对于自托管 LangSmith 以及通过侦听器部署的工作区。必须包括摘要；可变标签会被拒绝，因为 Kubernetes 可以按标签缓存图像，并且会默默地继续运行前一个标签。不能与 `--push-to`、`--image`、`-t` 或 `--remote` 组合使用。 |
-| `--listener-id TEXT` | |将运行部署的侦听器，适用于通过您自己的集群中的侦听器进行部署的工作区。仅在使用 `--push-to` 创建部署时使用。在 LangSmith 云上，默认为工作区的唯一监听器。 |
-| `--k8s-namespace TEXT` | |侦听器部署到的 Kubernetes 命名空间。仅在使用 `--push-to` 创建部署时使用。默认为侦听器的唯一命名空间。 |
-| `--image-pull-secret TEXT` | |部署命名空间中的 Kubernetes 密钥名称（类型 `kubernetes.io/dockerconfigjson`），用于从私有注册表中提取映像。重复给予多个。仅在使用 `--push-to` 或 `--image-uri` 创建部署时使用。 |
-| `--no-wait` | `False` |推送后跳过等待部署状态。 |
-| `--verbose` | `False` |显示详细输出，包括 Docker 构建和推送日志。 || `--help` | |显示命令文档。 |
-
-> [!注意]
+> **使用**
 >
-> `langgraph deploy` 默认创建无服务器部署（`langgraph-cli>=0.4.37`；早期版本默认为旧版 `dev` 类型）。要创建专用部署，请传递 `--deployment-type dedicated`。如果您的 CLI 仅接受 `dev` 和 `prod`，请将其升级以使用新名称。
-
-**示例**
-
-```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-# Deploy with API key from .env file
-langgraph deploy
-
-# Deploy with inline API key
-LANGSMITH_API_KEY=lsv2_... langgraph deploy
-
-# Create a Dedicated deployment
-langgraph deploy --deployment-type dedicated
-
-# Update an existing deployment
-langgraph deploy --deployment-id abc123
-
-# Deploy with inline deployment name
-LANGSMITH_DEPLOYMENT_NAME=my-agent langgraph deploy
-
-# Deploy to EU region
-LANGGRAPH_HOST_URL=https://eu.api.host.langchain.com langgraph deploy
-```
-
-> [!注意]
+> ```
+> langgraph build [OPTIONS]
+> ```
 >
-> 通过其他方法（例如，LangSmith UI 或 GitHub 集成）创建的部署也可以使用 `langgraph deploy` 命令进行更新。
-
-#### 从您管理的注册表进行部署
-
-自托管 LangSmith 和 LangSmith 通过侦听器部署在您自己的集群（[legacy hybrid model](https://docs.langchain.com/langsmith/hybrid-legacy.md)）中的云工作区，从您管理的注册表运行映像。将 `--push-to` 传递给该注册表中的存储库。 CLI 构建映像，使用现有的 Docker 凭据推送它，并根据推送的映像创建或更新部署。
-
-```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-# Log in to your registry first, for example with AWS ECR
-aws ecr get-login-password | docker login --username AWS --password-stdin 123456789.dkr.ecr.us-east-1.amazonaws.com
-
-# Self-hosted: point the CLI at your LangSmith instance
-LANGSMITH_ENDPOINT=https://langsmith.example.com/api \
-langgraph deploy --push-to 123456789.dkr.ecr.us-east-1.amazonaws.com/agents/my-agent
-
-# LangSmith Cloud workspace with a listener: only the image location changes
-langgraph deploy --push-to 123456789.dkr.ecr.us-east-1.amazonaws.com/agents/my-agent --tag v1.2.0
-
-# Push an image you already built
-langgraph deploy --image my-agent:dev --push-to 123456789.dkr.ecr.us-east-1.amazonaws.com/agents/my-agent
-```
-
-控制平面 URL 源自 `LANGSMITH_ENDPOINT`，从项目 `.env` 文件或环境中读取：对于自托管实例，为 `https://<host>/api-host`；对于云端点，则为匹配的 LangSmith 云控制平面。要覆盖它，请将 `LANGGRAPH_HOST_URL` 环境变量设置为完整控制平面 URL，包括自托管实例上的 `/api-host`（例如 `https://langsmith.example.com/api-host`）。#### 部署您已经推送的镜像
-
-如果您的 CI/CD 管道在与部署的作业不同的作业中构建和推送映像，则 `--push-to` 不起作用：它始终构建（或重新标记本地 `--image`）并推送，并且 `--image` 要求映像存在于本地 Docker 守护程序中。使用 `--image-uri` 来部署已在注册表中的映像，根本不需要构建、重新标记或推送：
-
-```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-langgraph deploy --image-uri 123456789.dkr.ecr.us-east-1.amazonaws.com/agents/my-agent@sha256:1a2b3c4d...
-```
-
-`--image-uri` 必须包含摘要 (`@sha256:<digest>`)，而不是可变标签。 Kubernetes 可以按标签缓存镜像，因此重新部署相同的标签可以默默地继续运行之前的镜像。如果您的管道已经捕获了推送步骤中的摘要，请将其直接通过；否则首先解决它，例如使用 `docker buildx imagetools inspect <repository>:<tag> --format '{{json .Manifest.Digest}}'` 或您的注册表自己的 CLI。
-
-使用 `--image-uri` 创建的部署使用与 `--push-to` 相同的 `external_docker` 源，因此任一选项都可以更新另一个选项创建的部署。
-
-#### 选择监听器和命名空间
-
-当工作区通过侦听器部署时，控制平面需要知道哪个侦听器运行新部署以及它部署到哪个 Kubernetes 命名空间。在 LangSmith Cloud 上，当只有一个可能的答案时，您不必通过其中任何一个。如果您的工作区有一个服务于单个命名空间的侦听器，则 CLI 使用它：
-
-```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-langgraph deploy --push-to 123456789.dkr.ecr.us-east-1.amazonaws.com/agents/my-agent
-```
-
-当有选择时，CLI 会列出侦听器及其集群和命名空间，您可以选择一个：
-
-```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-langgraph deploy --push-to 123456789.dkr.ecr.us-east-1.amazonaws.com/agents/my-agent \
-  --listener-id 2b1f0e9c-2d4a-4f1e-9a3b-2c7d8e5f4a10 --k8s-namespace agents
-```
-
-在自托管实例上，CLI 仅当您传递 `--listener-id` 或 `--k8s-namespace` 时才会查找侦听器。要提前查找侦听器的 id 和命名空间，例如从脚本传递 `--listener-id` 而不对其进行硬编码，请将 [⟦T585⟧](#deploy-listeners-list) 与 `--json` 一起使用：
-
-```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-listener_id=$(langgraph deploy listeners list --json | jq -r '.[0].id')
-langgraph deploy --push-to 123456789.dkr.ecr.us-east-1.amazonaws.com/agents/my-agent \
-  --listener-id "$listener_id" --k8s-namespace agents
-```
-
-侦听器和命名空间在创建部署时是固定的，之后无法更改，因此在现有部署上这两个选项都会被拒绝。后期修改只需`--push-to`。
-
-使用 `--push-to` 创建的部署使用 `external_docker` 源。没有`--push-to`创建的部署无法切换到它；请改用新的`--name`。
-
-#### 向私有注册表进行身份验证
-
-如果您使用 `--push-to` 推送到的注册表或使用 `--image-uri` 部署的注册表需要身份验证才能拉取映像，则集群需要在部署的命名空间中使用 `kubernetes.io/dockerconfigjson` 类型的 Kubernetes 密钥。提前创建它（例如使用 `kubectl create secret docker-registry`），然后使用 `--image-pull-secret` 传递其名称：```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-langgraph deploy --push-to 123456789.dkr.ecr.us-east-1.amazonaws.com/agents/my-agent \
-  --image-pull-secret regcred
-```
-
-重复`--image-pull-secret`以附加多个秘密。与侦听器和命名空间一样，镜像拉取机密在创建部署时是固定的； CLI 不支持在现有部署上更改它们，但您可以通过 API 或 LangSmith UI 更新部署的 `resource_spec`。
-
-#### `deploy list`
-
-列出 LangSmith 部署。
-
-**使用**
-
-```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-langgraph deploy list [OPTIONS]
-```
-
-**选项**
-
-|选项 |默认 |描述 |
-| - | - | - |
-| `--name-contains TEXT` | |仅显示名称包含此值的部署。 |
-| `--api-key TEXT` | | API 密钥。也可以通过 `LANGGRAPH_HOST_API_KEY`、`LANGSMITH_API_KEY` 或 `LANGCHAIN_API_KEY` 环境变量或 `.env` 文件进行设置。 |
-| `--help` | |显示此消息并退出。 |
-
-#### `deploy listeners`
-
-\[Beta] 检查此工作区可用的侦听器。
-
-**使用**
-
-```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-langgraph deploy listeners [OPTIONS] COMMAND [ARGS]...
-```
-
-**选项**
-
-|选项 |默认 |描述 |
-| - | - | - |
-| `--help` | |显示此消息并退出。 |
-
-**命令**
-
-|命令 |描述 |
-| - | - |
-| `list` | \[Beta] 列出此工作区可用的侦听器。 |
-
-#### `deploy listeners list`
-
-\[Beta] 列出此工作区可用的侦听器及其集群 (`compute_id`) 和 Kubernetes 命名空间。
-
-将侦听器的 id 传递给`langgraph deploy --listener-id`以通过它进行部署。参见[Choose a listener and namespace](#choose-a-listener-and-namespace)。传递 `--json` 以 JSON 数组而不是表的形式获取侦听器，用于脚本编写（例如，将侦听器的 id 通过管道传输到 `--listener-id`）。
-
-**使用**
-
-```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-langgraph deploy listeners list [OPTIONS]
-```
-
-**选项**
-
-|选项 |默认 |描述 |
-| - | - | - |
-| `--json` | |将侦听器作为 JSON 数组而不是表发出。 |
-| `--api-key TEXT` | | API 密钥。也可以通过 `LANGGRAPH_HOST_API_KEY`、`LANGSMITH_API_KEY` 或 `LANGCHAIN_API_KEY` 环境变量或 `.env` 文件进行设置。 |
-| `--help` | |显示此消息并退出。 |
-
-#### `deploy revisions`
-
-\[Beta] 管理部署修订。
-
-**使用**
-
-```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-langgraph deploy revisions [OPTIONS] COMMAND [ARGS]...
-```
-
-**选项**
-
-|选项 |默认 |描述 |
-| - | - | - |
-| `--help` | |显示此消息并退出。 |
-
-**命令**
-
-|命令 |描述 |
-| - | - |
-| `list` | \[Beta] 列出 LangSmith 部署的修订版本。 |
-
-#### `deploy revisions list`
-
-\[Beta] 列出 LangSmith 部署的修订版本。
-
-使用 [⟦T626⟧](#deploy-list) 列出部署 ID。
-
-**使用**
-
-```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-langgraph deploy revisions list [OPTIONS] DEPLOYMENT_ID
-```
-
-**选项**
-
-|选项 |默认 |描述 |
-| - | - | - |
-| `--limit INTEGER` | `10` |返回的最大修订数。 |
-| `--api-key TEXT` | | API 密钥。也可以通过 `LANGGRAPH_HOST_API_KEY`、`LANGSMITH_API_KEY` 或 `LANGCHAIN_API_KEY` 环境变量或 `.env` 文件进行设置。 |
-| `--help` | |显示此消息并退出。 |
-
-#### `deploy delete`
-
-删除 LangSmith 部署。使用 [⟦T636⟧](#deploy-list) 查找要删除的部署 ID。
-
-**使用**
-
-```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-langgraph deploy delete [OPTIONS] DEPLOYMENT_ID
-```
-
-**选项**
-
-|选项 |默认 |描述 |
-| - | - | - |
-| `--force` | |删除而不提示确认。 |
-| `--api-key TEXT` | | API 密钥。也可以通过 `LANGGRAPH_HOST_API_KEY`、`LANGSMITH_API_KEY` 或 `LANGCHAIN_API_KEY` 环境变量或 `.env` 文件进行设置。 |
-| `--help` | |显示此消息并退出。 |
-
-#### `deploy logs`
-
-获取 LangSmith 部署日志。使用 `deploy` 作为代理运行时日志，或使用 `build` 作为远程构建日志。
-
-**使用**
-
-```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-langgraph deploy logs [OPTIONS]
-```
-
-**选项**|选项 |默认 |描述 |
-| - | - | - |
-| `-f, --follow` | `False` |不断轮询新日志。 |
-| `--end-time TEXT` | | ISO8601 结束时间。示例：`2026-03-08T00:00:00Z`。 |
-| `--start-time TEXT` | | ISO8601 开始时间。示例：`2026-03-08T00:00:00Z`。 |
-| `-q, --query TEXT` | |搜索字符串过滤器。 |
-| `--limit INTEGER` | `100` |要获取的最大日志条目。 |
-| `--level [DEBUG\|INFO\|WARNING\|ERROR\|CRITICAL]` | |按日志级别过滤。 |
-| `--revision-id TEXT` | |具体修订 ID。对于构建日志，默认为最新版本。 |
-| `--type [deploy\|build]` | `deploy` |要获取的日志流。 `deploy` 显示代理服务器运行时日志。 `build` 显示远程构建日志。 |
-| `--deployment-id TEXT` | |部署 ID。如果省略，则使用 `--name` 查找部署。 |
-| `--name TEXT` |当前目录名称 |部署名称。也可以通过 `LANGSMITH_DEPLOYMENT_NAME` 环境变量或 `.env` 文件设置。当未提供`--deployment-id`时使用。 |
-| `--api-key TEXT` | | API 密钥。也可以通过 `LANGGRAPH_HOST_API_KEY`、`LANGSMITH_API_KEY` 或 `LANGCHAIN_API_KEY` 环境变量或 `.env` 文件进行设置。 |
-| `--help` | |显示此消息并退出。 |
-
-### `up`
-
-**Python**
-
-启动LangGraph API服务器。对于本地测试，需要具有访问 LangSmith 的 LangSmith API 密钥。需要许可证密钥才能用于生产。
-
-> [!提示]
+> **选项**
 >
-> 如果您需要了解何时使用 `langgraph dev` 与 `langgraph up` 的更多信息，请参阅 [Local development & testing guide](https://docs.langchain.com/langsmith/local-dev-testing.md) 进行详细比较。**使用**
+> |选项 |默认 |描述 |
+> | - | - | - |
+> | `--platform TEXT` | |要为其构建 Docker 映像的目标平台。示例：`langgraph build --platform linux/amd64,linux/arm64` |
+> | `-t, --tag TEXT` | | **必需的**。 Docker 镜像的标签。示例：`langgraph build -t my-image` |
+> | `--pull / --no-pull` | `--pull` |使用最新的远程 Docker 镜像进行构建。使用 `--no-pull` 运行带有本地构建的镜像的 LangSmith API 服务器。 |
+> | `-c, --config FILE` | `langgraph.json` |声明依赖项、图表和环境变量的配置文件的路径。 |
+> | `--build-command TEXT`<sup>\*</sup> | |构建要运行的命令。从 `langgraph.json` 文件所在的目录运行。示例：`langgraph build --build-command "yarn run turbo build"` |
+> | `--install-command TEXT`<sup>\*</sup> | |安装命令运行。从您调用 `langgraph build` 的目录运行。示例：`langgraph build --install-command "yarn install"` |
+> | `--help` | |显示命令文档。 |
+>
+> <sup>\*</sup>仅支持 JS 部署，对 Python 部署没有影响。> [标签] JS
+>
+> 构建 LangSmith API 服务器 Docker 镜像。
+>
+> **使用**
+>
+> ```
+> npx @langchain/langgraph-cli build [OPTIONS]
+> ```
+>
+> **选项**
+>
+> |选项 |默认 |描述 |
+> | - | - | - |
+> | `--platform TEXT` | |要为其构建 Docker 映像的目标平台。示例：`langgraph build --platform linux/amd64,linux/arm64` |
+> | `-t, --tag TEXT` | | **必需的**。 Docker 镜像的标签。示例：`langgraph build -t my-image` |
+> | `--no-pull` | |使用本地构建的图像。默认为 `false` 使用最新的远程 Docker 镜像进行构建。 |
+> | `-c, --config FILE` | `langgraph.json` |声明依赖项、图表和环境变量的配置文件的路径。 |
+> | `--help` | |显示命令文档。 |
 
-```
-langgraph up [OPTIONS]
-```
+### `deploy`> [选项卡] Python
+>
+>> [!注意]
+>>
+>> 该命令位于[beta](https://docs.langchain.com/langsmith/release-stages.md) 中，正在积极开发中。期待频繁的更新和改进。在 AWS 中的 LangSmith 云 (SaaS) 上，本地构建需要 `langgraph-cli` 0.4.35 或更高版本。
+>
+> 构建LangGraph镜像并将其直接部署到[LangSmith Deployments](https://docs.langchain.com/langsmith/deployment.md)。此命令在本地构建 Docker 映像，将其推送到托管注册表，并创建或更新部署 - 所有这些都只需一步即可完成。如果未安装 Docker，则会触发远程构建。
+>
+> **先决条件**
+>
+> * 一个 [**LangSmith API key**](https://docs.langchain.com/langsmith/create-account-api-key.md) 可以访问部署。
+>
+> * （可选）必须安装 **Docker** 并且必须运行 Docker 守护进程以进行本地构建。远程构建不需要。 [Install Docker Desktop](https://docs.docker.com/get-docker/)。
+>
+>> [!注意]
+>>
+>> 在 LangSmith Cloud 上，CLI 推送到托管注册表。自托管 LangSmith 以及通过您自己的集群中的 [listener](https://docs.langchain.com/langsmith/control-plane.md#listeners) 部署的云工作区，推送到​​您使用 `--push-to` 管理的注册表。参见[Deploy from a registry you manage](#deploy-from-a-registry-you-manage)。
+>
+> **使用**
+>
+> ```
+> langgraph deploy [OPTIONS] [DOCKER_BUILD_ARGS]
+> ```
+>
+> 此命令还接受所有 [⟦T491⟧](#build) 标志（`--platform`、`-t`、`--pull`、`--no-pull`、`-c`）。详情请参阅`langgraph build --help`。
+>
+> **选项**
+>
+> |选项 |默认 |描述 |
+> | - | - | - |> | `--api-key TEXT` | | LangSmith 部署的 API 密钥。也可以通过 `LANGGRAPH_HOST_API_KEY`、`LANGSMITH_API_KEY` 或 `LANGCHAIN_API_KEY` 环境变量或 `.env` 文件进行设置。 |
+> | `--name TEXT` |当前目录名称 |部署名称。也可以通过 `LANGSMITH_DEPLOYMENT_NAME` 环境变量或 `.env` 文件设置。 |
+> | `--deployment-id TEXT` | |要更新的现有部署的 ID。如果省略，则使用 `--name` 查找或创建部署。 |
+> | `--agent-id TEXT` | |通过标识符部署到基于代理的工作区中的代理。需要`--agent-environment`，且不能与`--name`或`--deployment-id`组合使用。也可以通过`LANGSMITH_AGENT_ID`设置。参见[Deploy to an agent environment](https://docs.langchain.com/langsmith/deploy-to-agent-environment.md)。提供`langgraph-cli>=0.4.32`。 |
+> | `--agent-environment TEXT` | |部署报告到的环境：`development`、`staging` 或`production`。需要`--agent-id`。也可以通过`LANGSMITH_AGENT_ENVIRONMENT`设置。提供`langgraph-cli>=0.4.32`。 |
+> | `--deployment-type TEXT` | `serverless` |在云上创建新部署时的部署类型。通过 `dedicated` 以获得始终在线的容量。旧版 `dev` 和 `prod` 也被接受。 |
+> | `--remote / --no-remote` | |强制远程或本地构建。默认情况下，如果 Docker 本地不可用，则远程构建。 |> | `--push-to TEXT` | |将映像推送到您管理的注册表中的此存储库（例如`123456789.dkr.ecr.us-east-1.amazonaws.com/agents/my-agent`），然后从中进行部署。自托管 LangSmith 和通过侦听器部署的工作区是必需的，除非您使用 `--image-uri` 代替。使用您现有的 Docker 凭据。在值中给出标签或使用`-t`。不能与`--remote`或`--image-uri`组合使用。 |
+> | `--image TEXT` | |使用现有的本地镜像（例如`my-agent:dev`）而不是构建。该图像必须定位`linux/amd64`。使用`--push-to`，图像会被重新标记并推送。 |
+> | `-t, --tag TEXT` | `latest` |推送图像的标签。 |
+> | `--image-uri TEXT` | |部署您管理的注册表中已有的映像（例如 `123456789.dkr.ecr.us-east-1.amazonaws.com/agents/my-agent@sha256:<digest>`），无需构建、重新标记或推送。对于自托管 LangSmith 以及通过侦听器部署的工作区。必须包括摘要；可变标签会被拒绝，因为 Kubernetes 可以按标签缓存图像，并且会默默地继续运行前一个标签。不能与 `--push-to`、`--image`、`-t` 或 `--remote` 组合使用。 |> | `--listener-id TEXT` | |将运行部署的侦听器，适用于通过您自己的集群中的侦听器进行部署的工作区。仅在使用 `--push-to` 创建部署时使用。在 LangSmith 云上，默认为工作区的唯一监听器。 |
+> | `--k8s-namespace TEXT` | |侦听器部署到的 Kubernetes 命名空间。仅在使用 `--push-to` 创建部署时使用。默认为侦听器的唯一命名空间。 |
+> | `--image-pull-secret TEXT` | |部署命名空间中的 Kubernetes 密钥名称（类型 `kubernetes.io/dockerconfigjson`），用于从私有注册表中提取映像。重复给予多个。仅在使用 `--push-to` 或 `--image-uri` 创建部署时使用。 |
+> | `--no-wait` | `False` |推送后跳过等待部署状态。 |
+> | `--verbose` | `False` |显示详细输出，包括 Docker 构建和推送日志。 |
+> | `--help` | |显示命令文档。 |
+>
+>> [!注意]
+>>
+>> `langgraph deploy` 默认创建无服务器部署（`langgraph-cli>=0.4.37`；早期版本默认为旧版 `dev` 类型）。要创建专用部署，请传递 `--deployment-type dedicated`。如果您的 CLI 仅接受 `dev` 和 `prod`，请将其升级以使用新名称。
+>
+> **示例**
+>
+> ```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> # Deploy with API key from .env file
+> langgraph deploy
+>
+> # Deploy with inline API key
+> LANGSMITH_API_KEY=lsv2_... langgraph deploy
+>
+> # Create a Dedicated deployment
+> langgraph deploy --deployment-type dedicated
+>
+> # Update an existing deployment
+> langgraph deploy --deployment-id abc123
+>
+> # Deploy with inline deployment name
+> LANGSMITH_DEPLOYMENT_NAME=my-agent langgraph deploy
+>
+> # Deploy to EU region
+> LANGGRAPH_HOST_URL=https://eu.api.host.langchain.com langgraph deploy
+> ```
+>
+>> [!注意]
+>>>> 通过其他方法（例如，LangSmith UI 或 GitHub 集成）创建的部署也可以使用 `langgraph deploy` 命令进行更新。
+>
+> #### 从您管理的注册表进行部署
+>
+> 自托管 LangSmith 和 LangSmith 云工作区通过您自己的集群中的侦听器部署（[legacy hybrid model](https://docs.langchain.com/langsmith/hybrid-legacy.md)），从您管理的注册表运行映像。将 `--push-to` 传递给该注册表中的存储库。 CLI 构建映像，使用现有的 Docker 凭据推送它，并根据推送的映像创建或更新部署。
+>
+> ```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> # Log in to your registry first, for example with AWS ECR
+> aws ecr get-login-password | docker login --username AWS --password-stdin 123456789.dkr.ecr.us-east-1.amazonaws.com
+>
+> # Self-hosted: point the CLI at your LangSmith instance
+> LANGSMITH_ENDPOINT=https://langsmith.example.com/api \
+> langgraph deploy --push-to 123456789.dkr.ecr.us-east-1.amazonaws.com/agents/my-agent
+>
+> # LangSmith Cloud workspace with a listener: only the image location changes
+> langgraph deploy --push-to 123456789.dkr.ecr.us-east-1.amazonaws.com/agents/my-agent --tag v1.2.0
+>
+> # Push an image you already built
+> langgraph deploy --image my-agent:dev --push-to 123456789.dkr.ecr.us-east-1.amazonaws.com/agents/my-agent
+> ```
+>
+> 控制平面 URL 源自 `LANGSMITH_ENDPOINT`，从项目 `.env` 文件或环境中读取：对于自托管实例，`https://<host>/api-host`，以及用于云端点的匹配LangSmith 云控制平面。要覆盖它，请将 `LANGGRAPH_HOST_URL` 环境变量设置为完整控制平面 URL，包括自托管实例上的 `/api-host`（例如 `https://langsmith.example.com/api-host`）。
+>
+> #### 部署已经推送的镜像
+>> 如果您的 CI/CD 管道在与部署的作业不同的作业中构建和推送映像，`--push-to` 不起作用：它始终构建（或重新标记本地 `--image`）并推送，并且 `--image` 要求映像存在于本地 Docker 守护程序中。使用 `--image-uri` 来部署已在注册表中的映像，根本不需要构建、重新标记或推送：
+>
+> ```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> langgraph deploy --image-uri 123456789.dkr.ecr.us-east-1.amazonaws.com/agents/my-agent@sha256:1a2b3c4d...
+> ```
+>
+> `--image-uri` 必须包含摘要 (`@sha256:<digest>`)，而不是可变标签。 Kubernetes 可以按标签缓存镜像，因此重新部署相同的标签可以默默地继续运行之前的镜像。如果您的管道已经捕获了推送步骤中的摘要，请将其直接通过；否则首先解决它，例如使用 `docker buildx imagetools inspect <repository>:<tag> --format '{{json .Manifest.Digest}}'` 或您的注册表自己的 CLI。
+>
+> 使用 `--image-uri` 创建的部署使用与 `--push-to` 相同的 `external_docker` 源，因此任一选项都可以更新另一个选项创建的部署。
+>
+> #### 选择监听器和命名空间
+>
+> 当工作区通过侦听器部署时，控制平面需要知道哪个侦听器运行新部署以及它部署到哪个 Kubernetes 命名空间。
+>> 在LangSmith Cloud 上，当只有一个可能的答案时，您不必通过其中任何一个。如果您的工作区有一个服务于单个命名空间的侦听器，则 CLI 使用它：
+>
+> ```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> langgraph deploy --push-to 123456789.dkr.ecr.us-east-1.amazonaws.com/agents/my-agent
+> ```
+>
+> 当有选择时，CLI 会列出侦听器及其集群和命名空间，您可以选择一个：
+>
+> ```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> langgraph deploy --push-to 123456789.dkr.ecr.us-east-1.amazonaws.com/agents/my-agent \
+>   --listener-id 2b1f0e9c-2d4a-4f1e-9a3b-2c7d8e5f4a10 --k8s-namespace agents
+> ```
+>
+> 在自托管实例上，CLI 仅当您传递 `--listener-id` 或 `--k8s-namespace` 时才会查找侦听器。要提前查找侦听器的 id 和命名空间，例如从脚本传递 `--listener-id` 而不对其进行硬编码，请将 [⟦T585⟧](#deploy-listeners-list) 与 `--json` 一起使用：
+>
+> ```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> listener_id=$(langgraph deploy listeners list --json | jq -r '.[0].id')
+> langgraph deploy --push-to 123456789.dkr.ecr.us-east-1.amazonaws.com/agents/my-agent \
+>   --listener-id "$listener_id" --k8s-namespace agents
+> ```
+>
+> 侦听器和命名空间在创建部署时固定，之后无法更改，因此在现有部署上这两个选项都会被拒绝。后期修改只需`--push-to`。
+>
+> 使用 `--push-to` 创建的部署使用 `external_docker` 源。没有`--push-to`创建的部署无法切换到它；请改用新的`--name`。
+>
+> #### 向私有注册表进行身份验证
+>> 如果您使用 `--push-to` 推送到的注册表或使用 `--image-uri` 部署的注册表需要身份验证才能拉取映像，则集群需要在部署的命名空间中使用`kubernetes.io/dockerconfigjson` 类型的 Kubernetes 密钥。提前创建它（例如使用 `kubectl create secret docker-registry`），然后使用 `--image-pull-secret` 传递其名称：
+>
+> ```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> langgraph deploy --push-to 123456789.dkr.ecr.us-east-1.amazonaws.com/agents/my-agent \
+>   --image-pull-secret regcred
+> ```
+>
+> 重复 `--image-pull-secret` 附加多个秘密。与侦听器和命名空间一样，镜像拉取机密在创建部署时是固定的； CLI 不支持在现有部署上更改它们，但您可以通过 API 或 LangSmith UI 更新部署的 `resource_spec`。
+>
+> #### `deploy list`
+>
+> 列出 LangSmith 部署。
+>
+> **使用**
+>
+> ```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> langgraph deploy list [OPTIONS]
+> ```
+>
+> **选项**
+>
+> |选项 |默认 |描述 |
+> | - | - | - |
+> | `--name-contains TEXT` | |仅显示名称包含此值的部署。 |
+> | `--api-key TEXT` | | API 密钥。也可以通过 `LANGGRAPH_HOST_API_KEY`、`LANGSMITH_API_KEY` 或 `LANGCHAIN_API_KEY` 环境变量或 `.env` 文件进行设置。 |
+> | `--help` | |显示此消息并退出。 |
+>
+> #### `deploy listeners`
+>
+> \[Beta] 检查此工作区可用的侦听器。
+>
+> **使用**
+>
+> ```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> langgraph deploy listeners [OPTIONS] COMMAND [ARGS]...
+> ```
+>
+> **选项**
+>
+> |选项 |默认 |描述 |
+> | - | - | - |
+> | `--help` | |显示此消息并退出。 |
+>
+> **命令**
+>> |命令|描述 |
+> | - | - |
+> | `list` | \[Beta] 列出此工作区可用的侦听器。 |
+>
+> #### `deploy listeners list`
+>
+> \[Beta] 列出此工作区可用的侦听器及其集群 (`compute_id`) 和 Kubernetes 命名空间。
+>
+> 将侦听器的 id 传递给 `langgraph deploy --listener-id` 以通过它进行部署。参见[Choose a listener and namespace](#choose-a-listener-and-namespace)。
+>
+> 传递 `--json` 以 JSON 数组而不是表的形式获取监听器，用于脚本编写（例如，将监听器的 id 通过管道传输到 `--listener-id`）。
+>
+> **使用**
+>
+> ```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> langgraph deploy listeners list [OPTIONS]
+> ```
+>
+> **选项**
+>
+> |选项 |默认 |描述 |
+> | - | - | - |
+> | `--json` | |将侦听器作为 JSON 数组而不是表发出。 |
+> | `--api-key TEXT` | | API 密钥。也可以通过 `LANGGRAPH_HOST_API_KEY`、`LANGSMITH_API_KEY` 或 `LANGCHAIN_API_KEY` 环境变量或 `.env` 文件进行设置。 |
+> | `--help` | |显示此消息并退出。 |
+>
+> #### `deploy revisions`
+>
+> \[Beta] 管理部署修订。
+>
+> **使用**
+>
+> ```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> langgraph deploy revisions [OPTIONS] COMMAND [ARGS]...
+> ```
+>
+> **选项**
+>
+> |选项 |默认 |描述 |
+> | - | - | - |
+> | `--help` | |显示此消息并退出。 |
+>
+> **命令**
+>
+> |命令|描述 |
+> | - | - |
+> | `list` | \[Beta] 列出 LangSmith 部署的修订版本。 |
+>
+> #### `deploy revisions list`
+>
+> \[Beta] 列出 LangSmith 部署的修订版本。
+>
+> 使用 [⟦T626⟧](#deploy-list) 列出部署 ID。
+>> **使用**
+>
+> ```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> langgraph deploy revisions list [OPTIONS] DEPLOYMENT_ID
+> ```
+>
+> **选项**
+>
+> |选项 |默认 |描述 |
+> | - | - | - |
+> | `--limit INTEGER` | `10` |返回的最大修订数。 |
+> | `--api-key TEXT` | | API 密钥。也可以通过 `LANGGRAPH_HOST_API_KEY`、`LANGSMITH_API_KEY` 或 `LANGCHAIN_API_KEY` 环境变量或 `.env` 文件进行设置。 |
+> | `--help` | |显示此消息并退出。 |
+>
+> #### `deploy delete`
+>
+> 删除 LangSmith 部署。
+>
+> 使用 [⟦T636⟧](#deploy-list) 查找要删除的部署 ID。
+>
+> **使用**
+>
+> ```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> langgraph deploy delete [OPTIONS] DEPLOYMENT_ID
+> ```
+>
+> **选项**
+>
+> |选项 |默认 |描述 |
+> | - | - | - |
+> | `--force` | |删除而不提示确认。 |
+> | `--api-key TEXT` | | API 密钥。也可以通过 `LANGGRAPH_HOST_API_KEY`、`LANGSMITH_API_KEY` 或 `LANGCHAIN_API_KEY` 环境变量或 `.env` 文件进行设置。 |
+> | `--help` | |显示此消息并退出。 |
+>
+> #### `deploy logs`
+>
+> 获取 LangSmith 部署日志。使用 `deploy` 作为代理运行时日志，或使用 `build` 作为远程构建日志。
+>
+> **使用**
+>
+> ```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> langgraph deploy logs [OPTIONS]
+> ```
+>
+> **选项**
+>
+> |选项 |默认 |描述 |
+> | - | - | - |
+> | `-f, --follow` | `False` |不断轮询新日志。 |
+> | `--end-time TEXT` | | ISO8601 结束时间。示例：`2026-03-08T00:00:00Z`。 |
+> | `--start-time TEXT` | | ISO8601 开始时间。示例：`2026-03-08T00:00:00Z`。 |
+> | `-q, --query TEXT` | |搜索字符串过滤器。 |
+> | `--limit INTEGER` | `100` |要获取的最大日志条目。 |> | `--level [DEBUG\|INFO\|WARNING\|ERROR\|CRITICAL]` | |按日志级别过滤。 |
+> | `--revision-id TEXT` | |具体修订 ID。对于构建日志，默认为最新版本。 |
+> | `--type [deploy\|build]` | `deploy` |要获取的日志流。 `deploy` 显示代理服务器运行时日志。 `build` 显示远程构建日志。 |
+> | `--deployment-id TEXT` | |部署 ID。如果省略，则使用 `--name` 查找部署。 |
+> | `--name TEXT` |当前目录名称 |部署名称。也可以通过 `LANGSMITH_DEPLOYMENT_NAME` 环境变量或 `.env` 文件设置。当未提供`--deployment-id`时使用。 |
+> | `--api-key TEXT` | | API 密钥。也可以通过 `LANGGRAPH_HOST_API_KEY`、`LANGSMITH_API_KEY` 或 `LANGCHAIN_API_KEY` 环境变量或 `.env` 文件进行设置。 |
+> | `--help` | |显示此消息并退出。 |
 
-**选项**
+### `up`> [选项卡] Python
+>
+> 启动LangGraph API 服务器。对于本地测试，需要具有访问 LangSmith 的 LangSmith API 密钥。需要许可证密钥才能用于生产。
+>
+>> [!提示]
+>>
+>> 如果您需要更多关于何时使用`langgraph dev` vs `langgraph up`的信息，请参阅[Local development & testing guide](https://docs.langchain.com/langsmith/local-dev-testing.md)进行详细比较。
+>
+> **使用**
+>
+> ```
+> langgraph up [OPTIONS]
+> ```
+>
+> **选项**
+>
+> |选项 |默认 |描述 |
+> | - | - | - |
+> | `--wait` | |返回之前等待服务启动。意味着--分离|
+> | `--base-image TEXT` | `langchain/langgraph-api` |用于 LangGraph API 服务器的基础镜像。使用版本标签固定到特定版本。 |
+> | `--image TEXT` | |用于 langgraph-api 服务的 Docker 映像。如果指定，则跳过构建并直接使用此图像。 |
+> | `--postgres-uri TEXT` |本地数据库|用于数据库的 Postgres URI。 |
+> | `--watch` | |文件更改后重新启动 |
+> | `--debugger-base-url TEXT` | `http://127.0.0.1:[PORT]` |调试器用于访问 LangGraph API 的 URL。 |
+> | `--debugger-port INTEGER` | |将调试器映像拉到本地并在指定端口上提供 UI |
+> | `--verbose` | |显示服务器日志的更多输出。 |
+> | `-c, --config FILE` | `langgraph.json` |声明依赖项、图表和环境变量的配置文件的路径。 |> | `-d, --docker-compose FILE` | | docker-compose.yml 文件的路径以及要启动的附加服务。 |
+> | `-p, --port INTEGER` | `8123` |要暴露的端口。示例：`langgraph up --port 8000` |
+> | `--pull / --no-pull` | `pull` |拉取最新镜像。使用 `--no-pull` 运行带有本地构建镜像的服务器。示例：`langgraph up --no-pull` |
+> | `--recreate / --no-recreate` | `no-recreate` |即使容器的配置和映像未更改，也重新创建容器 |
+> | `--help` | |显示命令文档。 |
 
-|选项 |默认 |描述 |
-| - | - | - |
-| `--wait` | |返回之前等待服务启动。意味着--分离|
-| `--base-image TEXT` | `langchain/langgraph-api` |用于 LangGraph API 服务器的基础镜像。使用版本标签固定到特定版本。 |
-| `--image TEXT` | |用于 langgraph-api 服务的 Docker 映像。如果指定，则跳过构建并直接使用此图像。 |
-| `--postgres-uri TEXT` |本地数据库|用于数据库的 Postgres URI。 |
-| `--watch` | |文件更改后重新启动 |
-| `--debugger-base-url TEXT` | `http://127.0.0.1:[PORT]` |调试器用于访问 LangGraph API 的 URL。 |
-| `--debugger-port INTEGER` | |将调试器映像拉到本地并在指定端口上提供 UI |
-| `--verbose` | |显示服务器日志的更多输出。 |
-| `-c, --config FILE` | `langgraph.json` |声明依赖项、图表和环境变量的配置文件的路径。 |
-| `-d, --docker-compose FILE` | | docker-compose.yml 文件的路径以及要启动的附加服务。 |
-| `-p, --port INTEGER` | `8123` |要暴露的端口。示例：`langgraph up --port 8000` |
-| `--pull / --no-pull` | `pull` |拉取最新镜像。使用 `--no-pull` 运行带有本地构建镜像的服务器。示例：`langgraph up --no-pull` |
-| `--recreate / --no-recreate` | `no-recreate` |即使容器的配置和映像未更改，也重新创建容器 || `--help` | |显示命令文档。 |
-
-**JS**
-
-启动LangGraph API服务器。对于本地测试，需要具有 LangSmith 访问权限的 LangSmith API 密钥。需要许可证密钥才能用于生产。
-
-**使用**
-
-```
-npx @langchain/langgraph-cli up [OPTIONS]
-```
-
-**选项**
-
-|选项 |默认 |描述 |
-| - | - | - |
-| `--wait` | |返回之前等待服务启动。意味着--分离|
-| `--base-image TEXT` | `langchain/langgraph-api` |用于 LangGraph API 服务器的基础镜像。使用版本标签固定到特定版本。 |
-| `--image TEXT` | |用于 langgraph-api 服务的 Docker 映像。如果指定，则跳过构建并直接使用此图像。 |
-| `--postgres-uri TEXT` |本地数据库|用于数据库的 Postgres URI。 |
-| `--watch` | |文件更改后重新启动 |
-| `-c, --config FILE` | `langgraph.json` |声明依赖项、图表和环境变量的配置文件的路径。 |
-| `-d, --docker-compose FILE` | | docker-compose.yml 文件的路径以及要启动的附加服务。 |
-| `-p, --port INTEGER` | `8123` |要暴露的端口。示例：`langgraph up --port 8000` |
-| `--no-pull` | |使用本地构建的图像。默认为 `false` 使用最新的远程 Docker 镜像进行构建。 |
-| `--recreate` | |即使容器的配置和映像未更改，也重新创建容器 |
-| `--help` | |显示命令文档。 |
+> [标签] JS
+>
+> 启动LangGraph API 服务器。对于本地测试，需要具有 LangSmith 访问权限的 LangSmith API 密钥。需要许可证密钥才能用于生产。
+>
+> **使用**
+>
+> ```
+> npx @langchain/langgraph-cli up [OPTIONS]
+> ```
+>
+> **选项**
+>
+> |选项 |默认 |描述 |
+> | - | - | - |
+> | `--wait` | |返回之前等待服务启动。意味着--分离|
+> | `--base-image TEXT` | `langchain/langgraph-api` |用于 LangGraph API 服务器的基础镜像。使用版本标签固定到特定版本。 |
+> | `--image TEXT` | |用于 langgraph-api 服务的 Docker 映像。如果指定，则跳过构建并直接使用此图像。 |
+> | `--postgres-uri TEXT` |本地数据库|用于数据库的 Postgres URI。 |
+> | `--watch` | |文件更改后重新启动 |
+> | `-c, --config FILE` | `langgraph.json` |声明依赖项、图表和环境变量的配置文件的路径。 |> | `-d, --docker-compose FILE` | | docker-compose.yml 文件的路径以及要启动的附加服务。 |
+> | `-p, --port INTEGER` | `8123` |要暴露的端口。示例：`langgraph up --port 8000` |
+> | `--no-pull` | |使用本地构建的图像。默认为 `false` 使用最新的远程 Docker 镜像进行构建。 |
+> | `--recreate` | |即使容器的配置和映像未更改，也重新创建容器 |
+> | `--help` | |显示命令文档。 |
 
 ### `dockerfile`
 
-**Python**生成用于构建LangSmith API 服务器 Docker 镜像的 Dockerfile。
-
-**使用**
-
-```
-langgraph dockerfile [OPTIONS] SAVE_PATH
-```
-
-**选项**
-
-|选项 |默认 |描述 |
-| - | - | - |
-| `-c, --config FILE` | `langgraph.json` |声明依赖项、图表和环境变量的[configuration file](#configuration-file)的路径。 |
-| `--help` | |显示此消息并退出。 |
-
-示例：
-
-```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-langgraph dockerfile -c langgraph.json Dockerfile
-```
-
-这会生成一个类似于以下内容的 Dockerfile：
-
-```dockerfile theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-FROM langchain/langgraph-api:3.11
-
-ADD ./pipconf.txt /pipconfig.txt
-
-RUN PIP_CONFIG_FILE=/pipconfig.txt PYTHONDONTWRITEBYTECODE=1 pip install --no-cache-dir -c /api/constraints.txt langchain_anthropic langchain_openai wikipedia scikit-learn
-
-ADD ./graphs /deps/__outer_graphs/src
-RUN set -ex && \
-    for line in '[project]' \
-                'name = "graphs"' \
-                'version = "0.1"' \
-                '[tool.setuptools.package-data]' \
-                '"*" = ["**/*"]'; do \
-        echo "$line" >> /deps/__outer_graphs/pyproject.toml; \
-    done
-
-RUN PIP_CONFIG_FILE=/pipconfig.txt PYTHONDONTWRITEBYTECODE=1 pip install --no-cache-dir -c /api/constraints.txt -e /deps/*
-
-ENV LANGSERVE_GRAPHS='{"agent": "/deps/__outer_graphs/src/agent.py:graph", "storm": "/deps/__outer_graphs/src/storm.py:graph"}'
-```
-
-> [!注意]
+> [选项卡] Python
 >
-> `langgraph dockerfile` 命令将 `langgraph.json` 文件中的所有配置转换为 Dockerfile 命令。使用此命令时，每当您更新 `langgraph.json` 文件时，您都必须重新运行它。否则，当您构建或运行 dockerfile 时，您的更改将不会反映出来。
-
-**JS**
-
-生成用于构建LangSmith API 服务器 Docker 镜像的 Dockerfile。
-
-**使用**
-
-```
-npx @langchain/langgraph-cli dockerfile [OPTIONS] SAVE_PATH
-```
-
-**选项**
-
-|选项 |默认 |描述 |
-| - | - | - |
-| `-c, --config FILE` | `langgraph.json` |声明依赖项、图表和环境变量的[configuration file](#configuration-file)的路径。 |
-| `--help` | |显示此消息并退出。 |
-
-示例：
-
-```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-npx @langchain/langgraph-cli dockerfile -c langgraph.json Dockerfile
-```
-
-这会生成一个类似于以下内容的 Dockerfile：
-
-```dockerfile theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-FROM langchain/langgraphjs-api:20
-
-ADD . /deps/agent
-
-RUN cd /deps/agent && yarn install
-
-ENV LANGSERVE_GRAPHS='{"agent":"./src/react_agent/graph.ts:graph"}'
-
-WORKDIR /deps/agent
-
-RUN (test ! -f /api/langgraph_api/js/build.mts && echo "Prebuild script not found, skipping") || tsx /api/langgraph_api/js/build.mts
-```> [!注意]
+> 生成用于构建LangSmith API 服务器 Docker 镜像的 Dockerfile。
 >
-> `npx @langchain/langgraph-cli dockerfile` 命令将 `langgraph.json` 文件中的所有配置转换为 Dockerfile 命令。使用此命令时，每当您更新 `langgraph.json` 文件时，您都必须重新运行它。否则，当您构建或运行 dockerfile 时，您的更改将不会反映出来。
+> **使用**
+>
+> ```
+> langgraph dockerfile [OPTIONS] SAVE_PATH
+> ```
+>
+> **选项**
+>
+> |选项 |默认 |描述 |
+> | - | - | - |
+> | `-c, --config FILE` | `langgraph.json` |声明依赖项、图表和环境变量的[configuration file](#configuration-file)的路径。 |
+> | `--help` | |显示此消息并退出。 |
+>
+> 示例：
+>
+> ```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> langgraph dockerfile -c langgraph.json Dockerfile
+> ```
+>
+> 这会生成一个类似于以下内容的 Dockerfile：
+>
+> ```dockerfile theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> FROM langchain/langgraph-api:3.11
+>
+> ADD ./pipconf.txt /pipconfig.txt
+>
+> RUN PIP_CONFIG_FILE=/pipconfig.txt PYTHONDONTWRITEBYTECODE=1 pip install --no-cache-dir -c /api/constraints.txt langchain_anthropic langchain_openai wikipedia scikit-learn
+>
+> ADD ./graphs /deps/__outer_graphs/src
+> RUN set -ex && \
+>     for line in '[project]' \
+>                 'name = "graphs"' \
+>                 'version = "0.1"' \
+>                 '[tool.setuptools.package-data]' \
+>                 '"*" = ["**/*"]'; do \
+>         echo "$line" >> /deps/__outer_graphs/pyproject.toml; \
+>     done
+>
+> RUN PIP_CONFIG_FILE=/pipconfig.txt PYTHONDONTWRITEBYTECODE=1 pip install --no-cache-dir -c /api/constraints.txt -e /deps/*
+>
+> ENV LANGSERVE_GRAPHS='{"agent": "/deps/__outer_graphs/src/agent.py:graph", "storm": "/deps/__outer_graphs/src/storm.py:graph"}'
+> ```
+>
+>> [!注意]
+>>
+>> `langgraph dockerfile` 命令将 `langgraph.json` 文件中的所有配置转换为 Dockerfile 命令。使用此命令时，每当您更新 `langgraph.json` 文件时，您都必须重新运行它。否则，当您构建或运行 dockerfile 时，您的更改将不会反映出来。> [标签] JS
+>
+> 生成用于构建LangSmith API 服务器 Docker 镜像的 Dockerfile。
+>
+> **使用**
+>
+> ```
+> npx @langchain/langgraph-cli dockerfile [OPTIONS] SAVE_PATH
+> ```
+>
+> **选项**
+>
+> |选项 |默认 |描述 |
+> | - | - | - |
+> | `-c, --config FILE` | `langgraph.json` |声明依赖项、图表和环境变量的[configuration file](#configuration-file)的路径。 |
+> | `--help` | |显示此消息并退出。 |
+>
+> 示例：
+>
+> ```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> npx @langchain/langgraph-cli dockerfile -c langgraph.json Dockerfile
+> ```
+>
+> 这会生成一个类似于以下内容的 Dockerfile：
+>
+> ```dockerfile theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> FROM langchain/langgraphjs-api:20
+>
+> ADD . /deps/agent
+>
+> RUN cd /deps/agent && yarn install
+>
+> ENV LANGSERVE_GRAPHS='{"agent":"./src/react_agent/graph.ts:graph"}'
+>
+> WORKDIR /deps/agent
+>
+> RUN (test ! -f /api/langgraph_api/js/build.mts && echo "Prebuild script not found, skipping") || tsx /api/langgraph_api/js/build.mts
+> ```
+>
+>> [!注意]
+>>
+>> `npx @langchain/langgraph-cli dockerfile` 命令将 `langgraph.json` 文件中的所有配置转换为 Dockerfile 命令。使用此命令时，每当您更新 `langgraph.json` 文件时，您都必须重新运行它。否则，当您构建或运行 dockerfile 时，您的更改将不会反映出来。
 
 ***
 

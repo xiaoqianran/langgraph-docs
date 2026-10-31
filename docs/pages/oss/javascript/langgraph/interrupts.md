@@ -191,7 +191,7 @@ while (true) {
 }
 ```
 
-> **[View example trace](https://smith.langchain.com/public/4aeb7a2d-5aa5-45e2-afd8-0a4c5ef9ac2a/r)**
+> [card] [View example trace](https://smith.langchain.com/public/4aeb7a2d-5aa5-45e2-afd8-0a4c5ef9ac2a/r)
 >
 > Open a public LangSmith run for this example.
 
@@ -313,7 +313,7 @@ await graph.invoke(new Command({ resume: true }), config);
 await graph.invoke(new Command({ resume: false }), config);
 ```
 
-> **Full example**
+> [accordion] Full example
 >
 > ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > import {
@@ -392,7 +392,7 @@ await graph.invoke(
 );
 ```
 
-> **Full example**
+> [accordion] Full example
 >
 > ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > import {
@@ -483,7 +483,7 @@ const sendEmailTool = tool(
 
 This approach is useful when you want the approval logic to live with the tool itself, making it reusable across different parts of your graph. The LLM can call the tool naturally, and the interrupt will pause execution whenever the tool is invoked, allowing you to approve, edit, or cancel the action.
 
-> **Full example**
+> [accordion] Full example
 >
 > ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > import { tool } from "@langchain/core/tools";
@@ -621,13 +621,13 @@ const getAgeNode: typeof State.Node = (state) => {
 // );
 ```
 
-> **[View example trace](https://smith.langchain.com/public/68000848-fccd-4c6a-9f64-0951306122fe/r)**
+> [card] [View example trace](https://smith.langchain.com/public/68000848-fccd-4c6a-9f64-0951306122fe/r)
 >
 > Open a public LangSmith run for this example.
 
 In this example, an invalid answer causes the node to return the updated question. During the same graph run, the conditional edge invokes the node again, and this new invocation pauses at `interrupt()`. On a later resume, the node still restarts from the beginning, so any code before `interrupt()` runs again. See [Rules of interrupts](#rules-of-interrupts).
 
-> **Full example**
+> [accordion] Full example
 >
 > ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > import {
@@ -984,56 +984,56 @@ To debug and test a graph, you can use static interrupts as breakpoints to step 
 >
 > Static interrupts are **not** recommended for human-in-the-loop workflows. Use the [`interrupt`](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) function instead.
 
-**At compile time**
+> [tab] At compile time
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> const graph = builder.compile({
+>     interruptBefore: ["node_a"],  // [!code highlight]
+>     interruptAfter: ["node_b", "node_c"],  // [!code highlight]
+>     checkpointer,
+> });
+>
+> // Pass a thread ID to the graph
+> const config = {
+>     configurable: {
+>         thread_id: "some_thread"
+>     }
+> };
+>
+> // Run the graph until the breakpoint
+> await graph.invoke(inputs, config);# [!code highlight]
+>
+> await graph.invoke(null, config);  # [!code highlight]
+> ```
+>
+> 1. The breakpoints are set during `compile` time.
+> 2. `interruptBefore` specifies the nodes where execution should pause before the node is executed.
+> 3. `interruptAfter` specifies the nodes where execution should pause after the node is executed.
+> 4. A checkpointer is required to enable breakpoints.
+> 5. The graph is run until the first breakpoint is hit.
+> 6. The graph is resumed by passing in `null` for the input. This will run the graph until the next breakpoint is hit.
 
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-const graph = builder.compile({
-    interruptBefore: ["node_a"],  // [!code highlight]
-    interruptAfter: ["node_b", "node_c"],  // [!code highlight]
-    checkpointer,
-});
-
-// Pass a thread ID to the graph
-const config = {
-    configurable: {
-        thread_id: "some_thread"
-    }
-};
-
-// Run the graph until the breakpoint
-await graph.invoke(inputs, config);# [!code highlight]
-
-await graph.invoke(null, config);  # [!code highlight]
-```
-
-1. The breakpoints are set during `compile` time.
-2. `interruptBefore` specifies the nodes where execution should pause before the node is executed.
-3. `interruptAfter` specifies the nodes where execution should pause after the node is executed.
-4. A checkpointer is required to enable breakpoints.
-5. The graph is run until the first breakpoint is hit.
-6. The graph is resumed by passing in `null` for the input. This will run the graph until the next breakpoint is hit.
-
-**At run time**
-
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-// Run the graph until the breakpoint
-graph.invoke(inputs, {
-    interruptBefore: ["node_a"],  // [!code highlight]
-    interruptAfter: ["node_b", "node_c"],  // [!code highlight]
-    configurable: {
-        thread_id: "some_thread"
-    }
-});
-
-// Resume the graph
-await graph.invoke(null, config);  // [!code highlight]
-```
-
-1. `graph.invoke` is called with the `interruptBefore` and `interruptAfter` parameters. This is a run-time configuration and can be changed for every invocation.
-2. `interruptBefore` specifies the nodes where execution should pause before the node is executed.
-3. `interruptAfter` specifies the nodes where execution should pause after the node is executed.
-4. The graph is run until the first breakpoint is hit.
-5. The graph is resumed by passing in `null` for the input. This will run the graph until the next breakpoint is hit.
+> [tab] At run time
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> // Run the graph until the breakpoint
+> graph.invoke(inputs, {
+>     interruptBefore: ["node_a"],  // [!code highlight]
+>     interruptAfter: ["node_b", "node_c"],  // [!code highlight]
+>     configurable: {
+>         thread_id: "some_thread"
+>     }
+> });
+>
+> // Resume the graph
+> await graph.invoke(null, config);  // [!code highlight]
+> ```
+>
+> 1. `graph.invoke` is called with the `interruptBefore` and `interruptAfter` parameters. This is a run-time configuration and can be changed for every invocation.
+> 2. `interruptBefore` specifies the nodes where execution should pause before the node is executed.
+> 3. `interruptAfter` specifies the nodes where execution should pause after the node is executed.
+> 4. The graph is run until the first breakpoint is hit.
+> 5. The graph is resumed by passing in `null` for the input. This will run the graph until the next breakpoint is hit.
 
 > [!TIP]
 >

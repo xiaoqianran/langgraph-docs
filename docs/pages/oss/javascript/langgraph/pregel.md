@@ -68,300 +68,300 @@ While most users will interact with Pregel through the [StateGraph](https://refe
 
 Below are a few different examples to give you a sense of the Pregel API.
 
-**Single node**
+> [tab] Single node
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import { EphemeralValue } from "@langchain/langgraph/channels";
+> import { Pregel, NodeBuilder } from "@langchain/langgraph/pregel";
+>
+> const node1 = new NodeBuilder()
+>   .subscribeOnly("a")
+>   .do((x: string) => x + x)
+>   .writeTo("b");
+>
+> const app = new Pregel({
+>   nodes: { node1 },
+>   channels: {
+>     a: new EphemeralValue<string>(),
+>     b: new EphemeralValue<string>(),
+>   },
+>   inputChannels: ["a"],
+>   outputChannels: ["b"],
+> });
+>
+> await app.invoke({ a: "foo" });
+> ```
+>
+> ```console theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> { b: 'foofoo' }
+> ```
 
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-import { EphemeralValue } from "@langchain/langgraph/channels";
-import { Pregel, NodeBuilder } from "@langchain/langgraph/pregel";
+> [tab] Multiple nodes
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import { LastValue, EphemeralValue } from "@langchain/langgraph/channels";
+> import { Pregel, NodeBuilder } from "@langchain/langgraph/pregel";
+>
+> const node1 = new NodeBuilder()
+>   .subscribeOnly("a")
+>   .do((x: string) => x + x)
+>   .writeTo("b");
+>
+> const node2 = new NodeBuilder()
+>   .subscribeOnly("b")
+>   .do((x: string) => x + x)
+>   .writeTo("c");
+>
+> const app = new Pregel({
+>   nodes: { node1, node2 },
+>   channels: {
+>     a: new EphemeralValue<string>(),
+>     b: new LastValue<string>(),
+>     c: new EphemeralValue<string>(),
+>   },
+>   inputChannels: ["a"],
+>   outputChannels: ["b", "c"],
+> });
+>
+> await app.invoke({ a: "foo" });
+> ```
+>
+> ```console theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> { b: 'foofoo', c: 'foofoofoofoo' }
+> ```
 
-const node1 = new NodeBuilder()
-  .subscribeOnly("a")
-  .do((x: string) => x + x)
-  .writeTo("b");
+> [tab] Topic
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import { EphemeralValue, Topic } from "@langchain/langgraph/channels";
+> import { Pregel, NodeBuilder } from "@langchain/langgraph/pregel";
+>
+> const node1 = new NodeBuilder()
+>   .subscribeOnly("a")
+>   .do((x: string) => x + x)
+>   .writeTo("b", "c");
+>
+> const node2 = new NodeBuilder()
+>   .subscribeTo("b")
+>   .do((x: { b: string }) => x.b + x.b)
+>   .writeTo("c");
+>
+> const app = new Pregel({
+>   nodes: { node1, node2 },
+>   channels: {
+>     a: new EphemeralValue<string>(),
+>     b: new EphemeralValue<string>(),
+>     c: new Topic<string>({ accumulate: true }),
+>   },
+>   inputChannels: ["a"],
+>   outputChannels: ["c"],
+> });
+>
+> await app.invoke({ a: "foo" });
+> ```
+>
+> ```console theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> { c: ['foofoo', 'foofoofoofoo'] }
+> ```
 
-const app = new Pregel({
-  nodes: { node1 },
-  channels: {
-    a: new EphemeralValue<string>(),
-    b: new EphemeralValue<string>(),
-  },
-  inputChannels: ["a"],
-  outputChannels: ["b"],
-});
+> [tab] BinaryOperatorAggregate
+>
+> This example demonstrates how to use the [`BinaryOperatorAggregate`](https://reference.langchain.com/javascript/langchain-langgraph/channels/BinaryOperatorAggregate) channel to implement a reducer.
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import { EphemeralValue, BinaryOperatorAggregate } from "@langchain/langgraph/channels";
+> import { Pregel, NodeBuilder } from "@langchain/langgraph/pregel";
+>
+> const node1 = new NodeBuilder()
+>   .subscribeOnly("a")
+>   .do((x: string) => x + x)
+>   .writeTo("b", "c");
+>
+> const node2 = new NodeBuilder()
+>   .subscribeOnly("b")
+>   .do((x: string) => x + x)
+>   .writeTo("c");
+>
+> const reducer = (current: string, update: string) => {
+>   if (current) {
+>     return current + " | " + update;
+>   } else {
+>     return update;
+>   }
+> };
+>
+> const app = new Pregel({
+>   nodes: { node1, node2 },
+>   channels: {
+>     a: new EphemeralValue<string>(),
+>     b: new EphemeralValue<string>(),
+>     c: new BinaryOperatorAggregate<string>({ operator: reducer }),
+>   },
+>   inputChannels: ["a"],
+>   outputChannels: ["c"],
+> });
+>
+> await app.invoke({ a: "foo" });
+> ```
 
-await app.invoke({ a: "foo" });
-```
-
-```console theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-{ b: 'foofoo' }
-```
-
-**Multiple nodes**
-
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-import { LastValue, EphemeralValue } from "@langchain/langgraph/channels";
-import { Pregel, NodeBuilder } from "@langchain/langgraph/pregel";
-
-const node1 = new NodeBuilder()
-  .subscribeOnly("a")
-  .do((x: string) => x + x)
-  .writeTo("b");
-
-const node2 = new NodeBuilder()
-  .subscribeOnly("b")
-  .do((x: string) => x + x)
-  .writeTo("c");
-
-const app = new Pregel({
-  nodes: { node1, node2 },
-  channels: {
-    a: new EphemeralValue<string>(),
-    b: new LastValue<string>(),
-    c: new EphemeralValue<string>(),
-  },
-  inputChannels: ["a"],
-  outputChannels: ["b", "c"],
-});
-
-await app.invoke({ a: "foo" });
-```
-
-```console theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-{ b: 'foofoo', c: 'foofoofoofoo' }
-```
-
-**Topic**
-
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-import { EphemeralValue, Topic } from "@langchain/langgraph/channels";
-import { Pregel, NodeBuilder } from "@langchain/langgraph/pregel";
-
-const node1 = new NodeBuilder()
-  .subscribeOnly("a")
-  .do((x: string) => x + x)
-  .writeTo("b", "c");
-
-const node2 = new NodeBuilder()
-  .subscribeTo("b")
-  .do((x: { b: string }) => x.b + x.b)
-  .writeTo("c");
-
-const app = new Pregel({
-  nodes: { node1, node2 },
-  channels: {
-    a: new EphemeralValue<string>(),
-    b: new EphemeralValue<string>(),
-    c: new Topic<string>({ accumulate: true }),
-  },
-  inputChannels: ["a"],
-  outputChannels: ["c"],
-});
-
-await app.invoke({ a: "foo" });
-```
-
-```console theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-{ c: ['foofoo', 'foofoofoofoo'] }
-```
-
-**BinaryOperatorAggregate**
-
-This example demonstrates how to use the [`BinaryOperatorAggregate`](https://reference.langchain.com/javascript/langchain-langgraph/channels/BinaryOperatorAggregate) channel to implement a reducer.
-
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-import { EphemeralValue, BinaryOperatorAggregate } from "@langchain/langgraph/channels";
-import { Pregel, NodeBuilder } from "@langchain/langgraph/pregel";
-
-const node1 = new NodeBuilder()
-  .subscribeOnly("a")
-  .do((x: string) => x + x)
-  .writeTo("b", "c");
-
-const node2 = new NodeBuilder()
-  .subscribeOnly("b")
-  .do((x: string) => x + x)
-  .writeTo("c");
-
-const reducer = (current: string, update: string) => {
-  if (current) {
-    return current + " | " + update;
-  } else {
-    return update;
-  }
-};
-
-const app = new Pregel({
-  nodes: { node1, node2 },
-  channels: {
-    a: new EphemeralValue<string>(),
-    b: new EphemeralValue<string>(),
-    c: new BinaryOperatorAggregate<string>({ operator: reducer }),
-  },
-  inputChannels: ["a"],
-  outputChannels: ["c"],
-});
-
-await app.invoke({ a: "foo" });
-```
-
-**Cycle**
-
-This example demonstrates how to introduce a cycle in the graph, by having
-a chain write to a channel it subscribes to. Execution will continue
-until a `null` value is written to the channel.
-
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-import { EphemeralValue } from "@langchain/langgraph/channels";
-import { Pregel, NodeBuilder, ChannelWriteEntry } from "@langchain/langgraph/pregel";
-
-const exampleNode = new NodeBuilder()
-  .subscribeOnly("value")
-  .do((x: string) => x.length < 10 ? x + x : null)
-  .writeTo(new ChannelWriteEntry("value", { skipNone: true }));
-
-const app = new Pregel({
-  nodes: { exampleNode },
-  channels: {
-    value: new EphemeralValue<string>(),
-  },
-  inputChannels: ["value"],
-  outputChannels: ["value"],
-});
-
-await app.invoke({ value: "a" });
-```
-
-```console theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-{ value: 'aaaaaaaaaaaaaaaa' }
-```
+> [tab] Cycle
+>
+> This example demonstrates how to introduce a cycle in the graph, by having
+> a chain write to a channel it subscribes to. Execution will continue
+> until a `null` value is written to the channel.
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import { EphemeralValue } from "@langchain/langgraph/channels";
+> import { Pregel, NodeBuilder, ChannelWriteEntry } from "@langchain/langgraph/pregel";
+>
+> const exampleNode = new NodeBuilder()
+>   .subscribeOnly("value")
+>   .do((x: string) => x.length < 10 ? x + x : null)
+>   .writeTo(new ChannelWriteEntry("value", { skipNone: true }));
+>
+> const app = new Pregel({
+>   nodes: { exampleNode },
+>   channels: {
+>     value: new EphemeralValue<string>(),
+>   },
+>   inputChannels: ["value"],
+>   outputChannels: ["value"],
+> });
+>
+> await app.invoke({ value: "a" });
+> ```
+>
+> ```console theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> { value: 'aaaaaaaaaaaaaaaa' }
+> ```
 
 ## High-level API
 
 LangGraph provides two high-level APIs for creating a Pregel application: the [StateGraph (Graph API)](/oss/javascript/langgraph/graph-api) and the [Functional API](/oss/javascript/langgraph/functional-api).
 
-**StateGraph (Graph API)**
+> [tab] StateGraph (Graph API)
+>
+> The [StateGraph (Graph API)](https://reference.langchain.com/javascript/langchain-langgraph/index/StateGraph) is a higher-level abstraction that simplifies the creation of Pregel applications. It allows you to define a graph of nodes and edges. When you compile the graph, the StateGraph API automatically creates the Pregel application for you.
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import { START, StateGraph } from "@langchain/langgraph";
+>
+> interface Essay {
+>   topic: string;
+>   content?: string;
+>   score?: number;
+> }
+>
+> const writeEssay = (essay: Essay) => {
+>   return {
+>     content: `Essay about ${essay.topic}`,
+>   };
+> };
+>
+> const scoreEssay = (essay: Essay) => {
+>   return {
+>     score: 10
+>   };
+> };
+>
+> const builder = new StateGraph<Essay>({
+>   channels: {
+>     topic: null,
+>     content: null,
+>     score: null,
+>   }
+> })
+>   .addNode("writeEssay", writeEssay)
+>   .addNode("scoreEssay", scoreEssay)
+>   .addEdge(START, "writeEssay")
+>   .addEdge("writeEssay", "scoreEssay");
+>
+> // Compile the graph.
+> // This will return a Pregel instance.
+> const graph = builder.compile();
+> ```
+>
+> The compiled Pregel instance will be associated with a list of nodes and channels. You can inspect the nodes and channels by printing them.
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> console.log(graph.nodes);
+> ```
+>
+> You will see something like this:
+>
+> ```console theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> {
+>   __start__: PregelNode { ... },
+>   writeEssay: PregelNode { ... },
+>   scoreEssay: PregelNode { ... }
+> }
+> ```
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> console.log(graph.channels);
+> ```
+>
+> You should see something like this
+>
+> ```console theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> {
+>   topic: LastValue { ... },
+>   content: LastValue { ... },
+>   score: LastValue { ... },
+>   __start__: EphemeralValue { ... },
+>   writeEssay: EphemeralValue { ... },
+>   scoreEssay: EphemeralValue { ... },
+>   'branch:__start__:__self__:writeEssay': EphemeralValue { ... },
+>   'branch:__start__:__self__:scoreEssay': EphemeralValue { ... },
+>   'branch:writeEssay:__self__:writeEssay': EphemeralValue { ... },
+>   'branch:writeEssay:__self__:scoreEssay': EphemeralValue { ... },
+>   'branch:scoreEssay:__self__:writeEssay': EphemeralValue { ... },
+>   'branch:scoreEssay:__self__:scoreEssay': EphemeralValue { ... },
+>   'start:writeEssay': EphemeralValue { ... }
+> }
+> ```
 
-The [StateGraph (Graph API)](https://reference.langchain.com/javascript/langchain-langgraph/index/StateGraph) is a higher-level abstraction that simplifies the creation of Pregel applications. It allows you to define a graph of nodes and edges. When you compile the graph, the StateGraph API automatically creates the Pregel application for you.
-
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-import { START, StateGraph } from "@langchain/langgraph";
-
-interface Essay {
-  topic: string;
-  content?: string;
-  score?: number;
-}
-
-const writeEssay = (essay: Essay) => {
-  return {
-    content: `Essay about ${essay.topic}`,
-  };
-};
-
-const scoreEssay = (essay: Essay) => {
-  return {
-    score: 10
-  };
-};
-
-const builder = new StateGraph<Essay>({
-  channels: {
-    topic: null,
-    content: null,
-    score: null,
-  }
-})
-  .addNode("writeEssay", writeEssay)
-  .addNode("scoreEssay", scoreEssay)
-  .addEdge(START, "writeEssay")
-  .addEdge("writeEssay", "scoreEssay");
-
-// Compile the graph.
-// This will return a Pregel instance.
-const graph = builder.compile();
-```
-
-The compiled Pregel instance will be associated with a list of nodes and channels. You can inspect the nodes and channels by printing them.
-
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-console.log(graph.nodes);
-```
-
-You will see something like this:
-
-```console theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-{
-  __start__: PregelNode { ... },
-  writeEssay: PregelNode { ... },
-  scoreEssay: PregelNode { ... }
-}
-```
-
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-console.log(graph.channels);
-```
-
-You should see something like this
-
-```console theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-{
-  topic: LastValue { ... },
-  content: LastValue { ... },
-  score: LastValue { ... },
-  __start__: EphemeralValue { ... },
-  writeEssay: EphemeralValue { ... },
-  scoreEssay: EphemeralValue { ... },
-  'branch:__start__:__self__:writeEssay': EphemeralValue { ... },
-  'branch:__start__:__self__:scoreEssay': EphemeralValue { ... },
-  'branch:writeEssay:__self__:writeEssay': EphemeralValue { ... },
-  'branch:writeEssay:__self__:scoreEssay': EphemeralValue { ... },
-  'branch:scoreEssay:__self__:writeEssay': EphemeralValue { ... },
-  'branch:scoreEssay:__self__:scoreEssay': EphemeralValue { ... },
-  'start:writeEssay': EphemeralValue { ... }
-}
-```
-
-**Functional API**
-
-In the [Functional API](/oss/javascript/langgraph/functional-api), you can use an [`entrypoint`](https://reference.langchain.com/javascript/langchain-langgraph/index/entrypoint) to create a Pregel application. The `entrypoint` decorator allows you to define a function that takes input and returns output.
-
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-import { MemorySaver } from "@langchain/langgraph";
-import { entrypoint } from "@langchain/langgraph/func";
-
-interface Essay {
-  topic: string;
-  content?: string;
-  score?: number;
-}
-
-const checkpointer = new MemorySaver();
-
-const writeEssay = entrypoint(
-  { checkpointer, name: "writeEssay" },
-  async (essay: Essay) => {
-    return {
-      content: `Essay about ${essay.topic}`,
-    };
-  }
-);
-
-console.log("Nodes: ");
-console.log(writeEssay.nodes);
-console.log("Channels: ");
-console.log(writeEssay.channels);
-```
-
-```console theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-Nodes:
-{ writeEssay: PregelNode { ... } }
-Channels:
-{
-  __start__: EphemeralValue { ... },
-  __end__: LastValue { ... },
-  __previous__: LastValue { ... }
-}
-```
+> [tab] Functional API
+>
+> In the [Functional API](/oss/javascript/langgraph/functional-api), you can use an [`entrypoint`](https://reference.langchain.com/javascript/langchain-langgraph/index/entrypoint) to create a Pregel application. The `entrypoint` decorator allows you to define a function that takes input and returns output.
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import { MemorySaver } from "@langchain/langgraph";
+> import { entrypoint } from "@langchain/langgraph/func";
+>
+> interface Essay {
+>   topic: string;
+>   content?: string;
+>   score?: number;
+> }
+>
+> const checkpointer = new MemorySaver();
+>
+> const writeEssay = entrypoint(
+>   { checkpointer, name: "writeEssay" },
+>   async (essay: Essay) => {
+>     return {
+>       content: `Essay about ${essay.topic}`,
+>     };
+>   }
+> );
+>
+> console.log("Nodes: ");
+> console.log(writeEssay.nodes);
+> console.log("Channels: ");
+> console.log(writeEssay.channels);
+> ```
+>
+> ```console theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> Nodes:
+> { writeEssay: PregelNode { ... } }
+> Channels:
+> {
+>   __start__: EphemeralValue { ... },
+>   __end__: LastValue { ... },
+>   __previous__: LastValue { ... }
+> }
+> ```
 
 ***
 

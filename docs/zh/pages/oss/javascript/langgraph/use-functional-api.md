@@ -29,7 +29,7 @@ const myWorkflow = entrypoint(
 await myWorkflow.invoke({ value: 1, anotherValue: 2 });
 ```
 
-> **扩展示例：简单的工作流程**
+> [手风琴] 扩展示例：简单的工作流程
 >
 > ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > import { v7 as uuid7 } from "uuid";
@@ -63,7 +63,7 @@ await myWorkflow.invoke({ value: 1, anotherValue: 2 });
 > console.log(result);
 > ```
 
-> **扩展示例：以法学硕士撰写论文**
+> [手风琴] 扩展示例：用法学硕士撰写论文
 >
 > 这个例子演示了如何使用 `@task` 和 `@entrypoint` 装饰器
 > 从语法上来说。鉴于提供了检查点，工作流程结果将
@@ -105,7 +105,7 @@ await myWorkflow.invoke({ value: 1, anotherValue: 2 });
 
 ## 并行执行
 
-通过并发调用任务并等待结果，可以并行执行任务。这对于提高 IO 密集型任务的性能很有用（例如，调用 LLM 的 API）。
+通过并发调用任务并等待结果，可以并行执行任务。这对于提高 IO 绑定任务的性能很有用（例如，调用 LLM 的 API）。
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 const addOne = task("addOne", async (number: number) => {
@@ -118,7 +118,7 @@ const graph = entrypoint(
     return await Promise.all(numbers.map(addOne));
   }
 );
-```> **扩展示例：并行 LLM 调用**
+```> [accordion] 扩展示例：并行 LLM 调用
 >
 > 此示例演示如何使用 `@task` 并行运行多个 LLM 调用。每次调用都会生成关于不同主题的段落，并将结果合并到单个文本输出中。
 >
@@ -186,7 +186,7 @@ const someWorkflow = entrypoint(
 );
 ```
 
-> **扩展示例：从函数式 API 调用简单图**
+> [accordion] 扩展示例：从函数式 API 调用简单图
 >
 > ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > import { v7 as uuid7 } from "uuid";
@@ -244,7 +244,7 @@ const myWorkflow = entrypoint(
 );
 ```
 
-> **扩展示例：调用另一个入口点**
+> [accordion] 扩展示例：调用另一个入口点
 >
 > ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > import { v7 as uuid7 } from "uuid";
@@ -294,7 +294,7 @@ for await (const chunk of stream.values) {
 // 10
 ```
 
-> **[View example trace](https://smith.langchain.com/public/d666205b-1ade-4880-878c-d4410e1dc4d5/r)**
+> [卡][View example trace](https://smith.langchain.com/public/d666205b-1ade-4880-878c-d4410e1dc4d5/r)
 >
 > 为此示例打开公共 LangSmith 运行。1. 在计算开始之前发出自定义数据。
 2. 计算结果后发出另一条自定义消息。

@@ -118,11 +118,11 @@ chat panel to a full workflow debugger without changing the backend protocol.
 
 ## Patterns
 
-> **[Graph execution](/oss/javascript/langgraph/frontend/graph-execution)**
+> [card] [Graph execution](/oss/javascript/langgraph/frontend/graph-execution)
 >
 > Visualize multi-step graph pipelines with per-node status and streaming content.
 
-> **[Custom stream channels](/oss/javascript/langgraph/frontend/custom-stream-channels)**
+> [card] [Custom stream channels](/oss/javascript/langgraph/frontend/custom-stream-channels)
 >
 > Stream custom server-side data to the frontend and read it with `useExtension` and `useChannel`.
 
