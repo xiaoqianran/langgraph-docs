@@ -31,7 +31,7 @@ for await (const chunk of await graph.stream(inputs, {
 ## 流模式
 
 将以下一种或多种流模式作为列表传递给 [⟦T36⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/CompiledStateGraph/stream) 方法：|模式|描述 |
-| :-| :-|
+| :- | :- |
 | [values](#graph-state) |每一步后的完整状态。 |
 | [updates](#graph-state) |每个步骤后状态都会更新。同一步骤中的多个更新分别进行流式传输。 |
 | [messages](#llm-tokens) |来自 LLM 调用的 2 元组（LLM 令牌、元数据）。 |
@@ -318,7 +318,7 @@ const stream = await graph.streamEvents(
 );
 ```
 
-> [卡][View example trace](https://smith.langchain.com/public/b2aab4a2-0d5e-49c2-8b99-c89f3de9348d/r)
+> [卡][View example trace](https://smith.langchain.com/public/301d6a82-68f6-49e2-9002-9be2fd0ab697/r)
 >
 > 为此示例打开公共 LangSmith 运行。
 

@@ -66,7 +66,7 @@ my_workflow.invoke({"value": 1, "another_value": 2})
 > from langgraph.func import entrypoint, task
 > from langgraph.checkpoint.memory import InMemorySaver
 >
-> model = init_chat_model('gpt-3.5-turbo')
+> model = init_chat_model('gpt-5.4-mini')
 >
 > # Task: generate essay using an LLM
 > @task
@@ -117,7 +117,7 @@ def graph(numbers: list[int]) -> list[str]:
 > from langgraph.checkpoint.memory import InMemorySaver
 >
 > # Initialize the LLM model
-> model = init_chat_model("gpt-3.5-turbo")
+> model = init_chat_model("gpt-5.4-mini")
 >
 > # Task that generates a paragraph about a given topic
 > @task
@@ -263,7 +263,7 @@ for mode, chunk in stream.interleave("values"):
 # values: 10
 ```
 
-> [card] [View example trace](https://smith.langchain.com/public/b2de9987-99f2-40ad-bfb4-6bbf9f01ffb1/r)
+> [card] [View example trace](https://smith.langchain.com/public/39b6ad85-7072-4290-8ae4-3f0f76c9c28a/r)
 >
 > Open a public LangSmith run for this example.
 

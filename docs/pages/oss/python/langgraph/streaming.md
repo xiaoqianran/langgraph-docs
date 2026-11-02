@@ -428,7 +428,7 @@ initial_state: State = {"topic": "AI", "answer": "", "notes": ""}
 stream = graph.stream_events(initial_state, version="v3")
 ```
 
-> [card] [View example trace](https://smith.langchain.com/public/e378901c-6fa4-4f1c-8390-d4e59b74306d/r)
+> [card] [View example trace](https://smith.langchain.com/public/6dbd3dce-8e53-4690-b759-32a2d216d27d/r)
 >
 > Open a public LangSmith run for this example.
 

@@ -203,22 +203,24 @@ const total = new BinaryOperatorAggregate<number>({ operator: (a, b) => a + b })
 > [选项卡] 循环
 >
 > 这个例子演示了如何在图中引入一个循环，通过
-> 链写入其订阅的频道。执行将继续
-> 直到`null`值写入通道。
+> 链写入其订阅的频道。节点将字符串加倍
+> 直到其长度至少为 10，然后写入一个空数组。因为
+> `Topic` 当没有收到新值时在步骤之间清除，通道
+> 变空，循环结束。
 >
 > ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-> import { EphemeralValue } from "@langchain/langgraph/channels";
-> import { Pregel, NodeBuilder, ChannelWriteEntry } from "@langchain/langgraph/pregel";
+> import { Topic } from "@langchain/langgraph/channels";
+> import { Pregel, NodeBuilder } from "@langchain/langgraph/pregel";
 >
 > const exampleNode = new NodeBuilder()
 >   .subscribeOnly("value")
->   .do((x: string) => x.length < 10 ? x + x : null)
->   .writeTo(new ChannelWriteEntry("value", { skipNone: true }));
+>   .do((xs: string[]) => (xs[0].length < 10 ? xs[0] + xs[0] : []))
+>   .writeTo("value");
 >
 > const app = new Pregel({
 >   nodes: { exampleNode },
 >   channels: {
->     value: new EphemeralValue<string>(),
+>     value: new Topic<string>(),
 >   },
 >   inputChannels: ["value"],
 >   outputChannels: ["value"],
@@ -228,14 +230,12 @@ const total = new BinaryOperatorAggregate<number>({ operator: (a, b) => a + b })
 > ```
 >
 > ```console theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-> { value: 'aaaaaaaaaaaaaaaa' }
+> { value: ['aaaaaaaaaaaaaaaa'] }
 > ```
 
 ## 高级 API
 
-LangGraph 提供了两个用于创建 Pregel 应用程序的高级 API：[StateGraph (Graph API)](/oss/javascript/langgraph/graph-api) 和 [Functional API](/oss/javascript/langgraph/functional-api)。
-
-> [选项卡] StateGraph（图 API）
+LangGraph 提供了两个用于创建 Pregel 应用程序的高级 API：[StateGraph (Graph API)](/oss/javascript/langgraph/graph-api) 和 [Functional API](/oss/javascript/langgraph/functional-api)。> [选项卡] StateGraph（图 API）
 >
 > [StateGraph (Graph API)](https://reference.langchain.com/javascript/langchain-langgraph/index/StateGraph) 是一种更高级别的抽象，可简化 Pregel 应用程序的创建。它允许您定义节点和边的图。当您编译图时，StateGraph API 会自动为您创建 Pregel 应用程序。
 >
@@ -315,7 +315,9 @@ LangGraph 提供了两个用于创建 Pregel 应用程序的高级 API：[StateG
 >   'branch:scoreEssay:__self__:scoreEssay': EphemeralValue { ... },
 >   'start:writeEssay': EphemeralValue { ... }
 > }
-> ```> [选项卡] 功能 API
+> ```
+
+> [选项卡] 功能 API
 >
 > 在[Functional API](/oss/javascript/langgraph/functional-api)中，您可以使用[⟦T29⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/entrypoint)来创建Pregel应用程序。 `entrypoint` 装饰器允许您定义一个接受输入并返回输出的函数。
 >

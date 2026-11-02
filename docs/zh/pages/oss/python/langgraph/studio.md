@@ -67,7 +67,7 @@ Studio 需要 LangSmith API 密钥来连接您的本地代理。在项目的根�
 ```bash .env theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 LANGSMITH_API_KEY=lsv2...
 LANGSMITH_AGENT_ID="<your-agent-id>"
-LANGSMITH_AGENT_ENVIRONMENT="production"
+LANGSMITH_AGENT_ENVIRONMENT="local"
 ```
 
 ### 4.创建LangGraph配置文件

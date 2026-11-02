@@ -76,7 +76,7 @@ resumed = graph.stream_events(Command(resume=True), config=config, version="v3")
 final = resumed.output
 ```
 
-> [card] [View example trace](https://smith.langchain.com/public/4741fc73-bfe6-4c7d-a1b8-b19349fa0189/r)
+> [card] [View example trace](https://smith.langchain.com/public/cd7406ad-294e-4d98-b0ae-d9ed7930e117/r)
 >
 > Open a public LangSmith run for this example.
 
@@ -200,7 +200,7 @@ while True:
     stream_input = Command(resume=user_response)
 ```
 
-> [card] [View example trace](https://smith.langchain.com/public/9305def9-923f-419c-9ffd-a44a8492ef45/r)
+> [card] [View example trace](https://smith.langchain.com/public/acab7c09-a2a5-46f3-96fb-15bd36c8df80/r)
 >
 > Open a public LangSmith run for this example.
 
@@ -268,7 +268,7 @@ print("Final state:", resumed.output)
 # Final state: {'vals': ['a:answer for question_a', 'b:answer for question_b']}
 ```
 
-> [card] [View example trace](https://smith.langchain.com/public/865aef4a-3f52-4774-936e-0e21756f2cc1/r)
+> [card] [View example trace](https://smith.langchain.com/public/abe5fd52-e2d3-41fc-ab1d-c812bc885c3e/r)
 >
 > Open a public LangSmith run for this example.
 
@@ -366,7 +366,7 @@ graph.stream_events(Command(resume=False), config=config, version="v3").output
 > print(resumed.output["status"])
 > ```
 >
-> > [card] [View example trace](https://smith.langchain.com/public/c2ed3d48-f1f0-4bb8-919b-0fa46ca88ca6/r)
+> > [card] [View example trace](https://smith.langchain.com/public/125fbf83-2cf8-4dc7-a148-94f39bc31b8a/r)
 > >
 > > Open a public LangSmith run for this example.
 
@@ -447,7 +447,7 @@ graph.stream_events(
 > print(final_state.output["generated_text"])  # -> "Improved draft after review"
 > ```
 >
-> > [card] [View example trace](https://smith.langchain.com/public/cb22ff81-2f4f-40ef-9e6c-4a646c284d60/r)
+> > [card] [View example trace](https://smith.langchain.com/public/0698f1a4-d39f-459b-be4c-1d189f830d06/r)
 > >
 > > Open a public LangSmith run for this example.
 

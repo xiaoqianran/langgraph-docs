@@ -108,7 +108,7 @@ class State(TypedDict):
 >
 > 设计减速器时的实际后果：
 >
-> * **使其成为 `(state, writes)` 的纯函数。** 任何副作用、随机性或挂钟读取（例如，`uuid.uuid4()`、`datetime.now()`）都会在每次重建值时执行，并在每次重放时产生不同的结果。它们“没有”被烘焙到持久写入中。> * **不要依赖于传入写入的突变来持久化。** 如果你的reducer改变了一个写入对象（例如，为一个没有稳定ID的项目分配一个稳定的ID），那么该突变仅存在于重建的值中。存储的写入仍然具有原始形状，因此下一次重建将再次看到未突变的输入。
+> * **使其成为 `(state, writes)` 的纯函数。** 任何副作用、随机性或挂钟读取（例如，`uuid.uuid4()`、`datetime.now()`）都会在每次重建值时执行，并在每次重放时产生不同的结果。它们“没有”被烘焙到持久写入中。> * **不要依赖于传入写入的突变来持久化。** 如果你的reducer改变了一个写入对象（例如，为一个没有稳定ID的项目分配一个稳定的ID），那么该突变仅存在于重建的值中。存储的写入仍然具有原始形状，因此下一次重建将再次看到未变异的输入。
 > * **在上游附加身份和其他稳定的元数据。** 如果下游代码需要通过 ID 跨轮引用某个项目（例如，稍后更新或删除它），请在将值写入通道之前分配该 ID，而不是在减速器内部。
 
 以下是针对两种最常见情况的批量减速器：
@@ -139,7 +139,7 @@ def dict_reducer(
 
 #### 使用快照\_频率来限制读取延迟
 
-如果没有快照，读取 `DeltaChannel` 值需要重播完整的写入历史记录 - 对于具有 N 个步骤的线程来说，O(N)。设置 `snapshot_frequency=K` 每 K 个预凝胶步骤写入一个完整快照，将读取深度限制为最多 K 个步骤：
+如果没有快照，读取 `DeltaChannel` 值需要重播完整的写入历史记录 — 对于具有 N 个步骤的线程来说，O(N)。设置 `snapshot_frequency=K` 每 K 个预凝胶步骤写入一个完整快照，将读取深度限制为最多 K 个步骤：
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 class State(TypedDict):
@@ -147,7 +147,7 @@ class State(TypedDict):
         list[str],
         DeltaChannel(my_reducer, snapshot_frequency=5),
     ]
-```较高的 `snapshot_frequency` 值可减少存储开销，但会增加读取延迟。较低的值会更紧密地限制延迟，但代价是检查点更大。 `None`（默认）完全跳过快照——适用于读取很少或线程较短的情况。
+```较高的 `snapshot_frequency` 值可减少存储开销，但会增加读取延迟。较低的值会更紧密地限制延迟，但代价是检查点较大。 `None`（默认）完全跳过快照——适用于读取很少或线程较短的情况。
 
 #### 版本兼容性和回滚
 
@@ -311,23 +311,25 @@ class State(TypedDict):
 > [选项卡] 循环
 >
 > 这个例子演示了如何在图中引入一个循环，通过
-> 链写入其订阅的频道。执行将继续
-> 直到 `None` 值写入通道。
+> 链写入其订阅的频道。节点将字符串加倍
+> 直到其长度至少为 10，然后写入一个空列表。因为
+> `Topic` 当没有收到新值时在步骤之间清除，通道
+> 变空，循环结束。
 >
 > ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-> from langgraph.channels import EphemeralValue
-> from langgraph.pregel import Pregel, NodeBuilder, ChannelWriteEntry
+> from langgraph.channels import Topic
+> from langgraph.pregel import Pregel, NodeBuilder
 >
 > example_node = (
 >     NodeBuilder().subscribe_only("value")
->     .do(lambda x: x + x if len(x) < 10 else None)
->     .write_to(ChannelWriteEntry("value", skip_none=True))
+>     .do(lambda xs: xs[0] + xs[0] if len(xs[0]) < 10 else [])
+>     .write_to("value")
 > )
 >
 > app = Pregel(
 >     nodes={"example_node": example_node},
 >     channels={
->         "value": EphemeralValue(str),
+>         "value": Topic(str, accumulate=False),
 >     },
 >     input_channels=["value"],
 >     output_channels=["value"],
@@ -337,7 +339,7 @@ class State(TypedDict):
 > ```
 >
 > ```pycon theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-> {'value': 'aaaaaaaaaaaaaaaa'}
+> {'value': ['aaaaaaaaaaaaaaaa']}
 > ```
 
 ## 高级 API

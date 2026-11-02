@@ -74,7 +74,7 @@ await myWorkflow.invoke({ value: 1, anotherValue: 2 });
 > import { ChatOpenAI } from "@langchain/openai";
 > import { entrypoint, task, MemorySaver } from "@langchain/langgraph";
 >
-> const model = new ChatOpenAI({ model: "gpt-3.5-turbo" });
+> const model = new ChatOpenAI({ model: "gpt-5.4-mini" });
 >
 > // Task: generate essay using an LLM
 > const composeEssay = task("composeEssay", async (topic: string) => {
@@ -128,7 +128,7 @@ const graph = entrypoint(
 > import { entrypoint, task, MemorySaver } from "@langchain/langgraph";
 >
 > // Initialize the LLM model
-> const model = new ChatOpenAI({ model: "gpt-3.5-turbo" });
+> const model = new ChatOpenAI({ model: "gpt-5.4-mini" });
 >
 > // Task that generates a paragraph about a given topic
 > const generateParagraph = task("generateParagraph", async (topic: string) => {
@@ -294,7 +294,7 @@ for await (const chunk of stream.values) {
 // 10
 ```
 
-> [卡][View example trace](https://smith.langchain.com/public/d666205b-1ade-4880-878c-d4410e1dc4d5/r)
+> [卡][View example trace](https://smith.langchain.com/public/a43b8f1e-e11c-48d9-be99-23e2473c0ef4/r)
 >
 > 为此示例打开公共 LangSmith 运行。1. 在计算开始之前发出自定义数据。
 2. 计算结果后发出另一条自定义消息。

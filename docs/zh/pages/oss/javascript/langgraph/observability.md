@@ -14,7 +14,7 @@
 
 在开始之前，请确保您具备以下条件：
 
-* **LangSmith帐户**：注册（免费）或在[smith.langchain.com](https://smith.langchain.com?utm_source=docs\&utm_medium=cta\&utm_campaign=langsmith-signup\&utm_content=oss-langgraph-observability)登录。
+* **LangSmith帐户**：注册（免费）或登录[smith.langchain.com](https://smith.langchain.com?utm_source=docs\&utm_medium=cta\&utm_campaign=langsmith-signup\&utm_content=oss-langgraph-observability)。
 * **A LangSmith API 密钥**：遵循 [Create an API key](/langsmith/create-account-api-key) 指南。
 
 ## 启用跟踪
@@ -27,7 +27,7 @@
 
 ```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 export LANGSMITH_AGENT_ID="<your-agent-id>"
-export LANGSMITH_AGENT_ENVIRONMENT="production"
+export LANGSMITH_AGENT_ENVIRONMENT="local"
 export LANGSMITH_TRACING=true
 export LANGSMITH_API_KEY=<your-api-key>
 ```
@@ -38,7 +38,7 @@ export LANGSMITH_API_KEY=<your-api-key>
 
 ## 有选择地跟踪
 
-您可以选择使用 LangSmith 的 `tracing_context` 上下文管理器来跟踪代理的特定调用或部分：
+您可以选择使用 LangSmith 的 `tracing_context` 上下文管理器来跟踪特定调用或代理的部分：
 
 ```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { LangChainTracer } from "@langchain/core/tracers/tracer_langchain";

@@ -191,7 +191,7 @@ while (true) {
 }
 ```
 
-> [card] [View example trace](https://smith.langchain.com/public/4aeb7a2d-5aa5-45e2-afd8-0a4c5ef9ac2a/r)
+> [card] [View example trace](https://smith.langchain.com/public/2818dd63-f00f-459c-89de-f0a12e750ed1/r)
 >
 > Open a public LangSmith run for this example.
 
@@ -621,7 +621,7 @@ const getAgeNode: typeof State.Node = (state) => {
 // );
 ```
 
-> [card] [View example trace](https://smith.langchain.com/public/68000848-fccd-4c6a-9f64-0951306122fe/r)
+> [card] [View example trace](https://smith.langchain.com/public/d4bdea8c-04d3-499b-af7c-14d35c5e9ee3/r)
 >
 > Open a public LangSmith run for this example.
 

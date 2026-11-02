@@ -320,7 +320,7 @@ const stream = await graph.streamEvents(
 );
 ```
 
-> [card] [View example trace](https://smith.langchain.com/public/b2aab4a2-0d5e-49c2-8b99-c89f3de9348d/r)
+> [card] [View example trace](https://smith.langchain.com/public/301d6a82-68f6-49e2-9002-9be2fd0ab697/r)
 >
 > Open a public LangSmith run for this example.
 

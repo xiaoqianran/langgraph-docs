@@ -183,7 +183,7 @@ while (true) {
 }
 ```
 
-> [卡][View example trace](https://smith.langchain.com/public/4aeb7a2d-5aa5-45e2-afd8-0a4c5ef9ac2a/r)
+> [卡][View example trace](https://smith.langchain.com/public/2818dd63-f00f-459c-89de-f0a12e750ed1/r)
 >
 > 为此示例打开公共 LangSmith 运行。* **`stream.messages`**：聊天模型输出为内容块；迭代 `message.text` 以获得代币增量。对于嵌套子图，从`stream.subgraphs[*].messages`读取消息块。
 * **`stream.values`**：每一步后的完整状态快照
@@ -607,7 +607,7 @@ const getAgeNode: typeof State.Node = (state) => {
 // );
 ```
 
-> [卡][View example trace](https://smith.langchain.com/public/68000848-fccd-4c6a-9f64-0951306122fe/r)
+> [卡][View example trace](https://smith.langchain.com/public/d4bdea8c-04d3-499b-af7c-14d35c5e9ee3/r)
 >
 > 为此示例打开公共 LangSmith 运行。在此示例中，无效答案会导致节点返回更新后的问题。在同一图运行期间，条件边再次调用该节点，并且此新调用在`interrupt()`处暂停。在稍后的恢复中，节点仍然从头开始重新启动，因此 `interrupt()` 之前的任何代码都会再次运行。参见[Rules of interrupts](#rules-of-interrupts)。
 
@@ -845,7 +845,7 @@ const nodeA: GraphNode<typeof State> = async (state) => {
 
 * ✅ 在[⟦T132⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt)之前使用幂等操作
 * ✅ 在 [⟦T133⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 调用之后放置副作用
-* ✅ 如果可能，将副作用分离到单独的节点中
+* ✅尽可能将副作用分离到单独的节点中
 
 在下面的批准后示例中，副作用仅在批准成功时运行。如果节点在提交副作用后但完成之前失败，重试该节点可以重复该效果。在外部系统中使用幂等操作或重复写入。
 
@@ -904,7 +904,7 @@ const notificationNode: GraphNode<typeof State> = async (state) => {
 ```
 
 * 🔴[⟦T134⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt)之前不要进行非幂等操作
-* 🔴 在未检查新记录是否存在的情况下不要创建新记录
+* 🔴 在未检查记录是否存在的情况下不要创建新记录
 
 ```typescript Creating records theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 const nodeA: GraphNode<typeof State> = async (state) => {
@@ -954,7 +954,7 @@ async function nodeInSubgraph(state: State) {
 }
 ```
 
-## 使用中断进行调试要调试和测试图表，您可以使用静态中断作为断点，一次单步执行一个节点的图表执行。静态中断在节点执行之前或之后的定义点触发。您可以在编译图表时通过指定 `interruptBefore` 和 `interruptAfter` 来设置这些。
+## 使用中断进行调试要调试和测试图形，您可以使用静态中断作为断点，一次单步执行一个节点的图形执行。静态中断在节点执行之前或之后的定义点触发。您可以在编译图表时通过指定 `interruptBefore` 和 `interruptAfter` 来设置这些。
 
 > [!注意]
 >

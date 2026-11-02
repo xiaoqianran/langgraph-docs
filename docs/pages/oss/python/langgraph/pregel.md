@@ -322,23 +322,25 @@ Below are a few different examples to give you a sense of the Pregel API.
 > [tab] Cycle
 >
 > This example demonstrates how to introduce a cycle in the graph, by having
-> a chain write to a channel it subscribes to. Execution will continue
-> until a `None` value is written to the channel.
+> a chain write to a channel it subscribes to. The node doubles the string
+> until its length is at least 10, then writes an empty list. Because
+> `Topic` clears between steps when it receives no new values, the channel
+> becomes empty and the cycle ends.
 >
 > ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-> from langgraph.channels import EphemeralValue
-> from langgraph.pregel import Pregel, NodeBuilder, ChannelWriteEntry
+> from langgraph.channels import Topic
+> from langgraph.pregel import Pregel, NodeBuilder
 >
 > example_node = (
 >     NodeBuilder().subscribe_only("value")
->     .do(lambda x: x + x if len(x) < 10 else None)
->     .write_to(ChannelWriteEntry("value", skip_none=True))
+>     .do(lambda xs: xs[0] + xs[0] if len(xs[0]) < 10 else [])
+>     .write_to("value")
 > )
 >
 > app = Pregel(
 >     nodes={"example_node": example_node},
 >     channels={
->         "value": EphemeralValue(str),
+>         "value": Topic(str, accumulate=False),
 >     },
 >     input_channels=["value"],
 >     output_channels=["value"],
@@ -348,7 +350,7 @@ Below are a few different examples to give you a sense of the Pregel API.
 > ```
 >
 > ```pycon theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-> {'value': 'aaaaaaaaaaaaaaaa'}
+> {'value': ['aaaaaaaaaaaaaaaa']}
 > ```
 
 ## High-level API

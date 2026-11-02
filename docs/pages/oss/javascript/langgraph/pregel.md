@@ -207,22 +207,24 @@ Below are a few different examples to give you a sense of the Pregel API.
 > [tab] Cycle
 >
 > This example demonstrates how to introduce a cycle in the graph, by having
-> a chain write to a channel it subscribes to. Execution will continue
-> until a `null` value is written to the channel.
+> a chain write to a channel it subscribes to. The node doubles the string
+> until its length is at least 10, then writes an empty array. Because
+> `Topic` clears between steps when it receives no new values, the channel
+> becomes empty and the cycle ends.
 >
 > ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-> import { EphemeralValue } from "@langchain/langgraph/channels";
-> import { Pregel, NodeBuilder, ChannelWriteEntry } from "@langchain/langgraph/pregel";
+> import { Topic } from "@langchain/langgraph/channels";
+> import { Pregel, NodeBuilder } from "@langchain/langgraph/pregel";
 >
 > const exampleNode = new NodeBuilder()
 >   .subscribeOnly("value")
->   .do((x: string) => x.length < 10 ? x + x : null)
->   .writeTo(new ChannelWriteEntry("value", { skipNone: true }));
+>   .do((xs: string[]) => (xs[0].length < 10 ? xs[0] + xs[0] : []))
+>   .writeTo("value");
 >
 > const app = new Pregel({
 >   nodes: { exampleNode },
 >   channels: {
->     value: new EphemeralValue<string>(),
+>     value: new Topic<string>(),
 >   },
 >   inputChannels: ["value"],
 >   outputChannels: ["value"],
@@ -232,7 +234,7 @@ Below are a few different examples to give you a sense of the Pregel API.
 > ```
 >
 > ```console theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-> { value: 'aaaaaaaaaaaaaaaa' }
+> { value: ['aaaaaaaaaaaaaaaa'] }
 > ```
 
 ## High-level API

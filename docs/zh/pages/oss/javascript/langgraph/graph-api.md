@@ -164,7 +164,7 @@ await graph.invoke({ userInput: "My" });
 // { graphOutput: 'My name is Lance' }
 ```
 
-> [卡][View example trace](https://smith.langchain.com/public/24861731-481e-4b13-babb-d21813227380/r)
+> [卡][View example trace](https://smith.langchain.com/public/9e51e055-c781-40e7-9c11-ab0529e5a028/r)
 >
 > 为此示例打开公共 LangSmith 运行。
 
@@ -236,7 +236,7 @@ await graph.invoke({ userInput: "My" });
 > // { foo: 'My name', userInput: 'My', graphOutput: 'My name is Lance', bar: 'My name is' }
 > ```
 >
->>【卡】[View example trace](https://smith.langchain.com/public/9cbbe1f1-0913-498b-be17-fcf8cc1848c9/r)
+>>【卡】[View example trace](https://smith.langchain.com/public/bdecebeb-78fe-4831-ac5d-3bae88b8ddf6/r)
 >>
 >> 为此示例打开公共 LangSmith 运行。
 >
@@ -254,7 +254,7 @@ await graph.invoke({ userInput: "My" });
 > ```
 >> 如果您只需要节点实际每一步产生的通道（而不是完整的累积状态），请改用`streamMode: "updates"`。
 
-### 减速机
+### 减速器
 
 减速器是理解节点更新如何应用于`State`的关键。 `State`中的每个按键都有自己独立的减速器功能。如果没有显式指定减速器函数，则假定对该键的所有更新都应覆盖它。有几种不同类型的减速器，从默认类型的减速器开始：
 
@@ -290,7 +290,7 @@ const State = new StateSchema({
 });
 ```
 
-> [卡][View example trace](https://smith.langchain.com/public/7ec49f29-72d1-4308-8740-abc471d83569/r)
+> [卡][View example trace](https://smith.langchain.com/public/0eeebb28-e5e3-4fbd-b760-257fdd6bf8b4/r)
 >
 > 为此示例打开公共 LangSmith 运行。
 
@@ -318,7 +318,7 @@ const State = new StateSchema({
 });
 ```
 
-> [卡][View example trace](https://smith.langchain.com/public/0f30e4c6-1a15-4dbf-ba92-761df436a4a9/r)
+> [卡][View example trace](https://smith.langchain.com/public/d4578c35-b26d-47d3-861c-25890705858c/r)
 >
 > 为此示例打开公共 LangSmith 运行。
 
@@ -343,9 +343,9 @@ const State = new StateSchema({
 });
 ```
 
-> [卡][View example trace](https://smith.langchain.com/public/e2be75db-1c52-482a-b89f-ef30c15d08eb/r)
+> [卡][View example trace](https://smith.langchain.com/public/b02542b5-cb5d-4530-9ab8-6679bdbe2127/r)
 >
-> 为此示例打开公共 LangSmith 运行。在此示例中，我们使用 `ReducedValue` 为第二个键 (`bar`) 指定减速器函数。请注意，第一个键保持不变。我们假设图的输入是`{ foo: 1, bar: ["hi"] }`。然后我们假设第一个 `Node` 返回 `{ foo: 2 }`。这被视为对状态的更新。请注意，`Node` 不需要返回整个 `State` 模式 - 只需要更新即可。应用此更新后，`State` 将变为 `{ foo: 2, bar: ["hi"] }`。如果第二个节点返回`{ bar: ["bye"] }`，则`State`将是`{ foo: 2, bar: ["hi", "bye"] }`。请注意，`bar` 键是通过将两个数组连接在一起来更新的。
+> 为此示例打开公共 LangSmith 运行。在此示例中，我们使用 `ReducedValue` 为第二个键 (`bar`) 指定减速器函数。请注意，第一个键保持不变。我们假设图的输入是`{ foo: 1, bar: ["hi"] }`。然后我们假设第一个 `Node` 返回 `{ foo: 2 }`。这被视为对状态的更新。请注意，`Node` 不需要返回整个 `State` 模式 - 只需要更新即可。应用此更新后，`State` 将变为 `{ foo: 2, bar: ["hi"] }`。如果第二个节点返回`{ bar: ["bye"] }`，则`State`将是`{ foo: 2, bar: ["hi", "bye"] }`。请注意，此处 `bar` 键是通过将两个数组连接在一起来更新的。
 
 #### 重置reducer字段
 
@@ -369,7 +369,7 @@ const State = new StateSchema({
 // state.errors is still ["bad sql"]; the empty array is merged in, not cleared
 ```
 
-> [卡][View example trace](https://smith.langchain.com/public/9dca9849-c6f2-4e74-8c82-fdc44d6f6c22/r)
+> [卡][View example trace](https://smith.langchain.com/public/4eafb2c7-d0bc-431c-9616-3efc73a43a46/r)
 >
 > 为此示例打开公共 LangSmith 运行。
 
@@ -387,7 +387,7 @@ const State = new StateSchema({
 });
 
 // node can now clear the field with { errors: [] }
-```> [卡][View example trace](https://smith.langchain.com/public/f06a3f2e-6876-4ab1-9b29-3be0aac1cdac/r)
+```> [卡][View example trace](https://smith.langchain.com/public/9a3650c7-8f46-4cb6-b05c-120ca7009ca7/r)
 >
 > 为此示例打开公共 LangSmith 运行。
 
@@ -708,7 +708,7 @@ builder.addNode(myNode);
 > await graph.invoke({ url: "https://www.example.com" }, config);
 > ```
 >
->>【卡】[View example trace](https://smith.langchain.com/public/f6485847-0dd8-471a-b79a-fd5a4d97f4eb/r)
+>>【卡】[View example trace](https://smith.langchain.com/public/5b6ae6b8-f161-46df-b3ac-fe45c18aa959/r)
 >>
 >> 为此示例打开公共 LangSmith 运行。
 
@@ -759,7 +759,7 @@ builder.addNode(myNode);
 > await graph.invoke({ urls: ["https://www.example.com"] }, config);
 > ```
 >
->>【卡】[View example trace](https://smith.langchain.com/public/551a4dee-6b2c-455f-97fc-11f2e1467a44/r)
+>>【卡】[View example trace](https://smith.langchain.com/public/46d5934a-9231-4b50-b37b-0e79cae6a865/r)
 >>
 >> 为此示例打开公共 LangSmith 运行。
 
@@ -822,7 +822,7 @@ await graph.invoke({ x: 5 }, { streamMode: "updates" });   // [!code highlight]
 边定义逻辑如何路由以及图形如何决定停止。这是代理如何工作以及不同节点如何相互通信的重要组成部分。有几种关键的边类型：
 
 * 普通边：直接从一个节点到下一个节点。
-* 条件边：调用函数来确定下一个要转到哪个或哪些节点。
+* 条件边：调用函数来确定下一个要转到哪个节点。
 * 入口点：当用户输入到达时首先调用哪个节点。
 * 条件入口点：调用函数来确定当用户输入到达时首先调用哪个节点。一个节点可以有多个出边。如果一个节点有多个传出边缘，则所有这些目标节点将作为下一个超级步骤的一部分并行执行。
 

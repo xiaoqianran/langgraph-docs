@@ -168,7 +168,7 @@ flowchart TD
 
 * 原始电子邮件和发件人信息（以后无法重建）
 * 分类结果（多个后期/下游节点需要）
-* 搜索结果和客户数据（重新获取的费用昂贵）
+* 搜索结果和客户数据（重新获取的成本很高）
 * 回复草稿（需继续审核）
 * 执行元数据（用于调试和恢复）
 
@@ -229,7 +229,7 @@ class EmailAgentState(TypedDict):
 | LLM 可恢复错误（工具故障、解析问题）|法学硕士 |将错误存储在状态中并循环返回 | LLM可以看到错误并调整其方法|
 |用户可修复的错误（信息缺失、说明不明确）|人类 |按 `interrupt()` 暂停 |需要用户输入才能继续 |
 |重试后可恢复的故障 |开发人员（声明性）| `error_handler` |重试耗尽后运行补偿/恢复分支 |
-|意外错误 |开发商|让它们冒泡|需要调试的未知问题 |
+|意外错误 |开发商 |让它们冒泡|需要调试的未知问题 |
 
 > [选项卡] 瞬态错误
 >
@@ -554,7 +554,7 @@ class EmailAgentState(TypedDict):
 > app = workflow.compile(checkpointer=memory)
 > ```
 
-图结构很小，因为路由通过 [⟦T38⟧](https://reference.langchain.com/python/langgraph/types/Command) 对象发生在节点内部。每个节点都使用像`Command[Literal["node1", "node2"]]`这样的类型提示来声明它可以去哪里，使流程明确且可追踪。
+图结构很小，因为路由通过 [⟦T38⟧](https://reference.langchain.com/python/langgraph/types/Command) 对象在节点内部发生。每个节点都使用像`Command[Literal["node1", "node2"]]`这样的类型提示来声明它可以去哪里，使流程明确且可追踪。
 
 ### 试试你的代理
 
@@ -618,7 +618,7 @@ class EmailAgentState(TypedDict):
 > print("Email sent successfully!")
 > ```
 >
->>【卡牌】[View example trace](https://smith.langchain.com/public/a80286fd-ffa0-4e24-821a-6229a08513f3/r)
+>>【卡牌】[View example trace](https://smith.langchain.com/public/7b539281-64cf-4e88-b369-733db86522af/r)
 >>
 >> 为此示例打开公共 LangSmith 运行。
 
@@ -628,7 +628,7 @@ class EmailAgentState(TypedDict):
 
 ### 关键见解
 
-构建这个电子邮件代理向我们展示了 LangGraph 的思维方式：> [卡][Break into discrete steps](#step-1-map-out-your-workflow-as-discrete-steps)
+构建这个电子邮件代理向我们展示了LangGraph的思维方式：> [卡][Break into discrete steps](#step-1-map-out-your-workflow-as-discrete-steps)
 >
 > 每个节点只做好一件事。这种分解可以实现流式进度更新、可以暂停和恢复的持久执行以及清晰的调试，因为您可以检查步骤之间的状态。
 
@@ -646,7 +646,7 @@ class EmailAgentState(TypedDict):
 
 > [卡][Human input is first-class](/oss/python/langgraph/interrupts)
 >
-> `interrupt()` 函数无限期地暂停执行，保存所有状态，并在您提供输入时从中断处准确恢复。当与节点中的其他操作结合时，它必须排在第一位。
+> `interrupt()` 函数无限期地暂停执行，保存所有状态，并在您提供输入时从中断处准确恢复。当与节点中的其他操作结合时，它必须先出现。
 
 > [卡][Graph structure emerges naturally](#step-5-wire-it-together)
 >
@@ -664,7 +664,7 @@ class EmailAgentState(TypedDict):
 >
 > 答案涉及弹性和可观察性之间的权衡。
 >
-> **弹性考虑：** LangGraph 的 [persistence layer](/oss/python/langgraph/persistence) 在节点边界创建检查点。当工作流在中断或失败后恢复时，它将从执行停止的节点的开头开始。较小的节点意味着更频繁的检查点，这意味着出现问题时需要重复的工作更少。如果将多个操作合并到一个大节点中，则临近结束时发生故障意味着从该节点开始处重新执行所有操作。
+> **弹性考虑：** LangGraph 的 [persistence layer](/oss/python/langgraph/persistence) 在节点边界创建检查点。当工作流在中断或失败后恢复时，它将从执行停止的节点的开头开始。较小的节点意味着更频繁的检查点，这意味着出现问题时需要重复的工作更少。如果将多个操作组合到一个大节点中，则临近结束时发生故障意味着从该节点开始处重新执行所有操作。
 >
 > 为什么我们为电子邮件代理选择此细分：
 >

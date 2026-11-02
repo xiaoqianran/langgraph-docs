@@ -122,7 +122,7 @@ graph.invoke({"user_input": "My"})
 # {'graph_output': 'My name is Lance'}
 ```
 
-> [card] [View example trace](https://smith.langchain.com/public/844a3f6b-b4d3-482d-bffe-7aab4ce59996/r)
+> [card] [View example trace](https://smith.langchain.com/public/370fbbfd-be69-4403-8123-716a0c2c9be6/r)
 >
 > Open a public LangSmith run for this example.
 
@@ -162,7 +162,7 @@ There are two subtle and important points to note here:
 > # {'foo': 'My name', 'user_input': 'My', 'graph_output': 'My name is Lance', 'bar': 'My name is'}
 > ```
 >
-> > [card] [View example trace](https://smith.langchain.com/public/42d73712-132e-4b5b-8555-7cd43054859d/r)
+> > [card] [View example trace](https://smith.langchain.com/public/7d0325bb-3a2a-425f-a551-a636b297d0fb/r)
 > >
 > > Open a public LangSmith run for this example.
 >
@@ -613,7 +613,7 @@ If a [node](#nodes) contains multiple operations, you may find it easier to impl
 > graph.invoke({"url": "https://www.example.com"}, config)
 > ```
 >
-> > [card] [View example trace](https://smith.langchain.com/public/f143a551-c1e4-44fd-b87a-c42eaff62f4a/r)
+> > [card] [View example trace](https://smith.langchain.com/public/c8e10751-e588-4561-bf11-172fbe58d2af/r)
 > >
 > > Open a public LangSmith run for this example.
 
@@ -662,7 +662,7 @@ If a [node](#nodes) contains multiple operations, you may find it easier to impl
 > graph.invoke({"urls": ["https://www.example.com"]}, config)
 > ```
 >
-> > [card] [View example trace](https://smith.langchain.com/public/3916f855-bb3a-45e3-8c04-bba43c1ca851/r)
+> > [card] [View example trace](https://smith.langchain.com/public/db2e7930-9eb7-46b1-9c8f-6ffced8a1d77/r)
 > >
 > > Open a public LangSmith run for this example.
 
@@ -964,7 +964,7 @@ resumed = graph.stream_events(Command(resume="yes"), config, version="v3")
 final = resumed.output
 ```
 
-> [card] [View example trace](https://smith.langchain.com/public/cbe5c88e-4c15-4ddd-8744-f1d8b4bd3d3b/r)
+> [card] [View example trace](https://smith.langchain.com/public/c382965e-ed0a-4428-923c-ad36c99d3f22/r)
 >
 > Open a public LangSmith run for this example.
 
