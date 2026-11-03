@@ -300,7 +300,7 @@ else:
         print(f"Failed to download the file. Status code: {response.status_code}")
 ```
 
-我们将使用Python内置的`sqlite3`模块与数据库交互：
+我们将使用Python内置的`sqlite3`模块与数据库进行交互：
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import sqlite3
@@ -820,7 +820,7 @@ INTERRUPTED:
 }
 ```
 
-我们可以使用[Command](/oss/python/langgraph/use-graph-api#combine-control-flow-and-state-updates-with-command)接受或编辑工具调用：
+我们可以使用[Command](/oss/python/langgraph/graph-api-send-command#combine-control-flow-and-state-updates-with-command)接受或编辑工具调用：
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from langgraph.types import Command

@@ -2,312 +2,117 @@
 
 # Choosing between Graph and Functional APIs
 
-LangGraph provides two different APIs to build agent workflows: the **Graph API** and the **Functional API**. Both APIs share the same underlying runtime and can be used together in the same application, but they are designed for different use cases and development preferences.
+Prefer the LangGraph Graph API for new workflows. Use the Functional API when wrapping other frameworks for LangSmith Deployment.
 
-This guide will help you understand when to use each API based on your specific requirements.
+LangGraph provides two APIs for agent workflows: the [Graph API](/oss/python/langgraph/graph-api) and the [Functional API](/oss/python/langgraph/functional-api). Both share the same runtime (persistence, streaming, human-in-the-loop, and memory).
 
-## Quick decision guide
+The Graph API is the default. Prefer it for new LangGraph agents and for any workflow that benefits from explicit state, branching, or graph visualization.
 
-Use the **Graph API** when you need:
+Use the Functional API when you need to [deploy other frameworks](/langsmith/deploy-other-frameworks) on LangSmith Deployment. Wrap an existing Claude Agent SDK, Strands, CrewAI, AutoGen, or similar agent with `@entrypoint` and `@task` so Agent Server can run it with persistence, streaming, and tracing.
 
-* **Complex workflow visualization** for debugging and documentation
-* **Explicit state management** with shared data across multiple nodes
-* **Conditional branching** with multiple decision points
-* **Parallel execution paths** that need to merge later
-* **Team collaboration** where visual representation aids understanding
+## Graph API (default)
 
-Use the **Functional API** when you want:
+Choose the Graph API when you build with LangGraph itself:
 
-* **Minimal code changes** to existing procedural code
-* **Standard control flow** (if/else, loops, function calls)
-* **Function-scoped state** without explicit state management
-* **Rapid prototyping** with less boilerplate
-* **Linear workflows** with simple branching logic
+* Explicit shared [state](/oss/python/langgraph/graph-api#state) across nodes
+* Conditional branching and parallel paths that merge later
+* Graph diagrams for debugging and documentation
+* Team review of workflow structure
 
-## Detailed comparison
+Start with the [Build checklist for the Graph API](/oss/python/langgraph/use-graph-api) or [Thinking in the Graph API](/oss/python/langgraph/thinking-in-graph-api).
 
-### When to use the Graph API
+## Functional API (other frameworks)
 
-The [Graph API](/oss/python/langgraph/graph-api) uses a declarative approach where you define nodes, edges, and shared state to create a visual graph structure.
+Choose the Functional API when you already have an agent in another framework and want LangSmith Deployment features without rewriting that agent as a graph:
 
-**1. Complex decision trees and branching logic**
+* Minimal changes to existing procedural or framework code
+* Standard control flow (`if`/`else`, loops, function calls)
+* Function-scoped values instead of a shared state schema
 
-When your workflow has multiple decision points that depend on various conditions, the Graph API makes these branches explicit and easy to visualize.
+For the wrap-and-deploy pattern, see [Deploy other frameworks](/langsmith/deploy-other-frameworks). For Functional API concepts and how-tos, see the [Functional API overview](/oss/python/langgraph/functional-api).
 
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-# Graph API: Clear visualization of decision paths
-from langgraph.graph import StateGraph
-from typing import TypedDict
+## Side-by-side shape
 
-class AgentState(TypedDict):
-    messages: list
-    current_tool: str
-    retry_count: int
+The same small workflow looks different in each API. This example classifies a number, then returns a message:
 
-def should_continue(state):
-    if state["retry_count"] > 3:
-        return "end"
-    elif state["current_tool"] == "search":
-        return "process_search"
-    else:
-        return "call_llm"
+```python Graph API theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+from typing_extensions import TypedDict
 
-workflow = StateGraph(AgentState)
-workflow.add_node("call_llm", call_llm_node)
-workflow.add_node("process_search", search_node)
-workflow.add_conditional_edges("call_llm", should_continue)
-```
+from langgraph.graph import END, START, StateGraph
 
-**2. State management across multiple components**
 
-When you need to share and coordinate state between different parts of your workflow, the Graph API's explicit state management is beneficial.
+class State(TypedDict):
+    number: int
+    is_even: bool
+    message: str
 
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-# Multiple nodes can access and modify shared state
-class WorkflowState(TypedDict):
-    user_input: str
-    search_results: list
-    generated_response: str
-    validation_status: str
 
-def search_node(state):
-    # Access shared state
-    results = search(state["user_input"])
-    return {"search_results": results}
+def check_even(state: State):
+    return {"is_even": state["number"] % 2 == 0}
 
-def validation_node(state):
-    # Access results from previous node
-    is_valid = validate(state["generated_response"])
-    return {"validation_status": "valid" if is_valid else "invalid"}
-```
 
-**3. Parallel processing with synchronization**
-
-When you need to run multiple operations in parallel and then combine their results, the Graph API handles this naturally.
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-# Parallel processing of multiple data sources
-workflow.add_node("fetch_news", fetch_news)
-workflow.add_node("fetch_weather", fetch_weather)
-workflow.add_node("fetch_stocks", fetch_stocks)
-workflow.add_node("combine_data", combine_all_data)
-
-# All fetch operations run in parallel
-workflow.add_edge(START, "fetch_news")
-workflow.add_edge(START, "fetch_weather")
-workflow.add_edge(START, "fetch_stocks")
-
-# Combine waits for all parallel operations to complete
-workflow.add_edge("fetch_news", "combine_data")
-workflow.add_edge("fetch_weather", "combine_data")
-workflow.add_edge("fetch_stocks", "combine_data")
-```
-
-**4. Team development and documentation**
-
-The visual nature of the Graph API makes it easier for teams to understand, document, and maintain complex workflows.
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-# Clear separation of concerns - each team member can work on different nodes
-workflow.add_node("data_ingestion", data_team_function)
-workflow.add_node("ml_processing", ml_team_function)
-workflow.add_node("business_logic", product_team_function)
-workflow.add_node("output_formatting", frontend_team_function)
-```
-
-### When to use the Functional API
-
-The [Functional API](/oss/python/langgraph/functional-api) uses an imperative approach that integrates LangGraph features into standard procedural code.
-
-**1. Existing procedural code**
-
-When you have existing code that uses standard control flow and want to add LangGraph features with minimal refactoring.
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-# Functional API: Minimal changes to existing code
-from langgraph.func import entrypoint, task
-
-@task
-def process_user_input(user_input: str) -> dict:
-    # Existing function with minimal changes
-    return {"processed": user_input.lower().strip()}
-
-@entrypoint(checkpointer=checkpointer)
-def workflow(user_input: str) -> str:
-    # Standard Python control flow
-    processed = process_user_input(user_input).result()
-
-    if "urgent" in processed["processed"]:
-        response = handle_urgent_request(processed).result()
-    else:
-        response = handle_normal_request(processed).result()
-
-    return response
-```
-
-**2. Linear workflows with simple logic**
-
-When your workflow is primarily sequential with straightforward conditional logic.
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-@entrypoint(checkpointer=checkpointer)
-def essay_workflow(topic: str) -> dict:
-    # Linear flow with simple branching
-    outline = create_outline(topic).result()
-
-    if len(outline["points"]) < 3:
-        outline = expand_outline(outline).result()
-
-    draft = write_draft(outline).result()
-
-    # Human review checkpoint
-    feedback = interrupt({"draft": draft, "action": "Please review"})
-
-    if feedback == "approve":
-        final_essay = draft
-    else:
-        final_essay = revise_essay(draft, feedback).result()
-
-    return {"essay": final_essay}
-```
-
-**3. Rapid prototyping**
-
-When you want to quickly test ideas without the overhead of defining state schemas and graph structures.
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-@entrypoint(checkpointer=checkpointer)
-def quick_prototype(data: dict) -> dict:
-    # Fast iteration - no state schema needed
-    step1_result = process_step1(data).result()
-    step2_result = process_step2(step1_result).result()
-
-    return {"final_result": step2_result}
-```
-
-**4. Function-scoped state management**
-
-When your state is naturally scoped to individual functions and doesn't need to be shared broadly.
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-@task
-def analyze_document(document: str) -> dict:
-    # Local state management within function
-    sections = extract_sections(document)
-    summaries = [summarize(section) for section in sections]
-    key_points = extract_key_points(summaries)
-
+def format_message(state: State):
     return {
-        "sections": len(sections),
-        "summaries": summaries,
-        "key_points": key_points
+        "message": (
+            "The number is even." if state["is_even"] else "The number is odd."
+        )
     }
 
-@entrypoint(checkpointer=checkpointer)
-def document_processor(document: str) -> dict:
-    analysis = analyze_document(document).result()
-    # State is passed between functions as needed
-    return generate_report(analysis).result()
+
+workflow = StateGraph(State)
+workflow.add_node("check_even", check_even)
+workflow.add_node("format_message", format_message)
+workflow.add_edge(START, "check_even")
+workflow.add_edge("check_even", "format_message")
+workflow.add_edge("format_message", END)
+graph = workflow.compile()
+
+graph.invoke({"number": 7})
 ```
 
-## Combining both APIs
+```python Functional API theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+from langgraph.func import entrypoint, task
 
-You can use both APIs together in the same application. This is useful when different parts of your system have different requirements.
 
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-from langgraph.graph import StateGraph
-from langgraph.func import entrypoint
+@task
+def is_even(number: int) -> bool:
+    return number % 2 == 0
 
-# Complex multi-agent coordination using Graph API
-coordination_graph = StateGraph(CoordinationState)
-coordination_graph.add_node("orchestrator", orchestrator_node)
-coordination_graph.add_node("agent_a", agent_a_node)
-coordination_graph.add_node("agent_b", agent_b_node)
 
-# Simple data processing using Functional API
+@task
+def format_message(is_even: bool) -> str:
+    return "The number is even." if is_even else "The number is odd."
+
+
 @entrypoint()
-def data_processor(raw_data: dict) -> dict:
-    cleaned = clean_data(raw_data).result()
-    transformed = transform_data(cleaned).result()
-    return transformed
+def workflow(inputs: dict) -> str:
+    even = is_even(inputs["number"]).result()
+    return format_message(even).result()
 
-# Use the functional API result in the graph
-def orchestrator_node(state):
-    processed_data = data_processor.invoke(state["raw_data"])
-    return {"processed_data": processed_data}
+
+workflow.invoke({"number": 7})
 ```
 
-## Migration between APIs
+The Graph API makes state and transitions explicit. The Functional API keeps ordinary control flow and passes values between tasks.
 
-### From Functional to Graph API
+| Concern | Graph API | Functional API |
+| - | - | - |
+| Style | Declarative nodes, edges, and shared state | Imperative functions with `@entrypoint` / `@task` (Python) or `entrypoint` / `task` (TypeScript) |
+| Control flow | Edges and conditional edges | Language `if`/`else`, loops, and calls |
+| State | Explicit [state](/oss/python/langgraph/graph-api#state) and [reducers](/oss/python/langgraph/graph-api#reducers) | Scoped to the entrypoint and tasks |
+| Checkpointing | New checkpoint after each [super-step](/oss/python/langgraph/graph-api) | Task results saved to the entrypoint checkpoint |
+| Visualization | First-class graph diagrams | No static graph visualization (graph is built at runtime) |
+| Best fit | Default for LangGraph workflows | Wrapping other frameworks for deployment |
 
-When your functional workflow grows complex, you can migrate to the Graph API:
+You can still combine both APIs in one application when a linear Functional API sub-workflow sits inside a Graph API coordinator, or the reverse.
 
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-# Before: Functional API
-@entrypoint(checkpointer=checkpointer)
-def complex_workflow(input_data: dict) -> dict:
-    step1 = process_step1(input_data).result()
+## See also
 
-    if step1["needs_analysis"]:
-        analysis = analyze_data(step1).result()
-        if analysis["confidence"] > 0.8:
-            result = high_confidence_path(analysis).result()
-        else:
-            result = low_confidence_path(analysis).result()
-    else:
-        result = simple_path(step1).result()
-
-    return result
-
-# After: Graph API
-class WorkflowState(TypedDict):
-    input_data: dict
-    step1_result: dict
-    analysis: dict
-    final_result: dict
-
-def should_analyze(state):
-    return "analyze" if state["step1_result"]["needs_analysis"] else "simple_path"
-
-def confidence_check(state):
-    return "high_confidence" if state["analysis"]["confidence"] > 0.8 else "low_confidence"
-
-workflow = StateGraph(WorkflowState)
-workflow.add_node("step1", process_step1_node)
-workflow.add_conditional_edges("step1", should_analyze)
-workflow.add_node("analyze", analyze_data_node)
-workflow.add_conditional_edges("analyze", confidence_check)
-# ... add remaining nodes and edges
-```
-
-### From Graph to Functional API
-
-When your graph becomes overly complex for simple linear processes:
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-# Before: Over-engineered Graph API
-class SimpleState(TypedDict):
-    input: str
-    step1: str
-    step2: str
-    result: str
-
-# After: Simplified Functional API
-@entrypoint(checkpointer=checkpointer)
-def simple_workflow(input_data: str) -> str:
-    step1 = process_step1(input_data).result()
-    step2 = process_step2(step1).result()
-    return finalize_result(step2).result()
-```
-
-## Summary
-
-Choose the **Graph API** when you need explicit control over workflow structure, complex branching, parallel processing, or team collaboration benefits.
-
-Choose the **Functional API** when you want to add LangGraph features to existing code with minimal changes, have simple linear workflows, or need rapid prototyping capabilities.
-
-Both APIs provide the same core LangGraph features (persistence, streaming, human-in-the-loop, memory) but package them in different paradigms to suit different development styles and use cases.
+* [Build checklist for the Graph API](/oss/python/langgraph/use-graph-api)
+* [Thinking in the Graph API](/oss/python/langgraph/thinking-in-graph-api)
+* [Graph API overview](/oss/python/langgraph/graph-api)
+* [Deploy other frameworks](/langsmith/deploy-other-frameworks)
+* [Functional API overview](/oss/python/langgraph/functional-api)
 
 ***
 

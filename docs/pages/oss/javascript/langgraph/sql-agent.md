@@ -840,7 +840,7 @@ INTERRUPTED:
 }
 ```
 
-We can accept or edit the tool call using [Command](/oss/javascript/langgraph/use-graph-api#combine-control-flow-and-state-updates-with-command):
+We can accept or edit the tool call using [Command](/oss/javascript/langgraph/graph-api-send-command#combine-control-flow-and-state-updates-with-command):
 
 ```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 const resumeStream = await agentWithHuman.streamEvents(

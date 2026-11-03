@@ -4,306 +4,113 @@
 
 # 在图 API 和函数式 API 之间进行选择
 
-LangGraph 提供了两种不同的 API 来构建代理工作流程：**Graph API** 和 **Functional API**。这两个 API 共享相同的底层运行时，并且可以在同一应用程序中一起使用，但它们是针对不同的用例和开发偏好而设计的。
+对于新工作流程，首选 LangGraph Graph API。包装其他框架以进行 LangSmith 部署时，请使用功能 API。
 
-本指南将帮助您根据您的具体要求了解何时使用每个 API。
+LangGraph 为代理工作流程提供两个 API：[Graph API](/oss/python/langgraph/graph-api) 和 [Functional API](/oss/python/langgraph/functional-api)。两者共享相同的运行时（持久性、流式传输、人机交互和内存）。
 
-## 快速决策指南
+图形 API 是默认的。对于新的LangGraph代理以及任何受益于显式状态、分支或图形可视化的工作流程，更喜欢它。
 
-当您需要时，请使用 **Graph API**：
+当您需要在 LangSmith 部署上进行 [deploy other frameworks](/langsmith/deploy-other-frameworks) 时，请使用功能 API。使用 `@entrypoint` 和 `@task` 包装现有的 Claude Agent SDK、Strands、CrewAI、AutoGen 或类似代理，以便代理服务器可以通过持久性、流式传输和跟踪来运行它。
 
-* **复杂的工作流程可视化**用于调试和记录
-* **显式状态管理**，跨多个节点共享数据
-* **具有多个决策点的条件分支**
-* **稍后需要合并的并行执行路径**
-* **团队协作**，视觉表示有助于理解
+## 图形 API（默认）
 
-当您需要时，请使用 **Functional API**：
+使用 LangGraph 本身构建时选择 Graph API：
 
-* **对现有程序代码进行最少的代码更改**
-* **标准控制流**（if/else、循环、函数调用）
-* **函数范围的状态**，没有显式的状态管理
-* **快速原型制作**，样板更少
-* **线性工作流程** 具有简单的分支逻辑
+* 跨节点显式共享[state](/oss/python/langgraph/graph-api#state)
+* 稍后合并的条件分支和并行路径
+* 用于调试和记录的图表
+* 团队审查工作流程结构
 
-## 详细比较
+从 [Build checklist for the Graph API](/oss/python/langgraph/use-graph-api) 或 [Thinking in the Graph API](/oss/python/langgraph/thinking-in-graph-api) 开始。
 
-### 何时使用图形 API[Graph API](/oss/python/langgraph/graph-api) 使用声明式方法，您可以定义节点、边和共享状态来创建可视化图形结构。
+## 函数式API（其他框架）当您在另一个框架中已有代理并且想要 LangSmith 部署功能而无需将该代理重写为图形时，请选择功能 API：
 
-**1.复杂的决策树和分支逻辑**
+* 对现有程序或框架代码进行最少的更改
+* 标准控制流程（`if`/`else`、循环、函数调用）
+* 函数范围的值而不是共享状态模式
 
-当您的工作流程有多个取决于各种条件的决策点时，Graph API 使这些分支变得明确且易于可视化。
+对于包装和部署模式，请参阅[Deploy other frameworks](/langsmith/deploy-other-frameworks)。有关功能 API 概念和操作方法，请参阅 [Functional API overview](/oss/python/langgraph/functional-api)。
 
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-# Graph API: Clear visualization of decision paths
-from langgraph.graph import StateGraph
-from typing import TypedDict
+## 并排形状
 
-class AgentState(TypedDict):
-    messages: list
-    current_tool: str
-    retry_count: int
+同样的小工作流程在每个 API 中看起来都不同。此示例对一个数字进行分类，然后返回一条消息：
 
-def should_continue(state):
-    if state["retry_count"] > 3:
-        return "end"
-    elif state["current_tool"] == "search":
-        return "process_search"
-    else:
-        return "call_llm"
+```python Graph API theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+from typing_extensions import TypedDict
 
-workflow = StateGraph(AgentState)
-workflow.add_node("call_llm", call_llm_node)
-workflow.add_node("process_search", search_node)
-workflow.add_conditional_edges("call_llm", should_continue)
-```
+from langgraph.graph import END, START, StateGraph
 
-**2.跨多个组件的状态管理**
 
-当您需要在工作流程的不同部分之间共享和协调状态时，Graph API 的显式状态管理非常有用。
+class State(TypedDict):
+    number: int
+    is_even: bool
+    message: str
 
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-# Multiple nodes can access and modify shared state
-class WorkflowState(TypedDict):
-    user_input: str
-    search_results: list
-    generated_response: str
-    validation_status: str
 
-def search_node(state):
-    # Access shared state
-    results = search(state["user_input"])
-    return {"search_results": results}
+def check_even(state: State):
+    return {"is_even": state["number"] % 2 == 0}
 
-def validation_node(state):
-    # Access results from previous node
-    is_valid = validate(state["generated_response"])
-    return {"validation_status": "valid" if is_valid else "invalid"}
-```
 
-**3.具有同步的并行处理**
-
-当您需要并行运行多个操作然后合并它们的结果时，Graph API 可以自然地处理这个问题。
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-# Parallel processing of multiple data sources
-workflow.add_node("fetch_news", fetch_news)
-workflow.add_node("fetch_weather", fetch_weather)
-workflow.add_node("fetch_stocks", fetch_stocks)
-workflow.add_node("combine_data", combine_all_data)
-
-# All fetch operations run in parallel
-workflow.add_edge(START, "fetch_news")
-workflow.add_edge(START, "fetch_weather")
-workflow.add_edge(START, "fetch_stocks")
-
-# Combine waits for all parallel operations to complete
-workflow.add_edge("fetch_news", "combine_data")
-workflow.add_edge("fetch_weather", "combine_data")
-workflow.add_edge("fetch_stocks", "combine_data")
-```
-
-**4.团队开发和文档**
-
-Graph API 的可视化特性使团队更容易理解、记录和维护复杂的工作流程。
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-# Clear separation of concerns - each team member can work on different nodes
-workflow.add_node("data_ingestion", data_team_function)
-workflow.add_node("ml_processing", ml_team_function)
-workflow.add_node("business_logic", product_team_function)
-workflow.add_node("output_formatting", frontend_team_function)
-```
-
-### 何时使用函数式 API
-
-[Functional API](/oss/python/langgraph/functional-api) 使用命令式方法将 LangGraph 功能集成到标准过程代码中。
-
-**1.现有程序代码**
-
-当您拥有使用标准控制流的现有代码并希望以最少的重构添加 LangGraph 功能时。
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-# Functional API: Minimal changes to existing code
-from langgraph.func import entrypoint, task
-
-@task
-def process_user_input(user_input: str) -> dict:
-    # Existing function with minimal changes
-    return {"processed": user_input.lower().strip()}
-
-@entrypoint(checkpointer=checkpointer)
-def workflow(user_input: str) -> str:
-    # Standard Python control flow
-    processed = process_user_input(user_input).result()
-
-    if "urgent" in processed["processed"]:
-        response = handle_urgent_request(processed).result()
-    else:
-        response = handle_normal_request(processed).result()
-
-    return response
-```**2.具有简单逻辑的线性工作流程**
-
-当您的工作流程主要是顺序的且具有简单的条件逻辑时。
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-@entrypoint(checkpointer=checkpointer)
-def essay_workflow(topic: str) -> dict:
-    # Linear flow with simple branching
-    outline = create_outline(topic).result()
-
-    if len(outline["points"]) < 3:
-        outline = expand_outline(outline).result()
-
-    draft = write_draft(outline).result()
-
-    # Human review checkpoint
-    feedback = interrupt({"draft": draft, "action": "Please review"})
-
-    if feedback == "approve":
-        final_essay = draft
-    else:
-        final_essay = revise_essay(draft, feedback).result()
-
-    return {"essay": final_essay}
-```
-
-**3.快速原型制作**
-
-当您想要快速测试想法而无需定义状态模式和图形结构的开销时。
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-@entrypoint(checkpointer=checkpointer)
-def quick_prototype(data: dict) -> dict:
-    # Fast iteration - no state schema needed
-    step1_result = process_step1(data).result()
-    step2_result = process_step2(step1_result).result()
-
-    return {"final_result": step2_result}
-```
-
-**4.函数范围的状态管理**
-
-当您的状态自然地局限于各个功能并且不需要广泛共享时。
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-@task
-def analyze_document(document: str) -> dict:
-    # Local state management within function
-    sections = extract_sections(document)
-    summaries = [summarize(section) for section in sections]
-    key_points = extract_key_points(summaries)
-
+def format_message(state: State):
     return {
-        "sections": len(sections),
-        "summaries": summaries,
-        "key_points": key_points
+        "message": (
+            "The number is even." if state["is_even"] else "The number is odd."
+        )
     }
 
-@entrypoint(checkpointer=checkpointer)
-def document_processor(document: str) -> dict:
-    analysis = analyze_document(document).result()
-    # State is passed between functions as needed
-    return generate_report(analysis).result()
+
+workflow = StateGraph(State)
+workflow.add_node("check_even", check_even)
+workflow.add_node("format_message", format_message)
+workflow.add_edge(START, "check_even")
+workflow.add_edge("check_even", "format_message")
+workflow.add_edge("format_message", END)
+graph = workflow.compile()
+
+graph.invoke({"number": 7})
 ```
 
-## 结合两个 API
+```python Functional API theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+from langgraph.func import entrypoint, task
 
-您可以在同一应用程序中同时使用这两个 API。当系统的不同部分有不同的要求时，这非常有用。
 
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-from langgraph.graph import StateGraph
-from langgraph.func import entrypoint
+@task
+def is_even(number: int) -> bool:
+    return number % 2 == 0
 
-# Complex multi-agent coordination using Graph API
-coordination_graph = StateGraph(CoordinationState)
-coordination_graph.add_node("orchestrator", orchestrator_node)
-coordination_graph.add_node("agent_a", agent_a_node)
-coordination_graph.add_node("agent_b", agent_b_node)
 
-# Simple data processing using Functional API
+@task
+def format_message(is_even: bool) -> str:
+    return "The number is even." if is_even else "The number is odd."
+
+
 @entrypoint()
-def data_processor(raw_data: dict) -> dict:
-    cleaned = clean_data(raw_data).result()
-    transformed = transform_data(cleaned).result()
-    return transformed
+def workflow(inputs: dict) -> str:
+    even = is_even(inputs["number"]).result()
+    return format_message(even).result()
 
-# Use the functional API result in the graph
-def orchestrator_node(state):
-    processed_data = data_processor.invoke(state["raw_data"])
-    return {"processed_data": processed_data}
+
+workflow.invoke({"number": 7})
 ```
 
-## API之间的迁移
+Graph API 使状态和转换变得明确。功能 API 保留普通控制流并在任务之间传递值。|关注|图形API |函数式 API |
+| - | - | - |
+|风格|声明性节点、边和共享状态 |使用 `@entrypoint` / `@task` (Python) 或 `entrypoint` / `task` (TypeScript) 的命令式函数 |
+|控制流程|边和条件边 |语言`if`/`else`、循环和调用 |
+|状态|显式 [state](/oss/python/langgraph/graph-api#state) 和 [reducers](/oss/python/langgraph/graph-api#reducers) |范围限定为入口点和任务 |
+|检查点|每个 [super-step](/oss/python/langgraph/graph-api) 之后的新检查点 |任务结果保存到入口点检查点 |
+|可视化|一流的图表|无静态图形可视化（图形是在运行时构建的）|
+|最适合| LangGraph 工作流程的默认设置 |包装其他框架进行部署 |
 
-### 从函数式 API 到图形 API
+当线性功能 API 子工作流位于图形 API 协调器内部时，您仍然可以将这两个 API 组合在一个应用程序中，反之亦然。
 
-当您的功能工作流程变得复杂时，您可以迁移到 Graph API：
+## 另请参阅
 
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-# Before: Functional API
-@entrypoint(checkpointer=checkpointer)
-def complex_workflow(input_data: dict) -> dict:
-    step1 = process_step1(input_data).result()
-
-    if step1["needs_analysis"]:
-        analysis = analyze_data(step1).result()
-        if analysis["confidence"] > 0.8:
-            result = high_confidence_path(analysis).result()
-        else:
-            result = low_confidence_path(analysis).result()
-    else:
-        result = simple_path(step1).result()
-
-    return result
-
-# After: Graph API
-class WorkflowState(TypedDict):
-    input_data: dict
-    step1_result: dict
-    analysis: dict
-    final_result: dict
-
-def should_analyze(state):
-    return "analyze" if state["step1_result"]["needs_analysis"] else "simple_path"
-
-def confidence_check(state):
-    return "high_confidence" if state["analysis"]["confidence"] > 0.8 else "low_confidence"
-
-workflow = StateGraph(WorkflowState)
-workflow.add_node("step1", process_step1_node)
-workflow.add_conditional_edges("step1", should_analyze)
-workflow.add_node("analyze", analyze_data_node)
-workflow.add_conditional_edges("analyze", confidence_check)
-# ... add remaining nodes and edges
-```
-
-### 从图形到函数式 API
-
-当您的图表对于简单的线性过程变得过于复杂时：
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-# Before: Over-engineered Graph API
-class SimpleState(TypedDict):
-    input: str
-    step1: str
-    step2: str
-    result: str
-
-# After: Simplified Functional API
-@entrypoint(checkpointer=checkpointer)
-def simple_workflow(input_data: str) -> str:
-    step1 = process_step1(input_data).result()
-    step2 = process_step2(step1).result()
-    return finalize_result(step2).result()
-```
-
-## 总结
-
-当您需要显式控制工作流结构、复杂分支、并行处理或团队协作优势时，请选择 **Graph API**。
-
-当您想要以最小的更改向现有代码添加 LangGraph 功能、具有简单的线性工作流程或需要快速原型设计功能时，请选择 **Functional API**。这两个 API 都提供相同的核心 LangGraph 功能（持久性、流式传输、人机交互、内存），但将它们封装在不同的范例中，以适应不同的开发风格和用例。
+* [Build checklist for the Graph API](/oss/python/langgraph/use-graph-api)
+* [Thinking in the Graph API](/oss/python/langgraph/thinking-in-graph-api)
+* [Graph API overview](/oss/python/langgraph/graph-api)
+* [Deploy other frameworks](/langsmith/deploy-other-frameworks)
+* [Functional API overview](/oss/python/langgraph/functional-api)
 
 ***
 

@@ -4,391 +4,112 @@
 
 # 在图 API 和函数式 API 之间进行选择
 
-LangGraph 提供了两种不同的 API 来构建代理工作流程：**Graph API** 和 **Functional API**。这两个 API 共享相同的底层运行时，并且可以在同一应用程序中一起使用，但它们是针对不同的用例和开发偏好而设计的。
+对于新工作流程，首选 LangGraph Graph API。包装其他框架以进行 LangSmith 部署时，请使用功能 API。
 
-本指南将帮助您根据您的具体要求了解何时使用每个 API。
+LangGraph 为代理工作流程提供两个 API：[Graph API](/oss/javascript/langgraph/graph-api) 和 [Functional API](/oss/javascript/langgraph/functional-api)。两者共享相同的运行时（持久性、流式传输、人机交互和内存）。
 
-## 快速决策指南
+图形 API 是默认的。对于新的LangGraph代理以及任何受益于显式状态、分支或图形可视化的工作流程，更喜欢它。
 
-当您需要时，请使用 **Graph API**：
+当您需要在 LangSmith 部署上进行 [deploy other frameworks](/langsmith/deploy-other-frameworks) 时，请使用功能 API。使用 `@entrypoint` 和 `@task` 包装现有的 Claude Agent SDK、Strands、CrewAI、AutoGen 或类似代理，以便代理服务器可以通过持久性、流式传输和跟踪来运行它。
 
-* **复杂的工作流程可视化**用于调试和记录
-* **显式状态管理**，跨多个节点共享数据
-* **具有多个决策点的条件分支**
-* **稍后需要合并的并行执行路径**
-* **团队协作**，视觉表示有助于理解
+## 图形 API（默认）
 
-当您需要时，请使用 **Functional API**：
+使用 LangGraph 本身构建时选择 Graph API：
 
-* **对现有程序代码进行最少的代码更改**
-* **标准控制流**（if/else、循环、函数调用）
-* **函数范围的状态**，没有显式的状态管理
-* **快速原型制作**，样板更少
-* **线性工作流程** 具有简单的分支逻辑
+* 跨节点显式共享[state](/oss/javascript/langgraph/graph-api#state)
+* 稍后合并的条件分支和并行路径
+* 用于调试和记录的图表
+* 团队审查工作流程结构
 
-## 详细比较
+从 [Build checklist for the Graph API](/oss/javascript/langgraph/use-graph-api) 或 [Thinking in the Graph API](/oss/javascript/langgraph/thinking-in-graph-api) 开始。
 
-### 何时使用图形 API[Graph API](/oss/javascript/langgraph/graph-api) 使用声明式方法，您可以定义节点、边和共享状态来创建可视化图形结构。
+## 函数式API（其他框架）当您在另一个框架中已有代理并且想要 LangSmith 部署功能而无需将该代理重写为图形时，请选择功能 API：
 
-**1.复杂的决策树和分支逻辑**
+* 对现有程序或框架代码进行最少的更改
+* 标准控制流程（`if`/`else`、循环、函数调用）
+* 函数范围的值而不是共享状态模式
 
-当您的工作流程有多个取决于各种条件的决策点时，Graph API 使这些分支变得明确且易于可视化。
+对于包装和部署模式，请参阅[Deploy other frameworks](/langsmith/deploy-other-frameworks)。有关功能 API 概念和操作方法，请参阅 [Functional API overview](/oss/javascript/langgraph/functional-api)。
 
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-import * as z from "zod";
+## 并排形状
+
+同样的小工作流程在每个 API 中看起来都不同。此示例对一个数字进行分类，然后返回一条消息：
+
+```ts Graph API theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import {
+  END,
+  START,
   StateGraph,
   StateSchema,
-  MessagesValue,
-  START,
-  END,
   type GraphNode,
-  type ConditionalEdgeRouter,
 } from "@langchain/langgraph";
-
-// Graph API: Clear visualization of decision paths
-const AgentState = new StateSchema({
-  messages: MessagesValue,
-  currentTool: z.string(),
-  retryCount: z.number().default(0),
-});
-
-const shouldContinue: ConditionalEdgeRouter<typeof AgentState> = (state) => {
-  if (state.retryCount > 3) {
-    return END;
-  } else if (state.currentTool === "search") {
-    return "processSearch";
-  } else {
-    return "callLlm";
-  }
-};
-
-const workflow = new StateGraph(AgentState)
-  .addNode("callLlm", callLlmNode)
-  .addNode("processSearch", searchNode)
-  .addConditionalEdges("callLlm", shouldContinue);
-```
-
-**2.跨多个组件的状态管理**
-
-当您需要在工作流程的不同部分之间共享和协调状态时，Graph API 的显式状态管理非常有用。
-
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import * as z from "zod";
-import { StateSchema, type GraphNode } from "@langchain/langgraph";
 
-// Multiple nodes can access and modify shared state
-const WorkflowState = new StateSchema({
-  userInput: z.string(),
-  searchResults: z.array(z.string()).default([]),
-  generatedResponse: z.string().optional(),
-  validationStatus: z.string().optional(),
+const State = new StateSchema({
+  number: z.number(),
+  isEven: z.boolean().optional(),
+  message: z.string().optional(),
 });
 
-const searchNode: GraphNode<typeof WorkflowState> = async (state) => {
-  // Access shared state
-  const results = await search(state.userInput);
-  return { searchResults: results };
-};
+const checkEven: GraphNode<typeof State> = (state) => ({
+  isEven: state.number % 2 === 0,
+});
 
-const validationNode: GraphNode<typeof WorkflowState> = async (state) => {
-  // Access results from previous node
-  const isValid = await validate(state.generatedResponse);
-  return { validationStatus: isValid ? "valid" : "invalid" };
-};
+const formatMessage: GraphNode<typeof State> = (state) => ({
+  message: state.isEven ? "The number is even." : "The number is odd.",
+});
+
+const graph = new StateGraph(State)
+  .addNode("checkEven", checkEven)
+  .addNode("formatMessage", formatMessage)
+  .addEdge(START, "checkEven")
+  .addEdge("checkEven", "formatMessage")
+  .addEdge("formatMessage", END)
+  .compile();
+
+await graph.invoke({ number: 7 });
 ```
 
-**3.具有同步的并行处理**
+```ts Functional API theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import { entrypoint, task } from "@langchain/langgraph";
 
-当您需要并行运行多个操作然后合并它们的结果时，Graph API 可以自然地处理这个问题。
+const isEven = task("isEven", async (number: number) => {
+  return number % 2 === 0;
+});
 
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-import { START } from "@langchain/langgraph";
-
-// Parallel processing of multiple data sources
-workflow
-  .addNode("fetchNews", fetchNews)
-  .addNode("fetchWeather", fetchWeather)
-  .addNode("fetchStocks", fetchStocks)
-  .addNode("combineData", combineAllData)
-  // All fetch operations run in parallel
-  .addEdge(START, "fetchNews")
-  .addEdge(START, "fetchWeather")
-  .addEdge(START, "fetchStocks")
-  // Combine waits for all parallel operations to complete
-  .addEdge("fetchNews", "combineData")
-  .addEdge("fetchWeather", "combineData")
-  .addEdge("fetchStocks", "combineData");
-```
-
-**4.团队开发和文档**
-
-Graph API 的可视化特性使团队更容易理解、记录和维护复杂的工作流程。
-
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-// Clear separation of concerns - each team member can work on different nodes
-workflow
-  .addNode("dataIngestion", dataTeamFunction)
-  .addNode("mlProcessing", mlTeamFunction)
-  .addNode("businessLogic", productTeamFunction)
-  .addNode("outputFormatting", frontendTeamFunction);
-```
-
-### 何时使用函数式 API
-
-[Functional API](/oss/javascript/langgraph/functional-api) 使用命令式方法将 LangGraph 功能集成到标准过程代码中。
-
-**1.现有程序代码**
-
-当您拥有使用标准控制流的现有代码并希望以最少的重构添加 LangGraph 功能时。
-
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-import { task, entrypoint } from "@langchain/langgraph";
-
-// Functional API: Minimal changes to existing code
-const processUserInput = task(
-  "processUserInput",
-  async (userInput: string) => {
-    // Existing function with minimal changes
-    return { processed: userInput.toLowerCase().trim() };
-  }
-);
+const formatMessage = task("formatMessage", async (isEven: boolean) => {
+  return isEven ? "The number is even." : "The number is odd.";
+});
 
 const workflow = entrypoint(
-  { checkpointer },
-  async (userInput: string) => {
-    // Standard control flow
-    const processed = await processUserInput(userInput);
-
-    let response: string;
-    if (processed.processed.includes("urgent")) {
-      response = await handleUrgentRequest(processed);
-    } else {
-      response = await handleNormalRequest(processed);
-    }
-
-    return response;
-  }
-);
-```**2.具有简单逻辑的线性工作流程**
-
-当您的工作流程主要是顺序的且具有简单的条件逻辑时。
-
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-import { entrypoint, interrupt } from "@langchain/langgraph";
-
-const essayWorkflow = entrypoint(
-  { checkpointer },
-  async (topic: string) => {
-    // Linear flow with simple branching
-    let outline = await createOutline(topic);
-
-    if (outline.points.length < 3) {
-      outline = await expandOutline(outline);
-    }
-
-    const draft = await writeDraft(outline);
-
-    // Human review checkpoint
-    const feedback = interrupt({ draft, action: "Please review" });
-
-    let finalEssay: string;
-    if (feedback === "approve") {
-      finalEssay = draft;
-    } else {
-      finalEssay = await reviseEssay(draft, feedback);
-    }
-
-    return { essay: finalEssay };
-  }
-);
-```
-
-**3.快速原型制作**
-
-当您想要快速测试想法而无需定义状态模式和图形结构的开销时。
-
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-import { entrypoint } from "@langchain/langgraph";
-
-const quickPrototype = entrypoint(
-  { checkpointer },
-  async (data: Record<string, unknown>) => {
-    // Fast iteration - no state schema needed
-    const step1Result = await processStep1(data);
-    const step2Result = await processStep2(step1Result);
-
-    return { finalResult: step2Result };
-  }
-);
-```
-
-**4.函数范围的状态管理**
-
-当您的状态自然地局限于各个功能并且不需要广泛共享时。
-
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-import { task, entrypoint } from "@langchain/langgraph";
-
-const analyzeDocument = task("analyzeDocument", async (document: string) => {
-  // Local state management within function
-  const sections = extractSections(document);
-  const summaries = await Promise.all(sections.map(summarize));
-  const keyPoints = extractKeyPoints(summaries);
-
-  return {
-    sections: sections.length,
-    summaries,
-    keyPoints,
-  };
-});
-
-const documentProcessor = entrypoint(
-  { checkpointer },
-  async (document: string) => {
-    const analysis = await analyzeDocument(document);
-    // State is passed between functions as needed
-    return await generateReport(analysis);
-  }
-);
-```
-
-## 结合两个 API
-
-您可以在同一应用程序中同时使用这两个 API。当系统的不同部分有不同的要求时，这非常有用。
-
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-import * as z from "zod";
-import {
-  StateGraph,
-  StateSchema,
-  entrypoint,
-  type GraphNode,
-} from "@langchain/langgraph";
-
-// Define state for complex multi-agent coordination
-const CoordinationState = new StateSchema({
-  rawData: z.record(z.string(), z.unknown()),
-  processedData: z.record(z.string(), z.unknown()).optional(),
-});
-
-// Simple data processing using Functional API
-const dataProcessor = entrypoint({}, async (rawData: Record<string, unknown>) => {
-  const cleaned = await cleanData(rawData);
-  const transformed = await transformData(cleaned);
-  return transformed;
-});
-
-// Use the functional API result in the graph
-const orchestratorNode: GraphNode<typeof CoordinationState> = async (state) => {
-  const processedData = await dataProcessor.invoke(state.rawData);
-  return { processedData };
-};
-
-// Complex multi-agent coordination using Graph API
-const coordinationGraph = new StateGraph(CoordinationState)
-  .addNode("orchestrator", orchestratorNode)
-  .addNode("agentA", agentANode)
-  .addNode("agentB", agentBNode);
-```
-
-## API之间的迁移
-
-### 从函数式 API 到图形 API
-
-当您的功能工作流程变得复杂时，您可以迁移到 Graph API：
-
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-import * as z from "zod";
-import { entrypoint } from "@langchain/langgraph";
-
-// Before: Functional API
-const complexWorkflow = entrypoint(
-  { checkpointer },
-  async (inputData: Record<string, unknown>) => {
-    const step1 = await processStep1(inputData);
-
-    let result: unknown;
-    if (step1.needsAnalysis) {
-      const analysis = await analyzeData(step1);
-      if (analysis.confidence > 0.8) {
-        result = await highConfidencePath(analysis);
-      } else {
-        result = await lowConfidencePath(analysis);
-      }
-    } else {
-      result = await simplePath(step1);
-    }
-
-    return result;
+  { name: "workflow" },
+  async (inputs: { number: number }) => {
+    const even = await isEven(inputs.number);
+    return await formatMessage(even);
   }
 );
 
-// After: Graph API
-import {
-  StateGraph,
-  StateSchema,
-  type GraphNode,
-  type ConditionalEdgeRouter,
-} from "@langchain/langgraph";
-
-const WorkflowState = new StateSchema({
-  inputData: z.record(z.string(), z.unknown()),
-  step1Result: z.record(z.string(), z.unknown()).optional(),
-  analysis: z.record(z.string(), z.unknown()).optional(),
-  finalResult: z.unknown().optional(),
-});
-
-const shouldAnalyze: ConditionalEdgeRouter<typeof WorkflowState> = (state) => {
-  return state.step1Result?.needsAnalysis ? "analyze" : "simplePath";
-};
-
-const confidenceCheck: ConditionalEdgeRouter<typeof WorkflowState> = (state) => {
-  return (state.analysis?.confidence as number) > 0.8
-    ? "highConfidence"
-    : "lowConfidence";
-};
-
-const workflow = new StateGraph(WorkflowState)
-  .addNode("step1", processStep1Node)
-  .addConditionalEdges("step1", shouldAnalyze)
-  .addNode("analyze", analyzeDataNode)
-  .addConditionalEdges("analyze", confidenceCheck);
-// ... add remaining nodes and edges
+await workflow.invoke({ number: 7 });
 ```
 
-### 从图形到函数式 API
+Graph API 使状态和转换变得明确。功能 API 保留普通控制流并在任务之间传递值。|关注|图形API |函数式 API |
+| - | - | - |
+|风格|声明性节点、边和共享状态 |使用 `@entrypoint` / `@task` (Python) 或 `entrypoint` / `task` (TypeScript) 的命令式函数 |
+|控制流程|边和条件边 |语言`if`/`else`、循环和调用 |
+|状态|显式 [state](/oss/javascript/langgraph/graph-api#state) 和 [reducers](/oss/javascript/langgraph/graph-api#reducers) |范围限定为入口点和任务 |
+|检查点|每个 [super-step](/oss/javascript/langgraph/graph-api) 之后的新检查点 |任务结果保存到入口点检查点 |
+|可视化|一流的图表|无静态图形可视化（图形是在运行时构建的）|
+|最适合| LangGraph 工作流程的默认设置 |包装其他框架进行部署 |
 
-当您的图表对于简单的线性过程变得过于复杂时：
+当线性功能 API 子工作流位于图形 API 协调器内部时，您仍然可以将这两个 API 组合在一个应用程序中，反之亦然。
 
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-import { z } from "zod/v4";
-import { StateGraph, StateSchema, entrypoint } from "@langchain/langgraph";
+## 另请参阅
 
-// Before: Over-engineered Graph API
-const SimpleState = new StateSchema({
-  input: z.string(),
-  step1: z.string().optional(),
-  step2: z.string().optional(),
-  result: z.string().optional(),
-});
-
-// After: Simplified Functional API
-const simpleWorkflow = entrypoint(
-  { checkpointer },
-  async (inputData: string) => {
-    const step1 = await processStep1(inputData);
-    const step2 = await processStep2(step1);
-    return await finalizeResult(step2);
-  }
-);
-```
-
-## 总结
-
-当您需要显式控制工作流结构、复杂分支、并行处理或团队协作优势时，请选择 **Graph API**。
-
-当您想要以最小的更改向现有代码添加 LangGraph 功能、具有简单的线性工作流程或需要快速原型设计功能时，请选择 **Functional API**。这两个 API 都提供相同的核心 LangGraph 功能（持久性、流式传输、人机交互、内存），但将它们封装在不同的范例中，以适应不同的开发风格和用例。
+* [Build checklist for the Graph API](/oss/javascript/langgraph/use-graph-api)
+* [Thinking in the Graph API](/oss/javascript/langgraph/thinking-in-graph-api)
+* [Graph API overview](/oss/javascript/langgraph/graph-api)
+* [Deploy other frameworks](/langsmith/deploy-other-frameworks)
+* [Functional API overview](/oss/javascript/langgraph/functional-api)
 
 ***
 

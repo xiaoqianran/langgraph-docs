@@ -834,7 +834,7 @@ INTERRUPTED:
 }
 ```
 
-我们可以使用[Command](/oss/javascript/langgraph/use-graph-api#combine-control-flow-and-state-updates-with-command)接受或编辑工具调用：
+我们可以使用[Command](/oss/javascript/langgraph/graph-api-send-command#combine-control-flow-and-state-updates-with-command)接受或编辑工具调用：
 
 ```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 const resumeStream = await agentWithHuman.streamEvents(

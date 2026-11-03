@@ -4,38 +4,211 @@
 
 # 功能 API 概述
 
-**功能 API** 允许您将 LangGraph 的关键功能（[persistence](/oss/javascript/langgraph/persistence)、[memory](/oss/javascript/langgraph/add-memory)、[human-in-the-loop](/oss/javascript/langgraph/interrupts) 和 [streaming](/oss/javascript/langgraph/streaming)）添加到您的应用程序中，只需对现有代码进行最少的更改。
+了解功能 API 入口点和任务、检查点和重放的工作原理以及如何避免常见的恢复陷阱。
 
-它旨在将这些功能集成到现有代码中，这些代码可以使用标准语言原语进行分支和控制流，例如`if`语句、`for`循环和函数调用。与许多需要将代码重组为显式管道或 DAG 的数据编排框架不同，功能 API 允许您合并这些功能，而无需强制执行严格的执行模型。
+**函数式 API** 在普通函数的基础上添加了 LangGraph 功能（[persistence](/oss/javascript/langgraph/persistence)、[memory](/oss/javascript/langgraph/add-memory)、[human-in-the-loop](/oss/javascript/langgraph/interrupts) 和 [streaming](/oss/javascript/langgraph/streaming)）。使用标准语言控制流（`if` / `else`、循环和函数调用）而不是声明节点和边的图。
 
-功能 API 使用两个关键构建块：
+此页面是入口点、任务、检查点和恢复规则的概念参考。有关设计演练，请参阅[Thinking in the Functional API](/oss/javascript/langgraph/thinking-in-functional-api)。对于有序的构建路径，请参阅 [Build checklist for the Functional API](/oss/javascript/langgraph/use-functional-api)。
 
-* **`entrypoint`**：入口点封装工作流逻辑并管理执行流，包括处理长时间运行的任务和中断。
-* **`task`**：表示可以在入口点内异步执行的离散工作单元，例如 API 调用或数据处理步骤。任务返回一个类似 future 的对象，可以同步等待或解析。
+功能 API 使用两个构建块：
 
-这为构建具有状态管理和流的工作流提供了最小的抽象。
+* **`entrypoint`**：封装工作流逻辑并管理执行、中断和检查点。
+* **`task`**：标记离散的工作单元（例如，API 调用）。任务返回您在入口点内等待的 `Promise`。
 
-> [!提示]
+## 函数式 API 与图形 API
+
+如果您已经选择了功能 API，则此比较是可选的。有关并行决策指南，请参阅[Choosing between Graph and Functional APIs](/oss/javascript/langgraph/choosing-apis)。这两个 API 共享相同的底层运行时，因此您可以在同一应用程序中一起使用它们。
+
+高层差异：* **控制流**：功能 API 使用标准语言结构。 [Graph API](/oss/javascript/langgraph/graph-api) 使用节点和边。
+* **状态**：Graph API 需要声明 [state](/oss/javascript/langgraph/graph-api#state)，并且通常需要声明 [reducers](/oss/javascript/langgraph/graph-api#reducers)。功能 API 将状态范围保持在函数范围内：任务将值作为返回值传递，没有共享状态模式。
+* **检查点**：每个 [super-step](/oss/javascript/langgraph/graph-api#super-steps) 之后的 Graph API 检查点。功能 API 将任务结果保存到入口点检查点。
+* **可视化**：Graph API 支持图表。功能 API 则不然，因为图表是在运行时构建的。
+
+## 入口点
+
+`entrypoint` 函数从函数创建工作流。它管理长时间运行的工作和[interrupts](/oss/javascript/langgraph/interrupts)。
+
+### 定义
+
+当您需要坚持或人参与时，请通过[checkpointer](/oss/javascript/langgraph/persistence)。在配置中使用 `thread_id` 标识每次运行。线程是一次对话或工作流程运行的持久标识。
+
+**入口点**是通过使用配置和函数调用`entrypoint`来创建的。
+
+该函数**必须接受单个位置参数**作为工作流程输入。要传递多个值，请使用对象作为该参数。
+
+结果是一个工作流对象。调用`invoke`来运行它。
+
+```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import { MemorySaver, entrypoint } from "@langchain/langgraph";
+
+const checkpointer = new MemorySaver();
+
+const myWorkflow = entrypoint(
+  { checkpointer, name: "workflow" },
+  async (name: string): Promise<string> => {
+    return `Hello, ${name}`;
+  }
+);
+
+const config = { configurable: { thread_id: "1" } };
+await myWorkflow.invoke("Alice", config); // "Hello, Alice"
+```> [!警告]
 >
-> 有关如何使用函数式 API 的信息，请参阅[Use Functional API](/oss/javascript/langgraph/use-functional-api)。## 函数式 API 与图形 API
+> **序列化**
+> 配置检查点时，入口点 **输入** 和 **输出** 必须是 JSON 可序列化的。参见[Serialization](#serialization)。
 
-对于喜欢更具声明性方法的用户，LangGraph 的 [Graph API](/oss/javascript/langgraph/graph-api) 允许您使用图形范例定义工作流程。这两个 API 共享相同的底层运行时，因此您可以在同一应用程序中一起使用它们。
+### 运行并恢复
 
-以下是一些主要区别：
+致电`invoke`获取最终结果。对于流，请参阅[Stream with the Functional API](/oss/javascript/langgraph/functional-api-streaming)。
 
-* **控制流**：Functional API 不需要考虑图形结构。您可以使用标准 Python 结构来定义工作流程。这通常会减少您需要编写的代码量。
-* **短期记忆**：**GraphAPI** 需要声明 [**State**](/oss/javascript/langgraph/graph-api#state) 并且可能需要定义 [**reducers**](/oss/javascript/langgraph/graph-api#reducers) 来管理图形状态的更新。 `@entrypoint` 和 `@tasks` 不需要显式状态管理，因为它们的状态仅限于函数范围，并且不会在函数之间共享。
-* **检查点**：两个 API 都会生成并使用检查点。在 **Graph API** 中，每个 [superstep](/oss/javascript/langgraph/graph-api) 后都会生成一个新的检查点。在 **Functional API** 中，执行任务时，其结果将保存到与给定入口点关联的现有检查点，而不是创建新检查点。* **可视化**：图形 API 可以轻松地将工作流程可视化为图形，这对于调试、理解工作流程以及与他人共享非常有用。功能 API 不支持可视化，因为图形是在运行时动态生成的。
+通过在 [⟦T20⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/Command) 中传递恢复值，在 [⟦T19⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 之后恢复。有关食谱，请参阅[Add human-in-the-loop with the Functional API](/oss/javascript/langgraph/functional-api-human-in-the-loop)。
 
-## 示例
+发生错误后，用 `null` 恢复相同的 `thread_id`。参见[Resume after an error](/oss/javascript/langgraph/functional-api-tasks#resume-after-an-error)。
 
-下面我们演示一个简单的应用程序，它可以写一篇文章和 [interrupts](/oss/javascript/langgraph/interrupts) 来请求人工审核。
+### 短期记忆
+
+当 `entrypoint` 具有 `checkpointer` 时，对同一 **线程 id** 的连续调用会将状态存储在 [checkpoints](/oss/javascript/langgraph/checkpointers#checkpoints) 中。
+
+在入口点内调用`getPreviousState`。它返回该线程上保存的最后一个值。第一次运行时是`undefined`。要为下次运行保存不同的值，请使用 [⟦T27⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/entrypoint/final)。参见[Return a different saved value](/oss/javascript/langgraph/functional-api-memory#return-a-different-saved-value)。
+
+累积和检查检查点请参见[Save state on a thread](/oss/javascript/langgraph/functional-api-memory#save-state-on-a-thread)。
+
+### 可注入参数
+
+您可以跳过此步骤，直到添加 [memory](/oss/javascript/langgraph/functional-api-memory) 或 [custom streaming](/oss/javascript/langgraph/functional-api-streaming)。
+
+`entrypoint` 函数可以采用第二个 `config` 参数。 LangGraph 还提供了您在函数内调用的帮助程序：|帮手|描述 |
+| - | - |
+| **获取上一个状态** |同一线程上一次调用的返回值（需要检查指针）。参见[short-term memory](/oss/javascript/langgraph/functional-api-memory#save-state-on-a-thread)。 |
+| **配置** |具有运行时配置值的 `LangGraphRunnableConfig` 对象。 |
+| **配置.store** | [long-term memory](/oss/javascript/langgraph/functional-api-memory#save-facts-across-threads) 的商店实例。 |
+| **配置.writer** |自定义流媒体的作家。参见[Stream with the Functional API](/oss/javascript/langgraph/functional-api-streaming)。 |
+
+> [accordion] 请求可注入参数
+>
+> ```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> import {
+>   MemorySaver,
+>   InMemoryStore,
+>   entrypoint,
+>   getPreviousState,
+> } from "@langchain/langgraph";
+> import type { LangGraphRunnableConfig } from "@langchain/langgraph";
+>
+> const checkpointer = new MemorySaver();
+> const store = new InMemoryStore();
+>
+> const myWorkflow = entrypoint(
+>   { checkpointer, store, name: "workflow" },
+>   async (
+>     someInput: Record<string, unknown>,
+>     config: LangGraphRunnableConfig
+>   ) => {
+>     const previous = getPreviousState();
+>     const memoryStore = config.store;
+>     const writer = config.writer;
+>     return { previous, someInput };
+>   }
+> );
+> ```
+
+## 任务
+
+**任务**是一个离散的工作单元（例如，API 调用或数据步骤）。任务有两个关键属性：
+
+* **并发执行**：调用任务会立即启动它。仅当您等待结果时，入口点才会阻塞，因此独立任务可以重叠。
+* **检查点**：保存任务结果，以便恢复可以恢复它们。参见[persistence](/oss/javascript/langgraph/persistence)。
+
+### 定义
+
+使用 `task` 函数定义任务：
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import { task } from "@langchain/langgraph";
+
+const slowComputation = task("slowComputation", async (inputValue: number) => {
+  // Long-running or side-effecting work
+  return inputValue * 2;
+});
+```
+
+> [!警告]
+>
+> **序列化**：任务 **输出** 必须可 JSON 序列化以支持检查点。
+
+### 执行
+
+仅从**入口点**、另一个**任务**或[Graph API node](/oss/javascript/langgraph/graph-api#nodes)调用**任务**。不要从工作流程之外的应用程序代码调用它们。
+
+调用任务会返回一个`Promise`。在入口点内等待它：
+
+```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import { MemorySaver, entrypoint, task } from "@langchain/langgraph";
+
+const checkpointer = new MemorySaver();
+
+const slowComputation = task("slowComputation", async (inputValue: number) => {
+  return inputValue * 2;
+});
+
+const myWorkflow = entrypoint(
+  { checkpointer, name: "workflow" },
+  async (someInput: number): Promise<number> => {
+    return await slowComputation(someInput);
+  }
+);
+```
+
+### 何时使用任务当您需要时使用**任务**：
+
+* **检查点**：保存长时间运行的结果，以便恢复时不会重新计算它。
+* **人机交互**：在任务暂停后结束不应重做的工作，例如 LLM 通话。待[interrupt](/oss/javascript/langgraph/interrupts)恢复结果后继续。对于随机性，请参阅[Determinism](#determinism)。
+* **并行执行**：同时运行独立的 I/O 密集型工作。
+* **可观察性**：跟踪[LangSmith](/langsmith/observability)中的离散步骤。
+* **重试**：将重试策略应用于离散的工作单元。参见[Configure Functional API tasks](/oss/javascript/langgraph/functional-api-tasks)。
+
+## 恢复和检查点
+
+恢复重放取决于序列化、确定性和幂等性。
+
+### 序列化
+
+配置检查指针时适用两条规则：
+
+1. `entrypoint` 输入和输出必须是 JSON 可序列化的。
+2. `task` 输出必须是 JSON 可序列化的。
+
+使用对象、数组、字符串、数字和布尔值等基元。
+
+序列化使任务结果和中间值可恢复，以实现人机交互、容错和并行执行。配置检查指针时，不可序列化的值会引发运行时错误。
+
+### 决定论恢复**不**从执行停止的确切行继续。执行返回到检查点边界并向前**重播**，直到再次遇到暂停。
+
+对于功能 API，重播从 **入口点** 的开头开始。 LangGraph 从检查点恢复已完成的 [**task**](#task) 和 [**subgraph**](/oss/javascript/langgraph/use-subgraphs) 结果，而不是重新计算它们。这可以保留暂停期间的步骤顺序，包括长时间运行或不确定的**任务**输出。
+
+对于**人机交互**，将非确定性工作（例如随机值）和副作用（例如文件写入或 API 调用）放入 [**tasks**](#task) 中。
+
+不同的运行可以产生不同的结果。恢复**特定**线程应该重播相同的持久**任务**和**子图**结果。
+
+指南：
+
+* **避免重复工作**：为入口点中的每个副作用赋予其自己的**任务**，以便恢复恢复输出而不是重新运行它们。
+* **封装非确定性操作**：将尝试之间变化的值（随机数、挂钟时间）保留在**任务**内。
+* **使用幂等操作**：部分失败和重试请参见[Idempotency](#idempotency)。
+
+### 幂等性幂等性意味着多次运行相同的操作与运行一次具有相同的效果。将 API 调用和其他写入放入 **任务** 中，并将这些任务设计为在再次运行时是安全的。
+
+恢复时，LangGraph 恢复已完成的**任务**结果。已启动但未完成的**任务**可能会再次运行，因此请在写入之前使用幂等键或检查现有结果。
+
+## 暂停以供人工审核
+
+此工作流程编写一篇文章和 [interrupts](/oss/javascript/langgraph/interrupts) 供人工审阅：
+
+```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { MemorySaver, entrypoint, task, interrupt } from "@langchain/langgraph";
 
 const writeEssay = task("writeEssay", async (topic: string) => {
-  // A placeholder for a long-running task.
+  // Placeholder for a long-running task.
   await new Promise((resolve) => setTimeout(resolve, 1000));
   return `An essay about topic: ${topic}`;
 });
@@ -45,412 +218,61 @@ const workflow = entrypoint(
   async (topic: string) => {
     const essay = await writeEssay(topic);
     const isApproved = interrupt({
-      // Any json-serializable payload provided to interrupt as argument.
-      // It will be surfaced on the client side as an Interrupt when streaming data
-      // from the workflow.
-      essay, // The essay we want reviewed.
-      // We can add any additional information that we need.
-      // For example, introduce a key called "action" with some instructions.
+      // Any JSON-serializable payload. Surfaces as an Interrupt when streaming.
+      essay,
       action: "Please approve/reject the essay",
     });
 
     return {
-      essay, // The essay that was generated
-      isApproved, // Response from HIL
+      essay,
+      isApproved,
     };
   }
 );
 ```
 
-> [手风琴] 详细解释
->
-> 此工作流程将写一篇关于“猫”主题的文章，然后暂停以获取人类的评论。工作流程可以无限期中断，直到提供审核。
->
-> 当工作流恢复时，会从头开始执行，但由于`writeEssay`任务的结果已经保存，所以任务结果将从检查点加载，而不是重新计算。
->
-> ```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-> import { MemorySaver, entrypoint, interrupt, task } from "@langchain/langgraph";
->
-> const writeEssay = task("writeEssay", async (topic: string) => {
->   // This is a placeholder for a long-running task.
->   await new Promise((resolve) => setTimeout(resolve, 1000));
->   return `An essay about topic: ${topic}`;
-> });
->
-> const workflow = entrypoint(
->   { checkpointer: new MemorySaver(), name: "workflow" },
->   async (_topic: string) => {
->     const essay = await writeEssay("cat");
->     const isApproved = interrupt({
->       // Any json-serializable payload provided to interrupt as argument.
->       // It will be surfaced on the client side as an Interrupt when streaming data
->       // from the workflow.
->       essay, // The essay we want reviewed.
->       // We can add any additional information that we need.
->       // For example, introduce a key called "action" with some instructions.
->       action: "Please approve/reject the essay",
->     });
->
->     return {
->       essay, // The essay that was generated
->       isApproved, // Response from HIL
->     };
->   },
-> );
->
-> const threadId = "functional-api-thread";
-> const config = {
->   configurable: {
->     thread_id: threadId,
->   },
-> };
->
-> const stream = await workflow.streamEvents("cat", { ...config, version: "v2" });
-> const initialChunks: Record<string, unknown>[] = [];
-> for await (const event of stream) {
->   const chunk = event.data?.chunk;
->   if (chunk && typeof chunk === "object") {
->     console.log(chunk);
->     initialChunks.push(chunk as Record<string, unknown>);
->   }
-> }
-> // { writeEssay: "An essay about topic: cat" }
-> // { __interrupt__: [Interrupt(...)] }
-> ```
->
-> 一篇文章已写好，可供审阅。一旦提供审核，我们就可以恢复工作流程：
->
-> ```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-> import { Command } from "@langchain/langgraph";
->
-> // Get review from a user (e.g., via a UI)
-> // In this case, we're using a bool, but this can be any json-serializable value.
-> const humanReview = true;
->
-> const resumedStream = await workflow.streamEvents(
->   new Command({ resume: humanReview }),
->   { ...config, version: "v2" },
-> );
-> const resumedChunks: Record<string, unknown>[] = [];
-> for await (const event of resumedStream) {
->   const chunk = event.data?.chunk;
->   if (chunk && typeof chunk === "object") {
->     console.log(chunk);
->     resumedChunks.push(chunk as Record<string, unknown>);
->   }
-> }
-> // { essay: "An essay about topic: cat", isApproved: true }
-> ```
->
-> 工作流程已完成，评论已添加到论文中。
+使用 `"cat"` 等主题进行调用。跑步写完文章，然后在`interrupt`处暂停。暂停可以无限期地持续。恢复从入口点的开头开始。
 
-## 入口点[⟦T25⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/entrypoint) 函数可用于从函数创建工作流。它封装了工作流逻辑并管理执行流，包括处理*长时间运行的任务*和[interrupts](/oss/javascript/langgraph/interrupts)。
+`writeEssay` 任务结果被恢复，而不是重新计算。
 
-### 定义
-
-**入口点**是通过使用配置和函数调用 `entrypoint` 函数来定义的。
-
-该函数**必须接受单个位置参数**，用作工作流输入。如果需要传递多条数据，请使用对象作为第一个参数的输入类型。
-
-使用函数创建入口点会生成一个工作流实例，该实例有助于管理工作流的执行（例如，处理流式传输、恢复和检查点）。
-
-您经常需要将 **检查指针** 传递给 `entrypoint` 函数以启用持久性并使用 **人机交互** 等功能。
-
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-import { entrypoint } from "@langchain/langgraph";
-
-const myWorkflow = entrypoint(
-  { checkpointer, name: "workflow" },
-  async (someInput: Record<string, any>): Promise<number> => {
-    // some logic that may involve long-running tasks like API calls,
-    // and may be interrupted for human-in-the-loop
-    return result;
-  }
-);
-```
-
-> [!警告]
->
-> **序列化**
-> 入口点的 **输入** 和 **输出** 必须是 JSON 可序列化的以支持检查点。更多详情请参阅[serialization](#serialization)部分。
-
-### 执行中
-
-使用 [⟦T28⟧](#entrypoint) 函数将返回一个可以使用 `invoke` 和 `stream` 方法执行的对象。
-
-> [选项卡] 调用
->
-> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-> const config = {
->   configurable: {
->     thread_id: "some_thread_id"
->   }
-> };
-> await myWorkflow.invoke(someInput, config); // Wait for the result
-> ```
-
-> [选项卡] 流
->
-> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-> const config = {
->   configurable: {
->     thread_id: "some_thread_id"
->   }
-> };
->
-> const stream = await myWorkflow.streamEvents(someInput, config, { version: "v3" });
-> for await (const message of stream.messages) {
->   for await (const token of message.text) {
->     process.stdout.write(token);
->   }
-> }
-> ```
-
-### 恢复在 [interrupt](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 之后恢复执行可以通过将 **resume** 值传递给 [⟦T31⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/Command) 原语来完成。
-
-> [选项卡] 调用
->
-> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-> import { Command } from "@langchain/langgraph";
->
-> const config = {
->   configurable: {
->     thread_id: "some_thread_id"
->   }
-> };
->
-> await myWorkflow.invoke(new Command({ resume: someResumeValue }), config);
-> ```
-
-> [选项卡] 流
->
-> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-> import { Command } from "@langchain/langgraph";
->
-> const config = {
->   configurable: {
->     thread_id: "some_thread_id"
->   }
-> };
->
-> const stream = await myWorkflow.streamEvents(
->   new Command({ resume: someResumableValue }),
->   config,
->   { version: "v3" },
-> );
->
-> for await (const message of stream.messages) {
->   for await (const token of message.text) {
->     process.stdout.write(token);
->   }
-> }
-> ```
-
-**发生错误后恢复**
-
-要在错误后恢复，请使用 `null` 和相同的 **线程 id** （配置）运行 `entrypoint`。
-
-这假设底层的**错误**已得到解决并且执行可以成功进行。
-
-> [选项卡] 调用
->
-> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-> const config = {
->   configurable: {
->     thread_id: "some_thread_id"
->   }
-> };
->
-> await myWorkflow.invoke(null, config);
-> ```
-
-> [选项卡] 流
->
-> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-> const config = {
->   configurable: {
->     thread_id: "some_thread_id"
->   }
-> };
->
-> const stream = await myWorkflow.streamEvents(null, config, { version: "v3" });
-> for await (const message of stream.messages) {
->   for await (const token of message.text) {
->     process.stdout.write(token);
->   }
-> }
-> ```
-
-### 短期记忆
-
-当使用`checkpointer`定义`entrypoint`时，它将在[checkpoints](/oss/javascript/langgraph/checkpointers#checkpoints)中存储同一**线程id**上的连续调用之间的信息。
-
-这允许使用 `getPreviousState` 函数访问先前调用的状态。
-
-默认情况下，`getPreviousState`函数返回上一次调用的返回值。
-
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-import { entrypoint, getPreviousState } from "@langchain/langgraph";
-
-const myWorkflow = entrypoint(
-  { checkpointer, name: "workflow" },
-  async (number: number) => {
-    const previous = getPreviousState<number>() ?? 0;
-    return number + previous;
-  }
-);
-
-const config = {
-  configurable: {
-    thread_id: "some_thread_id",
-  },
-};
-
-await myWorkflow.invoke(1, config); // 1 (previous was undefined)
-await myWorkflow.invoke(2, config); // 3 (previous was 1 from the previous invocation)
-```
-
-#### `entrypoint.final`
-
-[⟦T39⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/entrypoint/final) 是一个特殊的原语，可以从入口点返回，并允许将检查点中保存的值与入口点的返回值**解耦**。
-
-第一个值是入口点的返回值，第二个值是将保存在检查点中的值。
-
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-import { entrypoint, getPreviousState } from "@langchain/langgraph";
-
-const myWorkflow = entrypoint(
-  { checkpointer, name: "workflow" },
-  async (number: number) => {
-    const previous = getPreviousState<number>() ?? 0;
-    // This will return the previous value to the caller, saving
-    // 2 * number to the checkpoint, which will be used in the next invocation
-    // for the `previous` parameter.
-    return entrypoint.final({
-      value: previous,
-      save: 2 * number,
-    });
-  }
-);
-
-const config = {
-  configurable: {
-    thread_id: "1",
-  },
-};
-
-await myWorkflow.invoke(3, config); // 0 (previous was undefined)
-await myWorkflow.invoke(1, config); // 6 (previous was 3 * 2 from the previous invocation)
-```
-
-## 任务**任务**代表一个离散的工作单元，例如 API 调用或数据处理步骤。它有两个关键特征：
-
-* **异步执行**：任务被设计为异步执行，允许多个操作同时运行而不会阻塞。
-* **检查点**：任务结果保存到检查点，从而可以从上次保存的状态恢复工作流程。 （更多详情请参见[persistence](/oss/javascript/langgraph/persistence)）。
-
-### 定义
-
-任务是使用 `task` 函数定义的，它包装了一个常规函数。
-
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-import { task } from "@langchain/langgraph";
-
-const slowComputation = task("slowComputation", async (inputValue: any) => {
-  // Simulate a long-running operation
-  return result;
-});
-```
-
-> [!警告]
->
-> **序列化**
-> 任务的 **输出** 必须可 JSON 序列化以支持检查点。
-
-### 执行
-
-**任务**只能从**入口点**、另一个**任务**或[state graph node](/oss/javascript/langgraph/graph-api#nodes)内调用。
-
-任务*不能*直接从主应用程序代码调用。
-
-当您调用 **任务** 时，它会返回一个可以等待的 Promise。
-
-```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-const myWorkflow = entrypoint(
-  { checkpointer, name: "workflow" },
-  async (someInput: number): Promise<number> => {
-    return await slowComputation(someInput);
-  }
-);
-```
-
-## 何时使用任务
-
-**任务**在以下场景中很有用：* **检查点**：当您需要将长时间运行的操作的结果保存到检查点时，以便在恢复工作流程时不需要重新计算它。
-* **人机交互**：如果您正在构建需要人工干预的工作流程，则必须使用 **任务** 来封装任何随机性（例如 API 调用），以确保工作流程可以正确恢复。有关更多详细信息，请参阅[determinism](#determinism)部分。
-* **并行执行**：对于 I/O 密集型任务，**任务** 启用并行执行，允许多个操作同时运行而不会阻塞（例如，调用多个 API）。
-* **可观察性**：将操作包装在**任务**中提供了一种使用[LangSmith](/langsmith/observability)跟踪工作流程进度并监控各个操作执行情况的方法。
-* **可重试工作**：当工作需要重试来处理失败或不一致时，**任务**提供了一种封装和管理重试逻辑的方法。
-
-## 序列化
-
-LangGraph 中的序列化有两个关键方面：
-
-1. `entrypoint` 输入和输出必须是 JSON 可序列化的。
-2. `task` 输出必须是 JSON 可序列化的。这些要求对于启用检查点和工作流程恢复是必要的。使用对象、数组、字符串、数字和布尔值等基元来确保输入和输出可序列化。
-
-序列化可确保工作流状态（例如任务结果和中间值）能够可靠地保存和恢复。这对于实现人机交互、容错和并行执行至关重要。
-
-当工作流配置了检查点时，提供不可序列化的输入或输出将导致运行时错误。
-
-## 决定论
-
-当您恢复工作流运行时，代码**不会**从执行停止的**同一行代码**恢复。执行返回到检查点边界，并且工作流向前**重播**，直到再次达到暂停为止。
-
-对于功能 API，重播从 **入口点** 的开头开始，而 LangGraph 则从检查点恢复已完成的 [**task**](/oss/javascript/langgraph/functional-api#task) 和 [**subgraph**](/oss/javascript/langgraph/use-subgraphs) 结果，而不是重新计算它们。这保留了暂停期间记录的步骤顺序，包括长时间运行或不确定的**任务**输出。要使用**人机交互**等功能，您必须将非确定性工作（例如随机值）和副作用（例如文件写入或 API 调用）放入 [**tasks**](/oss/javascript/langgraph/functional-api#task) 中。
-
-工作流的不同运行可能会产生不同的结果，但恢复**特定**线程应该重播相同的持久**任务**和**子图**结果。
-
-为了确保您的工作流程具有确定性并且可以一致地重播，请遵循以下准则：
-
-* **避免重复工作**：在**入口点**中，如果您链接多个副作用（例如，日志记录、文件写入或网络调用），请为每个副作用提供自己的**任务**，以便恢复从检查点恢复其输出，而不是再次运行它们。
-* **封装非确定性操作**：将可能在尝试之间发生变化的值（例如，随机数或挂钟读取）保留在**任务**内，以便重播与检查点的内容保持一致。
-* **使用幂等操作**：部分任务失败和重试请参见[Idempotency](#idempotency)。
-
-## 幂等性幂等性确保多次运行相同的操作会产生相同的结果。如果某个步骤因失败而重新运行，这有助于防止重复的 API 调用和冗余处理。始终将 API 调用放置在 **tasks** 函数中以进行检查点，并将它们设计为在重新执行时具有幂等性。
-这对于导致数据写入的操作尤其重要。
-当工作流程恢复时，LangGraph 会重播检查点中已完成的**任务**结果。已开始但未完成的**任务**可能会在该简历上再次运行，因此将副作用设计为幂等的。使用幂等性密钥或验证现有结果以避免意外重复。
+有关流、恢复和工具调用审核的信息，请参阅 [Add human-in-the-loop with the Functional API](/oss/javascript/langgraph/functional-api-human-in-the-loop)。
 
 ## 常见陷阱
 
 ### 处理副作用
 
-将副作用（例如，写入文件、发送电子邮件）封装在任务中，以确保在恢复工作流程时不会多次执行它们。
+将副作用（写入文件、发送电子邮件）放入任务中，以便恢复不会再次运行它们。
 
 > [选项卡] 不正确
 >
-> 在本例中，副作用（写入文件）直接包含在工作流程中，因此在恢复工作流程时将再次执行。
+> 文件写入在入口点运行，因此恢复会第二次执行它。
 >
 > ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-> import { entrypoint, interrupt } from "@langchain/langgraph";
+> import { MemorySaver, entrypoint, interrupt } from "@langchain/langgraph";
 > import fs from "fs";
 >
+> const checkpointer = new MemorySaver();
+>
 > const myWorkflow = entrypoint(
->   { checkpointer, name: "workflow },
+>   { checkpointer, name: "workflow" },
 >   async (inputs: Record<string, any>) => {
->     // This code will be executed a second time when resuming the workflow.
->     // Which is likely not what you want.
+>     // Runs again on resume.
 >     fs.writeFileSync("output.txt", "Side effect executed");
 >     const value = interrupt("question");
 >     return value;
 >   }
 > );
-> ```> [选项卡] 正确
+> ```
+
+> [选项卡] 正确
 >
-> 在本例中，副作用被封装在一个任务中，确保恢复时执行的一致性。
+> 副作用存在于任务中，因此恢复会恢复检查点结果。
 >
 > ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-> import { entrypoint, task, interrupt } from "@langchain/langgraph";
+> import { MemorySaver, entrypoint, task, interrupt } from "@langchain/langgraph";
 > import * as fs from "fs";
+>
+> const checkpointer = new MemorySaver();
 >
 > const writeToFile = task("writeToFile", async () => {
 >   fs.writeFileSync("output.txt", "Side effect executed");
@@ -459,7 +281,6 @@ LangGraph 中的序列化有两个关键方面：
 > const myWorkflow = entrypoint(
 >   { checkpointer, name: "workflow" },
 >   async (inputs: Record<string, any>) => {
->     // The side effect is now encapsulated in a task.
 >     await writeToFile();
 >     const value = interrupt("question");
 >     return value;
@@ -467,23 +288,23 @@ LangGraph 中的序列化有两个关键方面：
 > );
 > ```
 
-### 非确定性控制流
-
-每次可能给出不同结果的操作（例如获取当前时间或随机数）应封装在任务中，以确保在恢复时返回相同的结果。
+### 非确定性控制流将时间和随机性封装在任务中，以便恢复返回相同的值。
 
 * 在任务中：获取随机数（5）→中断→恢复→（再次返回5）→...
 * 不在任务中：获取随机数（5）→中断→恢复→获取新的随机数（7）→...
 
-当使用带有多个中断调用的**人机交互**工作流程时，这一点尤其重要。 LangGraph 保留每个任务/入口点的恢复值列表。当遇到中断时，它会与相应的恢复值相匹配。这种匹配严格**基于索引**，因此恢复值的顺序应与中断的顺序匹配。
+通过多次 [⟦T38⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 调用，LangGraph 通过索引**将恢复值与每个中断进行匹配。如果恢复更改了中断的顺序，则恢复值可能会附加到错误的中断。参见[Determinism](#determinism)。
 
-如果恢复时不保持执行顺序，则一次[⟦T43⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt)调用可能会与错误的`resume`值匹配，从而导致不正确的结果。
-
-请阅读[determinism](#determinism)部分了解更多详情。> [选项卡] 不正确
+> [选项卡] 不正确
 >
-> 在此示例中，工作流使用当前时间来确定要执行哪个任务。这是不确定的，因为工作流的结果取决于它的执行时间。
+> 读取入口点中的时钟可以更改恢复时运行的分支。
 >
 > ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-> import { entrypoint, interrupt } from "@langchain/langgraph";
+> import { MemorySaver, entrypoint, task, interrupt } from "@langchain/langgraph";
+>
+> const checkpointer = new MemorySaver();
+>
+> const slowTask = task("slowTask", async (x: number) => x);
 >
 > const myWorkflow = entrypoint(
 >   { checkpointer, name: "workflow" },
@@ -507,16 +328,19 @@ LangGraph 中的序列化有两个关键方面：
 
 > [选项卡] 正确
 >
-> 在此示例中，工作流使用输入 `t0` 来确定要执行哪个任务。这是确定性的，因为工作流的结果仅取决于输入。
+> 读取任务内的时钟，以便恢复恢复相同的时间戳和分支。
 >
 > ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-> import { entrypoint, task, interrupt } from "@langchain/langgraph";
+> import { MemorySaver, entrypoint, task, interrupt } from "@langchain/langgraph";
 >
-> const getTime = task("getTime", () => Date.now());
+> const checkpointer = new MemorySaver();
+>
+> const slowTask = task("slowTask", async (x: number) => x);
+> const getTime = task("getTime", async () => Date.now());
 >
 > const myWorkflow = entrypoint(
 >   { checkpointer, name: "workflow" },
->   async (inputs: { t0: number }): Promise<any> => {
+>   async (inputs: { t0: number }) => {
 >     const t1 = await getTime();
 >
 >     const deltaT = t1 - inputs.t0;
@@ -536,9 +360,15 @@ LangGraph 中的序列化有两个关键方面：
 
 ## 了解更多
 
-* [How to use the Functional API](/oss/javascript/langgraph/use-functional-api)
-* [Graph API conceptual overview](/oss/javascript/langgraph/graph-api)
-* [Choosing between Graph API and Functional API](/oss/javascript/langgraph/choosing-apis)
+* [Thinking in the Functional API](/oss/javascript/langgraph/thinking-in-functional-api)
+* [Build checklist for the Functional API](/oss/javascript/langgraph/use-functional-api)
+* [Compose Functional API workflows](/oss/javascript/langgraph/functional-api-workflows)
+* [Configure Functional API tasks](/oss/javascript/langgraph/functional-api-tasks)
+* [Stream with the Functional API](/oss/javascript/langgraph/functional-api-streaming)
+* [Add human-in-the-loop with the Functional API](/oss/javascript/langgraph/functional-api-human-in-the-loop)
+* [Add memory with the Functional API](/oss/javascript/langgraph/functional-api-memory)
+* [Graph API overview](/oss/javascript/langgraph/graph-api)
+* [Choosing between Graph and Functional APIs](/oss/javascript/langgraph/choosing-apis)
 
 ***
 

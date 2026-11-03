@@ -4,37 +4,6 @@
 
 This quickstart demonstrates how to build a calculator agent using the LangGraph Graph API or the Functional API.
 
-Build the LangGraph calculator quickstart
-
-Build a LangGraph calculator agent in this working directory by following the LangGraph quickstart.
-
-## Step 1: Read the guide
-
-Detect whether this project uses Python or TypeScript/JavaScript. Fetch and follow the matching page; treat it as the source of truth for package names, model strings, and code:
-
-* Python: [https://docs.langchain.com/oss/python/langgraph/quickstart.md](https://docs.langchain.com/oss/python/langgraph/quickstart.md)
-* TypeScript: [https://docs.langchain.com/oss/javascript/langgraph/quickstart.md](https://docs.langchain.com/oss/javascript/langgraph/quickstart.md)
-
-Ask the user whether to use the Graph API or the Functional API. If they have no preference, use the Graph API path.
-
-## Step 2: Install dependencies
-
-Install the packages required by the chosen path with the package manager already used in this project.
-
-## Step 3: Configure model credentials
-
-This quickstart uses Anthropic by default. Check whether `ANTHROPIC_API_KEY` is set. If it is not, ask the user to create a key and set it in the shell or a `.env` file, then stop and wait for confirmation. Do not invent, hardcode, or commit API keys. If the user prefers another chat model provider from the integrations docs, adapt the example accordingly after confirming.
-
-## Step 4: Implement the calculator agent
-
-Implement the selected quickstart path end to end: tools for add, multiply, and divide; the agent graph or functional workflow; and a sample invocation that exercises tool calling. Print the final result so the user can verify the run.
-
-## Rules
-
-* Stay scoped to this quickstart. Do not add deployment, evals, or unrelated frameworks unless the user asks.
-* Prefer the APIs and structure shown on the fetched guide over inventing a different agent pattern.
-* Ask rather than guess when a secret, API choice, or project convention is unclear.
-
 > [!TIP]
 >
 > **Using an AI coding assistant?**
@@ -78,20 +47,90 @@ Implement the selected quickstart path end to end: tools for add, multiply, and 
 >
 >   Detect which agent or editor I am using. If I use Claude Code and prefer the plugin path, follow the marketplace install from that repository README (`/plugin marketplace add` then `/plugin install`). Do not invent alternate skill package names or install URLs. After installing, confirm the skills are available to the agent.
 
+## Prerequisites
+
+Before you begin, make sure you have an API key from a model provider (e.g., Gemini, Anthropic, OpenAI).
+See [chat model integrations](/oss/javascript/integrations/chat) for all available providers.
+
+If you use [LangSmith Gateway](/langsmith/llm-gateway), you can [bring your own provider keys](/langsmith/llm-gateway-quickstart) or use [Gateway Credits](/langsmith/llm-gateway-credits) to access models without a provider key.
+
+## Setup
+
+Install `@langchain/langgraph`, `@langchain/core`, `@langchain/anthropic`, `langchain`, and `zod`:
+
+```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+npm install @langchain/langgraph @langchain/core @langchain/anthropic langchain zod
+```
+
+This example uses Anthropic. Set your API key in the shell or a `.env` file:
+
+```bash Shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+export ANTHROPIC_API_KEY="your-api-key"
+```
+
+```bash .env theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+ANTHROPIC_API_KEY=your-api-key
+```
+
+To use another provider, see [chat model integrations](/oss/javascript/integrations/chat) and adapt the model initialization in the next steps.
+
+## 1. Choose the API
+
+Both paths build the same calculator agent: the model can call tools, then the agent calls the model again until it returns a final answer.
+
 * [Use the Graph API](#use-the-graph-api) if you prefer to define your agent as a graph of nodes and edges.
 * [Use the Functional API](#use-the-functional-api) if you prefer to define your agent as a single function.
 
-For conceptual information, see [Graph API overview](/oss/javascript/langgraph/graph-api) and [Functional API overview](/oss/javascript/langgraph/functional-api).
+Pick a tab. Create one file. Add the code from each step below the previous step.
 
-> [!NOTE]
->
-> For this example, you will need to set up a [Claude (Anthropic)](https://www.anthropic.com/) account and get an API key. Then, set the `ANTHROPIC_API_KEY` environment variable in your terminal. See [chat model integrations](/oss/javascript/integrations/chat) for all available providers. Alternatively, If you are using the LangSmith [LLM Gateway](/langsmith/llm-gateway), traffic to providers is routed through LangSmith. Use the gateway key as the API key instead.
+Not sure which to pick? See [Choosing between Graph and Functional APIs](/oss/javascript/langgraph/choosing-apis). For conceptual information, see [Graph API overview](/oss/javascript/langgraph/graph-api) and [Functional API overview](/oss/javascript/langgraph/functional-api).
 
 > [tab] Use the Graph API
 >
-> ## 1. Define tools and model
+> Build the LangGraph Graph API calculator quickstart
 >
-> In this example, we'll use the Claude Sonnet 4.5 model and define tools for addition, multiplication, and division.
+> Build a LangGraph calculator agent with the Graph API in this working directory by following the LangGraph quickstart.
+>
+> ## Step 1: Read the guide
+>
+> Detect whether this project uses Python or TypeScript/JavaScript. Fetch and follow the matching page; treat it as the source of truth for package names, model strings, and code:
+>
+> * Python: [https://docs.langchain.com/oss/python/langgraph/quickstart.md](https://docs.langchain.com/oss/python/langgraph/quickstart.md)
+> * TypeScript: [https://docs.langchain.com/oss/javascript/langgraph/quickstart.md](https://docs.langchain.com/oss/javascript/langgraph/quickstart.md)
+>
+> Use only the **Use the Graph API** tab. Do not implement the Functional API path.
+>
+> ## Step 2: Install dependencies
+>
+> Install the packages required by the Graph API path with the package manager already used in this project.
+>
+> ## Step 3: Configure model credentials
+>
+> This quickstart uses Anthropic by default. Check whether `ANTHROPIC_API_KEY` is set. If it is not, ask the user to create a key and set it in the shell or a `.env` file, then stop and wait for confirmation. Do not invent, hardcode, or commit API keys. If the user prefers another chat model provider from the integrations docs, adapt the example accordingly after confirming.
+>
+> ## Step 4: Implement the calculator agent
+>
+> Define tools and model, then Graph API state, nodes, edges, and the compiled graph from the guide.
+>
+> ## Step 5: Optional LangSmith tracing
+>
+> Ask the user if they want tracing. If yes, ask them to set `LANGSMITH_TRACING=true` and `LANGSMITH_API_KEY` themselves. Do not invent a LangSmith key.
+>
+> ## Step 6: Run the agent
+>
+> Invoke the agent on a sample arithmetic query from the guide and print the final result.
+>
+> ## Rules
+>
+> * Stay scoped to this quickstart. Do not add deployment, evals, or unrelated frameworks unless the user asks.
+> * Prefer the Graph API structure shown on the fetched guide over inventing a different agent pattern.
+> * Ask rather than guess when a secret, provider choice, or project convention is unclear.
+>
+> ## 2. Define tools and model
+>
+> This example uses the Claude Sonnet model and defines tools for addition, multiplication, and division.
+>
+> Create a file for the agent (`agent.py` or `agent.ts`). Add the following:
 >
 > ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > import { ChatAnthropic } from "@langchain/anthropic";
@@ -141,15 +180,17 @@ For conceptual information, see [Graph API overview](/oss/javascript/langgraph/g
 > const modelWithTools = model.bindTools(tools);
 > ```
 >
-> ## 2. Define state
+> ## 3. Define state
 >
-> The graph's state is used to store the messages and the number of LLM calls.
+> The graph's state stores the messages and the number of LLM calls.
+>
+> Add the following below the tools and model:
 >
 > > [!TIP]
 > >
 > > State in LangGraph persists throughout the agent's execution.
 > >
-> > The `MessagesValue` provides a built-in reducer for appending messages. The `llmCalls` field uses a `ReducedValue` with `(x, y) => x + y` to accumulate the count.
+> > `MessagesValue` appends messages with a built-in reducer. The `llmCalls` field uses a `ReducedValue` with `(x, y) => x + y` to accumulate the count.
 >
 > ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > import {
@@ -173,9 +214,11 @@ For conceptual information, see [Graph API overview](/oss/javascript/langgraph/g
 > });
 > ```
 >
-> ## 3. Define model node
+> ## 4. Define model node
 >
-> The model node is used to call the LLM and decide whether to call a tool or not.
+> The model node calls the LLM and decides whether to call a tool.
+>
+> Add the following below the state schema:
 >
 > ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > import { SystemMessage } from "@langchain/core/messages";
@@ -194,9 +237,11 @@ For conceptual information, see [Graph API overview](/oss/javascript/langgraph/g
 > };
 > ```
 >
-> ## 4. Define tool node
+> ## 5. Define tool node
 >
-> The tool node is used to call the tools and return the results.
+> The tool node calls the tools and returns the results.
+>
+> Add the following below the model node:
 >
 > ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > import { AIMessage, ToolMessage } from "@langchain/core/messages";
@@ -219,9 +264,11 @@ For conceptual information, see [Graph API overview](/oss/javascript/langgraph/g
 > };
 > ```
 >
-> ## 5. Define end logic
+> ## 6. Define end logic
 >
-> The conditional edge function is used to route to the tool node or end based upon whether the LLM made a tool call.
+> The conditional edge function routes to the tool node or to the end, depending on whether the LLM made a tool call.
+>
+> Add the following below the tool node:
 >
 > ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > const shouldContinue: ConditionalEdgeRouter<{ InputSchema: typeof MessagesState; Nodes: "toolNode" }> = (state) => {
@@ -242,9 +289,9 @@ For conceptual information, see [Graph API overview](/oss/javascript/langgraph/g
 > };
 > ```
 >
-> ## 6. Build and compile the agent
+> ## 7. Build and compile the agent
 >
-> The agent is built using the [`StateGraph`](https://reference.langchain.com/javascript/langchain-langgraph/index/StateGraph) class and compiled using the [`compile`](https://reference.langchain.com/javascript/langchain-langgraph/index/StateGraph/compile) method.
+> Add the following below the routing function. Build the graph with [`StateGraph`](https://reference.langchain.com/javascript/langchain-langgraph/index/StateGraph) and compile it with [`compile`](https://reference.langchain.com/javascript/langchain-langgraph/index/StateGraph/compile):
 >
 > ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > const agent = new StateGraph(MessagesState)
@@ -254,9 +301,26 @@ For conceptual information, see [Graph API overview](/oss/javascript/langgraph/g
 >   .addConditionalEdges("llmCall", shouldContinue, ["toolNode", END])
 >   .addEdge("toolNode", "llmCall")
 >   .compile();
+> ```
 >
-> // Invoke
+> ## 8. Set up LangSmith tracing
+>
+> [LangSmith](https://smith.langchain.com?utm_source=docs\&utm_medium=cta\&utm_campaign=langsmith-signup\&utm_content=oss-langgraph-quickstart) shows tool calls and model responses as the agent runs.
+>
+> This step is optional. Sign up at [smith.langchain.com](https://smith.langchain.com?utm_source=docs\&utm_medium=cta\&utm_campaign=langsmith-signup\&utm_content=oss-langgraph-quickstart), create an API key, and set these environment variables in the shell before you run the agent:
+>
+> ```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> export LANGSMITH_TRACING=true
+> export LANGSMITH_API_KEY="your-langsmith-api-key"
+> ```
+>
+> ## 9. Run the agent
+>
+> Add the following below the compiled graph:
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > import { HumanMessage } from "@langchain/core/messages";
+>
 > const result = await agent.invoke({
 >   messages: [new HumanMessage("Add 3 and 4.")],
 > });
@@ -266,24 +330,37 @@ For conceptual information, see [Graph API overview](/oss/javascript/langgraph/g
 > }
 > ```
 >
-> > [!TIP]
-> >
-> > Trace and debug your agent with [LangSmith](https://smith.langchain.com?utm_source=docs\&utm_medium=cta\&utm_campaign=langsmith-signup\&utm_content=oss-langgraph-quickstart). Follow the [tracing quickstart](/langsmith/trace-with-langgraph) to get set up. When ready for production, see [Deploy](/langsmith/deployment) for hosting options.
-> >
-> > We recommend you also set up [LangSmith Engine](/langsmith/engine) which monitors your traces, detects issues, and proposes fixes.
+> Run the file:
 >
-> Congratulations! You've built your first agent using the LangGraph Graph API.
+> ```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> npx tsx agent.ts
+> ```
+>
+> You should see the human message, a tool call to `add`, the tool result `7`, and a final assistant reply. The exact text varies by model, but the tool result is `7`.
+>
+> To check your file, compare it with the full example:
 >
 > > [accordion] Full code example
 > >
-> > ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-> > // Step 1: Define tools and model
-> >
+> > ```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > > import { ChatAnthropic } from "@langchain/anthropic";
 > > import { tool } from "@langchain/core/tools";
+> > import {
+> >   StateGraph,
+> >   StateSchema,
+> >   MessagesValue,
+> >   ReducedValue,
+> >   GraphNode,
+> >   ConditionalEdgeRouter,
+> >   START,
+> >   END,
+> > } from "@langchain/langgraph";
+> > import { SystemMessage, AIMessage, ToolMessage, HumanMessage } from "@langchain/core/messages";
 > > import * as z from "zod";
 > >
-> > const model = new ChatAnthropic({
+> > // Step 2: Define tools and model
+> >
+> > let model = new ChatAnthropic({
 > >   model: "claude-sonnet-4-6",
 > >   temperature: 0,
 > > });
@@ -324,22 +401,8 @@ For conceptual information, see [Graph API overview](/oss/javascript/langgraph/g
 > > };
 > > const tools = Object.values(toolsByName);
 > > const modelWithTools = model.bindTools(tools);
-> > ```
 > >
-> > ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-> > // Step 2: Define state
-> >
-> > import {
-> >   StateGraph,
-> >   StateSchema,
-> >   MessagesValue,
-> >   ReducedValue,
-> >   GraphNode,
-> >   ConditionalEdgeRouter,
-> >   START,
-> >   END,
-> > } from "@langchain/langgraph";
-> > import * as z from "zod";
+> > // Step 3: Define state
 > >
 > > const MessagesState = new StateSchema({
 > >   messages: MessagesValue,
@@ -348,12 +411,8 @@ For conceptual information, see [Graph API overview](/oss/javascript/langgraph/g
 > >     { reducer: (x, y) => x + y }
 > >   ),
 > > });
-> > ```
 > >
-> > ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-> > // Step 3: Define model node
-> >
-> > import { SystemMessage, AIMessage, ToolMessage } from "@langchain/core/messages";
+> > // Step 4: Define model node
 > >
 > > const llmCall: GraphNode<typeof MessagesState> = async (state) => {
 > >   return {
@@ -367,7 +426,7 @@ For conceptual information, see [Graph API overview](/oss/javascript/langgraph/g
 > >   };
 > > };
 > >
-> > // Step 4: Define tool node
+> > // Step 5: Define tool node
 > >
 > > const toolNode: GraphNode<typeof MessagesState> = async (state) => {
 > >   const lastMessage = state.messages.at(-1);
@@ -385,11 +444,8 @@ For conceptual information, see [Graph API overview](/oss/javascript/langgraph/g
 > >
 > >   return { messages: result };
 > > };
-> > ```
 > >
-> > ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-> > // Step 5: Define logic to determine whether to end
-> > import { ConditionalEdgeRouter, END } from "@langchain/langgraph";
+> > // Step 6: Define end logic
 > >
 > > const shouldContinue: ConditionalEdgeRouter<{ InputSchema: typeof MessagesState; Nodes: "toolNode" }> = (state) => {
 > >   const lastMessage = state.messages.at(-1);
@@ -407,12 +463,8 @@ For conceptual information, see [Graph API overview](/oss/javascript/langgraph/g
 > >   // Otherwise, we stop (reply to the user)
 > >   return END;
 > > };
-> > ```
 > >
-> > ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-> > // Step 6: Build and compile the agent
-> > import { HumanMessage } from "@langchain/core/messages";
-> > import { StateGraph, START, END } from "@langchain/langgraph";
+> > // Step 7: Build and compile the agent
 > >
 > > const agent = new StateGraph(MessagesState)
 > >   .addNode("llmCall", llmCall)
@@ -422,7 +474,11 @@ For conceptual information, see [Graph API overview](/oss/javascript/langgraph/g
 > >   .addEdge("toolNode", "llmCall")
 > >   .compile();
 > >
-> > // Invoke
+> > // Step 8: Set up LangSmith tracing (optional)
+> > // export LANGSMITH_TRACING=true
+> > // export LANGSMITH_API_KEY="your-langsmith-api-key"
+> >
+> > // Step 9: Run the agent
 > > const result = await agent.invoke({
 > >   messages: [new HumanMessage("Add 3 and 4.")],
 > > });
@@ -434,9 +490,50 @@ For conceptual information, see [Graph API overview](/oss/javascript/langgraph/g
 
 > [tab] Use the Functional API
 >
-> ## 1. Define tools and model
+> Build the LangGraph Functional API calculator quickstart
 >
-> In this example, we'll use the Claude Sonnet 4.5 model and define tools for addition, multiplication, and division.
+> Build a LangGraph calculator agent with the Functional API in this working directory by following the LangGraph quickstart.
+>
+> ## Step 1: Read the guide
+>
+> Detect whether this project uses Python or TypeScript/JavaScript. Fetch and follow the matching page; treat it as the source of truth for package names, model strings, and code:
+>
+> * Python: [https://docs.langchain.com/oss/python/langgraph/quickstart.md](https://docs.langchain.com/oss/python/langgraph/quickstart.md)
+> * TypeScript: [https://docs.langchain.com/oss/javascript/langgraph/quickstart.md](https://docs.langchain.com/oss/javascript/langgraph/quickstart.md)
+>
+> Use only the **Use the Functional API** tab. Do not implement the Graph API path.
+>
+> ## Step 2: Install dependencies
+>
+> Install the packages required by the Functional API path with the package manager already used in this project.
+>
+> ## Step 3: Configure model credentials
+>
+> This quickstart uses Anthropic by default. Check whether `ANTHROPIC_API_KEY` is set. If it is not, ask the user to create a key and set it in the shell or a `.env` file, then stop and wait for confirmation. Do not invent, hardcode, or commit API keys. If the user prefers another chat model provider from the integrations docs, adapt the example accordingly after confirming.
+>
+> ## Step 4: Implement the calculator agent
+>
+> Define tools and model, then Functional API tasks and the entrypoint from the guide.
+>
+> ## Step 5: Optional LangSmith tracing
+>
+> Ask the user if they want tracing. If yes, ask them to set `LANGSMITH_TRACING=true` and `LANGSMITH_API_KEY` themselves. Do not invent a LangSmith key.
+>
+> ## Step 6: Run the agent
+>
+> Invoke the agent on a sample arithmetic query from the guide and print the final result.
+>
+> ## Rules
+>
+> * Stay scoped to this quickstart. Do not add deployment, evals, or unrelated frameworks unless the user asks.
+> * Prefer the Functional API structure shown on the fetched guide over inventing a different agent pattern.
+> * Ask rather than guess when a secret, provider choice, or project convention is unclear.
+>
+> ## 2. Define tools and model
+>
+> This example uses the Claude Sonnet model and defines tools for addition, multiplication, and division.
+>
+> Create a file for the agent (`agent.py` or `agent.ts`). Add the following:
 >
 > ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > import { ChatAnthropic } from "@langchain/anthropic";
@@ -487,9 +584,11 @@ For conceptual information, see [Graph API overview](/oss/javascript/langgraph/g
 >
 > ```
 >
-> ## 2. Define model node
+> ## 3. Define model task
 >
-> The model node is used to call the LLM and decide whether to call a tool or not.
+> The model task calls the LLM and decides whether to call a tool.
+>
+> Add the following below the tools and model:
 >
 > ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > import { task, entrypoint } from "@langchain/langgraph";
@@ -505,9 +604,11 @@ For conceptual information, see [Graph API overview](/oss/javascript/langgraph/g
 > });
 > ```
 >
-> ## 3. Define tool node
+> ## 4. Define tool task
 >
-> The tool node is used to call the tools and return the results.
+> The tool task calls the tools and returns the results.
+>
+> Add the following below the model task:
 >
 > ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > import type { ToolCall } from "@langchain/core/messages/tool";
@@ -518,7 +619,9 @@ For conceptual information, see [Graph API overview](/oss/javascript/langgraph/g
 > });
 > ```
 >
-> ## 4. Define agent
+> ## 5. Define agent
+>
+> Add the following below the tasks. Define the agent with [`@entrypoint`](https://reference.langchain.com/javascript/langchain-langgraph/index/entrypoint):
 >
 > ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > import { addMessages } from "@langchain/langgraph";
@@ -542,8 +645,24 @@ For conceptual information, see [Graph API overview](/oss/javascript/langgraph/g
 >
 >   return messages;
 > });
+> ```
 >
-> // Invoke
+> ## 6. Set up LangSmith tracing
+>
+> [LangSmith](https://smith.langchain.com?utm_source=docs\&utm_medium=cta\&utm_campaign=langsmith-signup\&utm_content=oss-langgraph-quickstart) shows tool calls and model responses as the agent runs.
+>
+> This step is optional. Sign up at [smith.langchain.com](https://smith.langchain.com?utm_source=docs\&utm_medium=cta\&utm_campaign=langsmith-signup\&utm_content=oss-langgraph-quickstart), create an API key, and set these environment variables in the shell before you run the agent:
+>
+> ```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> export LANGSMITH_TRACING=true
+> export LANGSMITH_API_KEY="your-langsmith-api-key"
+> ```
+>
+> ## 7. Run the agent
+>
+> Add the following below the entrypoint:
+>
+> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > import { HumanMessage } from "@langchain/core/messages";
 >
 > const result = await agent.invoke([new HumanMessage("Add 3 and 4.")]);
@@ -553,17 +672,19 @@ For conceptual information, see [Graph API overview](/oss/javascript/langgraph/g
 > }
 > ```
 >
-> > [!TIP]
-> >
-> > Trace and debug your agent with [LangSmith](https://smith.langchain.com?utm_source=docs\&utm_medium=cta\&utm_campaign=langsmith-signup\&utm_content=oss-langgraph-quickstart). Follow the [tracing quickstart](/langsmith/trace-with-langgraph) to get set up. When ready for production, see [Deploy](/langsmith/deployment) for hosting options.
-> >
-> > We recommend you also set up [LangSmith Engine](/langsmith/engine) which monitors your traces, detects issues, and proposes fixes.
+> Run the file:
 >
-> Congratulations! You've built your first agent using the LangGraph Functional API.
+> ```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> npx tsx agent.ts
+> ```
+>
+> You should see the human message, a tool call to `add`, the tool result `7`, and a final assistant reply. The exact text varies by model, but the tool result is `7`.
+>
+> To check your file, compare it with the full example:
 >
 > > [accordion] Full code example
 > >
-> > ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> > ```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > > import { ChatAnthropic } from "@langchain/anthropic";
 > > import { tool } from "@langchain/core/tools";
 > > import {
@@ -579,9 +700,9 @@ For conceptual information, see [Graph API overview](/oss/javascript/langgraph/g
 > > import type { ToolCall } from "@langchain/core/messages/tool";
 > > import * as z from "zod";
 > >
-> > // Step 1: Define tools and model
+> > // Step 2: Define tools and model
 > >
-> > const model = new ChatAnthropic({
+> > let model = new ChatAnthropic({
 > >   model: "claude-sonnet-4-6",
 > >   temperature: 0,
 > > });
@@ -623,7 +744,7 @@ For conceptual information, see [Graph API overview](/oss/javascript/langgraph/g
 > > const tools = Object.values(toolsByName);
 > > const modelWithTools = model.bindTools(tools);
 > >
-> > // Step 2: Define model node
+> > // Step 3: Define model task
 > >
 > > const callLlm = task({ name: "callLlm" }, async (messages: BaseMessage[]) => {
 > >   return modelWithTools.invoke([
@@ -634,14 +755,14 @@ For conceptual information, see [Graph API overview](/oss/javascript/langgraph/g
 > >   ]);
 > > });
 > >
-> > // Step 3: Define tool node
+> > // Step 4: Define tool task
 > >
 > > const callTool = task({ name: "callTool" }, async (toolCall: ToolCall) => {
 > >   const tool = toolsByName[toolCall.name];
 > >   return tool.invoke(toolCall);
 > > });
 > >
-> > // Step 4: Define agent
+> > // Step 5: Define agent
 > >
 > > const agent = entrypoint({ name: "agent" }, async (messages: BaseMessage[]) => {
 > >   let modelResponse = await callLlm(messages);
@@ -662,14 +783,29 @@ For conceptual information, see [Graph API overview](/oss/javascript/langgraph/g
 > >   return messages;
 > > });
 > >
-> > // Invoke
+> > // Step 6: Set up LangSmith tracing (optional)
+> > // export LANGSMITH_TRACING=true
+> > // export LANGSMITH_API_KEY="your-langsmith-api-key"
 > >
+> > // Step 7: Run the agent
 > > const result = await agent.invoke([new HumanMessage("Add 3 and 4.")]);
 > >
 > > for (const message of result) {
 > >   console.log(`[${message.type}]: ${message.text}`);
 > > }
 > > ```
+
+## Next steps
+
+You now have a working calculator agent. Continue with one of the following subjects:
+
+* **Learn the APIs**: [Choosing between Graph and Functional APIs](/oss/javascript/langgraph/choosing-apis), then the [Build checklist for the Graph API](/oss/javascript/langgraph/use-graph-api) or the [Build checklist for the Functional API](/oss/javascript/langgraph/use-functional-api).
+* **Add persistence**: Use a [checkpointer](/oss/javascript/langgraph/persistence) so runs can pause and resume across sessions.
+* **Add human-in-the-loop**: Pause with [interrupts](/oss/javascript/langgraph/interrupts) for approval or edits.
+* **Stream results**: Follow [streaming](/oss/javascript/langgraph/streaming) for tokens and state updates.
+* **Go deeper**: [Thinking in the Graph API](/oss/javascript/langgraph/thinking-in-graph-api), [Thinking in the Functional API](/oss/javascript/langgraph/thinking-in-functional-api), and [Workflows and agents](/oss/javascript/langgraph/workflows-agents).
+* **Deploy**: Host the agent with [LangSmith Deployment](/langsmith/deployment).
+* **Evaluate**: Test behavior with [LangSmith evaluation](/langsmith/evaluation-quickstart).
 
 ***
 
