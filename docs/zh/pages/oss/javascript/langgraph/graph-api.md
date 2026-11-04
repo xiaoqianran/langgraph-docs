@@ -63,7 +63,7 @@ await graph.invoke({ text: "" });
 状态有两部分：
 
 * 声明图中通道的[schema](#schema)
-*可选的[reducers](#reducers)控制更新如何合并到每个通道
+* 可选的[reducers](#reducers)控制更新如何合并到每个通道中
 
 节点返回部分更新。 LangGraph 通过每个通道的减速器应用这些更新。
 
@@ -294,11 +294,25 @@ builder.addNode(myNode);
 
 如果节点调用[tasks](/oss/javascript/langgraph/functional-api#task)或[⟦T76⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt)，则恢复时将应用更严格的[determinism](/oss/javascript/langgraph/functional-api#determinism)规则。已完成的任务结果从检查点恢复。在恢复点之前更改任务或中断顺序可能会导致缓存值不匹配。参见[Idempotency](/oss/javascript/langgraph/functional-api#idempotency)。
 
-### 在节点中使用任务当一个节点运行多个应独立检查点的操作时，请将每个操作包装在 [task](/oss/javascript/langgraph/functional-api#task) 中，而不是跨节点拆分工作。使用检查指针，可以保存已完成的任务结果，因此恢复的线程可以跳过节点内已完成的工作。有关模式和示例，请参阅 [Tasks](/oss/javascript/langgraph/functional-api-tasks) 和 [Common pitfalls](/oss/javascript/langgraph/functional-api#common-pitfalls)。
+### 选择工作单位[node](#nodes) 是检查点和重试边界。这也是图表可以采取不同路径的地方。解析、检索或固定工具链等确定性工作不需要自己的节点，除非您需要该边界。
+
+询问该步骤是否决定接下来发生的事情，或者执行已经决定的事情。然后选择与您需要的恢复行为相匹配的原语：
+
+|原始|自己的检查站|恢复或重试时 |选择何时 |
+| - | - | - | - |
+|节点内的普通函数 |不。它在节点的 [super-step](#super-steps) 内部运行。 |每当节点重新运行时就重新运行。 |该步骤之后没有路由分叉，并且对节点的其余部分重复该步骤是可以接受的。 |
+| [Task](/oss/javascript/langgraph/functional-api#task) |没有新的图形检查点。结果与正在运行的入口点或父检查点一起存储。 |封闭的入口点或节点从头开始重播。已完成的任务返回存储的结果。 |该步骤有副作用或成本高昂，并且不得在简历中重复。 || [Subgraph](/oss/javascript/langgraph/use-subgraphs) |对于有状态模式是：在父线程的命名空间下节点检查点。使用 `checkpointer=False` 进行编译，无子图检查点。 |有状态模式在中断或故障节点的子图中恢复。 |该单元有自己的路由或状态模式，或者多个父图重用它。 |
+|图节点 |是的。检查点遵循其运行所在的 [super-step](#super-steps)。恢复从该节点开始。较早的节点不会重新运行。 |该步骤之后可能会出现路由分叉，或者您需要中断、恢复或[time travel](/oss/javascript/langgraph/use-time-travel)边界。 |
+
+有关重试时的副作用，请参阅[Retry boundaries and idempotency](/oss/javascript/langgraph/fault-tolerance#retry-boundaries-and-idempotency)。任务重试和超时请参见[Tasks](/oss/javascript/langgraph/functional-api-tasks)。
+
+### 在节点中使用任务
+
+当一个节点运行多个应独立检查点的操作时，请将每个操作包装在 [task](/oss/javascript/langgraph/functional-api#task) 中，而不是跨节点拆分工作。使用检查指针，可以保存已完成的任务结果，因此恢复的线程可以跳过节点内已完成的工作。有关模式和示例，请参阅 [Tasks](/oss/javascript/langgraph/functional-api-tasks) 和 [Common pitfalls](/oss/javascript/langgraph/functional-api#common-pitfalls)。
 
 ### `START` 节点
 
-[⟦T78⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/START) 是将用户输入传递到图中的虚拟条目。用它来标记哪些节点首先运行。
+[⟦T79⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/START) 是将用户输入传递到图中的虚拟条目。用它来标记哪些节点首先运行。
 
 ```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { START } from "@langchain/langgraph";
@@ -306,7 +320,7 @@ import { START } from "@langchain/langgraph";
 graph.addEdge(START, "nodeA");
 ```
 
-### `END` 节点
+### `END`节点
 
 `END` 标记终端边缘。当路径应该停止时使用它。
 
@@ -316,9 +330,7 @@ import { END } from "@langchain/langgraph";
 graph.addEdge("nodeA", END);
 ```
 
-### 节点缓存
-
-LangGraph 可以通过输入缓存节点（和任务）结果。编译图时传递一个缓存，并在节点上附加一个[⟦T81⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/CachePolicy)。
+### 节点缓存LangGraph 可以通过输入缓存节点（和任务）结果。编译图时传递一个缓存，并在节点上附加一个[⟦T82⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/CachePolicy)。
 
 有关选项、端到端示例和图范围默认值，请参阅[Add node caching](/oss/javascript/langgraph/graph-api-nodes#add-node-caching)。
 
@@ -331,13 +343,15 @@ LangGraph 可以通过输入缓存节点（和任务）结果。编译图时传�
 * **入口点**：用户输入后的第一个节点（`START`→节点）
 * **条件入口点**：从 `START` 使用函数进行路由
 
-一个节点可以有多个出边。这些边缘上的目的地在下一个超级步骤中并行运行。> [!警告]
+一个节点可以有多个出边。这些边缘上的目的地在下一个超级步骤中并行运行。
+
+> [!警告]
 >
-> 对于每个节点，使用静态边或动态路由 ([conditional edges](#conditional-edges) / [⟦T84⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/Command))，而不是同时使用两者。混合它们可以运行两条路径。
+> 对于每个节点，使用静态边或动态路由 ([conditional edges](#conditional-edges) / [⟦T85⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/Command))，而不是同时使用两者。混合它们可以运行两条路径。
 
 ### 正常边缘
 
-如果你总是想从节点 A 到节点 B，请使用 [⟦T85⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/StateGraph/addEdge)：
+如果你总是想从节点 A 到节点 B，请使用 [⟦T86⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/StateGraph/addEdge)：
 
 ```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 graph.addEdge("nodeA", "nodeB");
@@ -345,7 +359,7 @@ graph.addEdge("nodeA", "nodeB");
 
 ### 条件边
 
-如果您想选择性地路由到一个或多个节点（或终止），请使用 [⟦T86⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/StateGraph/addConditionalEdges)。传递源节点和一个路由函数以在该节点运行后调用：
+如果您想选择性地路由到一个或多个节点（或终止），请使用 [⟦T87⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/StateGraph/addConditionalEdges)。传递源节点和一个路由函数以在该节点运行后调用：
 
 ```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 graph.addConditionalEdges("nodeA", routingFunction);
@@ -354,25 +368,25 @@ graph.addConditionalEdges("nodeA", routingFunction, {
   pathA: "nodeB",
   pathB: "nodeC",
 });
-```
+```路由函数接收当前图状态。默认情况下，它的返回值是下一个节点的名称（或名称列表）。这些节点在下一个超级步骤中并行运行。您还可以传递一个字典，将函数的输出映射到节点名称。
 
-路由函数接收当前图状态。默认情况下，它的返回值是下一个节点的名称（或名称列表）。这些节点在下一个超级步骤中并行运行。您还可以传递一个字典，将函数的输出映射到节点名称。
-
-路由函数可以返回节点名称、`END`、名称列表（扇出）或[⟦T88⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/Send)用于map-reduce的对象。参见[Build sequences, branches, and loops](/oss/javascript/langgraph/graph-api-control-flow)。
+路由函数可以返回节点名称、`END`、名称列表（扇出）或[⟦T89⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/Send)用于映射缩减的对象。参见[Build sequences, branches, and loops](/oss/javascript/langgraph/graph-api-control-flow)。
 
 > [!提示]
 >
-> 当您想要将状态更新和路由组合在单个函数中时，请使用[⟦T89⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/Command)代替条件边。
+> 当您想要将状态更新和路由组合在单个函数中时，请使用 [⟦T90⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/Command) 代替条件边。
 
 ### 入口点
 
-入口点是图启动时运行的第一个（或多个）节点。从虚拟[⟦T90⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/START)节点添加一条边到第一个要执行的节点：
+入口点是图启动时运行的第一个（或多个）节点。从虚拟[⟦T91⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/START)节点添加一条边到第一个要执行的节点：
 
 ```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 graph.addEdge(START, "nodeA");
 ```
 
-### 条件入口点条件入口点可让您根据自定义逻辑从不同的节点开始。使用[⟦T92⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/START)中的[⟦T91⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/StateGraph/addConditionalEdges)：
+### 条件入口点
+
+条件入口点可让您根据自定义逻辑从不同的节点开始。使用[⟦T93⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/START)中的[⟦T92⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/StateGraph/addConditionalEdges)：
 
 ```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 graph.addConditionalEdges(START, routingFunction, {
@@ -383,9 +397,7 @@ graph.addConditionalEdges(START, routingFunction, {
 
 您可以选择提供一个字典，将路由函数的输出映射到下一个节点名称。
 
-## `Send`
-
-当您需要为每个项目运行一次相同的节点，每个项目都有自己的输入，并且项目的数量仅在运行时才知道时，请使用[⟦T94⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/Send)。这种形状通常称为映射缩减或协调工作人员：一个节点生成一个列表，工作人员并行处理每个项目，然后稍后的节点读取组合结果。
+## `Send`当您需要为每个项目运行一次相同的节点时，请使用[⟦T95⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/Send)，每个节点都有自己的输入，并且项目的数量仅在运行时才知道。这种形状通常称为映射缩减或协调工作人员：一个节点生成一个列表，工作人员并行处理每个项目，然后稍后的节点读取组合结果。
 
 普通边缘无法做到这一点。他们选择接下来运行哪些节点，但每个选定的节点仍然接收共享图状态，并且在构建图时拓扑是固定的。
 
@@ -405,7 +417,7 @@ graph.addConditionalEdges("nodeA", (state) => {
 
 有关完整的映射缩减示例，请参阅[Use Send for map-reduce](/oss/javascript/langgraph/graph-api-send-command#use-send-for-map-reduce)。
 
-## `Command`当单个步骤必须更新状态并选择接下来运行的内容时，请使用[⟦T99⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/Command)。通常这些作业是分开的：节点返回状态更新，并且[edges](#edges)（或[conditional edges](#conditional-edges)）决定下一个节点。当下一跳取决于您刚刚在同一函数中所做的工作时，从节点返回`Command`。
+## `Command`当单个步骤必须更新状态并选择接下来运行的内容时，请使用[⟦T100⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/Command)。通常这些作业是分开的：节点返回状态更新，并且[edges](#edges)（或[conditional edges](#conditional-edges)）决定下一个节点。当下一跳取决于您刚刚在同一函数中所做的工作时，从节点返回`Command`。
 
 `Command` 还涵盖了普通返回和边不包含的其他两种情况：在 [interrupt](/oss/javascript/langgraph/interrupts) 之后恢复运行，以及从 [tool](#return-from-tools) 内部更新或路由。
 
@@ -421,14 +433,14 @@ graph.addConditionalEdges("nodeA", (state) => {
 在三个地方使用`Command`：
 
 * **[Return from nodes](#return-from-nodes)**：`update`、`goto` 和 `graph`
-* **[Input to ⟦T112⟧ or ⟦T113⟧](#input-to-invoke-or-stream)**: 中断后`resume`
+* **[Input to ⟦T113⟧ or ⟦T114⟧](#input-to-invoke-or-stream)**: 中断后`resume`
 * **[Return from tools](#return-from-tools)**：从工具内部更新和路由
 
 ### 从节点返回
 
 #### `update` 和 `goto`
 
-返回[⟦T117⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/Command)一步更新状态和路由：
+返回[⟦T118⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/Command)一步更新状态和路由：
 
 ```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { Command } from "@langchain/langgraph";
@@ -453,7 +465,7 @@ graph.addNode("myNode", (state) => {
 
 #### `graph`
 
-从 [subgraph](/oss/javascript/langgraph/use-subgraphs) 节点，导航到父图中具有 `Command.PARENT` 的节点：
+从 [subgraph](/oss/javascript/langgraph/use-subgraphs) 节点，导航到父图中带有 `Command.PARENT` 的节点：
 
 ```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { Command } from "@langchain/langgraph";
@@ -473,7 +485,7 @@ const myNode = (state: State): Command => {
 
 > [!警告]
 >
-> `new Command({ resume: ... })` 是唯一的 `Command` 模式，意味着作为 `invoke()` / `stream()` 的输入（可选地在恢复时使用 `update`）。不要单独通过`new Command({ update: ... })`继续对话。任何 `Command` 作为输入都会从最新的检查点恢复，而不是从 `START` 开始，因此完成的线程可能看起来被卡住了。传递一个普通对象来开始新一轮：
+> `new Command({ resume: ... })` 是唯一的 `Command` 模式，意味着作为 `invoke()` / `stream()` 的输入（可选地在恢复时使用 `update`）。不要单独通过`new Command({ update: ... })`继续对话。任何 `Command` 作为输入都从最新的检查点恢复，而不是从 `START`，因此完成的线程可能看起来被卡住。传递一个普通对象来开始新一轮：
 >
 > ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > // Wrong: resumes from the latest checkpoint
@@ -491,11 +503,11 @@ const myNode = (state: State): Command => {
 await graph.invoke(new Command({ resume: "yes" }), config);
 ```
 
-有关完整模式，请参阅[Interrupts](/oss/javascript/langgraph/interrupts)。
+完整模式请参见[Interrupts](/oss/javascript/langgraph/interrupts)。
 
 ### 从工具返回
 
-工具完成后，从工具返回[⟦T140⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/Command)更新状态和路线。工具中的`goto`添加了动态边缘。调用节点上的静态边仍然运行，因此不要混合两者。
+从工具返回[⟦T141⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/Command)，以在工具完成后更新状态和路线。工具中的`goto`添加了动态边缘。调用节点上的静态边仍然运行，因此不要混合两者。
 
 参见[Use inside tools](/oss/javascript/langgraph/graph-api-send-command#use-inside-tools)。## 图迁移
 
@@ -570,6 +582,6 @@ await graph.invoke(inputs, { context: { llm: "anthropic" } });
 
 ***
 
-[Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时答案。
+[Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
 
 [Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/graph-api.mdx) 或 [file an issue](https://github.com/langchain-ai/docs/issues/new/choose)。

@@ -108,6 +108,7 @@ Graph API 使状态和转换变得明确。功能 API 保留普通控制流并�
 * [Build checklist for the Graph API](/oss/javascript/langgraph/use-graph-api)
 * [Thinking in the Graph API](/oss/javascript/langgraph/thinking-in-graph-api)
 * [Graph API overview](/oss/javascript/langgraph/graph-api)
+* [Choose the unit of work](/oss/javascript/langgraph/graph-api#choose-the-unit-of-work)
 * [Deploy other frameworks](/langsmith/deploy-other-frameworks)
 * [Functional API overview](/oss/javascript/langgraph/functional-api)
 

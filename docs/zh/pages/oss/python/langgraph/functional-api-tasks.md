@@ -6,7 +6,7 @@
 
 向功能 API 任务和入口点添加重试、超时、缓存和错误恢复。
 
-[task](/oss/python/langgraph/functional-api#task) 是一个离散的工作单元，其结果可以是 [checkpointed](/oss/python/langgraph/persistence) 本身。当 [entrypoint](/oss/python/langgraph/functional-api#entrypoint) 或 [Graph API node](/oss/python/langgraph/graph-api#using-tasks-in-nodes) 运行多个操作时，请将每个操作包装在一个任务中，而不是将所有工作放在一个函数体中。使用检查指针，可以保存已完成的任务结果，因此恢复的线程可以跳过已完成的工作并继续下一个任务。
+[task](/oss/python/langgraph/functional-api#task) 是一个离散的工作单元，其结果可以单独为 [checkpointed](/oss/python/langgraph/persistence)。当 [entrypoint](/oss/python/langgraph/functional-api#entrypoint) 或 [Graph API node](/oss/python/langgraph/graph-api#using-tasks-in-nodes) 运行多个操作时，请将每个操作包装在一个任务中，而不是将所有工作放在一个函数体中。使用检查指针，可以保存已完成的任务结果，因此恢复的线程可以跳过已完成的工作并继续下一个任务。
 
 本页介绍任务的重试、超时、缓存和错误恢复。有关概念，请参阅[Functional API overview](/oss/python/langgraph/functional-api)。对于有序的构建路径，请参阅 [Build checklist for the Functional API](/oss/python/langgraph/use-functional-api)。共享重试和超时生命周期请参见[Fault tolerance](/oss/python/langgraph/fault-tolerance)。
 
@@ -113,7 +113,7 @@ print(main.invoke({"x": 5}))
 
 需要[checkpointer](/oss/python/langgraph/persistence)，以便已完成的任务结果在失败的运行中得以保留。
 
-`slow_task` 从检查点恢复。 `get_info`再次运行并返回`"OK"`。入口点仍然返回 `slow_task` 结果。
+恢复从入口点的开头开始。 LangGraph从检查点恢复已完成的`slow_task`结果，因此其函数体不会再次运行。失败的`get_info`任务再次运行并返回`"OK"`。下面的执行日志区分了入口点重新进入和任务重新执行。
 
 与 `None` 恢复相同的 `thread_id`。
 
@@ -125,11 +125,13 @@ from langgraph.func import entrypoint, task
 
 # Used only to simulate a transient failure. Do not use a global like this in production.
 attempts = 0
+called: list[str] = []
 
 
 @task()
 def get_info():
     global attempts
+    called.append("get_info")
     attempts += 1
 
     if attempts < 2:
@@ -142,12 +144,14 @@ checkpointer = InMemorySaver()
 
 @task
 def slow_task():
+    called.append("slow_task")
     time.sleep(1)
     return "Ran slow task."
 
 
 @entrypoint(checkpointer=checkpointer)
 def main(inputs):
+    called.append("entrypoint")
     slow_task_result = slow_task().result()
     get_info().result()  # raises ValueError on the first run
     return slow_task_result
@@ -160,13 +164,21 @@ try:
 except ValueError:
     pass
 
+assert called == ["entrypoint", "slow_task", "get_info"]
+called.clear()
+
 print(main.invoke(None, config=config))
 # 'Ran slow task.'
+assert called == ["entrypoint", "get_info"]
+print(called)
+# ['entrypoint', 'get_info']
 ```
 
-## 另请参阅
+再次传递原始输入会启动新的调用，而不是恢复失败的调用。参见[Choose how to continue a thread](/oss/python/langgraph/checkpointers#choose-how-to-continue-a-thread)。
 
-* [Functional API overview](/oss/python/langgraph/functional-api)
+恢复恢复已完成的任务结果；它不会有选择地重新运行已完成的任务。功能 API 任务结果共享入口点检查点，而不是在每个任务之前创建完整的检查点。要重播特定图形步骤，请使用图形 API 的 [time travel](/oss/python/langgraph/use-time-travel)。
+
+## 另请参阅* [Functional API overview](/oss/python/langgraph/functional-api)
 * [Build checklist for the Functional API](/oss/python/langgraph/use-functional-api)
 * [Fault tolerance](/oss/python/langgraph/fault-tolerance)
 * [Stream with the Functional API](/oss/python/langgraph/functional-api-streaming)

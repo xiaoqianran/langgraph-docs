@@ -109,6 +109,7 @@ Graph API 使状态和转换变得明确。功能 API 保留普通控制流并�
 * [Build checklist for the Graph API](/oss/python/langgraph/use-graph-api)
 * [Thinking in the Graph API](/oss/python/langgraph/thinking-in-graph-api)
 * [Graph API overview](/oss/python/langgraph/graph-api)
+* [Choose the unit of work](/oss/python/langgraph/graph-api#choose-the-unit-of-work)
 * [Deploy other frameworks](/langsmith/deploy-other-frameworks)
 * [Functional API overview](/oss/python/langgraph/functional-api)
 

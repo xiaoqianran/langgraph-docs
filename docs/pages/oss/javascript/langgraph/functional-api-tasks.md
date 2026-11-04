@@ -115,7 +115,7 @@ console.log(await main.invoke({ x: 5 }));
 
 A [checkpointer](/oss/javascript/langgraph/persistence) is required so completed task results survive the failed run.
 
-`slow_task` is restored from the checkpoint. `get_info` runs again and returns `"OK"`. The entrypoint still returns the `slow_task` result.
+Resume starts at the beginning of the entrypoint. LangGraph restores the completed `slow_task` result from the checkpoint, so its function body does not run again. The failed `get_info` task runs again and returns `"OK"`. The execution log below distinguishes entrypoint re-entry from task re-execution.
 
 Resume the same `thread_id` with `null`.
 
@@ -124,8 +124,10 @@ import { entrypoint, task, MemorySaver } from "@langchain/langgraph";
 
 // Used only to simulate a transient failure. Do not use a variable like this in production.
 let attempts = 0;
+const called: string[] = [];
 
 const getInfo = task("getInfo", async () => {
+  called.push("getInfo");
   attempts += 1;
 
   if (attempts < 2) {
@@ -137,6 +139,7 @@ const getInfo = task("getInfo", async () => {
 const checkpointer = new MemorySaver();
 
 const slowTask = task("slowTask", async () => {
+  called.push("slowTask");
   await new Promise((resolve) => setTimeout(resolve, 1000));
   return "Ran slow task.";
 });
@@ -144,6 +147,7 @@ const slowTask = task("slowTask", async () => {
 const main = entrypoint(
   { checkpointer, name: "main" },
   async (inputs: Record<string, unknown>) => {
+    called.push("entrypoint");
     const slowTaskResult = await slowTask();
     await getInfo(); // throws on the first run
     return slowTaskResult;
@@ -162,9 +166,16 @@ try {
   // First run fails in getInfo.
 }
 
+called.length = 0;
 console.log(await main.invoke(null, config));
 // 'Ran slow task.'
+console.log(called);
+// ['entrypoint', 'getInfo']
 ```
+
+Passing the original input again starts a new invocation instead of recovering the failed one. See [Choose how to continue a thread](/oss/javascript/langgraph/checkpointers#choose-how-to-continue-a-thread).
+
+Recovery restores completed task results; it does not selectively re-run a completed task. Functional API task results share the entrypoint checkpoint, rather than creating a full checkpoint before each task. For replay from a specific graph step, use the Graph API's [time travel](/oss/javascript/langgraph/use-time-travel).
 
 ## See also
 

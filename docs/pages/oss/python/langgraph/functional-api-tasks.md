@@ -113,7 +113,7 @@ print(main.invoke({"x": 5}))
 
 A [checkpointer](/oss/python/langgraph/persistence) is required so completed task results survive the failed run.
 
-`slow_task` is restored from the checkpoint. `get_info` runs again and returns `"OK"`. The entrypoint still returns the `slow_task` result.
+Resume starts at the beginning of the entrypoint. LangGraph restores the completed `slow_task` result from the checkpoint, so its function body does not run again. The failed `get_info` task runs again and returns `"OK"`. The execution log below distinguishes entrypoint re-entry from task re-execution.
 
 Resume the same `thread_id` with `None`.
 
@@ -125,11 +125,13 @@ from langgraph.func import entrypoint, task
 
 # Used only to simulate a transient failure. Do not use a global like this in production.
 attempts = 0
+called: list[str] = []
 
 
 @task()
 def get_info():
     global attempts
+    called.append("get_info")
     attempts += 1
 
     if attempts < 2:
@@ -142,12 +144,14 @@ checkpointer = InMemorySaver()
 
 @task
 def slow_task():
+    called.append("slow_task")
     time.sleep(1)
     return "Ran slow task."
 
 
 @entrypoint(checkpointer=checkpointer)
 def main(inputs):
+    called.append("entrypoint")
     slow_task_result = slow_task().result()
     get_info().result()  # raises ValueError on the first run
     return slow_task_result
@@ -160,9 +164,19 @@ try:
 except ValueError:
     pass
 
+assert called == ["entrypoint", "slow_task", "get_info"]
+called.clear()
+
 print(main.invoke(None, config=config))
 # 'Ran slow task.'
+assert called == ["entrypoint", "get_info"]
+print(called)
+# ['entrypoint', 'get_info']
 ```
+
+Passing the original input again starts a new invocation instead of recovering the failed one. See [Choose how to continue a thread](/oss/python/langgraph/checkpointers#choose-how-to-continue-a-thread).
+
+Recovery restores completed task results; it does not selectively re-run a completed task. Functional API task results share the entrypoint checkpoint, rather than creating a full checkpoint before each task. For replay from a specific graph step, use the Graph API's [time travel](/oss/python/langgraph/use-time-travel).
 
 ## See also
 

@@ -6,13 +6,13 @@
 
 向功能 API 任务和入口点添加重试、超时、缓存和错误恢复。
 
-[task](/oss/javascript/langgraph/functional-api#task) 是一个离散的工作单元，其结果可以是 [checkpointed](/oss/javascript/langgraph/persistence) 本身。当 [entrypoint](/oss/javascript/langgraph/functional-api#entrypoint) 或 [Graph API node](/oss/javascript/langgraph/graph-api#using-tasks-in-nodes) 运行多个操作时，请将每个操作包装在一个任务中，而不是将所有工作放在一个函数体中。使用检查指针，可以保存已完成的任务结果，因此恢复的线程可以跳过已完成的工作并继续下一个任务。
+[task](/oss/javascript/langgraph/functional-api#task) 是一个离散的工作单元，其结果可以单独为 [checkpointed](/oss/javascript/langgraph/persistence)。当 [entrypoint](/oss/javascript/langgraph/functional-api#entrypoint) 或 [Graph API node](/oss/javascript/langgraph/graph-api#using-tasks-in-nodes) 运行多个操作时，请将每个操作包装在一个任务中，而不是将所有工作放在一个函数体中。使用检查指针，可以保存已完成的任务结果，因此恢复的线程可以跳过已完成的工作并继续下一个任务。
 
 本页介绍任务的重试、超时、缓存和错误恢复。有关概念，请参阅[Functional API overview](/oss/javascript/langgraph/functional-api)。对于有序的构建路径，请参阅 [Build checklist for the Functional API](/oss/javascript/langgraph/use-functional-api)。共享重试和超时生命周期请参见[Fault tolerance](/oss/javascript/langgraph/fault-tolerance)。
 
 ## 添加重试策略
 
-在 `task` 上传递 `retry`（不是 `retryPolicy`）。重试是可选的。如果策略省略 `retryOn`，LangGraph 会重试大多数抛出的错误，除了中止/取消、`GraphValueError`、中止的连接、选定的 HTTP 4xx 状态和 OpenAI 样式配额错误。此示例重试任何 `Error`。有关完整的默认列表，请参阅[Fault tolerance](/oss/javascript/langgraph/fault-tolerance#retries)。
+在 `task` 上传递 `retry`（不是 `retryPolicy`）。重试是可选的。如果策略忽略 `retryOn`，LangGraph 会重试大多数抛出的错误，除了中止/取消、`GraphValueError`、中止的连接、选定的 HTTP 4xx 状态和 OpenAI 样式配额错误。此示例重试任何 `Error`。有关完整的默认列表，请参阅[Fault tolerance](/oss/javascript/langgraph/fault-tolerance#retries)。
 
 ```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { entrypoint, task } from "@langchain/langgraph";
@@ -115,7 +115,7 @@ console.log(await main.invoke({ x: 5 }));
 
 需要[checkpointer](/oss/javascript/langgraph/persistence)，以便已完成的任务结果在失败的运行中得以保留。
 
-`slow_task` 从检查点恢复。 `get_info`再次运行并返回`"OK"`。入口点仍然返回 `slow_task` 结果。
+恢复从入口点的开头开始。 LangGraph从检查点恢复已完成的`slow_task`结果，因此其函数体不会再次运行。失败的`get_info`任务再次运行并返回`"OK"`。下面的执行日志区分了入口点重新进入和任务重新执行。
 
 与 `null` 恢复相同的 `thread_id`。
 
@@ -124,8 +124,10 @@ import { entrypoint, task, MemorySaver } from "@langchain/langgraph";
 
 // Used only to simulate a transient failure. Do not use a variable like this in production.
 let attempts = 0;
+const called: string[] = [];
 
 const getInfo = task("getInfo", async () => {
+  called.push("getInfo");
   attempts += 1;
 
   if (attempts < 2) {
@@ -137,6 +139,7 @@ const getInfo = task("getInfo", async () => {
 const checkpointer = new MemorySaver();
 
 const slowTask = task("slowTask", async () => {
+  called.push("slowTask");
   await new Promise((resolve) => setTimeout(resolve, 1000));
   return "Ran slow task.";
 });
@@ -144,6 +147,7 @@ const slowTask = task("slowTask", async () => {
 const main = entrypoint(
   { checkpointer, name: "main" },
   async (inputs: Record<string, unknown>) => {
+    called.push("entrypoint");
     const slowTaskResult = await slowTask();
     await getInfo(); // throws on the first run
     return slowTaskResult;
@@ -162,9 +166,14 @@ try {
   // First run fails in getInfo.
 }
 
+called.length = 0;
 console.log(await main.invoke(null, config));
 // 'Ran slow task.'
+console.log(called);
+// ['entrypoint', 'getInfo']
 ```
+
+再次传递原始输入会启动新的调用，而不是恢复失败的调用。参见[Choose how to continue a thread](/oss/javascript/langgraph/checkpointers#choose-how-to-continue-a-thread)。恢复恢复已完成的任务结果；它不会有选择地重新运行已完成的任务。功能 API 任务结果共享入口点检查点，而不是在每个任务之前创建完整的检查点。要重播特定图形步骤，请使用图形 API 的 [time travel](/oss/javascript/langgraph/use-time-travel)。
 
 ## 另请参阅
 
