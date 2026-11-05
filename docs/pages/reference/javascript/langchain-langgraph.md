@@ -50,6 +50,7 @@
 - [`StateGraphInputError`](https://reference.langchain.com/javascript/langchain-langgraph/index/StateGraphInputError)
 - [`StateSchema`](https://reference.langchain.com/javascript/langchain-langgraph/index/StateSchema)
 - [`SubgraphRunStream`](https://reference.langchain.com/javascript/langchain-langgraph/index/SubgraphRunStream)
+- [`UnknownInterruptError`](https://reference.langchain.com/javascript/langchain-langgraph/index/UnknownInterruptError)
 - [`UnreachableNodeError`](https://reference.langchain.com/javascript/langchain-langgraph/index/UnreachableNodeError)
 - [`UntrackedValue`](https://reference.langchain.com/javascript/langchain-langgraph/index/UntrackedValue)
 - [`Pregel`](https://reference.langchain.com/javascript/langchain-langgraph/index/Pregel)
@@ -101,6 +102,7 @@
 - [`StateSchema`](https://reference.langchain.com/javascript/langchain-langgraph/web/StateSchema)
 - [`StreamChannel`](https://reference.langchain.com/javascript/langchain-langgraph/web/StreamChannel)
 - [`SubgraphRunStream`](https://reference.langchain.com/javascript/langchain-langgraph/web/SubgraphRunStream)
+- [`UnknownInterruptError`](https://reference.langchain.com/javascript/langchain-langgraph/web/UnknownInterruptError)
 - [`UnreachableNodeError`](https://reference.langchain.com/javascript/langchain-langgraph/web/UnreachableNodeError)
 - [`UntrackedValue`](https://reference.langchain.com/javascript/langchain-langgraph/web/UntrackedValue)
 
