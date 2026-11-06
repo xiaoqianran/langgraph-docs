@@ -12,9 +12,9 @@
 
 - [⟦T0⟧](https://reference.langchain.com/python/langgraph.checkpoint.postgres/PostgresSaver)
 - [⟦T1⟧](https://reference.langchain.com/python/langgraph.checkpoint.postgres/base/BasePostgresSaver)
-- [⟦T2⟧](https://reference.langchain.com/python/langgraph.checkpoint.postgres/aio/AsyncPostgresSaver)
-- [⟦T3⟧](https://reference.langchain.com/python/langgraph.checkpoint.postgres/shallow/ShallowPostgresSaver)
-- [⟦T4⟧](https://reference.langchain.com/python/langgraph.checkpoint.postgres/shallow/AsyncShallowPostgresSaver)
+- [⟦T2⟧](https://reference.langchain.com/python/langgraph.checkpoint.postgres/shallow/ShallowPostgresSaver)
+- [⟦T3⟧](https://reference.langchain.com/python/langgraph.checkpoint.postgres/shallow/AsyncShallowPostgresSaver)
+- [⟦T4⟧](https://reference.langchain.com/python/langgraph.checkpoint.postgres/aio/AsyncPostgresSaver)
 
 ## 函数
 

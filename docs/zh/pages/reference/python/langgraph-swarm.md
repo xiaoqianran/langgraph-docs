@@ -14,7 +14,7 @@
 
 ## 函数
 
-- [⟦T1⟧](https://reference.langchain.com/python/langgraph-swarm/handoff/create_handoff_tool)
-- [⟦T2⟧](https://reference.langchain.com/python/langgraph-swarm/handoff/get_handoff_destinations)
-- [⟦T3⟧](https://reference.langchain.com/python/langgraph-swarm/swarm/add_active_agent_router)
-- [⟦T4⟧](https://reference.langchain.com/python/langgraph-swarm/swarm/create_swarm)
+- [⟦T1⟧](https://reference.langchain.com/python/langgraph-swarm/swarm/add_active_agent_router)
+- [⟦T2⟧](https://reference.langchain.com/python/langgraph-swarm/swarm/create_swarm)
+- [⟦T3⟧](https://reference.langchain.com/python/langgraph-swarm/handoff/create_handoff_tool)
+- [⟦T4⟧](https://reference.langchain.com/python/langgraph-swarm/handoff/get_handoff_destinations)
