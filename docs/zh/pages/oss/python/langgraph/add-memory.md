@@ -1638,7 +1638,7 @@ def summarize_conversation(state: State):
 
 #### 查看线程状态
 
-> [选项卡] 图形/函数式 API
+> [选项卡] 图形 API
 >
 > ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > config = {
@@ -1710,7 +1710,7 @@ def summarize_conversation(state: State):
 
 #### 查看线程的历史记录
 
-> [选项卡] 图形/函数式 API
+> [选项卡] 图形 API
 >
 > ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > config = {

@@ -50,7 +50,7 @@ LangGraph 检查指针将图状态保存为每一步的检查点，从而实现�
 
 使用检查指针和现有线程，选择适合您目标的调用：
 
-|目标|调用|执行|
+|目标|调用|执行 |
 | - | - | - |
 |提交新的输入 | `await graph.invoke(input, config)` |将输入应用于保存的状态并从入口点开始。 |
 |出现错误后继续 | `await graph.invoke(null, config)` |加载最新的检查点并重试未完成的工作。省略`checkpoint_id`。 |
@@ -59,7 +59,7 @@ LangGraph 检查指针将图状态保存为每一步的检查点，从而实现�
 
 新输入不会清除线程。 LangGraph 使用州的[reducers](/oss/javascript/langgraph/graph-api#reducers) 应用它。使用新的 `thread_id` 从空状态开始。
 
-当最新的检查点没有未完成的工作时，Resume 返回保存的结果，而不运行节点。有关可运行的示例，请参阅 [Functional API error recovery](/oss/javascript/langgraph/functional-api-tasks#resume-after-an-error)、[resuming interrupts](/oss/javascript/langgraph/interrupts#resuming-interrupts) 和 [replaying history](/oss/javascript/langgraph/use-time-travel#replay)。
+当最新的检查点没有未完成的工作时，Resume 返回保存的结果，而不运行节点。有关可运行的示例，请参阅[resuming interrupts](/oss/javascript/langgraph/interrupts#resuming-interrupts)和[replaying history](/oss/javascript/langgraph/use-time-travel#replay)。有关包装另一个框架时的入口点恢复规则，请参阅[Functional API overview](/oss/javascript/langgraph/functional-api#run-and-resume)。
 
 ### 检查点线程在特定时间点的状态称为检查点。检查点是每个[super-step](#super-steps)处保存的图状态的快照，并由`StateSnapshot`对象表示（有关完整字段参考，请参阅[StateSnapshot fields](#statesnapshot-fields)）。
 
@@ -184,7 +184,7 @@ StateSnapshot {
 
 #### 状态快照字段
 
-|领域|类型 |描述 |
+|领域 |类型 |描述 |
 | - | - | - |
 | `values` | `object` |该检查点的状态通道值。 |
 | `next` | `string[]` |接下来要执行的节点名称。空`[]`表示图是完整的。 |
@@ -367,7 +367,7 @@ for await (const checkpointTuple of checkpointer.list({})) {
 
 这适用于 [⟦T88⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/MemorySaver)、[⟦T89⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint-sqlite/SqliteSaver) 和 [⟦T90⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint-postgres/index/PostgresSaver)。 `.list` 仍然为每个检查点返回一行，而不是每个线程，因此您自己按 `thread_id` 分组以构建线程列表。
 
-### 重播重播从先前的检查点重新执行步骤。使用先前的 `checkpoint_id` 调用图表以在该检查点之后重新运行节点。检查点之前的节点将被跳过（它们的结果已保存）。检查点之后的节点重新执行，包括任何 LLM 调用、API 请求或[interrupts](/oss/javascript/langgraph/interrupts)——这些在重放期间总是重新触发。
+### 重播重放从先前的检查点重新执行步骤。使用先前的 `checkpoint_id` 调用图表以在该检查点之后重新运行节点。检查点之前的节点将被跳过（它们的结果已保存）。检查点之后的节点重新执行，包括任何 LLM 调用、API 请求或[interrupts](/oss/javascript/langgraph/interrupts)——这些在重放期间总是重新触发。
 
 有关重放过去执行的完整详细信息和代码示例，请参阅[Time travel](/oss/javascript/langgraph/use-time-travel)。
 
@@ -400,7 +400,7 @@ await graph.stream(
 
 ### 新线程上的第一个持久检查点
 
-对于新线程，持久模式还确定在第一个用户节点执行之前提交哪些检查点。内部`__start__`超级步首先运行；步骤 `0` 是在该超级步骤之后写入的循环检查点。* `"exit"`：在运行结束之前不存在检查点。运行期间的崩溃不会留下线程的记录。
+对于新线程，持久模式还确定在第一个用户节点执行之前提交哪些检查点。内部`__start__`超级步首先运行；步骤`0`是在该超级步骤之后写入的循环检查点。* `"exit"`：在运行结束之前不存在检查点。运行期间的崩溃不会留下线程的记录。
 
 * `"async"`：LangGraph在第一个用户节点执行之前开始写入输入检查点，但不等待写入完成。第一个用户节点可以在提交任何检查点之前运行。
 
@@ -417,7 +417,7 @@ await graph.stream(
 * `@langchain/langgraph-checkpoint`：检查指针保存器（[⟦T115⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/BaseCheckpointSaver)）和序列化/反序列化接口（[⟦T116⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint/SerializerProtocol)）的基本接口。包括用于实验的内存检查指针实现 ([⟦T117⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/MemorySaver))。 LangGraph 附带`@langchain/langgraph-checkpoint`。
 * `@langchain/langgraph-checkpoint-sqlite`：使用 SQLite 数据库 ([⟦T120⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint-sqlite/SqliteSaver)) 的 LangGraph 检查点实现。非常适合实验和本地工作流程。需要单独安装。
 * `@langchain/langgraph-checkpoint-postgres`：使用Postgres数据库（[⟦T122⟧](https://reference.langchain.com/javascript/langchain-langgraph-checkpoint-postgres/index/PostgresSaver)）的高级检查点，在LangSmith中使用。非常适合在生产中使用。需要单独安装。
-* `@langchain/langgraph-checkpoint-mongodb`：由 MongoDB 支持的高级检查点 (`MongoDBSaver`) 和长期内存存储 (`MongoDBStore`)。该商店支持跨线程持久性以及可选的集成向量搜索。非常适合生产使用。需要单独安装。
+* `@langchain/langgraph-checkpoint-mongodb`：由 MongoDB 支持的高级检查点 (`MongoDBSaver`) 和长期内存存储 (`MongoDBStore`)。该商店支持跨线程持久性以及可选的集成矢量搜索。非常适合生产使用。需要单独安装。
 * `@langchain/langgraph-checkpoint-redis`：使用Redis数据库的高级检查点（`RedisSaver`）。非常适合在生产中使用。需要单独安装。
 
 ### 检查点接口每个检查点都符合[⟦T128⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/BaseCheckpointSaver)接口并实现以下方法：

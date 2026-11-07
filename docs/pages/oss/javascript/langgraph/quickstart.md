@@ -2,7 +2,9 @@
 
 # Quickstart
 
-This quickstart demonstrates how to build a calculator agent using the LangGraph Graph API or the Functional API.
+This quickstart demonstrates how to build a calculator agent with the LangGraph Graph API.
+
+Already have an agent and want to deploy it? See [LangSmith Deployment](/langsmith/deployment).
 
 > [!TIP]
 >
@@ -74,70 +76,286 @@ ANTHROPIC_API_KEY=your-api-key
 
 To use another provider, see [chat model integrations](/oss/javascript/integrations/chat) and adapt the model initialization in the next steps.
 
-## 1. Choose the API
+## Build the agent
 
-Both paths build the same calculator agent: the model can call tools, then the agent calls the model again until it returns a final answer.
+The model can call tools, then the agent calls the model again until it returns a final answer.
 
-* [Use the Graph API](#use-the-graph-api) if you prefer to define your agent as a graph of nodes and edges.
-* [Use the Functional API](#use-the-functional-api) if you prefer to define your agent as a single function.
+Create one file. Add the code from each step below the previous step.
 
-Pick a tab. Create one file. Add the code from each step below the previous step.
+For conceptual information, see the [Graph API overview](/oss/javascript/langgraph/graph-api).
 
-Not sure which to pick? See [Choosing between Graph and Functional APIs](/oss/javascript/langgraph/choosing-apis). For conceptual information, see [Graph API overview](/oss/javascript/langgraph/graph-api) and [Functional API overview](/oss/javascript/langgraph/functional-api).
+Build the LangGraph Graph API calculator quickstart
 
-> [tab] Use the Graph API
+Build a LangGraph calculator agent with the Graph API in this working directory by following the LangGraph quickstart.
+
+## Step 1: Read the guide
+
+Detect whether this project uses Python or TypeScript/JavaScript. Fetch and follow the matching page; treat it as the source of truth for package names, model strings, and code:
+
+* Python: [https://docs.langchain.com/oss/python/langgraph/quickstart.md](https://docs.langchain.com/oss/python/langgraph/quickstart.md)
+* TypeScript: [https://docs.langchain.com/oss/javascript/langgraph/quickstart.md](https://docs.langchain.com/oss/javascript/langgraph/quickstart.md)
+
+## Step 2: Install dependencies
+
+Install the packages required by this quickstart with the package manager already used in this project.
+
+## Step 3: Configure model credentials
+
+This quickstart uses Anthropic by default. Check whether `ANTHROPIC_API_KEY` is set. If it is not, ask the user to create a key and set it in the shell or a `.env` file, then stop and wait for confirmation. Do not invent, hardcode, or commit API keys. If the user prefers another chat model provider from the integrations docs, adapt the example accordingly after confirming.
+
+## Step 4: Implement the calculator agent
+
+Define tools and model, then Graph API state, nodes, edges, and the compiled graph from the guide.
+
+## Step 5: Optional LangSmith tracing
+
+Ask the user if they want tracing. If yes, ask them to set `LANGSMITH_TRACING=true` and `LANGSMITH_API_KEY` themselves. Do not invent a LangSmith key.
+
+## Step 6: Run the agent
+
+Invoke the agent on a sample arithmetic query from the guide and print the final result.
+
+## Rules
+
+* Stay scoped to this quickstart. Do not add deployment, evals, or unrelated frameworks unless the user asks.
+* Prefer the structure shown on the fetched guide over inventing a different agent pattern.
+* Ask rather than guess when a secret, provider choice, or project convention is unclear.
+
+## 1. Define tools and model
+
+This example uses the Claude Sonnet model and defines tools for addition, multiplication, and division.
+
+Create a file for the agent (`agent.py` or `agent.ts`). Add the following:
+
+```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import { ChatAnthropic } from "@langchain/anthropic";
+import { tool } from "@langchain/core/tools";
+import * as z from "zod";
+
+const model = new ChatAnthropic({
+  model: "claude-sonnet-4-6",
+  temperature: 0,
+});
+
+// Define tools
+const add = tool(({ a, b }) => a + b, {
+  name: "add",
+  description: "Add two numbers",
+  schema: z.object({
+    a: z.number().describe("First number"),
+    b: z.number().describe("Second number"),
+  }),
+});
+
+const multiply = tool(({ a, b }) => a * b, {
+  name: "multiply",
+  description: "Multiply two numbers",
+  schema: z.object({
+    a: z.number().describe("First number"),
+    b: z.number().describe("Second number"),
+  }),
+});
+
+const divide = tool(({ a, b }) => a / b, {
+  name: "divide",
+  description: "Divide two numbers",
+  schema: z.object({
+    a: z.number().describe("First number"),
+    b: z.number().describe("Second number"),
+  }),
+});
+
+// Augment the LLM with tools
+const toolsByName = {
+  [add.name]: add,
+  [multiply.name]: multiply,
+  [divide.name]: divide,
+};
+const tools = Object.values(toolsByName);
+const modelWithTools = model.bindTools(tools);
+```
+
+## 2. Define state
+
+The graph's state stores the messages and the number of LLM calls.
+
+Add the following below the tools and model:
+
+> [!TIP]
 >
-> Build the LangGraph Graph API calculator quickstart
+> State in LangGraph persists throughout the agent's execution.
 >
-> Build a LangGraph calculator agent with the Graph API in this working directory by following the LangGraph quickstart.
+> `MessagesValue` appends messages with a built-in reducer. The `llmCalls` field uses a `ReducedValue` with `(x, y) => x + y` to accumulate the count.
+
+```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import {
+  StateGraph,
+  StateSchema,
+  MessagesValue,
+  ReducedValue,
+  GraphNode,
+  ConditionalEdgeRouter,
+  START,
+  END,
+} from "@langchain/langgraph";
+import { z } from "zod/v4";
+
+const MessagesState = new StateSchema({
+  messages: MessagesValue,
+  llmCalls: new ReducedValue(
+    z.number().default(0),
+    { reducer: (x, y) => x + y }
+  ),
+});
+```
+
+## 3. Define model node
+
+The model node calls the LLM and decides whether to call a tool.
+
+Add the following below the state schema:
+
+```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import { SystemMessage } from "@langchain/core/messages";
+
+const llmCall: GraphNode<typeof MessagesState> = async (state) => {
+  const response = await modelWithTools.invoke([
+    new SystemMessage(
+      "You are a helpful assistant tasked with performing arithmetic on a set of inputs."
+    ),
+    ...state.messages,
+  ]);
+  return {
+    messages: [response],
+    llmCalls: 1,
+  };
+};
+```
+
+## 4. Define tool node
+
+The tool node calls the tools and returns the results.
+
+Add the following below the model node:
+
+```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import { AIMessage, ToolMessage } from "@langchain/core/messages";
+
+const toolNode: GraphNode<typeof MessagesState> = async (state) => {
+  const lastMessage = state.messages.at(-1);
+
+  if (lastMessage == null || !AIMessage.isInstance(lastMessage)) {
+    return { messages: [] };
+  }
+
+  const result: ToolMessage[] = [];
+  for (const toolCall of lastMessage.tool_calls ?? []) {
+    const tool = toolsByName[toolCall.name];
+    const observation = await tool.invoke(toolCall);
+    result.push(observation);
+  }
+
+  return { messages: result };
+};
+```
+
+## 5. Define end logic
+
+The conditional edge function routes to the tool node or to the end, depending on whether the LLM made a tool call.
+
+Add the following below the tool node:
+
+```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+const shouldContinue: ConditionalEdgeRouter<{ InputSchema: typeof MessagesState; Nodes: "toolNode" }> = (state) => {
+  const lastMessage = state.messages.at(-1);
+
+  // Check if it's an AIMessage before accessing tool_calls
+  if (!lastMessage || !AIMessage.isInstance(lastMessage)) {
+    return END;
+  }
+
+  // If the LLM makes a tool call, then perform an action
+  if (lastMessage.tool_calls?.length) {
+    return "toolNode";
+  }
+
+  // Otherwise, we stop (reply to the user)
+  return END;
+};
+```
+
+## 6. Build and compile the agent
+
+Add the following below the routing function. Build the graph with [`StateGraph`](https://reference.langchain.com/javascript/langchain-langgraph/index/StateGraph) and compile it with [`compile`](https://reference.langchain.com/javascript/langchain-langgraph/index/StateGraph/compile):
+
+```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+const agent = new StateGraph(MessagesState)
+  .addNode("llmCall", llmCall)
+  .addNode("toolNode", toolNode)
+  .addEdge(START, "llmCall")
+  .addConditionalEdges("llmCall", shouldContinue, ["toolNode", END])
+  .addEdge("toolNode", "llmCall")
+  .compile();
+```
+
+## 7. Set up LangSmith tracing
+
+[LangSmith](https://smith.langchain.com?utm_source=docs\&utm_medium=cta\&utm_campaign=langsmith-signup\&utm_content=oss-langgraph-quickstart) shows tool calls and model responses as the agent runs.
+
+This step is optional. Sign up at [smith.langchain.com](https://smith.langchain.com?utm_source=docs\&utm_medium=cta\&utm_campaign=langsmith-signup\&utm_content=oss-langgraph-quickstart), create an API key, and set these environment variables in the shell before you run the agent:
+
+```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+export LANGSMITH_TRACING=true
+export LANGSMITH_API_KEY="your-langsmith-api-key"
+```
+
+## 8. Run the agent
+
+Add the following below the compiled graph:
+
+```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+import { HumanMessage } from "@langchain/core/messages";
+
+const result = await agent.invoke({
+  messages: [new HumanMessage("Add 3 and 4.")],
+});
+
+for (const message of result.messages) {
+  console.log(`[${message.type}]: ${message.text}`);
+}
+```
+
+Run the file:
+
+```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+npx tsx agent.ts
+```
+
+You should see the human message, a tool call to `add`, the tool result `7`, and a final assistant reply. The exact text varies by model, but the tool result is `7`.
+
+To check your file, compare it with the full example:
+
+> [accordion] Full code example
 >
-> ## Step 1: Read the guide
->
-> Detect whether this project uses Python or TypeScript/JavaScript. Fetch and follow the matching page; treat it as the source of truth for package names, model strings, and code:
->
-> * Python: [https://docs.langchain.com/oss/python/langgraph/quickstart.md](https://docs.langchain.com/oss/python/langgraph/quickstart.md)
-> * TypeScript: [https://docs.langchain.com/oss/javascript/langgraph/quickstart.md](https://docs.langchain.com/oss/javascript/langgraph/quickstart.md)
->
-> Use only the **Use the Graph API** tab. Do not implement the Functional API path.
->
-> ## Step 2: Install dependencies
->
-> Install the packages required by the Graph API path with the package manager already used in this project.
->
-> ## Step 3: Configure model credentials
->
-> This quickstart uses Anthropic by default. Check whether `ANTHROPIC_API_KEY` is set. If it is not, ask the user to create a key and set it in the shell or a `.env` file, then stop and wait for confirmation. Do not invent, hardcode, or commit API keys. If the user prefers another chat model provider from the integrations docs, adapt the example accordingly after confirming.
->
-> ## Step 4: Implement the calculator agent
->
-> Define tools and model, then Graph API state, nodes, edges, and the compiled graph from the guide.
->
-> ## Step 5: Optional LangSmith tracing
->
-> Ask the user if they want tracing. If yes, ask them to set `LANGSMITH_TRACING=true` and `LANGSMITH_API_KEY` themselves. Do not invent a LangSmith key.
->
-> ## Step 6: Run the agent
->
-> Invoke the agent on a sample arithmetic query from the guide and print the final result.
->
-> ## Rules
->
-> * Stay scoped to this quickstart. Do not add deployment, evals, or unrelated frameworks unless the user asks.
-> * Prefer the Graph API structure shown on the fetched guide over inventing a different agent pattern.
-> * Ask rather than guess when a secret, provider choice, or project convention is unclear.
->
-> ## 2. Define tools and model
->
-> This example uses the Claude Sonnet model and defines tools for addition, multiplication, and division.
->
-> Create a file for the agent (`agent.py` or `agent.ts`). Add the following:
->
-> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> ```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > import { ChatAnthropic } from "@langchain/anthropic";
 > import { tool } from "@langchain/core/tools";
+> import {
+>   StateGraph,
+>   StateSchema,
+>   MessagesValue,
+>   ReducedValue,
+>   GraphNode,
+>   ConditionalEdgeRouter,
+>   START,
+>   END,
+> } from "@langchain/langgraph";
+> import { SystemMessage, AIMessage, ToolMessage, HumanMessage } from "@langchain/core/messages";
 > import * as z from "zod";
 >
-> const model = new ChatAnthropic({
+> // Step 2: Define tools and model
+>
+> let model = new ChatAnthropic({
 >   model: "claude-sonnet-4-6",
 >   temperature: 0,
 > });
@@ -178,32 +396,8 @@ Not sure which to pick? See [Choosing between Graph and Functional APIs](/oss/ja
 > };
 > const tools = Object.values(toolsByName);
 > const modelWithTools = model.bindTools(tools);
-> ```
 >
-> ## 3. Define state
->
-> The graph's state stores the messages and the number of LLM calls.
->
-> Add the following below the tools and model:
->
-> > [!TIP]
-> >
-> > State in LangGraph persists throughout the agent's execution.
-> >
-> > `MessagesValue` appends messages with a built-in reducer. The `llmCalls` field uses a `ReducedValue` with `(x, y) => x + y` to accumulate the count.
->
-> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-> import {
->   StateGraph,
->   StateSchema,
->   MessagesValue,
->   ReducedValue,
->   GraphNode,
->   ConditionalEdgeRouter,
->   START,
->   END,
-> } from "@langchain/langgraph";
-> import { z } from "zod/v4";
+> // Step 3: Define state
 >
 > const MessagesState = new StateSchema({
 >   messages: MessagesValue,
@@ -212,39 +406,22 @@ Not sure which to pick? See [Choosing between Graph and Functional APIs](/oss/ja
 >     { reducer: (x, y) => x + y }
 >   ),
 > });
-> ```
 >
-> ## 4. Define model node
->
-> The model node calls the LLM and decides whether to call a tool.
->
-> Add the following below the state schema:
->
-> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-> import { SystemMessage } from "@langchain/core/messages";
+> // Step 4: Define model node
 >
 > const llmCall: GraphNode<typeof MessagesState> = async (state) => {
->   const response = await modelWithTools.invoke([
->     new SystemMessage(
->       "You are a helpful assistant tasked with performing arithmetic on a set of inputs."
->     ),
->     ...state.messages,
->   ]);
 >   return {
->     messages: [response],
+>     messages: [await modelWithTools.invoke([
+>       new SystemMessage(
+>         "You are a helpful assistant tasked with performing arithmetic on a set of inputs."
+>       ),
+>       ...state.messages,
+>     ])],
 >     llmCalls: 1,
 >   };
 > };
-> ```
 >
-> ## 5. Define tool node
->
-> The tool node calls the tools and returns the results.
->
-> Add the following below the model node:
->
-> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-> import { AIMessage, ToolMessage } from "@langchain/core/messages";
+> // Step 5: Define tool node
 >
 > const toolNode: GraphNode<typeof MessagesState> = async (state) => {
 >   const lastMessage = state.messages.at(-1);
@@ -262,15 +439,9 @@ Not sure which to pick? See [Choosing between Graph and Functional APIs](/oss/ja
 >
 >   return { messages: result };
 > };
-> ```
 >
-> ## 6. Define end logic
+> // Step 6: Define end logic
 >
-> The conditional edge function routes to the tool node or to the end, depending on whether the LLM made a tool call.
->
-> Add the following below the tool node:
->
-> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > const shouldContinue: ConditionalEdgeRouter<{ InputSchema: typeof MessagesState; Nodes: "toolNode" }> = (state) => {
 >   const lastMessage = state.messages.at(-1);
 >
@@ -287,13 +458,9 @@ Not sure which to pick? See [Choosing between Graph and Functional APIs](/oss/ja
 >   // Otherwise, we stop (reply to the user)
 >   return END;
 > };
-> ```
 >
-> ## 7. Build and compile the agent
+> // Step 7: Build and compile the agent
 >
-> Add the following below the routing function. Build the graph with [`StateGraph`](https://reference.langchain.com/javascript/langchain-langgraph/index/StateGraph) and compile it with [`compile`](https://reference.langchain.com/javascript/langchain-langgraph/index/StateGraph/compile):
->
-> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > const agent = new StateGraph(MessagesState)
 >   .addNode("llmCall", llmCall)
 >   .addNode("toolNode", toolNode)
@@ -301,26 +468,12 @@ Not sure which to pick? See [Choosing between Graph and Functional APIs](/oss/ja
 >   .addConditionalEdges("llmCall", shouldContinue, ["toolNode", END])
 >   .addEdge("toolNode", "llmCall")
 >   .compile();
-> ```
 >
-> ## 8. Set up LangSmith tracing
+> // Step 8: Set up LangSmith tracing (optional)
+> // export LANGSMITH_TRACING=true
+> // export LANGSMITH_API_KEY="your-langsmith-api-key"
 >
-> [LangSmith](https://smith.langchain.com?utm_source=docs\&utm_medium=cta\&utm_campaign=langsmith-signup\&utm_content=oss-langgraph-quickstart) shows tool calls and model responses as the agent runs.
->
-> This step is optional. Sign up at [smith.langchain.com](https://smith.langchain.com?utm_source=docs\&utm_medium=cta\&utm_campaign=langsmith-signup\&utm_content=oss-langgraph-quickstart), create an API key, and set these environment variables in the shell before you run the agent:
->
-> ```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-> export LANGSMITH_TRACING=true
-> export LANGSMITH_API_KEY="your-langsmith-api-key"
-> ```
->
-> ## 9. Run the agent
->
-> Add the following below the compiled graph:
->
-> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-> import { HumanMessage } from "@langchain/core/messages";
->
+> // Step 9: Run the agent
 > const result = await agent.invoke({
 >   messages: [new HumanMessage("Add 3 and 4.")],
 > });
@@ -329,481 +482,16 @@ Not sure which to pick? See [Choosing between Graph and Functional APIs](/oss/ja
 >   console.log(`[${message.type}]: ${message.text}`);
 > }
 > ```
->
-> Run the file:
->
-> ```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-> npx tsx agent.ts
-> ```
->
-> You should see the human message, a tool call to `add`, the tool result `7`, and a final assistant reply. The exact text varies by model, but the tool result is `7`.
->
-> To check your file, compare it with the full example:
->
-> > [accordion] Full code example
-> >
-> > ```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-> > import { ChatAnthropic } from "@langchain/anthropic";
-> > import { tool } from "@langchain/core/tools";
-> > import {
-> >   StateGraph,
-> >   StateSchema,
-> >   MessagesValue,
-> >   ReducedValue,
-> >   GraphNode,
-> >   ConditionalEdgeRouter,
-> >   START,
-> >   END,
-> > } from "@langchain/langgraph";
-> > import { SystemMessage, AIMessage, ToolMessage, HumanMessage } from "@langchain/core/messages";
-> > import * as z from "zod";
-> >
-> > // Step 2: Define tools and model
-> >
-> > let model = new ChatAnthropic({
-> >   model: "claude-sonnet-4-6",
-> >   temperature: 0,
-> > });
-> >
-> > // Define tools
-> > const add = tool(({ a, b }) => a + b, {
-> >   name: "add",
-> >   description: "Add two numbers",
-> >   schema: z.object({
-> >     a: z.number().describe("First number"),
-> >     b: z.number().describe("Second number"),
-> >   }),
-> > });
-> >
-> > const multiply = tool(({ a, b }) => a * b, {
-> >   name: "multiply",
-> >   description: "Multiply two numbers",
-> >   schema: z.object({
-> >     a: z.number().describe("First number"),
-> >     b: z.number().describe("Second number"),
-> >   }),
-> > });
-> >
-> > const divide = tool(({ a, b }) => a / b, {
-> >   name: "divide",
-> >   description: "Divide two numbers",
-> >   schema: z.object({
-> >     a: z.number().describe("First number"),
-> >     b: z.number().describe("Second number"),
-> >   }),
-> > });
-> >
-> > // Augment the LLM with tools
-> > const toolsByName = {
-> >   [add.name]: add,
-> >   [multiply.name]: multiply,
-> >   [divide.name]: divide,
-> > };
-> > const tools = Object.values(toolsByName);
-> > const modelWithTools = model.bindTools(tools);
-> >
-> > // Step 3: Define state
-> >
-> > const MessagesState = new StateSchema({
-> >   messages: MessagesValue,
-> >   llmCalls: new ReducedValue(
-> >     z.number().default(0),
-> >     { reducer: (x, y) => x + y }
-> >   ),
-> > });
-> >
-> > // Step 4: Define model node
-> >
-> > const llmCall: GraphNode<typeof MessagesState> = async (state) => {
-> >   return {
-> >     messages: [await modelWithTools.invoke([
-> >       new SystemMessage(
-> >         "You are a helpful assistant tasked with performing arithmetic on a set of inputs."
-> >       ),
-> >       ...state.messages,
-> >     ])],
-> >     llmCalls: 1,
-> >   };
-> > };
-> >
-> > // Step 5: Define tool node
-> >
-> > const toolNode: GraphNode<typeof MessagesState> = async (state) => {
-> >   const lastMessage = state.messages.at(-1);
-> >
-> >   if (lastMessage == null || !AIMessage.isInstance(lastMessage)) {
-> >     return { messages: [] };
-> >   }
-> >
-> >   const result: ToolMessage[] = [];
-> >   for (const toolCall of lastMessage.tool_calls ?? []) {
-> >     const tool = toolsByName[toolCall.name];
-> >     const observation = await tool.invoke(toolCall);
-> >     result.push(observation);
-> >   }
-> >
-> >   return { messages: result };
-> > };
-> >
-> > // Step 6: Define end logic
-> >
-> > const shouldContinue: ConditionalEdgeRouter<{ InputSchema: typeof MessagesState; Nodes: "toolNode" }> = (state) => {
-> >   const lastMessage = state.messages.at(-1);
-> >
-> >   // Check if it's an AIMessage before accessing tool_calls
-> >   if (!lastMessage || !AIMessage.isInstance(lastMessage)) {
-> >     return END;
-> >   }
-> >
-> >   // If the LLM makes a tool call, then perform an action
-> >   if (lastMessage.tool_calls?.length) {
-> >     return "toolNode";
-> >   }
-> >
-> >   // Otherwise, we stop (reply to the user)
-> >   return END;
-> > };
-> >
-> > // Step 7: Build and compile the agent
-> >
-> > const agent = new StateGraph(MessagesState)
-> >   .addNode("llmCall", llmCall)
-> >   .addNode("toolNode", toolNode)
-> >   .addEdge(START, "llmCall")
-> >   .addConditionalEdges("llmCall", shouldContinue, ["toolNode", END])
-> >   .addEdge("toolNode", "llmCall")
-> >   .compile();
-> >
-> > // Step 8: Set up LangSmith tracing (optional)
-> > // export LANGSMITH_TRACING=true
-> > // export LANGSMITH_API_KEY="your-langsmith-api-key"
-> >
-> > // Step 9: Run the agent
-> > const result = await agent.invoke({
-> >   messages: [new HumanMessage("Add 3 and 4.")],
-> > });
-> >
-> > for (const message of result.messages) {
-> >   console.log(`[${message.type}]: ${message.text}`);
-> > }
-> > ```
-
-> [tab] Use the Functional API
->
-> Build the LangGraph Functional API calculator quickstart
->
-> Build a LangGraph calculator agent with the Functional API in this working directory by following the LangGraph quickstart.
->
-> ## Step 1: Read the guide
->
-> Detect whether this project uses Python or TypeScript/JavaScript. Fetch and follow the matching page; treat it as the source of truth for package names, model strings, and code:
->
-> * Python: [https://docs.langchain.com/oss/python/langgraph/quickstart.md](https://docs.langchain.com/oss/python/langgraph/quickstart.md)
-> * TypeScript: [https://docs.langchain.com/oss/javascript/langgraph/quickstart.md](https://docs.langchain.com/oss/javascript/langgraph/quickstart.md)
->
-> Use only the **Use the Functional API** tab. Do not implement the Graph API path.
->
-> ## Step 2: Install dependencies
->
-> Install the packages required by the Functional API path with the package manager already used in this project.
->
-> ## Step 3: Configure model credentials
->
-> This quickstart uses Anthropic by default. Check whether `ANTHROPIC_API_KEY` is set. If it is not, ask the user to create a key and set it in the shell or a `.env` file, then stop and wait for confirmation. Do not invent, hardcode, or commit API keys. If the user prefers another chat model provider from the integrations docs, adapt the example accordingly after confirming.
->
-> ## Step 4: Implement the calculator agent
->
-> Define tools and model, then Functional API tasks and the entrypoint from the guide.
->
-> ## Step 5: Optional LangSmith tracing
->
-> Ask the user if they want tracing. If yes, ask them to set `LANGSMITH_TRACING=true` and `LANGSMITH_API_KEY` themselves. Do not invent a LangSmith key.
->
-> ## Step 6: Run the agent
->
-> Invoke the agent on a sample arithmetic query from the guide and print the final result.
->
-> ## Rules
->
-> * Stay scoped to this quickstart. Do not add deployment, evals, or unrelated frameworks unless the user asks.
-> * Prefer the Functional API structure shown on the fetched guide over inventing a different agent pattern.
-> * Ask rather than guess when a secret, provider choice, or project convention is unclear.
->
-> ## 2. Define tools and model
->
-> This example uses the Claude Sonnet model and defines tools for addition, multiplication, and division.
->
-> Create a file for the agent (`agent.py` or `agent.ts`). Add the following:
->
-> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-> import { ChatAnthropic } from "@langchain/anthropic";
-> import { tool } from "@langchain/core/tools";
-> import * as z from "zod";
->
-> const model = new ChatAnthropic({
->   model: "claude-sonnet-4-6",
->   temperature: 0,
-> });
->
-> // Define tools
-> const add = tool(({ a, b }) => a + b, {
->   name: "add",
->   description: "Add two numbers",
->   schema: z.object({
->     a: z.number().describe("First number"),
->     b: z.number().describe("Second number"),
->   }),
-> });
->
-> const multiply = tool(({ a, b }) => a * b, {
->   name: "multiply",
->   description: "Multiply two numbers",
->   schema: z.object({
->     a: z.number().describe("First number"),
->     b: z.number().describe("Second number"),
->   }),
-> });
->
-> const divide = tool(({ a, b }) => a / b, {
->   name: "divide",
->   description: "Divide two numbers",
->   schema: z.object({
->     a: z.number().describe("First number"),
->     b: z.number().describe("Second number"),
->   }),
-> });
->
-> // Augment the LLM with tools
-> const toolsByName = {
->   [add.name]: add,
->   [multiply.name]: multiply,
->   [divide.name]: divide,
-> };
-> const tools = Object.values(toolsByName);
-> const modelWithTools = model.bindTools(tools);
->
-> ```
->
-> ## 3. Define model task
->
-> The model task calls the LLM and decides whether to call a tool.
->
-> Add the following below the tools and model:
->
-> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-> import { task, entrypoint } from "@langchain/langgraph";
-> import { SystemMessage } from "@langchain/core/messages";
->
-> const callLlm = task({ name: "callLlm" }, async (messages: BaseMessage[]) => {
->   return modelWithTools.invoke([
->     new SystemMessage(
->       "You are a helpful assistant tasked with performing arithmetic on a set of inputs."
->     ),
->     ...messages,
->   ]);
-> });
-> ```
->
-> ## 4. Define tool task
->
-> The tool task calls the tools and returns the results.
->
-> Add the following below the model task:
->
-> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-> import type { ToolCall } from "@langchain/core/messages/tool";
->
-> const callTool = task({ name: "callTool" }, async (toolCall: ToolCall) => {
->   const tool = toolsByName[toolCall.name];
->   return tool.invoke(toolCall);
-> });
-> ```
->
-> ## 5. Define agent
->
-> Add the following below the tasks. Define the agent with [`@entrypoint`](https://reference.langchain.com/javascript/langchain-langgraph/index/entrypoint):
->
-> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-> import { addMessages } from "@langchain/langgraph";
-> import { type BaseMessage } from "@langchain/core/messages";
->
-> const agent = entrypoint({ name: "agent" }, async (messages: BaseMessage[]) => {
->   let modelResponse = await callLlm(messages);
->
->   while (true) {
->     if (!modelResponse.tool_calls?.length) {
->       break;
->     }
->
->     // Execute tools
->     const toolResults = await Promise.all(
->       modelResponse.tool_calls.map((toolCall) => callTool(toolCall))
->     );
->     messages = addMessages(messages, [modelResponse, ...toolResults]);
->     modelResponse = await callLlm(messages);
->   }
->
->   return messages;
-> });
-> ```
->
-> ## 6. Set up LangSmith tracing
->
-> [LangSmith](https://smith.langchain.com?utm_source=docs\&utm_medium=cta\&utm_campaign=langsmith-signup\&utm_content=oss-langgraph-quickstart) shows tool calls and model responses as the agent runs.
->
-> This step is optional. Sign up at [smith.langchain.com](https://smith.langchain.com?utm_source=docs\&utm_medium=cta\&utm_campaign=langsmith-signup\&utm_content=oss-langgraph-quickstart), create an API key, and set these environment variables in the shell before you run the agent:
->
-> ```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-> export LANGSMITH_TRACING=true
-> export LANGSMITH_API_KEY="your-langsmith-api-key"
-> ```
->
-> ## 7. Run the agent
->
-> Add the following below the entrypoint:
->
-> ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-> import { HumanMessage } from "@langchain/core/messages";
->
-> const result = await agent.invoke([new HumanMessage("Add 3 and 4.")]);
->
-> for (const message of result) {
->   console.log(`[${message.getType()}]: ${message.text}`);
-> }
-> ```
->
-> Run the file:
->
-> ```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-> npx tsx agent.ts
-> ```
->
-> You should see the human message, a tool call to `add`, the tool result `7`, and a final assistant reply. The exact text varies by model, but the tool result is `7`.
->
-> To check your file, compare it with the full example:
->
-> > [accordion] Full code example
-> >
-> > ```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-> > import { ChatAnthropic } from "@langchain/anthropic";
-> > import { tool } from "@langchain/core/tools";
-> > import {
-> >   task,
-> >   entrypoint,
-> >   addMessages,
-> > } from "@langchain/langgraph";
-> > import {
-> >   SystemMessage,
-> >   HumanMessage,
-> >   type BaseMessage,
-> > } from "@langchain/core/messages";
-> > import type { ToolCall } from "@langchain/core/messages/tool";
-> > import * as z from "zod";
-> >
-> > // Step 2: Define tools and model
-> >
-> > let model = new ChatAnthropic({
-> >   model: "claude-sonnet-4-6",
-> >   temperature: 0,
-> > });
-> >
-> > // Define tools
-> > const add = tool(({ a, b }) => a + b, {
-> >   name: "add",
-> >   description: "Add two numbers",
-> >   schema: z.object({
-> >     a: z.number().describe("First number"),
-> >     b: z.number().describe("Second number"),
-> >   }),
-> > });
-> >
-> > const multiply = tool(({ a, b }) => a * b, {
-> >   name: "multiply",
-> >   description: "Multiply two numbers",
-> >   schema: z.object({
-> >     a: z.number().describe("First number"),
-> >     b: z.number().describe("Second number"),
-> >   }),
-> > });
-> >
-> > const divide = tool(({ a, b }) => a / b, {
-> >   name: "divide",
-> >   description: "Divide two numbers",
-> >   schema: z.object({
-> >     a: z.number().describe("First number"),
-> >     b: z.number().describe("Second number"),
-> >   }),
-> > });
-> >
-> > // Augment the LLM with tools
-> > const toolsByName = {
-> >   [add.name]: add,
-> >   [multiply.name]: multiply,
-> >   [divide.name]: divide,
-> > };
-> > const tools = Object.values(toolsByName);
-> > const modelWithTools = model.bindTools(tools);
-> >
-> > // Step 3: Define model task
-> >
-> > const callLlm = task({ name: "callLlm" }, async (messages: BaseMessage[]) => {
-> >   return modelWithTools.invoke([
-> >     new SystemMessage(
-> >       "You are a helpful assistant tasked with performing arithmetic on a set of inputs."
-> >     ),
-> >     ...messages,
-> >   ]);
-> > });
-> >
-> > // Step 4: Define tool task
-> >
-> > const callTool = task({ name: "callTool" }, async (toolCall: ToolCall) => {
-> >   const tool = toolsByName[toolCall.name];
-> >   return tool.invoke(toolCall);
-> > });
-> >
-> > // Step 5: Define agent
-> >
-> > const agent = entrypoint({ name: "agent" }, async (messages: BaseMessage[]) => {
-> >   let modelResponse = await callLlm(messages);
-> >
-> >   while (true) {
-> >     if (!modelResponse.tool_calls?.length) {
-> >       break;
-> >     }
-> >
-> >     // Execute tools
-> >     const toolResults = await Promise.all(
-> >       modelResponse.tool_calls.map((toolCall) => callTool(toolCall))
-> >     );
-> >     messages = addMessages(messages, [modelResponse, ...toolResults]);
-> >     modelResponse = await callLlm(messages);
-> >   }
-> >
-> >   return messages;
-> > });
-> >
-> > // Step 6: Set up LangSmith tracing (optional)
-> > // export LANGSMITH_TRACING=true
-> > // export LANGSMITH_API_KEY="your-langsmith-api-key"
-> >
-> > // Step 7: Run the agent
-> > const result = await agent.invoke([new HumanMessage("Add 3 and 4.")]);
-> >
-> > for (const message of result) {
-> >   console.log(`[${message.type}]: ${message.text}`);
-> > }
-> > ```
 
 ## Next steps
 
 You now have a working calculator agent. Continue with one of the following subjects:
 
-* **Learn the APIs**: [Choosing between Graph and Functional APIs](/oss/javascript/langgraph/choosing-apis), then the [Build checklist for the Graph API](/oss/javascript/langgraph/use-graph-api) or the [Build checklist for the Functional API](/oss/javascript/langgraph/use-functional-api).
+* **Build with the Graph API**: [Build checklist for the Graph API](/oss/javascript/langgraph/use-graph-api) and [Thinking in the Graph API](/oss/javascript/langgraph/thinking-in-graph-api).
 * **Add persistence**: Use a [checkpointer](/oss/javascript/langgraph/persistence) so runs can pause and resume across sessions.
 * **Add human-in-the-loop**: Pause with [interrupts](/oss/javascript/langgraph/interrupts) for approval or edits.
 * **Stream results**: Follow [streaming](/oss/javascript/langgraph/streaming) for tokens and state updates.
-* **Go deeper**: [Thinking in the Graph API](/oss/javascript/langgraph/thinking-in-graph-api), [Thinking in the Functional API](/oss/javascript/langgraph/thinking-in-functional-api), and [Workflows and agents](/oss/javascript/langgraph/workflows-agents).
+* **Go deeper**: [Workflows and agents](/oss/javascript/langgraph/workflows-agents).
 * **Deploy**: Host the agent with [LangSmith Deployment](/langsmith/deployment).
 * **Evaluate**: Test behavior with [LangSmith evaluation](/langsmith/evaluation-quickstart).
 

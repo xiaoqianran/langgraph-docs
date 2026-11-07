@@ -6,9 +6,9 @@
 
 了解 LangGraph 如何将代理工作流程建模为共享状态、节点和边的图。
 
-图形 API 将代理工作流程定义为 [state](#state)、[nodes](#nodes) 和 [edges](#edges) 的图形。 [⟦T22⟧](#send)和[⟦T23⟧](#command)控制图的运行方式：`Send`动态调用节点进行扇出，`Command`在路由到下一个节点时更新状态（包括中断后恢复）。当您需要显式共享状态和可视控制流时，请使用图形 API。
+图形 API 将代理工作流程定义为 [state](#state)、[nodes](#nodes) 和 [edges](#edges) 的图形。 [⟦T22⟧](#send)和[⟦T23⟧](#command)控制图的运行方式：`Send`动态调用节点进行扇出，`Command`在路由到下一个节点时更新状态（包括中断后恢复）。当您需要显式共享状态和可视化控制流时，请使用图形 API。
 
-有关构建过程中的逐步决策，请参阅[Build checklist for the Graph API](/oss/python/langgraph/use-graph-api)。有关指导演练，请参阅 [Thinking in the Graph API](/oss/python/langgraph/thinking-in-graph-api)。要在该 API 和功能 API 之间进行选择，请参阅[Choosing between Graph and Functional APIs](/oss/python/langgraph/choosing-apis)。
+有关构建过程中的逐步决策，请参阅[Build checklist for the Graph API](/oss/python/langgraph/use-graph-api)。有关指导演练，请参阅 [Thinking in the Graph API](/oss/python/langgraph/thinking-in-graph-api)。
 
 ## 图表
 
@@ -22,9 +22,9 @@ LangGraph 将代理工作流程建模为由三个部分构建的图表：
 
 简而言之：节点完成工作；边缘决定接下来运行什么。
 
-### 超级步骤LangGraph 使用 [message passing](https://en.wikipedia.org/wiki/Message_passing) 运行图表，采用 Google [Pregel](https://research.google/pubs/pregel-a-system-for-large-scale-graph-processing/) 系统的风格。离散**超级步骤**中的执行进展：
+### 超级步骤
 
-* 并行运行的节点共享一个超级步。
+LangGraph 使用 [message passing](https://en.wikipedia.org/wiki/Message_passing) 运行图表，采用 Google [Pregel](https://research.google/pubs/pregel-a-system-for-large-scale-graph-processing/) 系统的风格。离散**超级步骤**中的执行进展：* 并行运行的节点共享一个超级步。
 * 按顺序运行的节点使用单独的超级步骤。
 * 当节点在传入边上接收到输入时，该节点将变为活动状态。
 * 在超级步骤之后，没有待处理消息的节点将变为非活动状态。
@@ -38,7 +38,7 @@ LangGraph 将代理工作流程建模为由三个部分构建的图表：
 
 通过定义[state](#state)，添加[nodes](#nodes)和[edges](#edges)，然后编译来构建图。编译检查图结构（例如孤立节点）。您还可以在此处附加运行时选项，例如 [checkpointers](/oss/python/langgraph/persistence) 和断点。
 
-您必须在调用或流式传输图表之前对其进行编译。这是最小的端到端示例：
+您必须先编译该图，然后再调用或流式传输它。这是最小的端到端示例：
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from typing_extensions import TypedDict
@@ -66,12 +66,12 @@ graph.invoke({"text": ""})
 # {'text': 'a'}
 ```
 
-## 状态状态是节点读取和更新的共享数据。 LangGraph 将该数据存储在**通道**中：状态模式中的命名槽（状态对象的键）。每个通道都保存一个值并定义更新如何合并到其中。大多数通道使用最后写入获胜。具有 [reducer](#reducers) 的通道会组合值，例如通过附加到列表。
+## 状态
 
-状态有两部分：
+状态是节点读取和更新的共享数据。 LangGraph 将该数据存储在**通道**中：状态模式中的命名槽（状态对象的键）。每个通道都保存一个值并定义更新如何合并到其中。大多数通道使用最后写入获胜。具有 [reducer](#reducers) 的通道会组合值，例如通过附加到列表。
 
-* 声明图中通道的[schema](#schema)
-* 可选的[reducers](#reducers)控制更新如何合并到每个通道中
+状态有两部分：* 声明图中通道的[schema](#schema)
+*可选的[reducers](#reducers)控制更新如何合并到每个通道
 
 节点返回部分更新。 LangGraph 通过每个通道的减速器应用这些更新。
 
@@ -87,14 +87,14 @@ graph.invoke({"text": ""})
 
 #### 多个模式
 
-大多数图共享一个状态模式。当您需要以下任一功能时，请使用多个架构：* 内部节点共享的私有通道，但不属于图输入或输出的一部分
+大多数图共享一个状态模式。当您需要以下任一功能时，请使用多个架构：
+
+* 内部节点共享的私有通道，但不属于图输入或输出的一部分
 * 显式输入和输出模式是完整内部状态的子集
 
-节点可以写入图状态中的任何通道，包括其声明的输入模式之外的通道。当定义这些模式时，节点还可以引入私有通道。输入和输出模式限制 `invoke` 接受和返回的内容。默认情况下，它们不会隐藏 [streaming](/oss/python/langgraph/streaming) 的频道。参见[Private channels and streaming](/oss/python/langgraph/graph-api-state#private-channels-and-streaming)。
+节点可以写入图状态中的任何通道，包括其声明的输入模式之外的通道。当定义这些模式时，节点还可以引入私有通道。输入和输出模式限制 `invoke` 接受和返回的内容。默认情况下，它们不会隐藏 [streaming](/oss/python/langgraph/streaming) 的频道。参见[Private channels and streaming](/oss/python/langgraph/graph-api-state#private-channels-and-streaming)。例如，请参阅 [Define input and output schemas](/oss/python/langgraph/graph-api-state#define-input-and-output-schemas) 和 [Pass private state between nodes](/oss/python/langgraph/graph-api-state#pass-private-state-between-nodes)。
 
-例如，请参阅 [Define input and output schemas](/oss/python/langgraph/graph-api-state#define-input-and-output-schemas) 和 [Pass private state between nodes](/oss/python/langgraph/graph-api-state#pass-private-state-between-nodes)。
-
-### 减速器
+### 减速机
 
 减速器控制节点更新如何合并到状态中。每个键都有自己的减速器。如果没有减速器，更新会覆盖以前的值。
 
@@ -134,7 +134,9 @@ append_strings(left=["draft"], right=["review"])  # returns ["draft", "review"]
 
 #### 默认减速器
 
-默认的reducer用右边的值替换左边的值。节点返回部分更新，而不是完整状态。例如，从 `{"foo": 1, "bar": ["hi"]}` 开始。 `{"foo": 2}` 的更新产生`{"foo": 2, "bar": ["hi"]}`。后来的`{"bar": ["bye"]}`产生`{"foo": 2, "bar": ["bye"]}`。
+默认的reducer用右边的值替换左边的值。节点返回部分更新，而不是完整状态。
+
+例如，从 `{"foo": 1, "bar": ["hi"]}` 开始。 `{"foo": 2}` 的更新产生`{"foo": 2, "bar": ["hi"]}`。后来的`{"bar": ["bye"]}`产生`{"foo": 2, "bar": ["bye"]}`。
 
 #### 定制减速器
 
@@ -156,11 +158,9 @@ class State(TypedDict):
 
 #### 覆盖
 
-要绕过合并减速器并替换值（包括清除它），请使用 [⟦T50⟧](https://reference.langchain.com/python/langgraph/types/)。参见[Bypass reducers with Overwrite](/oss/python/langgraph/graph-api-state#bypass-reducers-with-overwrite)。
+要绕过合并减速器并替换值（包括清除它），请使用[⟦T50⟧](https://reference.langchain.com/python/langgraph/types/)。参见[Bypass reducers with Overwrite](/oss/python/langgraph/graph-api-state#bypass-reducers-with-overwrite)。
 
-#### 重置reducer字段
-
-使用合并减速器，返回空值会保留先前的数据。这对于必须在尝试之间清除的错误缓冲区或重试计数器很重要。参见[Resetting a reducer field](/oss/python/langgraph/graph-api-state#resetting-a-reducer-field)和[Bypass reducers with Overwrite](/oss/python/langgraph/graph-api-state#bypass-reducers-with-overwrite)。
+#### 重置reducer字段使用合并减速器，返回空值会保留先前的数据。这对于必须在尝试之间清除的错误缓冲区或重试计数器很重要。参见[Resetting a reducer field](/oss/python/langgraph/graph-api-state#resetting-a-reducer-field)和[Bypass reducers with Overwrite](/oss/python/langgraph/graph-api-state#bypass-reducers-with-overwrite)。
 
 ### 在图形状态下处理消息
 
@@ -186,7 +186,9 @@ class GraphState(TypedDict):
     messages: Annotated[list[AnyMessage], add_messages]
 ```
 
-#### 序列化消息缩减器还将常见的有线格式反序列化为LangChain消息对象。
+#### 序列化
+
+消息缩减器还将常见的有线格式反序列化为LangChain消息对象。
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 # Supported
@@ -214,9 +216,7 @@ class State(MessagesState):
 
 节点是实现图形步骤的同步或异步函数。
 
-节点可以接受：
-
-1.`state`：图表[state](#state)
+节点可以接受：1.`state`：图表[state](#state)
 2. `config`：[⟦T62⟧](https://reference.langchain.com/python/langchain-core/runnables/config/RunnableConfig)，其值为 `thread_id` 和 `tags`
 3. `runtime`：一个`Runtime`对象，带有[runtime context](#runtime-context)、`store`、`stream_writer`、`execution_info`以及相关助手
 
@@ -266,11 +266,11 @@ builder.add_node(my_node)
 
 ### 重执行和幂等性
 
-使用 [checkpointer](/oss/python/langgraph/persistence)，LangGraph 将检查点保存在 [super-step](#super-steps) 边界，而不是节点内的中间功能。在[interrupt](/oss/python/langgraph/interrupts)或[retry](/oss/python/langgraph/fault-tolerance#retries)之后，受影响的节点从其功能开始处再次运行。暂停前再次运行有副作用。设计节点逻辑，确保重新执行是安全的。首选幂等键、更新插入或先读后写检查。有关重试下的持久密钥和外部副作用，请参阅[Retry boundaries and idempotency](/oss/python/langgraph/fault-tolerance#retry-boundaries-and-idempotency)。有关`interrupt()`周围的效果，请参阅[Side effects called before ⟦T73⟧ must be idempotent](/oss/python/langgraph/interrupts#side-effects-called-before-interrupt-must-be-idempotent)。
+使用 [checkpointer](/oss/python/langgraph/persistence)，LangGraph 将检查点保存在 [super-step](#super-steps) 边界，而不是节点内的中间功能。在[interrupt](/oss/python/langgraph/interrupts)或[retry](/oss/python/langgraph/fault-tolerance#retries)之后，受影响的节点从其功能开始处再次运行。暂停前再次运行有副作用。
 
-您可以添加或删除节点和边，而不会中断现有线程的恢复。恢复的运行使用保存的状态和您现在编译的图表。
+设计节点逻辑，确保重新执行是安全的。首选幂等键、更新插入或先读后写检查。有关重试下的持久密钥和外部副作用，请参阅[Retry boundaries and idempotency](/oss/python/langgraph/fault-tolerance#retry-boundaries-and-idempotency)。有关`interrupt()`周围的效果，请参阅[Side effects called before ⟦T73⟧ must be idempotent](/oss/python/langgraph/interrupts#side-effects-called-before-interrupt-must-be-idempotent)。
 
-如果节点调用[tasks](/oss/python/langgraph/functional-api#task)或[⟦T74⟧](https://reference.langchain.com/python/langgraph/types/interrupt)，则恢复时将应用更严格的[determinism](/oss/python/langgraph/functional-api#determinism)规则。已完成的任务结果从检查点恢复。在恢复点之前更改任务或中断顺序可能会导致缓存值不匹配。参见[Idempotency](/oss/python/langgraph/functional-api#idempotency)。
+您可以添加或删除节点和边，而不会中断现有线程的恢复。恢复的运行使用保存的状态和您现在编译的图表。如果节点调用[tasks](/oss/python/langgraph/functional-api#task)或[⟦T74⟧](https://reference.langchain.com/python/langgraph/types/interrupt)，则恢复时将应用更严格的[determinism](/oss/python/langgraph/functional-api#determinism)规则。已完成的任务结果从检查点恢复。在恢复点之前更改任务或中断顺序可能会导致缓存值不匹配。参见[Idempotency](/oss/python/langgraph/functional-api#idempotency)。
 
 ### 选择工作单位
 
@@ -281,11 +281,11 @@ builder.add_node(my_node)
 |节点内的普通函数 |不。它在节点的 [super-step](#super-steps) 内部运行。 |每当节点重新运行时就重新运行。 |该步骤之后没有路由分叉，并且对节点的其余部分重复该步骤是可以接受的。 |
 | [Task](/oss/python/langgraph/functional-api#task) |没有新的图形检查点。结果与正在运行的入口点或父检查点一起存储。 |封闭的入口点或节点从头开始重播。已完成的任务返回存储的结果。 |该步骤有副作用或成本高昂，并且不得在简历中重复。 |
 | [Subgraph](/oss/python/langgraph/use-subgraphs) |对于有状态模式是：在父线程的命名空间下节点检查点。使用 `checkpointer=False` 编译，无子图检查点。 |有状态模式在中断或故障节点的子图中恢复。 |该单元有自己的路由或状态模式，或者多个父图重用它。 |
-|图节点 |是的。检查点遵循其运行所在的 [super-step](#super-steps)。恢复从该节点开始。较早的节点不会重新运行。 |该步骤之后可能会出现路由分叉，或者您需要中断、恢复或 [time travel](/oss/python/langgraph/use-time-travel) 边界。 |
+|图节点|是的。检查点遵循其运行所在的 [super-step](#super-steps)。恢复从该节点开始。较早的节点不会重新运行。 |该步骤之后可能会出现路由分支，或者您需要中断、恢复或 [time travel](/oss/python/langgraph/use-time-travel) 边界。 |
 
-有关重试时的副作用，请参阅[Retry boundaries and idempotency](/oss/python/langgraph/fault-tolerance#retry-boundaries-and-idempotency)。任务重试和超时请参见[Tasks](/oss/python/langgraph/functional-api-tasks)。### 在节点中使用任务
+有关重试时的副作用，请参阅[Retry boundaries and idempotency](/oss/python/langgraph/fault-tolerance#retry-boundaries-and-idempotency)。任务重试和超时请参见[Fault tolerance](/oss/python/langgraph/fault-tolerance)。### 在节点中使用任务
 
-当一个节点运行多个应独立检查点的操作时，请将每个操作包装在 [task](/oss/python/langgraph/functional-api#task) 中，而不是跨节点拆分工作。使用检查指针，可以保存已完成的任务结果，因此恢复的线程可以跳过节点内已完成的工作。有关模式和示例，请参阅 [Tasks](/oss/python/langgraph/functional-api-tasks) 和 [Common pitfalls](/oss/python/langgraph/functional-api#common-pitfalls)。
+当一个节点运行多个应独立检查点的操作时，请将每个操作包装在 [task](/oss/python/langgraph/functional-api#task) 中，而不是跨节点拆分工作。使用检查指针，可以保存已完成的任务结果，因此恢复的线程可以跳过节点内已完成的工作。有关模式和示例，请参阅 [Tasks](/oss/python/langgraph/functional-api#task) 和 [Common pitfalls](/oss/python/langgraph/functional-api#common-pitfalls)。
 
 ### `START` 节点
 
@@ -311,7 +311,7 @@ graph.add_edge("node_a", END)
 
 LangGraph 可以通过输入缓存节点（和任务）结果。编译图时传递一个缓存，并在节点上附加一个[⟦T80⟧](https://reference.langchain.com/python/langgraph/types/CachePolicy)。
 
-有关选项、端到端示例和图范围默认值，请参阅 [Add node caching](/oss/python/langgraph/graph-api-nodes#add-node-caching)。
+有关选项、端到端示例和图范围默认值，请参阅[Add node caching](/oss/python/langgraph/graph-api-nodes#add-node-caching)。
 
 ## 边缘
 
@@ -354,7 +354,7 @@ graph.add_conditional_edges(
 
 > [!提示]
 >
-> 当您想要将状态更新和路由合并到单个函数中时，请使用 [⟦T88⟧](https://reference.langchain.com/python/langgraph/types/Command) 而不是条件边。
+> 当您想要将状态更新和路由合并到单个函数中时，请使用 [⟦T88⟧](https://reference.langchain.com/python/langgraph/types/Command) 代替条件边。
 
 ### 入口点
 
@@ -418,7 +418,7 @@ graph.add_conditional_edges("node_a", continue_to_jokes)
 
 #### `update` 和 `goto`
 
-返回[⟦T116⟧](https://reference.langchain.com/python/langgraph/types/Command)，一步更新状态和路由：
+返回[⟦T116⟧](https://reference.langchain.com/python/langgraph/types/Command)一步更新状态和路由：
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 def my_node(state: CommandState) -> Command[Literal["my_other_node"]]:
@@ -543,7 +543,7 @@ graph.invoke({"input": "hi"}, context={"llm_provider": "anthropic"})
 
 ### 递归限制
 
-递归限制限制了一次运行可以执行的 [super-steps](#super-steps) 数量。当超过限制时，LangGraph升高`GraphRecursionError`。
+递归限制限制了一次运行可以执行的[super-steps](#super-steps)数量。当超过限制时，LangGraph升高`GraphRecursionError`。
 
 从版本 1.1.4 开始，默认为 10,007 个超级步。在 1.0.6 和 1.1.3 之间，默认值为 10,000 步。使用 `LANGGRAPH_DEFAULT_RECURSION_LIMIT` 环境变量覆盖它，或将 `recursion_limit` 作为顶级配置键传递（不在 `configurable` 下）。
 
@@ -559,7 +559,6 @@ graph.invoke({"input": "hi"}, context={"llm_provider": "anthropic"})
 * [Use Send and Command](/oss/python/langgraph/graph-api-send-command)
 * [Configure nodes](/oss/python/langgraph/graph-api-nodes)
 * [Visualize your graph](/oss/python/langgraph/graph-api-visualize)
-* [Functional API overview](/oss/python/langgraph/functional-api)
 
 ***
 

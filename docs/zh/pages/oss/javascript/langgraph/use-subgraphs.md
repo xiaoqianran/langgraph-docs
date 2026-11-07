@@ -374,13 +374,13 @@ const veggieInfo = tool(
 const fruitAgent = createAgent({
   model: "gpt-5.4-mini",
   tools: [fruitInfo],
-  prompt: "You are a fruit expert. Use the fruit_info tool. Respond in one sentence.",
+  systemPrompt: "You are a fruit expert. Use the fruit_info tool. Respond in one sentence.",
 });
 
 const veggieAgent = createAgent({
   model: "gpt-5.4-mini",
   tools: [veggieInfo],
-  prompt: "You are a veggie expert. Use the veggie_info tool. Respond in one sentence.",
+  systemPrompt: "You are a veggie expert. Use the veggie_info tool. Respond in one sentence.",
 });
 
 // Wrap subagents as tools for the outer agent
@@ -416,7 +416,7 @@ const askVeggieExpert = tool(
 const agent = createAgent({
   model: "gpt-5.4-mini",
   tools: [askFruitExpert, askVeggieExpert],
-  prompt:
+  systemPrompt:
     "You have two experts: ask_fruit_expert and ask_veggie_expert. " +
     "ALWAYS delegate questions to the appropriate expert.",
   checkpointer: new MemorySaver(),
@@ -522,7 +522,7 @@ const fruitInfo = tool(
 const fruitAgent = createAgent({
   model: "gpt-5.4-mini",
   tools: [fruitInfo],
-  prompt: "You are a fruit expert. Use the fruit_info tool. Respond in one sentence.",
+  systemPrompt: "You are a fruit expert. Use the fruit_info tool. Respond in one sentence.",
   checkpointer: true,  // [!code highlight]
 });
 
@@ -547,7 +547,7 @@ const askFruitExpert = tool(
 const agent = createAgent({
   model: "gpt-5.4-mini",
   tools: [askFruitExpert],
-  prompt: "You have a fruit expert. ALWAYS delegate fruit questions to ask_fruit_expert.",
+  systemPrompt: "You have a fruit expert. ALWAYS delegate fruit questions to ask_fruit_expert.",
   middleware: [  // [!code highlight]
     toolCallLimitMiddleware({ toolName: "ask_fruit_expert", runLimit: 1 }),  // [!code highlight]
   ],  // [!code highlight]
@@ -626,10 +626,10 @@ const agent = createAgent({
 > }
 >
 > const fruitAgent = createSubAgent("gpt-5.4-mini", {
->   name: "fruit_agent", tools: [fruitInfo], prompt: "...", checkpointer: true,
+>   name: "fruit_agent", tools: [fruitInfo], systemPrompt: "...", checkpointer: true,
 > });
 > const veggieAgent = createSubAgent("gpt-5.4-mini", {
->   name: "veggie_agent", tools: [veggieInfo], prompt: "...", checkpointer: true,
+>   name: "veggie_agent", tools: [veggieInfo], systemPrompt: "...", checkpointer: true,
 > });
 > const config = { configurable: { thread_id: "1" } };
 >
@@ -671,12 +671,12 @@ const subgraph = subgraphBuilder.compile({ checkpointer: false });  // [!code hi
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 const subgraph = builder.compile({ checkpointer: false });  // or true, or null
-```|特色|每次调用（默认）|每线程 |无国籍|
+```|特色 |每次调用（默认）|每线程 |无国籍|
 | - | - | - | - |
 | `checkpointer=` | `None` | `True` | `False` |
 |中断（HITL）| ✅ | ✅ | ❌ |
 |多圈记忆| ❌ | ✅ | ❌ |
-|多次调用（不同子图）| ✅ | ⚠️（调用同一节点中的多个每线程子图可能会导致命名空间冲突。解决方法是可用的。） ✅ |
+|多次调用（不同子图）| ✅ | ⚠️（调用同一节点中的多个每线程子图可能会导致命名空间冲突。有解决方法。） ✅ |
 |多次调用（同一子图）| ✅ | ❌ | ✅ |
 |国家检验| ⚠️（具有每次调用持久性的状态检查仅适用于当前调用（在中断时）。每个调用都是全新开始的，因此在调用完成后没有累积的状态可供检查。） ✅ | ❌ |* **中断（HITL）**：子图可以使用[interrupt()](/oss/javascript/langgraph/interrupts)暂停执行并等待用户输入，然后从中断处恢复。
 * **多轮记忆**：子图在同一[thread](/oss/javascript/langgraph/checkpointers#threads)内的多次调用中保留其状态。每次调用都会从上一个调用的地方继续，而不是重新开始。

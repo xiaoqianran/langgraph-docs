@@ -46,7 +46,7 @@ LangGraph 检查指针将图状态保存为每一步的检查点，从而实现�
 
 使用检查指针和现有线程，选择适合您目标的调用：
 
-|目标|调用|执行|
+|目标|调用|执行 |
 | - | - | - |
 |提交新的输入 | `graph.invoke(input, config)` |将输入应用于保存的状态并从入口点开始。 |
 |出现错误后继续 | `graph.invoke(None, config)` |加载最新的检查点并重试未完成的工作。省略`checkpoint_id`。 |
@@ -55,7 +55,7 @@ LangGraph 检查指针将图状态保存为每一步的检查点，从而实现�
 
 新输入不会清除线程。 LangGraph 使用国家的[reducers](/oss/python/langgraph/graph-api#reducers) 应用它。使用新的`thread_id`从空状态开始。
 
-当最新的检查点没有未完成的工作时，Resume 返回保存的结果，而不运行节点。有关可运行的示例，请参阅 [Functional API error recovery](/oss/python/langgraph/functional-api-tasks#resume-after-an-error)、[resuming interrupts](/oss/python/langgraph/interrupts#resuming-interrupts) 和 [replaying history](/oss/python/langgraph/use-time-travel#replay)。
+当最新的检查点没有未完成的工作时，Resume 返回保存的结果，而不运行节点。有关可运行的示例，请参阅[resuming interrupts](/oss/python/langgraph/interrupts#resuming-interrupts)和[replaying history](/oss/python/langgraph/use-time-travel#replay)。有关包装另一个框架时的入口点恢复规则，请参阅[Functional API overview](/oss/python/langgraph/functional-api#run-and-resume)。
 
 ### 检查点线程在特定时间点的状态称为检查点。检查点是每个[super-step](#super-steps)处保存的图状态的快照，并由`StateSnapshot`对象表示（有关完整字段参考，请参阅[StateSnapshot fields](#statesnapshot-fields)）。
 
@@ -104,7 +104,7 @@ graph.invoke({"foo": "", "bar":[]}, config)
 
 运行该图后，将恰好有 4 个检查点：* 清空检查点，以[⟦T40⟧](https://reference.langchain.com/python/langgraph/constants/START)作为下一个要执行的节点
 * 将用户输入`{'foo': '', 'bar': []}`和`node_a`作为下一个要执行的节点的检查点
-* 检查点，`node_a` `{'foo': 'a', 'bar': ['a']}` 和 `node_b` 的输出作为下一个要执行的节点
+* 检查点，以`node_a`、`{'foo': 'a', 'bar': ['a']}`和`node_b`的输出作为下一个要执行的节点
 * 检查点具有`node_b``{'foo': 'b', 'bar': ['a', 'b']}`的输出，并且没有要执行的下一个节点
 
 请注意，`bar` 通道值包含来自两个节点的输出，因为此示例具有用于 `bar` 通道的减速器。
@@ -158,7 +158,7 @@ StateSnapshot(
 
 #### 状态快照字段
 
-|领域|类型 |描述 |
+|领域 |类型 |描述 |
 | - | - | - |
 | `values` | `dict` |该检查点的状态通道值。 |
 | `next` | `tuple[str, ...]` |接下来要执行的节点名称。空`()`表示图是完整的。 |
@@ -257,7 +257,7 @@ for checkpoint_tuple in checkpointer.list(None):
 
 通过`None`，而不是`{}`。 [⟦T102⟧](https://reference.langchain.com/python/langgraph/checkpoints/#langgraph.checkpoint.sqlite.SqliteSaver) 将任何非 `None` 配置视为线程过滤器，并在缺少 `thread_id` 时引发。对于异步图，请使用 `.alist(None)` 代替。这适用于 [⟦T106⟧](https://reference.langchain.com/python/langgraph/checkpoints/#langgraph.checkpoint.memory.InMemorySaver)、[⟦T107⟧](https://reference.langchain.com/python/langgraph/checkpoints/#langgraph.checkpoint.sqlite.SqliteSaver) 和 [⟦T108⟧](https://reference.langchain.com/python/langgraph/checkpoints/#langgraph.checkpoint.postgres.PostgresSaver)。 `.list` 仍然为每个检查点返回一行，而不是每个线程，因此您自己按 `thread_id` 分组以构建线程列表。
 
-### 重播重播从先前的检查点重新执行步骤。使用先前的 `checkpoint_id` 调用图表以在该检查点之后重新运行节点。检查点之前的节点将被跳过（它们的结果已保存）。检查点之后的节点重新执行，包括任何 LLM 调用、API 请求或 [interrupts](/oss/python/langgraph/interrupts) — 这些在重放期间始终会重新触发。
+### 重播重放从先前的检查点重新执行步骤。使用先前的 `checkpoint_id` 调用图表以在该检查点之后重新运行节点。检查点之前的节点将被跳过（它们的结果已保存）。检查点之后的节点重新执行，包括任何 LLM 调用、API 请求或 [interrupts](/oss/python/langgraph/interrupts) — 这些在重放期间始终会重新触发。
 
 有关重放过去执行的完整详细信息和代码示例，请参阅[Time travel](/oss/python/langgraph/use-time-travel)。
 
@@ -640,7 +640,7 @@ CREATE TABLE writes (
 
 代理服务器会自动检测您的检查点在启动时实现的功能并激活相应的功能。
 
-### 达美频道支持> [!注意]
+### 达美渠道支持> [!注意]
 >
 > **DeltaChannel 处于测试阶段。** 当设计稳定时，API 和磁盘上的表示可能会发生变化。
 

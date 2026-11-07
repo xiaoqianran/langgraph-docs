@@ -6,7 +6,7 @@ Learn how to design agents with the LangGraph Graph API using nodes, edges, and 
 
 When you build an agent with the [Graph API](/oss/python/langgraph/graph-api), you break the process into discrete steps called **nodes**. Then you describe the decisions and transitions from each node. Finally, you connect nodes through a shared **state** that each node can read from and write to.
 
-This walkthrough builds a customer support email agent with the Graph API. For the same scenario with the Functional API, see [Thinking in the Functional API](/oss/python/langgraph/thinking-in-functional-api). To choose between the APIs, see [Choosing between Graph and Functional APIs](/oss/python/langgraph/choosing-apis).
+This walkthrough builds a customer support email agent with the Graph API.
 
 ## Start with the process you want to automate
 
@@ -490,10 +490,6 @@ This walkthrough introduces Graph API design. Extend it with the how-tos and rel
 > [card] [Configure nodes](/oss/python/langgraph/graph-api-nodes)
 >
 > Retries, timeouts, runtime context, and caching
-
-> [card] [Thinking in the Functional API](/oss/python/langgraph/thinking-in-functional-api)
->
-> The same email agent with entrypoints and tasks
 
 > [card] [Human-in-the-loop patterns](/oss/python/langgraph/interrupts)
 >

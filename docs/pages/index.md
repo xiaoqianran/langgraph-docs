@@ -2,13 +2,13 @@
 
 Unofficial mirror of **LangGraph** docs from [docs.langchain.com](https://docs.langchain.com) + [reference.langchain.com](https://reference.langchain.com).
 
-- Pages: 129
+- Pages: 113
 - Sources: llms-full (filtered) + extra guides + API reference packages
 
 ## Sections
 
-- **JavaScript · Guides** (`javascript`): 47 pages
-- **Python · Guides** (`python`): 47 pages
+- **JavaScript · Guides** (`javascript`): 39 pages
+- **Python · Guides** (`python`): 39 pages
 - **API · JavaScript** (`api-js`): 13 pages
 - **API · Python** (`api-python`): 11 pages
 - **Platform · LangSmith** (`platform`): 6 pages

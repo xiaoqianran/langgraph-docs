@@ -8,7 +8,7 @@
 
 当您使用[Graph API](/oss/python/langgraph/graph-api)构建代理时，您可以将流程分解为称为**节点**的离散步骤。然后描述每个节点的决策和转换。最后，通过每个节点都可以读取和写入的共享**状态**连接节点。
 
-本演练使用 Graph API 构建客户支持电子邮件代理。对于功能 API 的相同场景，请参阅[Thinking in the Functional API](/oss/python/langgraph/thinking-in-functional-api)。要在 API 之间进行选择，请参阅[Choosing between Graph and Functional APIs](/oss/python/langgraph/choosing-apis)。
+本演练使用 Graph API 构建客户支持电子邮件代理。
 
 ## 从您想要自动化的流程开始
 
@@ -142,7 +142,7 @@ Example scenarios to handle:
 * 原始电子邮件和发件人信息（以后无法重建）
 * 分类结果（后面节点需要）
 * 搜索结果或工单上下文（重新获取成本高昂）
-* 回复草稿（需继续审核）
+* 回复草案（需要通过审核坚持）
 * 执行元数据（用于调试和恢复）
 
 ### 保持状态原始，按需格式化提示
@@ -190,12 +190,12 @@ class EmailAgentState(TypedDict):
 |瞬时错误（网络问题、速率限制）|系统（自动）|节点上的重试策略 |通常重试即可解决的临时故障 |
 | LLM 可恢复错误（工具故障、解析问题）|法学硕士 |将错误存储在状态中并返回 |该模型可以根据更多背景进行调整 |
 |用户可修复的错误（信息缺失、说明不明确）|人类 |按 `interrupt()` 暂停 |需要用户输入才能继续 |
-|重试后可恢复的故障 |开发商 | `error_handler` (Python) / `errorHandler` (TypeScript) |重试耗尽后运行补偿分支 |
-|意外错误 |开发商 |运行失败 |需要代码修复的错误 |
+|重试后可恢复的故障 |开发商| `error_handler` (Python) / `errorHandler` (TypeScript) |重试耗尽后运行补偿分支 |
+|意外错误 |开发商|运行失败 |需要代码修复的错误 |
 
 有关重试策略、超时、补偿处理程序、LLM 可恢复循环、何时让错误冒泡以及图范围默认值，请参阅[Fault tolerance](/oss/python/langgraph/fault-tolerance#recovery-strategies)。
 
-对于此示例，当您添加可能发生暂时性故障的节点时，请附加重试策略：
+对于本示例，当您添加可能发生暂时性故障的节点时，请附加重试策略：
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from langgraph.types import RetryPolicy
@@ -343,7 +343,7 @@ def send_reply(state: EmailAgentState) -> dict:
 
 ## 步骤 5：将其连接在一起
 
-将节点连接成图表。因为路由位于 `Command` 节点内部，所以您只需要一些固定边。使用 [checkpointer](/oss/python/langgraph/persistence) 进行编译，这是 `interrupt()` 暂停和恢复所必需的。
+将节点连接成图表。因为路由位于 `Command` 节点内部，所以您只需要一些固定边。使用[checkpointer](/oss/python/langgraph/persistence)进行编译，这是`interrupt()`暂停和恢复所必需的。
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from langgraph.checkpoint.memory import InMemorySaver
@@ -440,7 +440,7 @@ app.invoke(
 
 大多数应用程序都可以使用上面的细分。当您决定是否合并或拆分节点时，请阅读本节。
 
-**节点**边界处的LangGraph检查点。当运行在中断或失败后恢复时，它将从执行停止的节点的开头重新启动。较小的节点意味着更频繁的检查点和更少的重复工作。
+LangGraph **节点**边界处的检查点。当运行在中断或失败后恢复时，它将从执行停止的节点的开头重新启动。较小的节点意味着更频繁的检查点和更少的重复工作。
 
 为什么此细分适合电子邮件代理：
 
@@ -475,10 +475,6 @@ app.invoke(
 >
 > 重试、超时、运行时上下文和缓存
 
-> [卡][Thinking in the Functional API](/oss/python/langgraph/thinking-in-functional-api)
->
-> 具有入口点和任务的相同电子邮件代理
-
 > [卡][Human-in-the-loop patterns](/oss/python/langgraph/interrupts)
 >
 > 刀具审批、批量审批以及其他中断模式
@@ -489,11 +485,11 @@ app.invoke(
 
 > [卡][Fault tolerance](/oss/python/langgraph/fault-tolerance)
 >
-> 重试、超时、错误处理程序和图表默认值> [卡][Subgraphs](/oss/python/langgraph/use-subgraphs)
->
-> 用于复杂多步骤操作的嵌套图
+> 重试、超时、错误处理程序和图表默认值
 
-> [卡][Streaming](/oss/python/langgraph/streaming)
+> [卡][Subgraphs](/oss/python/langgraph/use-subgraphs)
+>
+> 用于复杂多步骤操作的嵌套图> [卡][Streaming](/oss/python/langgraph/streaming)
 >
 > 为用户实时更新进度
 

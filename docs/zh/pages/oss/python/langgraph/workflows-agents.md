@@ -11,11 +11,11 @@
 
 ![Agent Workflow](https://mintcdn.com/langchain-5e9cc07a/-_xGPoyjhyiDWTPJ/oss/images/agent_workflow.png?fit=max\&auto=format\&n=-_xGPoyjhyiDWTPJ\&q=85\&s=c217c9ef517ee556cae3fc928a21dc55)
 
-LangGraph 在构建代理和工作流时提供了多项优势，包括 [persistence](/oss/python/langgraph/persistence)、[streaming](/oss/python/langgraph/streaming)、调试支持以及[deployment](/oss/python/langgraph/deploy)。
+LangGraph 在构建代理和工作流时提供了多种优势，包括 [persistence](/oss/python/langgraph/persistence)、[streaming](/oss/python/langgraph/streaming)、调试支持以及[deployment](/oss/python/langgraph/deploy)。
 
 > [!提示]
 >
-> 使用 [LangSmith](https://smith.langchain.com?utm_source=docs\&utm_medium=cta\&utm_campaign=langsmith-signup\&utm_content=oss-langgraph-workflows-agents) 跟踪并比较这些工作流程模式。按照[tracing quickstart](/langsmith/trace-with-langgraph)查看数据如何流经每个步骤。我们建议您还设置 [LangSmith Engine](/langsmith/engine) 来监控您的痕迹、检测问题并提出修复建议。
+> 使用 [LangSmith](https://smith.langchain.com?utm_source=docs\&utm_medium=cta\&utm_campaign=langsmith-signup\&utm_content=oss-langgraph-workflows-agents) 跟踪并比较这些工作流程模式。按照[tracing quickstart](/langsmith/trace-with-langgraph)查看数据如何流经每个步骤。我们建议您还设置 [LangSmith Engine](/langsmith/engine) 来监视您的痕迹、检测问题并提出修复建议。
 
 ## 设置
 
@@ -91,7 +91,7 @@ print(msg.tool_calls)  # The model returns a request to call the tool.
 
 ![Prompt chaining](https://mintcdn.com/langchain-5e9cc07a/dL5Sn6Cmy9pwtY0V/oss/images/prompt_chain.png?fit=max\&auto=format\&n=dL5Sn6Cmy9pwtY0V\&q=85\&s=762dec147c31b8dc6ebb0857e236fc1f)
 
-```python Graph API theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from typing_extensions import TypedDict
 from langgraph.graph import StateGraph, START, END
 from IPython.display import Image, display
@@ -174,57 +174,6 @@ else:
     print(state["joke"])
 ```
 
-```python Functional API theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-from langgraph.func import entrypoint, task
-
-
-# Tasks
-@task
-def generate_joke(topic: str):
-    """First LLM call to generate initial joke"""
-    msg = llm.invoke(f"Write a short joke about {topic}")
-    return msg.content
-
-
-def check_punchline(joke: str):
-    """Gate function to check if the joke has a punchline"""
-    # Simple check - does the joke contain "?" or "!"
-    if "?" in joke or "!" in joke:
-        return "Fail"
-
-    return "Pass"
-
-
-@task
-def improve_joke(joke: str):
-    """Second LLM call to improve the joke"""
-    msg = llm.invoke(f"Make this joke funnier by adding wordplay: {joke}")
-    return msg.content
-
-
-@task
-def polish_joke(joke: str):
-    """Third LLM call for final polish"""
-    msg = llm.invoke(f"Add a surprising twist to this joke: {joke}")
-    return msg.content
-
-
-@entrypoint()
-def prompt_chaining_workflow(topic: str):
-    original_joke = generate_joke(topic).result()
-    if check_punchline(original_joke) == "Pass":
-        return original_joke
-
-    improved_joke = improve_joke(original_joke).result()
-    return polish_joke(improved_joke).result()
-
-# Invoke
-stream = prompt_chaining_workflow.stream_events("cats", version="v3")
-for snapshot in stream.values:
-    print(snapshot)
-    print("\n")
-```
-
 ## 并行化
 
 通过并行化，法学硕士可以同时处理一项任务。这可以通过同时运行多个独立的子任务来完成，或者多次运行同一任务以检查不同的输出。并行化通常用于：
@@ -239,7 +188,7 @@ for snapshot in stream.values:
 
 ![parallelization.png](https://mintcdn.com/langchain-5e9cc07a/dL5Sn6Cmy9pwtY0V/oss/images/parallelization.png?fit=max\&auto=format\&n=dL5Sn6Cmy9pwtY0V\&q=85\&s=8afe3c427d8cede6fed1e4b2a5107b71)
 
-```python Graph API theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 # Graph state
 class State(TypedDict):
     topic: str
@@ -308,61 +257,11 @@ state = parallel_workflow.invoke({"topic": "cats"})
 print(state["combined_output"])
 ```
 
-```python Functional API theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-@task
-def call_llm_1(topic: str):
-    """First LLM call to generate initial joke"""
-    msg = llm.invoke(f"Write a joke about {topic}")
-    return msg.content
-
-
-@task
-def call_llm_2(topic: str):
-    """Second LLM call to generate story"""
-    msg = llm.invoke(f"Write a story about {topic}")
-    return msg.content
-
-
-@task
-def call_llm_3(topic):
-    """Third LLM call to generate poem"""
-    msg = llm.invoke(f"Write a poem about {topic}")
-    return msg.content
-
-
-@task
-def aggregator(topic, joke, story, poem):
-    """Combine the joke and story into a single output"""
-
-    combined = f"Here's a story, joke, and poem about {topic}!\n\n"
-    combined += f"STORY:\n{story}\n\n"
-    combined += f"JOKE:\n{joke}\n\n"
-    combined += f"POEM:\n{poem}"
-    return combined
-
-
-# Build workflow
-@entrypoint()
-def parallel_workflow(topic: str):
-    joke_fut = call_llm_1(topic)
-    story_fut = call_llm_2(topic)
-    poem_fut = call_llm_3(topic)
-    return aggregator(
-        topic, joke_fut.result(), story_fut.result(), poem_fut.result()
-    ).result()
-
-# Invoke
-stream = parallel_workflow.stream_events("cats", version="v3")
-for snapshot in stream.values:
-    print(snapshot)
-    print("\n")
-```
-
 ## 路由路由工作流处理输入，然后将其引导至特定于上下文的任务。这允许您为复杂任务定义专门的流程。例如，为回答产品相关问题而构建的工作流程可能首先处理问题类型，然后将请求路由到定价、退款、退货等特定流程。
 
 ![routing.png](https://mintcdn.com/langchain-5e9cc07a/dL5Sn6Cmy9pwtY0V/oss/images/routing.png?fit=max\&auto=format\&n=dL5Sn6Cmy9pwtY0V\&q=85\&s=272e0e9b681b89cd7d35d5c812c50ee6)
 
-```python Graph API theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from typing_extensions import Literal
 from langchain.messages import HumanMessage, SystemMessage
 
@@ -469,78 +368,6 @@ state = router_workflow.invoke({"input": "Write me a joke about cats"})
 print(state["output"])
 ```
 
-```python Functional API theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-from typing_extensions import Literal
-from pydantic import BaseModel
-from langchain.messages import HumanMessage, SystemMessage
-
-
-# Schema for structured output to use as routing logic
-class Route(BaseModel):
-    step: Literal["poem", "story", "joke"] = Field(
-        None, description="The next step in the routing process"
-    )
-
-
-# Augment the LLM with schema for structured output
-router = llm.with_structured_output(Route)
-
-
-@task
-def llm_call_1(input_: str):
-    """Write a story"""
-    result = llm.invoke(input_)
-    return result.content
-
-
-@task
-def llm_call_2(input_: str):
-    """Write a joke"""
-    result = llm.invoke(input_)
-    return result.content
-
-
-@task
-def llm_call_3(input_: str):
-    """Write a poem"""
-    result = llm.invoke(input_)
-    return result.content
-
-
-def llm_call_router(input_: str):
-    """Route the input to the appropriate node"""
-    # Run the augmented LLM with structured output to serve as routing logic
-    decision = router.invoke(
-        [
-            SystemMessage(
-                content="Route the input to story, joke, or poem based on the user's request."
-            ),
-            HumanMessage(content=input_),
-        ]
-    )
-    return decision.step
-
-
-# Create workflow
-@entrypoint()
-def router_workflow(input_: str):
-    next_step = llm_call_router(input_)
-    if next_step == "story":
-        llm_call = llm_call_1
-    elif next_step == "joke":
-        llm_call = llm_call_2
-    elif next_step == "poem":
-        llm_call = llm_call_3
-
-    return llm_call(input_).result()
-
-# Invoke
-stream = router_workflow.stream_events("Write me a joke about cats", version="v3")
-for snapshot in stream.values:
-    print(snapshot)
-    print("\n")
-```
-
 ## 协调者-工作者
 
 在 Orchestrator-Worker 配置中，Orchestrator：
@@ -553,7 +380,7 @@ for snapshot in stream.values:
 
 Orchestrator-worker 工作流程提供了更大的灵活性，并且通常在无法像使用 [parallelization](#parallelization) 那样预定义子任务时使用。这对于编写代码或需要跨多个文件更新内容的工作流程很常见。例如，需要跨未知数量的文档更新多个 Python 库的安装说明的工作流可能会使用此模式。
 
-```python Graph API theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from typing import Annotated, List
 import operator
 
@@ -578,85 +405,7 @@ class Sections(BaseModel):
 planner = llm.with_structured_output(Sections)
 ```
 
-```python Functional API theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-from typing import List
-
-
-# Schema for structured output to use in planning
-class Section(BaseModel):
-    name: str = Field(
-        description="Name for this section of the report.",
-    )
-    description: str = Field(
-        description="Brief overview of the main topics and concepts to be covered in this section.",
-    )
-
-
-class Sections(BaseModel):
-    sections: List[Section] = Field(
-        description="Sections of the report.",
-    )
-
-
-# Augment the LLM with schema for structured output
-planner = llm.with_structured_output(Sections)
-
-
-@task
-def orchestrator(topic: str):
-    """Orchestrator that generates a plan for the report"""
-    # Generate queries
-    report_sections = planner.invoke(
-        [
-            SystemMessage(content="Generate a plan for the report."),
-            HumanMessage(content=f"Here is the report topic: {topic}"),
-        ]
-    )
-
-    return report_sections.sections
-
-
-@task
-def llm_call(section: Section):
-    """Worker writes a section of the report"""
-
-    # Generate section
-    result = llm.invoke(
-        [
-            SystemMessage(content="Write a report section."),
-            HumanMessage(
-                content=f"Here is the section name: {section.name} and description: {section.description}"
-            ),
-        ]
-    )
-
-    # Write the updated section to completed sections
-    return result.content
-
-
-@task
-def synthesizer(completed_sections: list[str]):
-    """Synthesize full report from sections"""
-    final_report = "\n\n---\n\n".join(completed_sections)
-    return final_report
-
-
-@entrypoint()
-def orchestrator_worker(topic: str):
-    sections = orchestrator(topic).result()
-    section_futures = [llm_call(section) for section in sections]
-    final_report = synthesizer(
-        [section_fut.result() for section_fut in section_futures]
-    ).result()
-    return final_report
-
-# Invoke
-report = orchestrator_worker.invoke("Create a report on LLM scaling laws")
-from IPython.display import Markdown
-Markdown(report)
-```
-
-### 在LangGraph创建工人Orchestrator-worker 工作流程很常见，LangGraph 内置了对它们的支持。 `Send` API 允许您动态创建工作节点并向它们发送特定输入。每个工作人员都有自己的状态，所有工作人员输出都写入编排器图可访问的共享状态键。这使协调器可以访问所有工作输出，并允许将它们合成为最终输出。下面的示例迭代部分列表，并使用 `Send` API 将部分发送给每个工作人员。
+### 在LangGraph中创建工人Orchestrator-worker 工作流程很常见，LangGraph 内置了对它们的支持。 `Send` API 允许您动态创建工作节点并向它们发送特定输入。每个工作人员都有自己的状态，所有工作人员输出都写入编排器图可访问的共享状态键。这使协调器可以访问所有工作输出，并允许将它们合成为最终输出。下面的示例迭代部分列表，并使用 `Send` API 将部分发送给每个工作人员。
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from langgraph.types import Send
@@ -767,7 +516,7 @@ Markdown(state["final_report"])
 
 当任务有特定的成功标准，但需要迭代才能满足该标准时，通常会使用评估器-优化器工作流程。例如，在两种语言之间翻译文本时并不总是存在完美匹配。可能需要几次迭代才能生成两种语言具有相同含义的翻译。
 
-![evaluator\_optimizer.png](https://mintcdn.com/langchain-5e9cc07a/-_xGPoyjhyiDWTPJ/oss/images/evaluator_optimizer.png?fit=max\&auto=format\&n=-_xGPoyjhyiDWTPJ\&q=85\&s=9bd0474f42b6040b14ed6968a9ab4e3c)```python Graph API theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+![evaluator\_optimizer.png](https://mintcdn.com/langchain-5e9cc07a/-_xGPoyjhyiDWTPJ/oss/images/evaluator_optimizer.png?fit=max\&auto=format\&n=-_xGPoyjhyiDWTPJ\&q=85\&s=9bd0474f42b6040b14ed6968a9ab4e3c)```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 # Graph state
 class State(TypedDict):
     joke: str
@@ -850,59 +599,6 @@ state = optimizer_workflow.invoke({"topic": "Cats"})
 print(state["joke"])
 ```
 
-```python Functional API theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-# Schema for structured output to use in evaluation
-class Feedback(BaseModel):
-    grade: Literal["funny", "not funny"] = Field(
-        description="Decide if the joke is funny or not.",
-    )
-    feedback: str = Field(
-        description="If the joke is not funny, provide feedback on how to improve it.",
-    )
-
-
-# Augment the LLM with schema for structured output
-evaluator = llm.with_structured_output(Feedback)
-
-
-# Nodes
-@task
-def llm_call_generator(topic: str, feedback: Feedback):
-    """LLM generates a joke"""
-    if feedback:
-        msg = llm.invoke(
-            f"Write a joke about {topic} but take into account the feedback: {feedback}"
-        )
-    else:
-        msg = llm.invoke(f"Write a joke about {topic}")
-    return msg.content
-
-
-@task
-def llm_call_evaluator(joke: str):
-    """LLM evaluates the joke"""
-    feedback = evaluator.invoke(f"Grade the joke {joke}")
-    return feedback
-
-
-@entrypoint()
-def optimizer_workflow(topic: str):
-    feedback = None
-    while True:
-        joke = llm_call_generator(topic, feedback).result()
-        feedback = llm_call_evaluator(joke).result()
-        if feedback.grade == "funny":
-            break
-
-    return joke
-
-# Invoke
-stream = optimizer_workflow.stream_events("Cats", version="v3")
-for snapshot in stream.values:
-    print(snapshot)
-    print("\n")
-```
-
 ## 代理
 
 代理通常被实现为使用 [tools](/oss/python/langchain/tools) 执行操作的 LLM。它们在连续反馈循环中运行，并用于问题和解决方案不可预测的情况。代理比工作流程拥有更多的自主权，可以决定他们使用的工具以及如何解决问题。您仍然可以定义可用的工具集和代理行为准则。
@@ -957,7 +653,7 @@ tools_by_name = {tool.name: tool for tool in tools}
 llm_with_tools = llm.bind_tools(tools)
 ```
 
-```python Graph API theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from langgraph.graph import MessagesState
 from langchain.messages import SystemMessage, HumanMessage, ToolMessage
 
@@ -1035,68 +731,11 @@ for m in messages["messages"]:
     m.pretty_print()
 ```
 
-```python Functional API theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-from langgraph.graph import add_messages
-from langchain.messages import (
-    SystemMessage,
-    HumanMessage,
-    ToolCall,
-)
-from langchain_core.messages import BaseMessage
-
-
-@task
-def call_llm(messages: list[BaseMessage]):
-    """LLM decides whether to call a tool or not"""
-    return llm_with_tools.invoke(
-        [
-            SystemMessage(
-                content="You are a helpful assistant tasked with performing arithmetic on a set of inputs."
-            )
-        ]
-        + messages
-    )
-
-
-@task
-def call_tool(tool_call: ToolCall):
-    """Performs the tool call"""
-    tool = tools_by_name[tool_call["name"]]
-    return tool.invoke(tool_call)
-
-
-@entrypoint()
-def agent(messages: list[BaseMessage]):
-    llm_response = call_llm(messages).result()
-
-    while True:
-        if not llm_response.tool_calls:
-            break
-
-        # Execute tools
-        tool_result_futures = [
-            call_tool(tool_call) for tool_call in llm_response.tool_calls
-        ]
-        tool_results = [fut.result() for fut in tool_result_futures]
-        messages = add_messages(messages, [llm_response, *tool_results])
-        llm_response = call_llm(messages).result()
-
-    messages = add_messages(messages, llm_response)
-    return messages
-
-# Invoke
-messages = [HumanMessage(content="Add 3 and 4.")]
-stream = agent.stream_events(messages, version="v3")
-for snapshot in stream.values:
-    print(snapshot)
-    print("\n")
-```
-
 ### 工具节点
 
-[⟦T21⟧](https://reference.langchain.com/python/langgraph/agents/#langgraph.prebuilt.tool_node.ToolNode) 是一个预构建节点，用于执行 LangGraph 工作流程中的工具。它自动处理并行工具执行、错误处理和状态注入。
+[⟦T15⟧](https://reference.langchain.com/python/langgraph/agents/#langgraph.prebuilt.tool_node.ToolNode) 是一个预构建节点，用于执行 LangGraph 工作流程中的工具。它自动处理并行工具执行、错误处理和状态注入。
 
-当您需要对图形执行工具的方式进行细粒度控制时，请使用[⟦T22⟧](https://reference.langchain.com/python/langgraph/agents/#langgraph.prebuilt.tool_node.ToolNode)。这是在许多 LangGraph 代理模式中为工具执行提供支持的构建块。
+当您需要对图形执行工具的方式进行细粒度控制时，请使用[⟦T16⟧](https://reference.langchain.com/python/langgraph/agents/#langgraph.prebuilt.tool_node.ToolNode)。这是在许多 LangGraph 代理模式中为工具执行提供支持的构建块。
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from langchain.tools import tool
@@ -1124,16 +763,16 @@ graph = builder.compile()
 由`ToolNode`执行的工具接收模型生成的参数：
 他们的第一个论点。读取不是由生成的图端数据
 模型，使用以下选项之一：* 在Python中，从注入的状态和运行范围的上下文中读取
-  [⟦T24⟧](https://reference.langchain.com/python/langchain/tools/#langchain.tools.ToolRuntime) 论证。
+  [⟦T18⟧](https://reference.langchain.com/python/langchain/tools/#langchain.tools.ToolRuntime) 论证。
 * 在 JavaScript 中，从工具的第二个读取状态和运行范围上下文
-  参数，类型为 [⟦T25⟧](https://reference.langchain.com/python/langchain/tools/#langchain.tools.ToolRuntime)。
+  参数，类型为 [⟦T19⟧](https://reference.langchain.com/python/langchain/tools/#langchain.tools.ToolRuntime)。
 
 > [!注意]
 >
 > 工具只能访问传递给`ToolNode` 的状态值。当
 > `ToolNode` 直接添加为 `StateGraph` 节点，输入为当前
 > 图形状态。如果您从另一个节点手动调用 `ToolNode`，请传递
-> 当工具需要自定义状态字段时的完整状态。例如`tool_node.invoke(state)`
+> 当工具需要自定义状态字段时的完整状态。例如，`tool_node.invoke(state)`
 > 或 `toolNode.invoke(state, config)` 公开完整状态，同时仅传递
 > `{"messages": state["messages"]}` 或 `{ messages: state.messages }` 仅暴露
 > `messages`。

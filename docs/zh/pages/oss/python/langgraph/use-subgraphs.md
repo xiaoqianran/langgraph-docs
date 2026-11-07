@@ -29,7 +29,7 @@ uv add langgraph
 
 ## 定义子图通信
 
-添加子图时，需要定义父图和子图如何通信：|图案|何时使用 |状态模式|
+添加子图时，需要定义父图和子图如何通信：|图案|何时使用 |状态模式 |
 | - | - | - |
 | [Call a subgraph inside a node](#call-a-subgraph-inside-a-node) |父图和子图具有**不同的状态模式**（没有共享密钥），或者您需要在它们之间转换状态 |您编写一个包装函数，将父状态映射到子图输入，并将子图输出映射回父状态 |
 | [Add a subgraph as a node](#add-a-subgraph-as-a-node) |父图和子图 **共享状态键** - 子图与父图读取和写入相同的通道 |您将编译后的子图直接传递给`add_node`——无需包装函数 |
@@ -360,13 +360,13 @@ def veggie_info(veggie_name: str) -> str:
 fruit_agent = create_agent(
     model="gpt-5.4-mini",
     tools=[fruit_info],
-    prompt="You are a fruit expert. Use the fruit_info tool. Respond in one sentence.",
+    system_prompt="You are a fruit expert. Use the fruit_info tool. Respond in one sentence.",
 )
 
 veggie_agent = create_agent(
     model="gpt-5.4-mini",
     tools=[veggie_info],
-    prompt="You are a veggie expert. Use the veggie_info tool. Respond in one sentence.",
+    system_prompt="You are a veggie expert. Use the veggie_info tool. Respond in one sentence.",
 )
 
 # Wrap subagents as tools for the outer agent
@@ -390,7 +390,7 @@ def ask_veggie_expert(question: str) -> str:
 agent = create_agent(
     model="gpt-5.4-mini",
     tools=[ask_fruit_expert, ask_veggie_expert],
-    prompt=(
+    system_prompt=(
         "You have two experts: ask_fruit_expert and ask_veggie_expert. "
         "ALWAYS delegate questions to the appropriate expert."
     ),
@@ -455,7 +455,7 @@ agent = create_agent(
 
 > [tab] 多个子图调用
 >
-> 对同一子图的多次调用不会发生冲突，因为每次调用都有自己的检查点命名空间：
+> 对同一子图的多次调用不会发生冲突，因为每次调用都有自己的检查点名称空间：
 >
 > ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > config = {"configurable": {"thread_id": "1"}}
@@ -497,7 +497,7 @@ def fruit_info(fruit_name: str) -> str:
 fruit_agent = create_agent(
     model="gpt-5.4-mini",
     tools=[fruit_info],
-    prompt="You are a fruit expert. Use the fruit_info tool. Respond in one sentence.",
+    system_prompt="You are a fruit expert. Use the fruit_info tool. Respond in one sentence.",
     checkpointer=True,  # [!code highlight]
 )
 
@@ -516,7 +516,7 @@ def ask_fruit_expert(question: str) -> str:
 agent = create_agent(
     model="gpt-5.4-mini",
     tools=[ask_fruit_expert],
-    prompt="You have a fruit expert. ALWAYS delegate fruit questions to ask_fruit_expert.",
+    system_prompt="You have a fruit expert. ALWAYS delegate fruit questions to ask_fruit_expert.",
     middleware=[  # [!code highlight]
         ToolCallLimitMiddleware(tool_name="ask_fruit_expert", run_limit=1),  # [!code highlight]
     ],  # [!code highlight]
@@ -600,11 +600,11 @@ agent = create_agent(
 >
 > fruit_agent = create_sub_agent(
 >     "gpt-5.4-mini", name="fruit_agent",
->     tools=[fruit_info], prompt="...", checkpointer=True,
+>     tools=[fruit_info], system_prompt="...", checkpointer=True,
 > )
 > veggie_agent = create_sub_agent(
 >     "gpt-5.4-mini", name="veggie_agent",
->     tools=[veggie_info], prompt="...", checkpointer=True,
+>     tools=[veggie_info], system_prompt="...", checkpointer=True,
 > )
 >
 > config = {"configurable": {"thread_id": "1"}}

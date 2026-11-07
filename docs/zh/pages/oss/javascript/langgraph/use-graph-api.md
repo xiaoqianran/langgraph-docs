@@ -6,7 +6,7 @@
 
 使用 Graph API 构建时决定状态、控制流、发送、命令和节点选项。
 
-本指南将逐步介绍您在构建图表时做出的决策。有关安装和端到端代理示例，请参阅[LangGraph quickstart](/oss/javascript/langgraph/quickstart)。有关设计演练，请参阅[Thinking in the Graph API](/oss/javascript/langgraph/thinking-in-graph-api)。有关概念，请参阅[Graph API overview](/oss/javascript/langgraph/graph-api)。要在图形 API 和功能 API 之间进行选择，请参阅[Choosing between Graph and Functional APIs](/oss/javascript/langgraph/choosing-apis)。
+本指南将逐步介绍您在构建图表时做出的决策。有关安装和端到端代理示例，请参阅[LangGraph quickstart](/oss/javascript/langgraph/quickstart)。有关设计演练，请参阅[Thinking in the Graph API](/oss/javascript/langgraph/thinking-in-graph-api)。有关概念，请参阅[Graph API overview](/oss/javascript/langgraph/graph-api)。
 
 ## 构建你的图表
 
@@ -90,7 +90,7 @@ await graph.invoke({ number: 7 });
 当默认模型不够时，可以使用额外的功能：
 
 * 当您必须为每个项目运行一次相同的节点，每个项目都有自己的输入，并且项目计数仅在运行时（map-reduce / Orchestrator-worker）时才知道时，请使用[⟦T9⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/Send)。
-* 当一个步骤必须既更新状态又选择下一个节点、在 [interrupt](/oss/javascript/langgraph/interrupts) 之后恢复或从工具更新状态时，请使用[⟦T10⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/Command)。
+* 当一个步骤必须更新状态并选择下一个节点、在 [interrupt](/oss/javascript/langgraph/interrupts) 之后恢复或从工具更新状态时，请使用 [⟦T10⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/Command)。
 
 ```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { Command, Send } from "@langchain/langgraph";
@@ -151,7 +151,6 @@ console.log(drawableGraph.drawMermaid());
 * [Configure nodes](/oss/javascript/langgraph/graph-api-nodes)
 * [Visualize your graph](/oss/javascript/langgraph/graph-api-visualize)
 * [LangGraph quickstart](/oss/javascript/langgraph/quickstart)：端到端计算器代理
-* [Choosing between Graph and Functional APIs](/oss/javascript/langgraph/choosing-apis)
 
 ***
 

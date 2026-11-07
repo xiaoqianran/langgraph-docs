@@ -71,12 +71,6 @@
           "rel": "oss/javascript/langgraph/checkpointers.md"
         }
       ],
-      "choosing-apis": [
-        {
-          "title": "Choosing between Graph and Functional APIs",
-          "rel": "oss/javascript/langgraph/choosing-apis.md"
-        }
-      ],
       "deploy": [
         {
           "title": "Deployment",
@@ -113,36 +107,6 @@
         {
           "title": "Functional API overview",
           "rel": "oss/javascript/langgraph/functional-api.md"
-        }
-      ],
-      "functional-api-human-in-the-loop": [
-        {
-          "title": "Add human-in-the-loop with the Functional API",
-          "rel": "oss/javascript/langgraph/functional-api-human-in-the-loop.md"
-        }
-      ],
-      "functional-api-memory": [
-        {
-          "title": "Add memory with the Functional API",
-          "rel": "oss/javascript/langgraph/functional-api-memory.md"
-        }
-      ],
-      "functional-api-streaming": [
-        {
-          "title": "Stream with the Functional API",
-          "rel": "oss/javascript/langgraph/functional-api-streaming.md"
-        }
-      ],
-      "functional-api-tasks": [
-        {
-          "title": "Configure Functional API tasks",
-          "rel": "oss/javascript/langgraph/functional-api-tasks.md"
-        }
-      ],
-      "functional-api-workflows": [
-        {
-          "title": "Compose Functional API workflows",
-          "rel": "oss/javascript/langgraph/functional-api-workflows.md"
         }
       ],
       "graph-api": [
@@ -253,12 +217,6 @@
           "rel": "oss/javascript/langgraph/test.md"
         }
       ],
-      "thinking-in-functional-api": [
-        {
-          "title": "Thinking in the Functional API",
-          "rel": "oss/javascript/langgraph/thinking-in-functional-api.md"
-        }
-      ],
       "thinking-in-graph-api": [
         {
           "title": "Thinking in the Graph API",
@@ -269,12 +227,6 @@
         {
           "title": "Agent Chat UI",
           "rel": "oss/javascript/langgraph/ui.md"
-        }
-      ],
-      "use-functional-api": [
-        {
-          "title": "Build checklist for the Functional API",
-          "rel": "oss/javascript/langgraph/use-functional-api.md"
         }
       ],
       "use-graph-api": [
@@ -391,12 +343,6 @@
           "rel": "oss/python/langgraph/checkpointers.md"
         }
       ],
-      "choosing-apis": [
-        {
-          "title": "Choosing between Graph and Functional APIs",
-          "rel": "oss/python/langgraph/choosing-apis.md"
-        }
-      ],
       "deploy": [
         {
           "title": "Deployment",
@@ -433,36 +379,6 @@
         {
           "title": "Functional API overview",
           "rel": "oss/python/langgraph/functional-api.md"
-        }
-      ],
-      "functional-api-human-in-the-loop": [
-        {
-          "title": "Add human-in-the-loop with the Functional API",
-          "rel": "oss/python/langgraph/functional-api-human-in-the-loop.md"
-        }
-      ],
-      "functional-api-memory": [
-        {
-          "title": "Add memory with the Functional API",
-          "rel": "oss/python/langgraph/functional-api-memory.md"
-        }
-      ],
-      "functional-api-streaming": [
-        {
-          "title": "Stream with the Functional API",
-          "rel": "oss/python/langgraph/functional-api-streaming.md"
-        }
-      ],
-      "functional-api-tasks": [
-        {
-          "title": "Configure Functional API tasks",
-          "rel": "oss/python/langgraph/functional-api-tasks.md"
-        }
-      ],
-      "functional-api-workflows": [
-        {
-          "title": "Compose Functional API workflows",
-          "rel": "oss/python/langgraph/functional-api-workflows.md"
         }
       ],
       "graph-api": [
@@ -573,12 +489,6 @@
           "rel": "oss/python/langgraph/test.md"
         }
       ],
-      "thinking-in-functional-api": [
-        {
-          "title": "Thinking in the Functional API",
-          "rel": "oss/python/langgraph/thinking-in-functional-api.md"
-        }
-      ],
       "thinking-in-graph-api": [
         {
           "title": "Thinking in the Graph API",
@@ -589,12 +499,6 @@
         {
           "title": "Agent Chat UI",
           "rel": "oss/python/langgraph/ui.md"
-        }
-      ],
-      "use-functional-api": [
-        {
-          "title": "Build checklist for the Functional API",
-          "rel": "oss/python/langgraph/use-functional-api.md"
         }
       ],
       "use-graph-api": [
@@ -647,6 +551,10 @@
       ],
       "python": [
         {
+          "title": "langgraph.checkpoint",
+          "rel": "reference/python/langgraph.checkpoint.md"
+        },
+        {
           "title": "langgraph.store",
           "rel": "reference/python/langgraph.store.md"
         },
@@ -655,16 +563,24 @@
           "rel": "reference/python/langgraph.store.postgres.md"
         },
         {
-          "title": "langgraph.checkpoint",
-          "rel": "reference/python/langgraph.checkpoint.md"
+          "title": "langgraph.checkpoint.sqlite",
+          "rel": "reference/python/langgraph.checkpoint.sqlite.md"
+        },
+        {
+          "title": "langgraph.prebuilt",
+          "rel": "reference/python/langgraph.prebuilt.md"
+        },
+        {
+          "title": "langgraph_supervisor",
+          "rel": "reference/python/langgraph-supervisor.md"
         },
         {
           "title": "langgraph.checkpoint.postgres",
           "rel": "reference/python/langgraph.checkpoint.postgres.md"
         },
         {
-          "title": "langgraph.prebuilt",
-          "rel": "reference/python/langgraph.prebuilt.md"
+          "title": "langgraph_swarm",
+          "rel": "reference/python/langgraph-swarm.md"
         },
         {
           "title": "langgraph_cli",
@@ -673,18 +589,6 @@
         {
           "title": "langgraph_sdk",
           "rel": "reference/python/langgraph-sdk.md"
-        },
-        {
-          "title": "langgraph_supervisor",
-          "rel": "reference/python/langgraph-supervisor.md"
-        },
-        {
-          "title": "langgraph_swarm",
-          "rel": "reference/python/langgraph-swarm.md"
-        },
-        {
-          "title": "langgraph.checkpoint.sqlite",
-          "rel": "reference/python/langgraph.checkpoint.sqlite.md"
         }
       ]
     }
@@ -699,40 +603,40 @@
           "rel": "reference/javascript/langchain-langgraph.md"
         },
         {
-          "title": "@langchain/langgraph-checkpoint",
-          "rel": "reference/javascript/langchain-langgraph-checkpoint.md"
-        },
-        {
-          "title": "@langchain/langgraph-checkpoint-postgres",
-          "rel": "reference/javascript/langchain-langgraph-checkpoint-postgres.md"
-        },
-        {
-          "title": "@langchain/langgraph-checkpoint-redis",
-          "rel": "reference/javascript/langchain-langgraph-checkpoint-redis.md"
+          "title": "@langchain/langgraph-sdk",
+          "rel": "reference/javascript/langchain-langgraph-sdk.md"
         },
         {
           "title": "@langchain/langgraph-checkpoint-mongodb",
           "rel": "reference/javascript/langchain-langgraph-checkpoint-mongodb.md"
         },
         {
-          "title": "@langchain/langgraph-sdk",
-          "rel": "reference/javascript/langchain-langgraph-sdk.md"
-        },
-        {
           "title": "@langchain/langgraph-checkpoint-validation",
           "rel": "reference/javascript/langchain-langgraph-checkpoint-validation.md"
         },
         {
-          "title": "@langchain/langgraph-cua",
-          "rel": "reference/javascript/langchain-langgraph-cua.md"
+          "title": "@langchain/langgraph-checkpoint-sqlite",
+          "rel": "reference/javascript/langchain-langgraph-checkpoint-sqlite.md"
         },
         {
-          "title": "@langchain/langgraph-cli",
-          "rel": "reference/javascript/langchain-langgraph-cli.md"
+          "title": "@langchain/langgraph-checkpoint-redis",
+          "rel": "reference/javascript/langchain-langgraph-checkpoint-redis.md"
+        },
+        {
+          "title": "@langchain/langgraph-checkpoint-postgres",
+          "rel": "reference/javascript/langchain-langgraph-checkpoint-postgres.md"
+        },
+        {
+          "title": "@langchain/langgraph-checkpoint",
+          "rel": "reference/javascript/langchain-langgraph-checkpoint.md"
         },
         {
           "title": "@langchain/langgraph-api",
           "rel": "reference/javascript/langchain-langgraph-api.md"
+        },
+        {
+          "title": "@langchain/langgraph-cli",
+          "rel": "reference/javascript/langchain-langgraph-cli.md"
         },
         {
           "title": "@langchain/langgraph-supervisor",
@@ -743,8 +647,8 @@
           "rel": "reference/javascript/langchain-langgraph-swarm.md"
         },
         {
-          "title": "@langchain/langgraph-checkpoint-sqlite",
-          "rel": "reference/javascript/langchain-langgraph-checkpoint-sqlite.md"
+          "title": "@langchain/langgraph-cua",
+          "rel": "reference/javascript/langchain-langgraph-cua.md"
         }
       ]
     }
