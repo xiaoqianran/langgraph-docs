@@ -4,7 +4,7 @@
 
 # 定义和更新状态
 
-在 LangGraph Graph API 中定义图状态模式、reducers、消息和私有状态。
+在 LangGraph Graph API 中定义图状态模式、reducer、消息和私有状态。
 
 [State](/oss/javascript/langgraph/graph-api#state)是节点读写的共享模式。 [Reducers](/oss/javascript/langgraph/graph-api#reducers) 控制每次更新如何合并到当前值。此页面涵盖：
 
@@ -13,7 +13,7 @@
 
 ## 定义状态
 
-LangGraph 中的[State](/oss/javascript/langgraph/graph-api#state) 是用`StateSchema` 类定义的。它接受各个字段的 [standard schemas](https://standardschema.dev/)（例如 [Zod](https://zod.dev/)），以及 `ReducedValue`、`MessagesValue` 和 `UntrackedValue` 等值类型。与 [legacy alternatives](#alternative-state-definitions) 相比，更喜欢 `StateSchema`。
+LangGraph中的[State](/oss/javascript/langgraph/graph-api#state)是用`StateSchema`类定义的。它接受单个字段的 [standard schemas](https://standardschema.dev/)（例如 [Zod](https://zod.dev/)），以及 `ReducedValue`、`MessagesValue` 和 `UntrackedValue` 等值类型。与 [legacy alternatives](#alternative-state-definitions) 相比，更喜欢 `StateSchema`。
 
 默认情况下，图使用相同的模式进行输入和输出，并且状态决定该模式。有关不同的输入和输出模式，请参阅[Define input and output schemas](#define-input-and-output-schemas)。
 
@@ -33,7 +33,7 @@ const State = new StateSchema({
 
 ## 更新状态
 
-使用单个[node](/oss/javascript/langgraph/graph-api#nodes)构建一个图。该节点是一个 TypeScript 函数，用于读取图形状态并返回更新。第一个参数始终是状态：
+使用单个 [node](/oss/javascript/langgraph/graph-api#nodes) 构建图表。该节点是一个 TypeScript 函数，用于读取图形状态并返回更新。第一个参数始终是状态：
 
 ```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { AIMessage } from "@langchain/core/messages";
@@ -60,7 +60,7 @@ const graph = new StateGraph(State)
   .compile();
 ```
 
-LangGraph 提供用于可视化图形的内置实用程序。详情请参见[Visualize your graph](/oss/javascript/langgraph/graph-api-visualize)。
+LangGraph 提供用于可视化图形的内置实用程序。详情请参阅[Visualize your graph](/oss/javascript/langgraph/graph-api-visualize)。
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import * as fs from "node:fs/promises";
@@ -339,11 +339,11 @@ const replaceMessages = () => {
 
 > [!警告]
 >
-> 当节点并行执行时，只有一个节点可以在给定超级步骤中的同一状态键上使用`Overwrite`。如果多个节点尝试在同一个超级步骤中覆盖相同的密钥，则会引发`InvalidUpdateError`。
+> 当节点并行执行时，只有一个节点可以在给定超级步骤中的同一状态键上使用`Overwrite`。如果多个节点尝试在同一个超级步骤中覆盖相同的密钥，则会引发`InvalidUpdateError`。 `Overwrite` 还会丢弃其他节点在该超级步骤中写入同一密钥的定期更新。密钥最终只有 `Overwrite` 值。
 
-## 定义输入和输出模式
+## 定义输入和输出模式默认情况下，`StateGraph` 使用单个模式运行，所有节点都使用该模式进行通信。您还可以定义不同的输入和输出模式。
 
-默认情况下，`StateGraph` 使用单个模式运行，所有节点都使用该模式进行通信。您还可以定义不同的输入和输出模式。当指定不同的模式时，内部模式仍然用于节点之间的通信。输入模式验证提供的输入。输出模式会过滤内部数据，因此 `invoke` 仅返回输出模式中的字段。
+当指定不同的模式时，内部模式仍然用于节点之间的通信。输入模式验证提供的输入。输出模式会过滤内部数据，因此 `invoke` 仅返回输出模式中的字段。
 
 定义不同的输入和输出模式：
 
@@ -474,7 +474,7 @@ Output of graph invocation: {"a":"set by node3"}
 
 ## 私人频道和流媒体
 
-输入、输出和私有模式限制每个节点读取的内容和`invoke`返回的内容。他们**不会**隐藏[streaming](/oss/javascript/langgraph/streaming)的频道。默认情况下，值流会发出**所有**状态通道，包括私有通道。这适用于从 [event streaming](/oss/javascript/langgraph/event-streaming)（`stream_events` / `streamEvents` 和 `version="v3"`）到 `graph.stream` 的值投影（`stream.values` 与 `stream_mode="values"` / `streamMode: "values"`）。值流使用完整状态，而不是输出模式。 `invoke` 输出中可能缺少专用频道，但在流中可见。
+输入、输出和私有模式限制每个节点读取的内容和 `invoke` 返回的内容。他们**不会**隐藏[streaming](/oss/javascript/langgraph/streaming)的频道。默认情况下，值流会发出**所有**状态通道，包括私有通道。这适用于从 [event streaming](/oss/javascript/langgraph/event-streaming)（`stream_events` / `streamEvents` 和 `version="v3"`）到 `graph.stream` 的值投影（`stream.values` 和 `stream_mode="values"` / `streamMode: "values"`）。值流使用完整状态，而不是输出模式。 `invoke` 输出中可能会缺少专用通道，但在流中可见。
 
 此示例使用不同的输入、输出、整体和私有模式。 `invoke` 仅返回输出模式：
 

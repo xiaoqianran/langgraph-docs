@@ -77,7 +77,7 @@ LangGraph provides the runtime primitives for stateful, long-running workflows. 
 
 ## Integrations, deployment, and observability
 
-LangGraph works on its own. However, you can also pair it with other LangCHain products:
+LangGraph works on its own. However, you can also pair it with other LangChain products:
 
 > [card] [LangChain](/oss/javascript/langchain/overview)
 >

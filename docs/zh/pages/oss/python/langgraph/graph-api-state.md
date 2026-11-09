@@ -4,7 +4,7 @@
 
 # 定义和更新状态
 
-在 LangGraph Graph API 中定义图状态模式、reducers、消息和私有状态。
+在 LangGraph Graph API 中定义图状态模式、reducer、消息和私有状态。
 
 [State](/oss/python/langgraph/graph-api#state)是节点读写的共享模式。 [Reducers](/oss/python/langgraph/graph-api#reducers) 控制每次更新如何合并到当前值。此页面涵盖：
 
@@ -43,13 +43,13 @@ def node(state: State):
     messages = state["messages"]
     new_message = AIMessage("Hello!")
     return {"messages": messages + [new_message], "extra_field": 10}
-```该节点通过连接返回值（还没有减速器）来附加消息并设置 `extra_field`。
+```该节点通过连接返回值（还没有减速器）来附加消息并设置`extra_field`。
 
 > [!警告]
 >
 > 节点应该直接返回状态更新，而不是改变状态。
 
-使用此节点定义一个简单的图。对于在此状态下运行的图使用 [⟦T40⟧](/oss/python/langgraph/graph-api#stategraph)，然后使用 [⟦T41⟧](/oss/python/langgraph/graph-api#nodes) 填充该图：
+使用此节点定义一个简单的图。使用 [⟦T40⟧](/oss/python/langgraph/graph-api#stategraph) 作为在此状态下运行的图，然后使用 [⟦T41⟧](/oss/python/langgraph/graph-api#nodes) 填充该图：
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from langgraph.graph import StateGraph
@@ -97,7 +97,7 @@ result
 * 通过更新状态的单个键开始调用。
 * 调用结果包含整个状态。
 
-检查带有漂亮打印的 [message](/oss/python/langchain/messages) 内容：
+检查 [message](/oss/python/langchain/messages) 带有漂亮打印的内容：
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 for message in result["messages"]:
@@ -117,7 +117,7 @@ Hello!
 
 状态中的每个键都可以有自己的[reducer](/oss/python/langgraph/graph-api#reducers)函数，该函数控制如何应用节点的更新。如果未指定reducer，则对该键的更新将替换以前的值。
 
-对于`TypedDict`状态模式，通过使用reducer函数注释字段来定义reducers。
+对于`TypedDict`状态模式，通过使用reducer函数注释字段来定义reducer。
 
 在前面的示例中，节点通过返回完整的串联列表来更新`"messages"`。添加一个减速器，以便自动附加更新：
 
@@ -205,7 +205,7 @@ Hi
 Hello!
 ```
 
-此形状适合使用 [chat models](/oss/python/langchain/models) 的应用。为了方便起见，对预构建的 `MessagesState` 进行子类化：
+此形状适合使用[chat models](/oss/python/langchain/models)的应用。为了方便起见，对预构建的 `MessagesState` 进行子类化：
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from langgraph.graph import MessagesState
@@ -256,7 +256,7 @@ def clear_errors(state: State):
     return {"errors": Overwrite([])}
 ```
 
-欲了解更多信息，请参阅[Bypass reducers with Overwrite](#bypass-reducers-with-overwrite)。
+有关更多信息，请参阅[Bypass reducers with Overwrite](#bypass-reducers-with-overwrite)。
 
 ## 带有 `Overwrite` 的旁路减速器
 
@@ -311,13 +311,13 @@ def replace_messages(state: State):
 
 > [!警告]
 >
-> 当节点并行执行时，只有一个节点可以在给定超级步骤中的同一状态键上使用`Overwrite`。如果多个节点尝试在同一个超级步骤中覆盖相同的密钥，则会引发`InvalidUpdateError`。
+> 当节点并行执行时，只有一个节点可以在给定超级步骤中的同一状态键上使用`Overwrite`。如果多个节点尝试在同一个超级步骤中覆盖相同的密钥，则会引发`InvalidUpdateError`。 `Overwrite` 还会丢弃其他节点在该超级步骤中写入同一密钥的定期更新。密钥最终只有 `Overwrite` 值。
 
 ## 定义输入和输出模式
 
 默认情况下，`StateGraph` 使用单个模式运行，所有节点都使用该模式进行通信。您还可以定义不同的输入和输出模式。
 
-当指定不同的模式时，内部模式仍然用于节点之间的通信。输入模式验证提供的输入。输出模式会过滤内部数据，因此 `invoke` 仅返回输出模式中的字段。
+当指定不同的模式时，内部模式仍然用于节点之间的通信。输入模式验证提供的输入。输出模式过滤内部数据，因此 `invoke` 仅返回输出模式中的字段。
 
 定义不同的输入和输出模式：
 
@@ -362,9 +362,9 @@ print(graph.invoke({"question": "hi"}))
 {'answer': 'bye'}
 ```
 
-请注意，invoke 的输出仅包括输出模式。
+请注意，invoke 的输出仅包括输出模式。## 在节点之间传递私有状态
 
-## 在节点之间传递私有状态节点有时需要不应出现在图的主输入或输出模式中的中间数据。保持该数据的私密性，以便只有需要它的节点才能读取它。
+节点有时需要不应出现在图的主输入或输出模式中的中间数据。保持该数据的私密性，以便只有需要它的节点才能读取它。
 
 以下顺序图具有三个节点。私有数据在前两个步骤之间传递。第三步只看公众整体状态。
 
@@ -444,7 +444,7 @@ Output of graph invocation: {'a': 'set by node_3'}
 
 输入、输出和私有模式限制每个节点读取的内容和`invoke`返回的内容。他们**不会**隐藏[streaming](/oss/python/langgraph/streaming)的频道。
 
-默认情况下，值流会发出**所有**状态通道，包括私有通道。这适用于从 [event streaming](/oss/python/langgraph/event-streaming)（`stream_events` / `streamEvents` 与 `version="v3"`）到 `graph.stream` 的值投影（`stream.values` 与 `stream_mode="values"` / `streamMode: "values"`）。值流使用完整状态，而不是输出模式。 `invoke` 输出中可能会缺少专用通道，但在流中可见。
+默认情况下，值流会发出**所有**状态通道，包括私有通道。这适用于从 [event streaming](/oss/python/langgraph/event-streaming)（`stream_events` / `streamEvents` 和 `version="v3"`）到 `graph.stream` 的值投影（`stream_events` / `streamEvents` 上的`stream.values` 和 `stream_mode="values"` / `streamMode: "values"`）。值流使用完整状态，而不是输出模式。 `invoke` 输出中可能会缺少专用通道，但在流中可见。
 
 此示例使用不同的输入、输出、整体和私有模式。 `invoke` 仅返回输出模式：
 
@@ -501,7 +501,7 @@ graph.invoke({"user_input": "My"})
 # {'graph_output': 'My name is Lance'}
 ```
 
-> [卡片][View example trace](https://smith.langchain.com/public/370fbbfd-be69-4403-8123-716a0c2c9be6/r)
+> [卡][View example trace](https://smith.langchain.com/public/370fbbfd-be69-4403-8123-716a0c2c9be6/r)
 >
 > 为此示例打开公共 LangSmith 运行。
 
@@ -515,11 +515,11 @@ for snapshot in stream.values:
 # {'foo': 'My name', 'user_input': 'My'}
 # {'foo': 'My name', 'user_input': 'My', 'bar': 'My name is'}        # <-- private channel
 # {'foo': 'My name', 'user_input': 'My', 'graph_output': 'My name is Lance', 'bar': 'My name is'}
-```
-
-> [卡片][View example trace](https://smith.langchain.com/public/7d0325bb-3a2a-425f-a551-a636b297d0fb/r)
+```> [卡][View example trace](https://smith.langchain.com/public/7d0325bb-3a2a-425f-a551-a636b297d0fb/r)
 >
-> 为此示例打开公共 LangSmith 运行。要将流式值限制到特定通道（例如，仅输出模式），请将 `output_keys` 传递到 `graph.stream`：
+> 为此示例打开公共 LangSmith 运行。
+
+要将流式值限制到特定通道（例如，仅输出模式），请将 `output_keys` 传递到 `graph.stream`：
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 for snapshot in graph.stream(
@@ -535,11 +535,11 @@ for snapshot in graph.stream(
 
 ## 使用 pydantic 模型来表示图状态
 
-[StateGraph](https://reference.langchain.com/python/langgraph/graph/state/StateGraph) 接受 [⟦T70⟧](https://reference.langchain.com/python/langchain/middleware/#langchain.agents.middleware.AgentMiddleware.state_schema) 参数，该参数指定可以访问和更新的状态节点的形状。
+[StateGraph](https://reference.langchain.com/python/langgraph/graph/state/StateGraph) 接受 [⟦T72⟧](https://reference.langchain.com/python/langchain/middleware/#langchain.agents.middleware.AgentMiddleware.state_schema) 参数，该参数指定可以访问和更新的状态节点的形状。
 
-本页上的大多数示例都使用 Python 原生 `TypedDict` 或 [⟦T72⟧](https://docs.python.org/3/library/dataclasses.html) 来表示 `state_schema`。 [⟦T74⟧](https://reference.langchain.com/python/langchain/middleware/#langchain.agents.middleware.AgentMiddleware.state_schema) 可以是任意 [type](https://docs.python.org/3/library/stdtypes.html#type-objects)。
+本页上的大多数示例都使用 Python 原生 `TypedDict` 或 [⟦T74⟧](https://docs.python.org/3/library/dataclasses.html) 来表示 `state_schema`。 [⟦T76⟧](https://reference.langchain.com/python/langchain/middleware/#langchain.agents.middleware.AgentMiddleware.state_schema) 可以是任意 [type](https://docs.python.org/3/library/stdtypes.html#type-objects)。
 
-Use a [Pydantic BaseModel](https://docs.pydantic.dev/latest/api/base_model/) for [⟦T75⟧](https://reference.langchain.com/python/langchain/middleware/#langchain.agents.middleware.AgentMiddleware.state_schema) when you need runtime validation on **inputs**.
+当您需要对**输入**进行运行时验证时，请使用 [Pydantic BaseModel](https://docs.pydantic.dev/latest/api/base_model/) 代替 [⟦T77⟧](https://reference.langchain.com/python/langchain/middleware/#langchain.agents.middleware.AgentMiddleware.state_schema)。
 
 > [!注意]
 >
@@ -593,7 +593,7 @@ a
     For further information visit https://errors.pydantic.dev/2.9/v/string_type
 ```
 
-See below for additional features of Pydantic model state:> [手风琴] 序列化行为
+有关 Pydantic 模型状态的其他功能，请参阅下文：> [手风琴] 序列化行为
 >
 > 当使用 Pydantic 模型作为状态模式时，序列化尤其重要，尤其是在以下情况下：
 >
@@ -687,7 +687,7 @@ See below for additional features of Pydantic model state:> [手风琴] 序列�
 
 > [accordion] 使用消息模型
 >
-> 在状态模式中使用 LangChain 消息类型时，序列化很重要。当消息对象通过网络传输时，使用 `AnyMessage`（而不是 `BaseMessage`）进行正确的序列化和反序列化。
+> 在状态模式中使用 LangChain 消息类型时，序列化很重要。当消息对象通过网络传输时，使用`AnyMessage`（而不是`BaseMessage`）进行正确的序列化和反序列化。
 >
 > ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > from typing import List

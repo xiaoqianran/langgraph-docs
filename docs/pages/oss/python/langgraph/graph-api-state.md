@@ -315,7 +315,7 @@ def replace_messages(state: State):
 
 > [!WARNING]
 >
-> When nodes execute in parallel, only one node can use `Overwrite` on the same state key in a given super-step. If multiple nodes attempt to overwrite the same key in the same super-step, an `InvalidUpdateError` will be raised.
+> When nodes execute in parallel, only one node can use `Overwrite` on the same state key in a given super-step. If multiple nodes attempt to overwrite the same key in the same super-step, an `InvalidUpdateError` will be raised. An `Overwrite` also discards regular updates that other nodes write to the same key in that super-step. The key ends up with only the `Overwrite` value.
 
 ## Define input and output schemas
 

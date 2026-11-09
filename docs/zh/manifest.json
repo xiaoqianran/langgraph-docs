@@ -437,8 +437,8 @@
       "translatedAt": "2026-11-07T15:51:11.492Z"
     },
     "oss/javascript/langgraph/overview.md": {
-      "hash": "e9011eef55ee0faee62eff4735ce8efd7fc85ad4",
-      "translatedAt": "2026-11-07T15:51:10.607Z"
+      "hash": "597babf69f93e8e230916128e26386d3e42858e1",
+      "translatedAt": "2026-11-09T19:57:55.263Z"
     },
     "oss/python/langgraph/install.md": {
       "hash": "918a479186136922fa3527d3342a02266b6711f3",
@@ -453,8 +453,8 @@
       "translatedAt": "2026-11-07T15:51:35.884Z"
     },
     "oss/python/langgraph/overview.md": {
-      "hash": "a3794503187ac0532696839bf78cfbb94b803856",
-      "translatedAt": "2026-11-07T15:51:31.497Z"
+      "hash": "50cad0d9c1e5068c633bb953ba14afe3783d86b0",
+      "translatedAt": "2026-11-09T19:57:56.289Z"
     },
     "reference/javascript/langchain-langgraph.md": {
       "hash": "6de318224036df1348c604db2e0ba465363b1b4d",
@@ -501,8 +501,8 @@
       "translatedAt": "2026-11-03T17:14:41.297Z"
     },
     "oss/javascript/langgraph/graph-api-state.md": {
-      "hash": "079bfaa769905971431cb2138a000861d968c7da",
-      "translatedAt": "2026-11-03T17:14:42.652Z"
+      "hash": "7d75558355f29604c25eb3e0ea066e6125e675c7",
+      "translatedAt": "2026-11-09T19:58:02.457Z"
     },
     "oss/javascript/langgraph/thinking-in-functional-api.md": {
       "hash": "8f5510b8eb3d46090ca7aba9391954d44585600c",
@@ -549,8 +549,8 @@
       "translatedAt": "2026-11-03T17:15:13.639Z"
     },
     "oss/python/langgraph/graph-api-state.md": {
-      "hash": "f3631a702ee927bed1be391efa82879001c1ccf8",
-      "translatedAt": "2026-11-03T17:15:18.614Z"
+      "hash": "cc106975f6cb7b223821501e98ae43f833b0cc5c",
+      "translatedAt": "2026-11-09T19:57:59.621Z"
     },
     "oss/python/langgraph/thinking-in-functional-api.md": {
       "hash": "7d54f1ffe7c05f43e847194310d64be65eff18eb",
@@ -561,10 +561,10 @@
       "translatedAt": "2026-11-07T15:51:37.995Z"
     }
   },
-  "updatedAt": "2026-11-08T16:13:19.863Z",
+  "updatedAt": "2026-11-09T19:58:02.457Z",
   "stats": {
-    "translated": 0,
-    "skipped": 114,
+    "translated": 4,
+    "skipped": 110,
     "failed": 0,
     "total": 114
   }

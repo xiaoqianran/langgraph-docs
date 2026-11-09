@@ -62,7 +62,7 @@ LangGraph 为有状态、长时间运行的工作流程提供运行时原语。�
 
 ## 集成、部署和可观察性
 
-LangGraph 可以独立工作。但是，您也可以将其与其他 LangCHain 产品配对：
+LangGraph 可以独立工作。但是，您也可以将其与其他LangChain产品配对：
 
 > [卡][LangChain](/oss/python/langchain/overview)
 >
