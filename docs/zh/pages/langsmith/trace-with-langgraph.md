@@ -18,7 +18,7 @@ LangSmith 与 LangGraph（Python 和 JS）顺利集成，以帮助您跟踪代�
 
 ### 1.安装
 
-安装LangGraph库以及Python和JS的OpenAI集成（我们在下面的代码片段中使用OpenAI集成）。
+安装适用于 Python 和 JS 的 LangGraph 库和 OpenAI 集成（我们在下面的代码片段中使用 OpenAI 集成）。
 
 有关可用软件包的完整列表，请参阅 [LangChain Python docs](https://docs.langchain.com/oss/python/integrations/providers/overview) 和 [LangChain JS docs](https://docs.langchain.com/oss/javascript/integrations/providers/overview)。
 
@@ -96,6 +96,9 @@ export LANGSMITH_WORKSPACE_ID=<your-workspace-id>
 > `https://aws.api.smith.langchain.com`
 > </td>
 > </tr>
+>
+> <tr><td>Azure US</td>
+> <td>`https://azure.api.smith.langchain.com`</td></tr>
 > </tbody>
 > </table>
 >
@@ -111,9 +114,9 @@ export LANGSMITH_WORKSPACE_ID=<your-workspace-id>
 >
 > `export LANGCHAIN_CALLBACKS_BACKGROUND=false`
 >
-> 请参阅[this LangChain.js guide](/langsmith/trace-with-langchain#ensure-all-traces-are-submitted-before-exiting) 了解更多信息。
+> 请参阅[this LangChain.js guide](/langsmith/trace-with-langchain#ensure-all-traces-are-submitted-before-exiting) 了解更多信息。### 3. 记录跟踪
 
-### 3. 记录跟踪设置环境后，您可以像平常一样调用 LangChain runnables。 LangSmith 将推断正确的跟踪配置：
+设置环境后，您可以像平常一样调用 LangChain runnables。 LangSmith 将推断正确的跟踪配置：
 
 ```python Python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from typing import Literal
@@ -250,7 +253,7 @@ finalState.messages[finalState.messages.length - 1].content;
 
 LangSmith UI 中的 **Trajectory** 视图显示用户和代理之间的简化对话历史记录。该视图从顶级跟踪中提取消息（包括用户的初始请求、工具调用和代理的最终响应），并以类似聊天的格式表示它们。
 
-## 不带 LangChain
+## 没有LangChain
 
 如果您在 LangGraph 中使用其他 SDK 或自定义函数，则需要 [wrap or decorate them appropriately](/langsmith/annotate-code#use-%40traceable-%2F-traceable) （使用 Python 中的 `@traceable` 装饰器或 JS 中的 `traceable` 函数，或者类似 SDK 的 `wrap_openai` ）。如果这样做，LangSmith将自动从这些包装的方法中嵌套跟踪。
 
@@ -287,7 +290,7 @@ export LANGSMITH_AGENT_ENVIRONMENT="local"
 export OPENAI_API_KEY=<your-openai-api-key>
 ```> [!注意]
 >
-> 如果您的账户位于美国以外的区域（默认），还需将 `LANGSMITH_ENDPOINT` 设置为您所在区域的 API URL。如果没有这个，您的 API 密钥将不会被识别，并且请求将无法通过身份验证。
+> 如果您的帐户位于美国以外的区域（默认），还需将 `LANGSMITH_ENDPOINT` 设置为您所在区域的 API URL。如果没有这个，您的 API 密钥将不会被识别，并且请求将无法通过身份验证。
 >
 > <table>
 > <thead>
@@ -332,12 +335,13 @@ export OPENAI_API_KEY=<your-openai-api-key>
 > `https://aws.api.smith.langchain.com`
 > </td>
 > </tr>
+>
+> <tr><td>Azure US</td>
+> <td>`https://azure.api.smith.langchain.com`</td></tr>
 > </tbody>
 > </table>
 >
-> 例如欧盟账户：`export LANGSMITH_ENDPOINT="https://eu.api.smith.langchain.com"`。
-
-> [!注意]
+> 例如欧盟账户：`export LANGSMITH_ENDPOINT="https://eu.api.smith.langchain.com"`。> [!注意]
 >
 > 如果您将 LangChain.js 与 LangSmith 一起使用并且不在无服务器环境中，我们还建议显式设置以下内容以减少延迟：
 >
@@ -349,7 +353,9 @@ export OPENAI_API_KEY=<your-openai-api-key>
 >
 > 请参阅[this LangChain.js guide](/langsmith/trace-with-langchain#ensure-all-traces-are-submitted-before-exiting) 了解更多信息。
 
-### 3. 记录跟踪设置环境后，您想要跟踪[wrap or decorate the custom functions/SDKs](/langsmith/annotate-code#use-%40traceable-%2F-traceable)。然后LangSmith将推断出正确的跟踪配置：
+### 3. 记录跟踪
+
+设置好环境后，您想要跟踪[wrap or decorate the custom functions/SDKs](/langsmith/annotate-code#use-%40traceable-%2F-traceable)。然后LangSmith将推断正确的跟踪配置：
 
 ```python Python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import json
