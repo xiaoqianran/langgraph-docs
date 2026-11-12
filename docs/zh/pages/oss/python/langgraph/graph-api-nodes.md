@@ -106,7 +106,7 @@ print(graph.invoke({}, context={"my_runtime_value": "b"}))  # [!code highlight]
 > gpt-5.4-mini
 > ```> [accordion] 扩展示例：运行时指定模型和系统消息
 >
-> 在调用时配置模型提供程序和系统消息。这些示例调用实时提供程序并需要 API 密钥。
+> 在调用时配置模型提供者和系统消息。这些示例调用实时提供程序并需要 API 密钥。
 >
 > ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > from dataclasses import dataclass
@@ -398,7 +398,7 @@ graph = builder.compile()
 
 一旦节点任务准备好，`execution_info`就被设置。即使没有重试策略，`node_attempt`默认为`1`，`node_first_attempt_time`在节点开始执行时设置。
 
-## 访问节点内的服务器信息当您的图表在LangGraph服务器上运行时，您可以通过`runtime.server_info`访问特定于服务器的元数据。这会显示助手 ID、图形 ID 和经过身份验证的用户，而无需直接读取配置元数据或可配置密钥。
+## 访问节点内的服务器信息当您的图表在LangSmith代理服务器上运行时，您可以通过`runtime.server_info`访问特定于服务器的元数据。这会显示助手 ID、图形 ID 和经过身份验证的用户，而无需直接读取配置元数据或可配置密钥。
 
 |属性|类型 |描述 |
 | - | - | - |
@@ -429,7 +429,7 @@ builder.add_edge("my_node", END)
 graph = builder.compile()
 ```
 
-当图表未在 LangGraph 服务器上运行时（例如，在本地开发或测试期间），`server_info` 为 `None`。
+当图表未在 Agent Server 上运行时（例如，在本地开发或测试期间），`server_info` 为 `None`。
 
 > [!注意]
 >

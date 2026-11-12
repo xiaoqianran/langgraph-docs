@@ -2,7 +2,11 @@
 
 # Agent Server
 
-LangSmith Deployment's **Agent Server** offers an API for creating and managing agent-based applications. It is built on the concept of [assistants](https://docs.langchain.com/langsmith/assistants.md), which are agents configured for specific tasks, and includes built-in [persistence](https://docs.langchain.com/oss/python/langgraph/persistence.md#memory-store) and a [task queue](#task-queue). This versatile API supports a wide range of agentic application use cases, from background processing to real-time interactions.
+**LangSmith Agent Server** is a workflow orchestration runtime for agent workloads. It offers an API for creating and managing agent-based applications. It is built on the concept of [assistants](https://docs.langchain.com/langsmith/assistants.md), which are agents configured for specific tasks, and includes built-in [persistence](https://docs.langchain.com/oss/python/langgraph/persistence.md#memory-store) and a [task queue](#task-queue). This versatile API supports a wide range of agentic application use cases, from background processing to real-time interactions.
+
+> [!NOTE]
+>
+> LangSmith Deployment is now **LangSmith Agent Server**.
 
 Use Agent Server to create and manage:
 

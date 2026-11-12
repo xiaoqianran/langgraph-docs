@@ -4,7 +4,7 @@
 
 This quickstart demonstrates how to build a calculator agent with the LangGraph Graph API.
 
-Already have an agent and want to deploy it? See [LangSmith Deployment](/langsmith/deployment).
+Already have an agent and want to deploy it? See [LangSmith Agent Server](/langsmith/deployment).
 
 > [!TIP]
 >
@@ -494,7 +494,7 @@ You now have a working calculator agent. Continue with one of the following subj
 * **Add human-in-the-loop**: Pause with [interrupts](/oss/python/langgraph/interrupts) for approval or edits.
 * **Stream results**: Follow [streaming](/oss/python/langgraph/streaming) for tokens and state updates.
 * **Go deeper**: [Workflows and agents](/oss/python/langgraph/workflows-agents).
-* **Deploy**: Host the agent with [LangSmith Deployment](/langsmith/deployment).
+* **Deploy**: Host the agent with [LangSmith Agent Server](/langsmith/deployment).
 * **Evaluate**: Test behavior with [LangSmith evaluation](/langsmith/evaluation-quickstart).
 
 ***

@@ -467,7 +467,7 @@ const graph = new StateGraph(State)
 
 ## Access server info inside a node
 
-When your graph runs on LangGraph Server, you can access server-specific metadata via `config.serverInfo`.
+When your graph runs on LangSmith Agent Server, you can access server-specific metadata via `config.serverInfo`.
 
 | Attribute | Type | Description |
 | - | - | - |
@@ -501,7 +501,7 @@ const graph = new StateGraph(State)
   .compile();
 ```
 
-`serverInfo` is `undefined` when the graph is not running on LangGraph Server.
+`serverInfo` is `undefined` when the graph is not running on Agent Server.
 
 > [!NOTE]
 >

@@ -4,7 +4,11 @@
 
 # 代理服务器
 
-LangSmith 部署的 **代理服务器** 提供用于创建和管理基于代理的应用程序的 API。它建立在[assistants](https://docs.langchain.com/langsmith/assistants.md)的概念之上，[assistants](https://docs.langchain.com/langsmith/assistants.md)是为特定任务配置的代理，并包括内置的[persistence](https://docs.langchain.com/oss/python/langgraph/persistence.md#memory-store)和[task queue](#task-queue)。这种多功能 API 支持广泛的代理应用程序用例，从后台处理到实时交互。
+**LangSmith 代理服务器** 是代理工作负载的工作流编排运行时。它提供了用于创建和管理基于代理的应用程序的 API。它建立在[assistants](https://docs.langchain.com/langsmith/assistants.md)的概念之上，[assistants](https://docs.langchain.com/langsmith/assistants.md)是为特定任务配置的代理，并包括内置的[persistence](https://docs.langchain.com/oss/python/langgraph/persistence.md#memory-store)和[task queue](#task-queue)。这种多功能 API 支持广泛的代理应用程序用例，从后台处理到实时交互。
+
+> [!注意]
+>
+> LangSmith 部署现在是 **LangSmith 代理服务器**。
 
 使用代理服务器创建和管理：
 
@@ -32,11 +36,11 @@ LangSmith 部署的 **代理服务器** 提供用于创建和管理基于代理�
 >
 > [LangSmith cloud](https://docs.langchain.com/langsmith/cloud.md) 为您管理数据库。如果您要在 [own infrastructure](https://docs.langchain.com/langsmith/self-hosted.md) 上部署，则需要自行设置。
 
-## 部署的各个部分
+## 部署的各个部分当您部署代理服务器时，您将部署一个或多个[graphs](#graphs)、[persistence](https://docs.langchain.com/oss/python/langgraph/persistence.md) 的数据库以及[task queue](#task-queue)。
 
-当您部署代理服务器时，您将部署一个或多个[graphs](#graphs)、[persistence](https://docs.langchain.com/oss/python/langgraph/persistence.md) 的数据库以及[task queue](#task-queue)。
+### 图表
 
-### 图表当您使用 Agent Server 部署图形时，您正在部署 [Assistant](https://docs.langchain.com/langsmith/assistants.md) 的“蓝图”。
+当您使用 Agent Server 部署图形时，您正在部署 [Assistant](https://docs.langchain.com/langsmith/assistants.md) 的“蓝图”。
 
 图最常实现 [agent](https://docs.langchain.com/oss/python/langgraph/workflows-agents.md)，但并非必须如此。例如，图可以实现一个简单的聊天机器人，仅支持来回对话，而无法影响任何应用程序控制流。实际上，随着应用程序变得越来越复杂，图通常会实现更复杂的流程，可能会使用 [multiple agents](https://docs.langchain.com/oss/python/langchain/multi-agent.md) 协同工作。
 
@@ -44,7 +48,7 @@ LangSmith 部署的 **代理服务器** 提供用于创建和管理基于代理�
 
 #### 图形加载和编译
 
-图表的编译方式和时间取决于您如何在 [application structure](https://docs.langchain.com/langsmith/application-structure.md) 中注册它：1. **编译图**（推荐）：导出已编译的`CompiledGraph`实例。服务器在容器启动时加载一次，并在每次运行时重用它——每个请求没有编译开销。
+图表的编译方式和时间取决于您在 [application structure](https://docs.langchain.com/langsmith/application-structure.md) 中的注册方式：1. **编译图**（推荐）：导出已编译的`CompiledGraph`实例。服务器在容器启动时加载一次，并在每次运行时重用它——每个请求没有编译开销。
 2. **工厂函数**：导出服务器每次需要图时调用的代理工厂函数。仅当您需要每次运行图形自定义时才使用此选项（例如，根据助手配置选择不同的模型或工具）。保持工厂函数轻量级，因为它们在每次调用时运行。
 
 > [!提示]
@@ -80,7 +84,7 @@ Agent Server 支持三种运行时配置：
 
 典型的部署由两种长时间运行的容器组成，它们都是从同一个 Docker 映像（顶部安装了项目代码的基础映像）构建的：
 
-* **API 服务器** 处理客户端请求（创建运行、读取线程状态、流式传输结果），但本身不执行代理代码。
+* **API 服务器** 处理客户端请求（创建运行、读取线程状态、流结果），但本身不执行代理代码。
 * **队列工作者**是执行引擎。他们监听持久任务队列，执行图形代码并写入检查点。
 
 容器是**无状态**但持久的。任何时候至少有 1 个队列工作线程必须监听任务队列，以确保没有孤立的运行。容器在其生命周期内可以多次运行。API 服务器和队列工作线程是独立的容器池和 [scale independently](https://docs.langchain.com/langsmith/data-plane.md#autoscaling)。

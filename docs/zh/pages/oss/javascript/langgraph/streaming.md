@@ -473,7 +473,7 @@ for await (const [msg, metadata] of await graph.stream(
 |活动 |当 |有效负载|
 | - | - | - |
 | `on_tool_start` |工具调用开始 | `name`、`input`、`toolCallId` |
-| `on_tool_event` |工具产生中间数据 | `name`、`data`、`toolCallId` |
+| `on_tool_event` |工具产生中间数据| `name`、`data`、`toolCallId` |
 | `on_tool_end` |工具返回其最终结果 | `name`、`output`、`toolCallId` |
 | `on_tool_error` |工具抛出错误 | `name`、`error`、`toolCallId` |
 
@@ -555,7 +555,7 @@ for await (const [mode, chunk] of await graph.stream(
 
 当您在流模式中包含 `"tools"` 时，来自 `@langchain/langgraph-sdk/react` 的 [⟦T94⟧](https://reference.langchain.com/javascript/langchain-react/index/useStream) 挂钩会公开 `toolProgress` 数组。每个条目都是一个 `ToolProgress` 对象，用于跟踪正在运行的工具的当前状态：
 
-|领域|描述 |
+|领域 |描述 |
 | - | - |
 | `name` |工具名称 |
 | `state` |当前生命周期状态：`"starting"`、`"running"`、`"completed"` 或 `"error"` |
@@ -1045,7 +1045,7 @@ for await (const chunk of await graph.stream(
 import { ChatOpenAI } from "@langchain/openai";
 
 const model = new ChatOpenAI({
-  model: "gpt-5.5",
+  model: "gpt-6.1-sol",
   // Set streaming: false to disable streaming for the chat model
   streaming: false,
 });

@@ -6,7 +6,7 @@
 
 本快速入门演示了如何使用 LangGraph Graph API 构建计算器代理。
 
-已经有代理并想要部署它？参见[LangSmith Deployment](/langsmith/deployment)。
+已经有代理并想要部署它？参见[LangSmith Agent Server](/langsmith/deployment)。
 
 > [!提示]
 >
@@ -32,7 +32,7 @@
 >> 不要发明备用 MCP URL。配置后，确认两台服务器均已列出并且可访问。
 > * 安装 [LangChain Skills](https://github.com/langchain-ai/langchain-skills) 以提高代理在 LangChain 生态系统任务上的性能。
 >
-> 安装LangChain技巧
+> 安装LangChain技能
 >
 > 为我的编码代理安装 LangChain 技能，以便它可以更好地执行 LangChain、LangGraph 和 Deep Agents 任务。
 >
@@ -485,7 +485,7 @@ npx tsx agent.ts
 * **添加人机交互**：使用 [interrupts](/oss/javascript/langgraph/interrupts) 暂停以进行批准或编辑。
 * **流结果**：按照 [streaming](/oss/javascript/langgraph/streaming) 获取令牌和状态更新。
 * **深入**：[Workflows and agents](/oss/javascript/langgraph/workflows-agents)。
-* **部署**：使用 [LangSmith Deployment](/langsmith/deployment) 托管代理。
+* **部署**：使用 [LangSmith Agent Server](/langsmith/deployment) 托管代理。
 * **评估**：使用 [LangSmith evaluation](/langsmith/evaluation-quickstart) 测试行为。
 
 ***

@@ -11,7 +11,7 @@
 * [⟦T27⟧](#langgraph-dev)：快速迭代的轻量级开发服务器。
 * [⟦T28⟧](#langgraph-up)：用于验证的类似生产的测试环境。
 
-|特色| `langgraph dev` | `langgraph up` |
+|特色 | `langgraph dev` | `langgraph up` |
 | - | - | - |
 | **需要 Docker** |没有 |是的 |
 | **安装** | `pip install langgraph-cli[inmem]` | `pip install langgraph-cli` |
@@ -20,7 +20,7 @@
 | **热重载** |是（默认）|可选（`--watch`标志）|
 | **默认端口** | `2024` | `8123` |
 | **资源使用** |轻量化|更重（为服务器、PostgreSQL 和 Redis 构建并运行单独的 docker 容器）|
-| **IDE 调试** |内置[DAP](https://microsoft.github.io/debug-adapter-protocol/)支持 |定期容器调试 |
+| **IDE 调试** |内置[DAP](https://microsoft.github.io/debug-adapter-protocol/)支持|定期容器调试|
 | **自定义授权** |是的 |是（带有许可证密钥）|
 
 > [!提示]
@@ -306,7 +306,7 @@ flowchart LR
 
 * **Docker 故障排除**：调试仅在生产中出现的容器特定问题、网络问题或环境变量配置时。
 
-## 部署前检查表
+## 部署前检查清单
 
 在部署应用程序之前，请使用 `langgraph up` 验证以下内容：* 所有[dependencies](https://docs.langchain.com/langsmith/setup-app-requirements-txt.md)正确安装在容器中。
 * 应用程序启动时没有错误。
@@ -489,7 +489,7 @@ VPN 连接、防火墙规则或公司代理设置可能会影响本地 Docker �
 **探索功能：**
 
 * **[Studio](https://docs.langchain.com/langsmith/studio.md)**：使用 Studio UI 可视化、交互和调试您的应用程序。尝试一下[Studio quickstart](https://docs.langchain.com/langsmith/quick-start-studio.md)。
-* **API 参考**：[LangSmith Deployment API](https://docs.langchain.com/langsmith/server-api-ref.md)、[Python SDK](https://docs.langchain.com/langsmith/langgraph-python-sdk.md)、[JS/TS SDK](https://docs.langchain.com/langsmith/langgraph-js-ts-sdk.md)
+* **API 参考**：[LangSmith Agent Server API](https://docs.langchain.com/langsmith/server-api-ref.md)、[Python SDK](https://docs.langchain.com/langsmith/langgraph-python-sdk.md)、[JS/TS SDK](https://docs.langchain.com/langsmith/langgraph-js-ts-sdk.md)
 
 ## 相关资源
 

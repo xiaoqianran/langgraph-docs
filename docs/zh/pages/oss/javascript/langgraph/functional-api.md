@@ -4,7 +4,7 @@
 
 # 功能 API 概述
 
-使用LangSmith部署的入口点和任务包装其他框架。涵盖检查点、恢复规则和常见陷阱。
+使用LangSmith代理服务器的入口点和任务包装其他框架。涵盖检查点、恢复规则和常见陷阱。
 
 **函数式 API** 使用 LangGraph 运行时功能（[persistence](/oss/javascript/langgraph/persistence)、[memory](/oss/javascript/langgraph/add-memory)、[human-in-the-loop](/oss/javascript/langgraph/interrupts) 和 [streaming](/oss/javascript/langgraph/streaming)）包装普通函数。当您已经拥有现有代码或正在使用不同的框架并且想要 [deploy it on LangSmith](/langsmith/deploy-other-frameworks) 而不将该代理重写为图形时，请使用它。首选[Graph API](/oss/javascript/langgraph/graph-api)来构建新代理。
 
@@ -17,10 +17,10 @@
 
 ## 何时使用函数式 API
 
-|构建 |使用 |
+|构建 |使用|
 | - | - |
 |新的LangGraph代理和工作流程| [Graph API](/oss/javascript/langgraph/graph-api) |
-|您想要在 LangSmith 部署 | 的另一个框架（Claude Agent SDK、Strands、CrewAI、AutoGen 等）中的现有代理通过 [Deploy other frameworks](/langsmith/deploy-other-frameworks) 的功能 API |与 Graph API 相比，Functional API 使用普通语言控制流（`if` / `else`、循环和调用），将值范围保持在入口点和任务范围内，而不是共享 [state](/oss/javascript/langgraph/graph-api#state) 模式，将任务结果保存在入口点检查点上而不是在每个 [super-step](/oss/javascript/langgraph/graph-api#super-steps) 之后，并且没有静态图形可视化。
+|您想要在 LangSmith 代理服务器上使用的另一个框架（Claude Agent SDK、Strands、CrewAI、AutoGen 等）中的现有代理 |通过 [Deploy other frameworks](/langsmith/deploy-other-frameworks) 的功能 API |与 Graph API 相比，Functional API 使用普通语言控制流（`if` / `else`、循环和调用），将值范围保持在入口点和任务范围内，而不是共享 [state](/oss/javascript/langgraph/graph-api#state) 模式，将任务结果保存在入口点检查点上而不是在每个 [super-step](/oss/javascript/langgraph/graph-api#super-steps) 之后，并且没有静态图形可视化。
 
 ## 入口点
 
@@ -59,7 +59,7 @@ await myWorkflow.invoke("Alice", config); // "Hello, Alice"
 
 ### 运行并恢复
 
-致电`invoke`获取最终结果。对于流，请参阅[Streaming](/oss/javascript/langgraph/streaming)。通过在 [⟦T20⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/Command) 中传递恢复值，在 [⟦T19⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 之后恢复。有关食谱，请参阅[Interrupts](/oss/javascript/langgraph/interrupts)。
+致电`invoke`获取最终结果。对于流，请参阅[Streaming](/oss/javascript/langgraph/streaming)。通过在 [⟦T20⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/Command) 中传递恢复值，在 [⟦T19⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 后恢复。有关食谱，请参阅[Interrupts](/oss/javascript/langgraph/interrupts)。
 
 发生错误后，用 `null` 恢复相同的 `thread_id`。
 
@@ -73,7 +73,7 @@ await myWorkflow.invoke("Alice", config); // "Hello, Alice"
 
 您可以跳过此步骤，直到添加 [memory](/oss/javascript/langgraph/add-memory) 或 [custom streaming](/oss/javascript/langgraph/streaming)。
 
-`entrypoint` 函数可以采用第二个 `config` 参数。 LangGraph 还提供了您在函数内调用的帮助程序：
+`entrypoint` 函数可以采用第二个 `config` 参数。 LangGraph 还提供了您在函数内调用的帮助器：
 
 |帮手|描述 |
 | - | - |
@@ -112,7 +112,7 @@ await myWorkflow.invoke("Alice", config); // "Hello, Alice"
 
 ## 任务
 
-**任务**是一个离散的工作单元（例如，API 调用或数据步骤）。任务有两个关键属性：* **并发执行**：调用任务会立即启动它。仅当您等待结果时，入口点才会阻塞，因此独立任务可以重叠。
+**任务**是一个离散的工作单元（例如，API 调用或数据步骤）。任务有两个关键属性：* **并发执行**：调用任务会立即启动它。仅当您等待结果时入口点才会阻塞，因此独立任务可以重叠。
 * **检查点**：保存任务结果，以便恢复可以恢复它们。参见[persistence](/oss/javascript/langgraph/persistence)。
 
 ### 定义

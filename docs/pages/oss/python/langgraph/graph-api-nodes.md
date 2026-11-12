@@ -406,7 +406,7 @@ graph = builder.compile()
 
 ## Access server info inside a node
 
-When your graph runs on LangGraph Server, you can access server-specific metadata via `runtime.server_info`. This surfaces the assistant ID, graph ID, and authenticated user without reading config metadata or configurable keys directly.
+When your graph runs on LangSmith Agent Server, you can access server-specific metadata via `runtime.server_info`. This surfaces the assistant ID, graph ID, and authenticated user without reading config metadata or configurable keys directly.
 
 | Attribute | Type | Description |
 | - | - | - |
@@ -437,7 +437,7 @@ builder.add_edge("my_node", END)
 graph = builder.compile()
 ```
 
-`server_info` is `None` when the graph is not running on LangGraph Server (for example, during local development or testing).
+`server_info` is `None` when the graph is not running on Agent Server (for example, during local development or testing).
 
 > [!NOTE]
 >

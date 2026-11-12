@@ -50,7 +50,7 @@ Deno
 
 > [!TIP]
 >
-> LangSmith offers multiple deployment options beyond Cloud, including [hybrid](/langsmith/hybrid), [standalone servers](/langsmith/deploy-standalone-server), and [self-hosted with control plane](/langsmith/deploy-with-control-plane). For more information, see the [LangSmith Deployment overview](/langsmith/deployment).
+> LangSmith offers multiple deployment options beyond Cloud, including [hybrid](/langsmith/hybrid), [standalone servers](/langsmith/deploy-standalone-server), and [self-hosted with control plane](/langsmith/deploy-with-control-plane). For more information, see the [LangSmith Agent Server overview](/langsmith/deployment).
 
 ## LangSmith Cloud
 
@@ -71,13 +71,13 @@ Your application's code must reside in a GitHub repository to be deployed on Lan
 
 #### 2. Deploy to LangSmith
 
-**1. Navigate to LangSmith Deployment**
+**1. Navigate to Agent Servers**
 
-Log in to [LangSmith](https://smith.langchain.com?utm_source=docs\&utm_medium=cta\&utm_campaign=langsmith-signup\&utm_content=oss-langgraph-deploy). In the left sidebar, select **Deployments**.
+Log in to [LangSmith](https://smith.langchain.com?utm_source=docs\&utm_medium=cta\&utm_campaign=langsmith-signup\&utm_content=oss-langgraph-deploy). In the left sidebar, select **Agent Servers**.
 
-**2. Create new deployment**
+**2. Create an Agent Server**
 
-Click the **+ New Deployment** button. A pane will open where you can fill in the required fields.
+Click the **+ Agent Server** button. A pane will open where you can fill in the required fields.
 
 **3. Link repository**
 
@@ -85,19 +85,18 @@ If you are a first time user or adding a private repository that has not been pr
 
 **4. Deploy repository**
 
-Select your application's repository. Click **Submit** to deploy. This may take about 15 minutes to complete. You can check the status in the **Deployment details** view.
+Select your application's repository. Click **Submit** to deploy. This may take about 15 minutes to complete. You can check the status in the **Agent Server details** view.
 
 #### 3. Test your application in Studio
 
 Once your application is deployed:
 
-1. Select the deployment you just created to view more details.
+1. Select the Agent Server you just created to view more details.
 2. Click the **Studio** button in the top right corner. Studio will open to display your graph.
 
-#### 4. Get the API URL for your deployment
+#### 4. Get the API URL for your Agent Server
 
-1. In the **Deployment details** view in LangGraph, click the **API URL** to copy it to your clipboard.
-2. Click the `URL` to copy it to the clipboard.
+In the **Agent Server details** view in LangSmith, find the **URL** row. Click **Copy Agent Server URL** to copy the address to your clipboard.
 
 #### 5. Test the API
 

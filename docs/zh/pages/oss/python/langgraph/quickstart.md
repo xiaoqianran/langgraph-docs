@@ -6,7 +6,7 @@
 
 本快速入门演示了如何使用 LangGraph Graph API 构建计算器代理。
 
-已经有代理并想要部署它？参见[LangSmith Deployment](/langsmith/deployment)。
+已经有代理并想要部署它？参见[LangSmith Agent Server](/langsmith/deployment)。
 
 > [!提示]
 >
@@ -487,7 +487,7 @@ python agent.py
 * **添加人机交互**：使用 [interrupts](/oss/python/langgraph/interrupts) 暂停以进行批准或编辑。
 * **流结果**：按照 [streaming](/oss/python/langgraph/streaming) 获取令牌和状态更新。
 * **深入**：[Workflows and agents](/oss/python/langgraph/workflows-agents)。
-* **部署**：使用 [LangSmith Deployment](/langsmith/deployment) 托管代理。
+* **部署**：使用 [LangSmith Agent Server](/langsmith/deployment) 托管代理。
 * **评估**：使用 [LangSmith evaluation](/langsmith/evaluation-quickstart) 测试行为。
 
 ***

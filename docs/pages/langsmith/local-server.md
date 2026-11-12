@@ -502,7 +502,7 @@ For more details, refer to the [Platform setup comparison](https://docs.langchai
 **Explore features:**
 
 * **[Studio](https://docs.langchain.com/langsmith/studio.md)**: Visualize, interact with, and debug your application with the Studio UI. Try the [Studio quickstart](https://docs.langchain.com/langsmith/quick-start-studio.md).
-* **API References**: [LangSmith Deployment API](https://docs.langchain.com/langsmith/server-api-ref.md), [Python SDK](https://docs.langchain.com/langsmith/langgraph-python-sdk.md), [JS/TS SDK](https://docs.langchain.com/langsmith/langgraph-js-ts-sdk.md)
+* **API References**: [LangSmith Agent Server API](https://docs.langchain.com/langsmith/server-api-ref.md), [Python SDK](https://docs.langchain.com/langsmith/langgraph-python-sdk.md), [JS/TS SDK](https://docs.langchain.com/langsmith/langgraph-js-ts-sdk.md)
 
 ## Related resources
 

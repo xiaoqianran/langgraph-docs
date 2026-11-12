@@ -6,11 +6,11 @@
 
 LangGraph 应用程序由一个或多个图、一个配置文件 (`langgraph.json`)、一个指定依赖项的文件以及一个可选的指定环境变量的 `.env` 文件组成。
 
-本指南展示了应用程序的典型结构，并向您展示如何提供使用 [LangSmith Deployment](/langsmith/deployment) 部署应用程序所需的配置。
+本指南展示了应用程序的典型结构，并向您展示如何提供使用 [LangSmith Agent Server](/langsmith/deployment) 部署应用程序所需的配置。
 
 > [!注意]
 >
-> LangSmith Deployment 是一个托管托管平台，用于部署和扩展 LangGraph 代理。它处理基础架构、扩展和操作问题，因此您可以直接从存储库部署有状态、长期运行的代理。了解更多信息[Deployment documentation](/langsmith/deployment)。
+> LangSmith 代理服务器托管管理LangGraph 代理的部署和扩展。它处理基础架构、扩展和操作问题，因此您可以直接从存储库部署有状态、长期运行的代理。了解更多信息[Deployment documentation](/langsmith/deployment)。
 
 ## 关键概念
 
@@ -42,7 +42,7 @@ my-app/
 
 ## 配置文件
 
-`langgraph.json` 文件是一个 JSON 文件，指定部署 LangGraph 应用程序所需的依赖项、图表、环境变量和其他设置。
+`langgraph.json` 文件是一个 JSON 文件，指定部署 LangGraph 应用程序所需的依赖项、图形、环境变量和其他设置。
 
 有关 JSON 文件中所有支持的键的详细信息，请参阅 [LangGraph configuration file reference](/langsmith/cli#configuration-file)。
 

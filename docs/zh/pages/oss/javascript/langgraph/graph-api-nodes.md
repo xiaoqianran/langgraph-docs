@@ -115,7 +115,7 @@ console.log(await graph.invoke({}, { context: { myRuntimeValue: "b" } }));  // [
 > gpt-5.4-mini
 > ```> [accordion] 扩展示例：运行时指定模型和系统消息
 >
-> 在调用时配置模型提供程序和系统消息。这些示例调用实时提供程序并需要 API 密钥。
+> 在调用时配置模型提供者和系统消息。这些示例调用实时提供程序并需要 API 密钥。
 >
 > ```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > import { ChatOpenAI } from "@langchain/openai";
@@ -192,7 +192,7 @@ const builder = new StateGraph(State)
   .addNode("nodeName", nodeFunction, { retryPolicy: {} });
 ```
 
-重试是可选的：如果没有`retryPolicy`，第一次失败就会结束尝试。如果策略省略 `retryOn`，LangGraph 会重试抛出的错误，但以下情况除外：
+重试是可选的：如果没有`retryPolicy`，第一次失败就会结束尝试。如果策略忽略 `retryOn`，LangGraph 会重试抛出的错误，但以下情况除外：
 
 * 中止和取消错误（`error.name === "AbortError"`或`error.message`以`"Cancel"`或`"AbortError"`开头）
 * `GraphValueError`，与`error.name`匹配
@@ -431,7 +431,7 @@ const graph = new StateGraph(State)
   .compile();
 ```#### 根据重试状态调整行为
 
-当节点有重试策略时，使用 `executionInfo` 检查当前的尝试次数，并在第一次尝试失败后切换到回退：
+当节点有重试策略时，使用`executionInfo`检查当前的尝试次数，并在第一次尝试失败后切换到回退：
 
 ```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { StateGraph, StateSchema, GraphNode, START, END } from "@langchain/langgraph";
@@ -461,7 +461,7 @@ const graph = new StateGraph(State)
 
 ## 访问节点内的服务器信息
 
-当您的图表在LangGraph服务器上运行时，您可以通过`config.serverInfo`访问特定于服务器的元数据。
+当您的图表在LangSmith代理服务器上运行时，您可以通过`config.serverInfo`访问特定于服务器的元数据。
 
 |属性|类型 |描述 |
 | - | - | - |
@@ -495,7 +495,7 @@ const graph = new StateGraph(State)
   .compile();
 ```
 
-当图表未在 LangGraph 服务器上运行时，`serverInfo` 为 `undefined`。
+当图表未在代理服务器上运行时，`serverInfo` 为`undefined`。
 
 > [!注意]
 >
