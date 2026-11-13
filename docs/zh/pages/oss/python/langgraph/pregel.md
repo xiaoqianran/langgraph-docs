@@ -16,7 +16,7 @@
 
 在 LangGraph 中，Pregel 将 [**actors**](https://en.wikipedia.org/wiki/Actor_model) 和 **通道** 组合到一个应用程序中。 **Actor** 从通道读取数据并将数据写入通道。 Pregel 将应用程序的执行组织为多个步骤，遵循 **Pregel 算法**/**批量同步并行** 模型。
 
-每个步骤由三个阶段组成：* **计划**：确定此步骤中要执行哪些**参与者**。例如，第一步，选择订阅特殊**输入**通道的**参与者**；在后续步骤中，选择订阅上一步中更新的频道的 **参与者**。
+每个步骤由三个阶段组成：* **计划**：确定此步骤中要执行哪些**参与者**。例如，第一步，选择订阅特殊**输入**频道的**演员**；在后续步骤中，选择订阅上一步中更新的频道的 **参与者**。
 * **执行**：并行执行所有选定的**参与者**，直到全部完成，或者一个失败，或者达到超时。在此阶段中，在下一步之前，参与者无法看到通道更新。
 * **更新**：使用此步骤中**参与者**写入的值更新通道。
 
@@ -106,9 +106,9 @@ class State(TypedDict):
 >
 > **减速器在重建时运行，而不是在写入时运行。** 与 [⟦T45⟧](https://reference.langchain.com/python/langgraph/channels/binop/BinaryOperatorAggregate) 不同，[⟦T45⟧](https://reference.langchain.com/python/langgraph/channels/binop/BinaryOperatorAggregate) 的减速器在写入时调用，因此组合值被序列化到检查点中，而 `DeltaChannel` 减速器在通道值从其持久写入中*重建*时被调用。原始的每步写入是序列化的；仅当值具体化时（在下一次读取时、在下一步的参与者上或在重播历史记录时）才会调用减速器。
 >
-> 设计减速器时的实际后果：
+> 设计减速机时的实际后果：
 >
-> * **使其成为 `(state, writes)` 的纯函数。** 任何副作用、随机性或挂钟读取（例如，`uuid.uuid4()`、`datetime.now()`）都会在每次重建值时执行，并在每次重放时产生不同的结果。它们“没有”被烘焙到持久写入中。> * **不要依赖于传入写入的突变来持久化。** 如果你的reducer改变了一个写入对象（例如，为一个没有稳定ID的项目分配一个稳定的ID），那么该突变仅存在于重建的值中。存储的写入仍然具有原始形状，因此下一次重建将再次看到未变异的输入。
+> * **使其成为 `(state, writes)` 的纯函数。** 任何副作用、随机性或挂钟读取（例如，`uuid.uuid4()`、`datetime.now()`）都会在每次重建值时执行，并在每次重放时产生不同的结果。它们“没有”被烘焙到持久写入中。> * **不要依赖于传入写入的突变来持久化。** 如果你的reducer改变了一个写入对象（例如，为一个没有稳定ID的项目分配一个稳定的ID），那么该突变仅存在于重建的值中。存储的写入仍然具有原始形状，因此下一次重建将再次看到未突变的输入。
 > * **在上游附加身份和其他稳定的元数据。** 如果下游代码需要通过 ID 跨轮引用某个项目（例如，稍后更新或删除它），请在将值写入通道之前分配该 ID，而不是在减速器内部。
 
 以下是针对两种最常见情况的批量减速器：
@@ -137,9 +137,9 @@ def dict_reducer(
 
 两者都是关联的：一次应用一批会产生与一起应用它们相同的结果。
 
-#### 使用快照\_频率来限制读取延迟
+#### 使用 snapshot_Frequency 来限制读取延迟
 
-如果没有快照，读取 `DeltaChannel` 值需要重播完整的写入历史记录 — 对于具有 N 个步骤的线程来说，O(N)。设置 `snapshot_frequency=K` 每 K 个预凝胶步骤写入一个完整快照，将读取深度限制为最多 K 个步骤：
+如果没有快照，读取 `DeltaChannel` 值需要重播完整的写入历史记录 - 对于具有 N 个步骤的线程来说，O(N)。设置 `snapshot_frequency=K` 每 K 个预凝胶步骤写入一个完整快照，将读取深度限制为最多 K 个步骤：
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 class State(TypedDict):
@@ -346,7 +346,7 @@ class State(TypedDict):
 
 LangGraph 提供了两个用于创建 Pregel 应用程序的高级 API：[StateGraph (Graph API)](/oss/python/langgraph/graph-api) 和 [Functional API](/oss/python/langgraph/functional-api)。> [选项卡] StateGraph（图 API）
 >
-> [StateGraph (Graph API)](https://reference.langchain.com/python/langgraph/graph/state/StateGraph) 是一个更高级别的抽象，可以简化 Pregel 应用程序的创建。它允许您定义节点和边的图。当您编译图时，StateGraph API 会自动为您创建 Pregel 应用程序。
+> [StateGraph (Graph API)](https://reference.langchain.com/python/langgraph/graph/state/StateGraph) 是一种更高级别的抽象，可简化 Pregel 应用程序的创建。它允许您定义节点和边的图。当您编译图时，StateGraph API 会自动为您创建 Pregel 应用程序。
 >
 > ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > from typing import TypedDict

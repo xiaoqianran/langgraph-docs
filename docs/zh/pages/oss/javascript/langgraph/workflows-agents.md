@@ -500,7 +500,7 @@ console.log(state.finalReport);
 
 当任务有特定的成功标准，但需要迭代才能满足该标准时，通常会使用评估器-优化器工作流程。例如，在两种语言之间翻译文本时并不总是存在完美匹配。可能需要几次迭代才能生成两种语言具有相同含义的翻译。
 
-![evaluator\_optimizer.png](https://mintcdn.com/langchain-5e9cc07a/-_xGPoyjhyiDWTPJ/oss/images/evaluator_optimizer.png?fit=max\&auto=format\&n=-_xGPoyjhyiDWTPJ\&q=85\&s=9bd0474f42b6040b14ed6968a9ab4e3c)```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+![evaluator_optimizer.png](https://mintcdn.com/langchain-5e9cc07a/-_xGPoyjhyiDWTPJ/oss/images/evaluator_optimizer.png?fit=max\&auto=format\&n=-_xGPoyjhyiDWTPJ\&q=85\&s=9bd0474f42b6040b14ed6968a9ab4e3c)```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { StateGraph, StateSchema, GraphNode, ConditionalEdgeRouter } from "@langchain/langgraph";
 import * as z from "zod";
 
@@ -579,7 +579,7 @@ console.log(state.joke);
 
 ## 代理
 
-代理通常被实现为使用[tools](/oss/javascript/langchain/tools)执行操作的LLM。它们在连续反馈循环中运行，并用于问题和解决方案不可预测的情况。代理比工作流程拥有更多的自主权，可以决定他们使用的工具以及如何解决问题。您仍然可以定义可用的工具集和代理行为准则。
+代理通常被实现为使用 [tools](/oss/javascript/langchain/tools) 执行操作的 LLM。它们在连续反馈循环中运行，并用于问题和解决方案不可预测的情况。代理比工作流程拥有更多的自主权，可以决定他们使用的工具以及如何解决问题。您仍然可以定义可用的工具集和代理行为准则。
 
 ![agent.png](https://mintcdn.com/langchain-5e9cc07a/-_xGPoyjhyiDWTPJ/oss/images/agent.png?fit=max\&auto=format\&n=-_xGPoyjhyiDWTPJ\&q=85\&s=bd8da41dbf8b5e6fc9ea6bb10cb63e38)
 
@@ -741,7 +741,7 @@ const toolNode = new ToolNode([search, calculator]);
 
 #### 从工具访问图形状态和上下文
 
-由`ToolNode`执行的工具接收模型生成的参数：
+由`ToolNode`执行的工具接收模型生成的参数，如下所示
 他们的第一个论点。读取不是由生成的图端数据
 模型，使用以下选项之一：* 在Python中，从注入的状态和运行范围的上下文中读取
   [⟦T21⟧](https://reference.langchain.com/javascript/langchain/index/Runtime) 论证。
@@ -750,7 +750,7 @@ const toolNode = new ToolNode([search, calculator]);
 
 > [!注意]
 >
-> 工具只能访问传递给`ToolNode`的状态值。当
+> 工具只能访问传递给`ToolNode` 的状态值。当
 > `ToolNode`直接添加为`StateGraph`节点，输入为当前
 > 图形状态。如果您从另一个节点手动调用 `ToolNode`，请传递
 > 当工具需要自定义状态字段时的完整状态。例如`tool_node.invoke(state)`

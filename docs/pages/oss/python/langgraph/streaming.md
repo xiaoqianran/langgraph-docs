@@ -968,7 +968,7 @@ models that do not support it.
 
 Set `streaming=False` when initializing the model.
 
-> [tab] init\_chat\_model
+> [tab] init_chat_model
 >
 > ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > from langchain.chat_models import init_chat_model

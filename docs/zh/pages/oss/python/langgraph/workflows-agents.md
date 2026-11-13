@@ -516,7 +516,7 @@ Markdown(state["final_report"])
 
 当任务有特定的成功标准，但需要迭代才能满足该标准时，通常会使用评估器-优化器工作流程。例如，在两种语言之间翻译文本时并不总是存在完美匹配。可能需要几次迭代才能生成两种语言具有相同含义的翻译。
 
-![evaluator\_optimizer.png](https://mintcdn.com/langchain-5e9cc07a/-_xGPoyjhyiDWTPJ/oss/images/evaluator_optimizer.png?fit=max\&auto=format\&n=-_xGPoyjhyiDWTPJ\&q=85\&s=9bd0474f42b6040b14ed6968a9ab4e3c)```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+![evaluator_optimizer.png](https://mintcdn.com/langchain-5e9cc07a/-_xGPoyjhyiDWTPJ/oss/images/evaluator_optimizer.png?fit=max\&auto=format\&n=-_xGPoyjhyiDWTPJ\&q=85\&s=9bd0474f42b6040b14ed6968a9ab4e3c)```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 # Graph state
 class State(TypedDict):
     joke: str

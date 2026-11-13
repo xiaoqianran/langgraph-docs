@@ -178,7 +178,7 @@ Note that:
 
 ## Create branches
 
-Parallel node execution speeds up graph runs. LangGraph fans out and fans in with standard edges and [conditional\_edges](https://reference.langchain.com/python/langgraph/graph/state/StateGraph/add_conditional_edges). The following examples build branching dataflows. For map-reduce fan-out to dynamic targets, see [Use Send and Command](/oss/python/langgraph/graph-api-send-command).
+Parallel node execution speeds up graph runs. LangGraph fans out and fans in with standard edges and [conditional_edges](https://reference.langchain.com/python/langgraph/graph/state/StateGraph/add_conditional_edges). The following examples build branching dataflows. For map-reduce fan-out to dynamic targets, see [Use Send and Command](/oss/python/langgraph/graph-api-send-command).
 
 ### Run graph nodes in parallel
 

@@ -144,7 +144,7 @@ def dict_reducer(
 
 Both are associative: applying batches one at a time produces the same result as applying them together.
 
-#### Use snapshot\_frequency for bounded read latency
+#### Use snapshot_frequency for bounded read latency
 
 Without snapshots, reading a `DeltaChannel` value requires replaying the full write history—O(N) for a thread with N steps. Setting `snapshot_frequency=K` writes a full snapshot every K pregel steps, bounding read depth to at most K steps:
 

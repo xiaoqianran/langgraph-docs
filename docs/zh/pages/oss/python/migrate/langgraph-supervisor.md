@@ -10,7 +10,7 @@
 
 本指南介绍如何从 `create_supervisor` 迁移到 [⟦T9⟧](https://reference.langchain.com/python/langchain/agents/factory/create_agent)，包括使用 [⟦T10⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 和外部 API 回调的设置。
 
-从 langgraph-supervisor 迁移到 create\_agent 子代理
+从 langgraph-supervisor 迁移到 create_agent 子代理
 
 将此代码库从 `langgraph-supervisor` 包迁移到带有 `create_agent` 和工具包装工作线程的 LangChain 子代理模式。
 
@@ -41,7 +41,7 @@
 * 更喜欢指南中的子代理模式而不是保留 `langgraph-supervisor`。
 * 当指南未涵盖呼叫站点或模式时，询问而不是猜测。
 
-## 变更摘要| langgraph-supervisor | langgraph-supervisor推荐更换|
+## 变更摘要| langgraph-supervisor | langgraph-supervisor推荐更换 |
 | - | - |
 | `create_supervisor` 以工作代理作为图节点 | [⟦T40⟧](https://reference.langchain.com/python/langchain/agents/factory/create_agent) 与包装为 [⟦T41⟧](https://reference.langchain.com/python/langchain-core/tools/convert/tool) 函数的子代理 |
 | `output_mode` 用于消息历史记录 |在工具包装器中格式化子代理输出（请参阅[subagent outputs](/oss/python/langchain/multi-agent/subagents#subagent-outputs)）|
@@ -262,6 +262,6 @@ top_supervisor = create_agent(
 
 ***
 
-[Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
+[Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时答案。
 
 [Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/python/migrate/langgraph-supervisor.mdx) 或 [file an issue](https://github.com/langchain-ai/docs/issues/new/choose)。

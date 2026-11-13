@@ -150,7 +150,7 @@ console.log(result);
 
 ## 创建分支
 
-并行节点执行可加快图形运行速度。 LangGraph 以标准边缘和 [conditional\_edges](https://reference.langchain.com/javascript/langchain-langgraph/index/StateGraph/addConditionalEdges) 扇出和扇入。以下示例构建分支数据流。有关动态目标的映射减少扇出，请参阅[Use Send and Command](/oss/javascript/langgraph/graph-api-send-command)。
+并行节点执行可加快图形运行速度。 LangGraph 以标准边缘和 [conditional_edges](https://reference.langchain.com/javascript/langchain-langgraph/index/StateGraph/addConditionalEdges) 扇出和扇入。以下示例构建分支数据流。有关动态目标的映射减少扇出，请参阅[Use Send and Command](/oss/javascript/langgraph/graph-api-send-command)。
 
 ### 并行运行图节点
 

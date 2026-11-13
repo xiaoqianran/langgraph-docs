@@ -511,7 +511,7 @@ async def aput(self, config, checkpoint, metadata, new_versions):
     }
 ```
 
-#### put\_writes / aput\_writes
+#### put_writes / aput_writes
 
 Store node-output rows for a single task within the current superstep. These rows are linked to the checkpoint by `(thread_id, checkpoint_ns, checkpoint_id)`.
 
@@ -533,7 +533,7 @@ async def aput_writes(self, config, writes, task_id, task_path=""):
 
 Import `WRITES_IDX_MAP` from `langgraph.checkpoint.base`. It maps special channels (`__error__`, `__interrupt__`, etc.) to reserved negative indices so they do not collide with regular write indices.
 
-#### get\_tuple / aget\_tuple
+#### get_tuple / aget_tuple
 
 Retrieve a checkpoint. The config may contain:
 
@@ -612,7 +612,7 @@ async def aget_tuple(self, config):
 
 Return checkpoints for a thread, newest first. Respect `before` (return only checkpoints older than that config's `checkpoint_id`) and `limit`.
 
-#### delete\_thread / adelete\_thread
+#### delete_thread / adelete_thread
 
 Delete all checkpoints and writes for a thread. Both checkpoint rows and write rows must be deleted.
 

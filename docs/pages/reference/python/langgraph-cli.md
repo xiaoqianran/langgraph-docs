@@ -74,7 +74,6 @@
 
 - [`can_build_locally()`](https://reference.langchain.com/python/langgraph-cli/docker/can_build_locally)
 - [`check_capabilities()`](https://reference.langchain.com/python/langgraph-cli/docker/check_capabilities)
-- [`debugger_compose()`](https://reference.langchain.com/python/langgraph-cli/docker/debugger_compose)
 - [`dict_to_yaml()`](https://reference.langchain.com/python/langgraph-cli/docker/dict_to_yaml)
 - [`compose_as_dict()`](https://reference.langchain.com/python/langgraph-cli/docker/compose_as_dict)
 - [`compose()`](https://reference.langchain.com/python/langgraph-cli/docker/compose)

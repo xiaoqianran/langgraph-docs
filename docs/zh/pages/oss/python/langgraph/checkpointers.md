@@ -55,7 +55,7 @@ LangGraph 检查指针将图状态保存为每一步的检查点，从而实现�
 
 新输入不会清除线程。 LangGraph 使用国家的[reducers](/oss/python/langgraph/graph-api#reducers) 应用它。使用新的`thread_id`从空状态开始。
 
-当最新的检查点没有未完成的工作时，Resume 返回保存的结果，而不运行节点。有关可运行的示例，请参阅[resuming interrupts](/oss/python/langgraph/interrupts#resuming-interrupts)和[replaying history](/oss/python/langgraph/use-time-travel#replay)。有关包装另一个框架时的入口点恢复规则，请参阅[Functional API overview](/oss/python/langgraph/functional-api#run-and-resume)。
+当最新的检查点没有未完成的工作时，Resume 返回保存的结果，而不运行节点。有关可运行的示例，请参阅 [resuming interrupts](/oss/python/langgraph/interrupts#resuming-interrupts) 和 [replaying history](/oss/python/langgraph/use-time-travel#replay)。有关包装另一个框架时的入口点恢复规则，请参阅[Functional API overview](/oss/python/langgraph/functional-api#run-and-resume)。
 
 ### 检查点线程在特定时间点的状态称为检查点。检查点是每个[super-step](#super-steps)处保存的图状态的快照，并由`StateSnapshot`对象表示（有关完整字段参考，请参阅[StateSnapshot fields](#statesnapshot-fields)）。
 
@@ -104,7 +104,7 @@ graph.invoke({"foo": "", "bar":[]}, config)
 
 运行该图后，将恰好有 4 个检查点：* 清空检查点，以[⟦T40⟧](https://reference.langchain.com/python/langgraph/constants/START)作为下一个要执行的节点
 * 将用户输入`{'foo': '', 'bar': []}`和`node_a`作为下一个要执行的节点的检查点
-* 检查点，以`node_a`、`{'foo': 'a', 'bar': ['a']}`和`node_b`的输出作为下一个要执行的节点
+* 检查点，`node_a` `{'foo': 'a', 'bar': ['a']}` 和 `node_b` 的输出作为下一个要执行的节点
 * 检查点具有`node_b``{'foo': 'b', 'bar': ['a', 'b']}`的输出，并且没有要执行的下一个节点
 
 请注意，`bar` 通道值包含来自两个节点的输出，因为此示例具有用于 `bar` 通道的减速器。
@@ -284,9 +284,9 @@ graph.stream(
 
 耐用性模式（从最不耐用到最耐用）如下：* `"exit"`：LangGraph 仅在图形执行成功退出、出现错误或由于人机循环中断时才保留更改。这为长时间运行的图形提供了最佳性能，但意味着不会保存中间状态，因此您无法从执行中的系统故障（例如进程崩溃）中恢复。
 
-* `"async"`：LangGraph 在执行下一步时异步保留更改。这提供了良好的性能和耐用性，但存在一个小风险，即如果进程在执行过程中崩溃，LangGraph不会写入检查点。
+* `"async"`：LangGraph 在下一步执行时异步保留更改。这提供了良好的性能和耐用性，但存在一个小风险，即如果进程在执行过程中崩溃，LangGraph不会写入检查点。
 
-* `"sync"`：LangGraph在下一步开始之前同步保留更改。这确保了LangGraph在继续执行之前写入每个检查点，以一些性能开销为代价提供高持久性。
+* `"sync"`：LangGraph在下一步开始之前同步保存更改。这确保了LangGraph在继续执行之前写入每个检查点，以一些性能开销为代价提供高持久性。
 
 ### 新线程上的第一个持久检查点
 
@@ -479,7 +479,7 @@ async def aput(self, config, checkpoint, metadata, new_versions):
     }
 ```
 
-#### put\_writes / aput\_writes
+#### put_writes / aput_writes
 
 存储当前超级步内单个任务的节点输出行。这些行通过 `(thread_id, checkpoint_ns, checkpoint_id)` 链接到检查点。
 
@@ -501,7 +501,7 @@ async def aput_writes(self, config, writes, task_id, task_path=""):
 
 从 `langgraph.checkpoint.base` 导入 `WRITES_IDX_MAP`。它将特殊通道（`__error__`、`__interrupt__`等）映射到保留的负索引，这样它们就不会与常规写入索引发生冲突。
 
-#### get\_tuple / aget\_tuple
+#### get_tuple / aget_tuple
 
 检索检查点。配置可能包含：
 
@@ -578,7 +578,7 @@ async def aget_tuple(self, config):
 
 返回线程的检查点，最新的在前。尊重`before`（仅返回早于该配置的`checkpoint_id`的检查点）和`limit`。
 
-#### 删除\_thread / 删除\_thread
+#### 删除线程 / adelete_thread
 
 删除线程的所有检查点和写入。检查点行和写入行都必须删除。
 
@@ -614,7 +614,7 @@ CREATE TABLE writes (
 );
 ```
 
-因为 `checkpoint_id` 是一个 ULID，所以它按字典顺序排序——值越大越新。 “获取最新”是`ORDER BY checkpoint_id DESC LIMIT 1`； “get by id”是对主键的相等查找。
+因为 `checkpoint_id` 是一个 ULID，所以它按字典顺序排序 — 值越大越新。 “获取最新”是`ORDER BY checkpoint_id DESC LIMIT 1`； “get by id”是对主键的相等查找。
 
 **对于非 SQL 存储：**同样的原则适用。无论您使用什么密钥方案，通过 `(thread_id, checkpoint_ns, checkpoint_id)` 直接查找都必须是 O(1) 或接近 O(1)。避免这样的设计：通过 id 查找检查点的唯一方法是扫描线程的所有行。### 序列化
 
@@ -640,7 +640,7 @@ CREATE TABLE writes (
 
 代理服务器会自动检测您的检查点在启动时实现的功能并激活相应的功能。
 
-### 达美渠道支持> [!注意]
+### 达美频道支持> [!注意]
 >
 > **DeltaChannel 处于测试阶段。** 当设计稳定时，API 和磁盘上的表示可能会发生变化。
 

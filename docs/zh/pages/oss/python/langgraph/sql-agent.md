@@ -161,7 +161,7 @@ export LANGSMITH_API_KEY="..."
 >
 > os.environ["GOOGLE_API_KEY"] = "..."
 >
-> model = init_chat_model("google_genai:gemini-3.7-flash")
+> model = init_chat_model("google_genai:gemini-4-hydrogen")
 > ```
 >
 > ```python Model Class theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
@@ -170,7 +170,7 @@ export LANGSMITH_API_KEY="..."
 >
 > os.environ["GOOGLE_API_KEY"] = "..."
 >
-> model = ChatGoogleGenerativeAI(model="gemini-3.7-flash")
+> model = ChatGoogleGenerativeAI(model="gemini-4-hydrogen")
 > ```
 
 > [选项卡] AWS 基岩
@@ -300,7 +300,7 @@ else:
         print(f"Failed to download the file. Status code: {response.status_code}")
 ```
 
-我们将使用Python内置的`sqlite3`模块与数据库进行交互：
+我们将使用Python内置的`sqlite3`模块与数据库交互：
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import sqlite3

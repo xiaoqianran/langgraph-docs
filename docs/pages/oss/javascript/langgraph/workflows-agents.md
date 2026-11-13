@@ -504,7 +504,7 @@ In evaluator-optimizer workflows, one LLM call creates a response and the other 
 
 Evaluator-optimizer workflows are commonly used when there's particular success criteria for a task, but iteration is required to meet that criteria. For example, there's not always a perfect match when translating text between two languages. It might take a few iterations to generate a translation with the same meaning across the two languages.
 
-![evaluator\_optimizer.png](https://mintcdn.com/langchain-5e9cc07a/-_xGPoyjhyiDWTPJ/oss/images/evaluator_optimizer.png?fit=max\&auto=format\&n=-_xGPoyjhyiDWTPJ\&q=85\&s=9bd0474f42b6040b14ed6968a9ab4e3c)
+![evaluator_optimizer.png](https://mintcdn.com/langchain-5e9cc07a/-_xGPoyjhyiDWTPJ/oss/images/evaluator_optimizer.png?fit=max\&auto=format\&n=-_xGPoyjhyiDWTPJ\&q=85\&s=9bd0474f42b6040b14ed6968a9ab4e3c)
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { StateGraph, StateSchema, GraphNode, ConditionalEdgeRouter } from "@langchain/langgraph";
