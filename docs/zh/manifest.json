@@ -101,8 +101,8 @@
       "translatedAt": "2026-11-12T17:42:36.325Z"
     },
     "langsmith/cli.md": {
-      "hash": "b15f457f79b349c188b3d2cded2ab3c4c64b3578",
-      "translatedAt": "2026-11-12T17:42:50.236Z"
+      "hash": "37a672d4e573a256d0938bb19958b7e395cd161e",
+      "translatedAt": "2026-11-14T15:59:12.637Z"
     },
     "oss/javascript/langgraph/persistence.md": {
       "hash": "596b01c314b41e1ba319ed7745657c9977ae8958",
@@ -561,10 +561,10 @@
       "translatedAt": "2026-11-07T15:51:37.995Z"
     }
   },
-  "updatedAt": "2026-11-13T17:20:06.609Z",
+  "updatedAt": "2026-11-14T15:59:12.638Z",
   "stats": {
-    "translated": 11,
-    "skipped": 103,
+    "translated": 1,
+    "skipped": 113,
     "failed": 0,
     "total": 114
   }
