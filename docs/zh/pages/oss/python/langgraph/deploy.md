@@ -10,7 +10,7 @@
 
 > [!提示]
 >
-> LangSmith 提供云之外的多种部署选项，包括 [hybrid](/langsmith/hybrid)、[standalone servers](/langsmith/deploy-standalone-server) 和 [self-hosted with control plane](/langsmith/deploy-with-control-plane)。有关更多信息，请参阅[LangSmith Agent Server overview](/langsmith/deployment)。
+> LangSmith 提供云之外的多种部署选项，包括 [hybrid](/langsmith/hybrid)、[standalone servers](/langsmith/deploy-standalone-server) 和 [self-hosted with control plane](/langsmith/deploy-with-control-plane)。有关更多信息，请参阅[Deploy agents](/langsmith/deploy-overview)。
 
 ## LangSmith 云
 
@@ -54,7 +54,7 @@
 
 #### 4. 获取代理服务器的 API URL
 
-在 LangSmith 的 **代理服务器详细信息** 视图中，找到 **URL** 行。单击 **复制代理服务器 URL** 将地址复制到剪贴板。
+In the **Agent Server details** view in LangSmith, find the **URL** row.单击 **复制代理服务器 URL** 将地址复制到剪贴板。
 
 #### 5. 测试 API
 
@@ -112,6 +112,6 @@
 
 ***
 
-[Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
+[Connect these docs](/use-these-docs) to your agent of choice via MCP for real-time answers.
 
 [Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/deploy.mdx) 或 [file an issue](https://github.com/langchain-ai/docs/issues/new/choose)。

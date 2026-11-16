@@ -54,7 +54,7 @@ graph.invoke({"messages": [{"role": "user", "content": "hi!"}]})
 
 ## 能力
 
-LangGraph 为有状态、长时间运行的工作流程提供运行时原语。它不会抽象提示或强制采用固定的代理架构。* **确定性和代理步骤**：将手工编码的节点与模型驱动的节点组合在一张图中。
+LangGraph 为有状态、长时间运行的工作流程提供运行时原语。它不会抽象提示或强制采用固定的代理架构。* **确定性和代理步骤**：将手工编码的节点与模型驱动的节点组合在一个图中。
 * [**Persistence**](/oss/python/langgraph/persistence)：检查点状态并在失败或暂停后恢复。
 * [**Human-in-the-loop**](/oss/python/langgraph/interrupts)：暂停执行，检查或编辑状态，然后继续。
 * [**Memory**](/oss/python/concepts/memory)：跨会话的短期线程状态和长期记忆。
@@ -68,7 +68,7 @@ LangGraph 可以独立工作。但是，您也可以将其与其他LangChain产�
 >
 > 基于 LangGraph 构建的集成和代理抽象。
 
-> [卡][LangSmith Agent Server](/langsmith/deployment)
+> [卡][LangSmith Agent Server](/langsmith/deploy-overview)
 >
 > 通过 Studio 中的可视化原型来部署和扩展有状态代理。
 

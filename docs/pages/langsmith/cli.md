@@ -648,7 +648,7 @@ To build and run a valid application, the LangGraph CLI requires a JSON configur
 > >
 > > This command is in [beta](https://docs.langchain.com/langsmith/release-stages.md) and under active development. Expect frequent updates and improvements. On LangSmith Cloud (SaaS) in AWS, local builds require `langgraph-cli` 0.4.35 or later.
 >
-> Build and deploy a LangGraph image directly to [LangSmith Agent Server](https://docs.langchain.com/langsmith/deployment.md). This command builds a Docker image locally, pushes it to a managed registry, and creates or updates an Agent Server—all in a single step. If Docker is not installed, it triggers a remote build.
+> Build and deploy a LangGraph image directly to [LangSmith Agent Server](https://docs.langchain.com/langsmith/agent-server.md). This command builds a Docker image locally, pushes it to a managed registry, and creates or updates an Agent Server—all in a single step. If Docker is not installed, it triggers a remote build.
 >
 > **Prerequisites**
 >
@@ -971,8 +971,8 @@ To build and run a valid application, the LangGraph CLI requires a JSON configur
 > | `--image TEXT` | | Docker image to use for the langgraph-api service. If specified, skips building and uses this image directly. |
 > | `--postgres-uri TEXT` | Local database | Postgres URI to use for the database. |
 > | `--watch` | | Restart on file changes |
-> | `--debugger-base-url TEXT` | `http://127.0.0.1:[PORT]` | URL used by the debugger to access LangGraph API. |
-> | `--debugger-port INTEGER` | | Pull the debugger image locally and serve the UI on specified port |
+> | `--api-url TEXT` | `http://127.0.0.1:[PORT]` | URL that Studio uses to access the API. |
+> | `--studio-url TEXT` | | URL of the Studio instance to connect to. Defaults to `https://smith.langchain.com`. |
 > | `--verbose` | | Show more output from the server logs. |
 > | `-c, --config FILE` | `langgraph.json` | Path to configuration file declaring dependencies, graphs and environment variables. |
 > | `-d, --docker-compose FILE` | | Path to docker-compose.yml file with additional services to launch. |
@@ -980,6 +980,10 @@ To build and run a valid application, the LangGraph CLI requires a JSON configur
 > | `--pull / --no-pull` | `pull` | Pull latest images. Use `--no-pull` for running the server with locally-built images. Example: `langgraph up --no-pull` |
 > | `--recreate / --no-recreate` | `no-recreate` | Recreate containers even if their configuration and image haven't changed |
 > | `--help` | | Display command documentation. |
+>
+> > [!NOTE]
+> >
+> > `--debugger-base-url` is deprecated. The CLI still accepts it as a hidden alias for `--api-url`, but use `--api-url` instead.
 
 > [tab] JS
 >

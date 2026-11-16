@@ -24,7 +24,7 @@
 
 常见技术故障：* **重命名或删除节点**，当线程暂停或即将进入该节点时，例如在 [⟦T0⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 处或通过仍路由到旧名称的检查点条件边。恢复时，LangGraph无法通过保存的名称找到节点，并且运行失败。恢复运行的起点是执行停止的节点的开头，因此丢失的节点无处可恢复。
 * **重命名或删除旧检查点仍然包含的或下游节点仍然读取的状态密钥**。
-* **收紧状态字段**，例如将 `Optional` 字段设为必填、缩小类型范围或添加新的无默认值的必填字段。现有检查点将无法满足新模式。
+* **收紧状态字段**，例如将 `Optional` 字段设为必填、缩小类型或添加新的不带默认值的必填字段。现有检查点将无法满足新模式。
 
 边缘拓扑本身*不*保留在检查点中。在仍然存在的节点之间添加、删除或重新路由边对于运行中的线程来说是安全的。根据 [Graph migrations](/oss/javascript/langgraph/graph-api#graph-migrations) 总结，唯一可能破坏中断线程的拓扑更改是重命名或删除节点。
 
@@ -37,7 +37,7 @@
 
 在删除节点、重命名 State 键或以其他方式进行旧线程无法容忍的更改之前，您需要了解当前是否有任何线程停放在您要删除的代码版本上。 LangGraph 本身不维护线程状态的搜索索引，因此答案取决于图的运行位置。
 
-**如果您部署到[LangSmith](/langsmith/deployment)。**使用代理服务器的线程搜索按状态进行过滤。 `status` 字段接受 `idle`、`busy`、`interrupted` 和 `error`，因此您可以批量查询 `interrupted` 或 `busy` 线程，可以选择使用元数据过滤器缩小范围。参见[Filter by thread status](/langsmith/use-threads#filter-by-thread-status)和[List threads](/langsmith/use-threads#list-threads)。**在任何地方运行 LangGraph。** 使用 [LangSmith tracing](/oss/javascript/langgraph/observability) 监控生产中哪些节点正在进入和退出。这是最可靠的信号，表明节点或状态字段在任何活动代码路径中都不再可达。
+**如果您[deploy to LangSmith](/langsmith/deploy-overview)。** 使用代理服务器的线程搜索按状态进行过滤。 `status` 字段接受 `idle`、`busy`、`interrupted` 和 `error`，因此您可以批量查询 `interrupted` 或 `busy` 线程，可以选择使用元数据过滤器缩小范围。参见[Filter by thread status](/langsmith/use-threads#filter-by-thread-status)和[List threads](/langsmith/use-threads#list-threads)。**在任何地方运行 LangGraph。** 使用 [LangSmith tracing](/oss/javascript/langgraph/observability) 监控生产中哪些节点正在进入和退出。这是最可靠的信号，表明节点或状态字段在任何活动代码路径中都不再可达。
 
 **当您已经拥有 `thread_id` 时。** 直接检查该单线程：
 

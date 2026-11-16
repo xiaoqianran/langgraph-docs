@@ -50,7 +50,7 @@ Deno
 
 > [!TIP]
 >
-> LangSmith offers multiple deployment options beyond Cloud, including [hybrid](/langsmith/hybrid), [standalone servers](/langsmith/deploy-standalone-server), and [self-hosted with control plane](/langsmith/deploy-with-control-plane). For more information, see the [LangSmith Agent Server overview](/langsmith/deployment).
+> LangSmith offers multiple deployment options beyond Cloud, including [hybrid](/langsmith/hybrid), [standalone servers](/langsmith/deploy-standalone-server), and [self-hosted with control plane](/langsmith/deploy-with-control-plane). For more information, see [Deploy agents](/langsmith/deploy-overview).
 
 ## LangSmith Cloud
 

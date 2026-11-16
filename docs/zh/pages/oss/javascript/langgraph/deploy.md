@@ -52,7 +52,7 @@ Next.js
 
 > [!提示]
 >
-> LangSmith 提供云之外的多种部署选项，包括 [hybrid](/langsmith/hybrid)、[standalone servers](/langsmith/deploy-standalone-server) 和 [self-hosted with control plane](/langsmith/deploy-with-control-plane)。欲了解更多信息，请参阅[LangSmith Agent Server overview](/langsmith/deployment)。
+> LangSmith 提供云之外的多种部署选项，包括 [hybrid](/langsmith/hybrid)、[standalone servers](/langsmith/deploy-standalone-server) 和 [self-hosted with control plane](/langsmith/deploy-with-control-plane)。欲了解更多信息，请参阅[Deploy agents](/langsmith/deploy-overview)。
 
 ## LangSmith 云
 

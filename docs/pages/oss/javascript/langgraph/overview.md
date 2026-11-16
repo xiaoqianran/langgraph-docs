@@ -83,7 +83,7 @@ LangGraph works on its own. However, you can also pair it with other LangChain p
 >
 > Integrations and agent abstractions built on LangGraph.
 
-> [card] [LangSmith Agent Server](/langsmith/deployment)
+> [card] [LangSmith Agent Server](/langsmith/deploy-overview)
 >
 > Deploy and scale stateful agents, with visual prototyping in Studio.
 
