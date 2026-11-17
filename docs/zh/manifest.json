@@ -561,10 +561,10 @@
       "translatedAt": "2026-11-07T15:51:37.995Z"
     }
   },
-  "updatedAt": "2026-11-16T19:46:58.091Z",
+  "updatedAt": "2026-11-17T18:43:04.755Z",
   "stats": {
-    "translated": 13,
-    "skipped": 101,
+    "translated": 0,
+    "skipped": 114,
     "failed": 0,
     "total": 114
   }
