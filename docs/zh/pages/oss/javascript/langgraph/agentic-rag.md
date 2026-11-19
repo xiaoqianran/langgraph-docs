@@ -97,7 +97,7 @@ const docs = await Promise.all(urls.map((url) => loadWebPage(url)));
 
 **2.拆分文档**
 
-将获取的文档分割成更小的块，以便索引到向量存储中：
+将获取的文档分割成更小的块，以便索引到向量存储中。有关选择块大小和分割策略的指南，请参阅[Chunk documents for retrieval](/oss/javascript/langchain/chunking)。
 
 ```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 const docsList = docs.flat();
@@ -140,9 +140,9 @@ const tools = [tool];
 await tool.invoke({ query: "types of reward hacking" });
 ```
 
-## 生成查询或响应
+## 生成查询或响应准备好检索器工具后，开始将代理构建为 LangGraph 图。在[Graph API](/oss/javascript/langgraph/graph-api)中，图表由以下部分组成：
 
-准备好检索器工具后，开始将代理构建为 LangGraph 图。在[Graph API](/oss/javascript/langgraph/graph-api)中，图表由以下部分组成：* **[State](/oss/javascript/langgraph/graph-api#state)**：节点读取和更新的共享数据。本教程使用[⟦T28⟧](/oss/javascript/langgraph/graph-api#using-messages-in-your-graph)，它存储[chat messages](/oss/javascript/langchain/messages)的`messages`列表。
+* **[State](/oss/javascript/langgraph/graph-api#state)**：节点读取和更新的共享数据。本教程使用[⟦T28⟧](/oss/javascript/langgraph/graph-api#using-messages-in-your-graph)，它存储[chat messages](/oss/javascript/langchain/messages)的`messages`列表。
 
 * **[Nodes](/oss/javascript/langgraph/graph-api#nodes)**：获取当前状态、运行步骤（例如，调用模型或工具）并返回状态更新的函数。
 
@@ -544,11 +544,12 @@ async function runAgenticRag() {
 
 ## 另请参阅
 
-* [Retrieval](/oss/javascript/langchain/retrieval)
+* [Retrieval](/oss/javascript/deepagents/retrieval)
 * [Graph API](/oss/javascript/langgraph/graph-api)
 * [Agents](/oss/javascript/langchain/agents)
 * [Build a RAG agent](/oss/javascript/deepagents/rag)
 * [Build a semantic search engine](/oss/javascript/langchain/knowledge-base)
+* [Chunk documents for retrieval](/oss/javascript/langchain/chunking)
 
 ***
 

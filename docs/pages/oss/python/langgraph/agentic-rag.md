@@ -102,7 +102,7 @@ docs = [load_web_page(url) for url in urls]
 
 **2. Split documents**
 
-Split the fetched documents into smaller chunks for indexing into the vector store:
+Split the fetched documents into smaller chunks for indexing into the vector store. For guidance on choosing chunk size and a splitting strategy, see [Chunk documents for retrieval](/oss/python/langchain/chunking).
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from langchain_text_splitters import RecursiveCharacterTextSplitter
@@ -587,11 +587,12 @@ def run_agentic_rag() -> None:
 
 ## See also
 
-* [Retrieval](/oss/python/langchain/retrieval)
+* [Retrieval](/oss/python/deepagents/retrieval)
 * [Graph API](/oss/python/langgraph/graph-api)
 * [Agents](/oss/python/langchain/agents)
 * [Build a RAG agent](/oss/python/deepagents/rag)
 * [Build a semantic search engine](/oss/python/langchain/knowledge-base)
+* [Chunk documents for retrieval](/oss/python/langchain/chunking)
 
 ***
 

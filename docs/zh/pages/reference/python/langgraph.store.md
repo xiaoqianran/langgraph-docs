@@ -10,21 +10,21 @@
 
 ## 课程
 
-- [⟦T0⟧](https://reference.langchain.com/python/langgraph.store/base/NotProvided)
-- [⟦T1⟧](https://reference.langchain.com/python/langgraph.store/base/Item)
-- [⟦T2⟧](https://reference.langchain.com/python/langgraph.store/base/SearchItem)
-- [⟦T3⟧](https://reference.langchain.com/python/langgraph.store/base/GetOp)
-- [⟦T4⟧](https://reference.langchain.com/python/langgraph.store/base/SearchOp)
-- [⟦T5⟧](https://reference.langchain.com/python/langgraph.store/base/MatchCondition)
-- [⟦T6⟧](https://reference.langchain.com/python/langgraph.store/base/ListNamespacesOp)
-- [⟦T7⟧](https://reference.langchain.com/python/langgraph.store/base/PutOp)
-- [⟦T8⟧](https://reference.langchain.com/python/langgraph.store/base/InvalidNamespaceError)
-- [⟦T9⟧](https://reference.langchain.com/python/langgraph.store/base/TTLConfig)
-- [⟦T10⟧](https://reference.langchain.com/python/langgraph.store/base/IndexConfig)
-- [⟦T11⟧](https://reference.langchain.com/python/langgraph.store/base/BaseStore)
-- [⟦T12⟧](https://reference.langchain.com/python/langgraph.store/base/batch/AsyncBatchedBaseStore)
-- [⟦T13⟧](https://reference.langchain.com/python/langgraph.store/base/embed/EmbeddingsLambda)
-- [⟦T14⟧](https://reference.langchain.com/python/langgraph.store/memory/InMemoryStore)
+- [⟦T0⟧](https://reference.langchain.com/python/langgraph.store/memory/InMemoryStore)
+- [⟦T1⟧](https://reference.langchain.com/python/langgraph.store/base/NotProvided)
+- [⟦T2⟧](https://reference.langchain.com/python/langgraph.store/base/Item)
+- [⟦T3⟧](https://reference.langchain.com/python/langgraph.store/base/SearchItem)
+- [⟦T4⟧](https://reference.langchain.com/python/langgraph.store/base/GetOp)
+- [⟦T5⟧](https://reference.langchain.com/python/langgraph.store/base/SearchOp)
+- [⟦T6⟧](https://reference.langchain.com/python/langgraph.store/base/MatchCondition)
+- [⟦T7⟧](https://reference.langchain.com/python/langgraph.store/base/ListNamespacesOp)
+- [⟦T8⟧](https://reference.langchain.com/python/langgraph.store/base/PutOp)
+- [⟦T9⟧](https://reference.langchain.com/python/langgraph.store/base/InvalidNamespaceError)
+- [⟦T10⟧](https://reference.langchain.com/python/langgraph.store/base/TTLConfig)
+- [⟦T11⟧](https://reference.langchain.com/python/langgraph.store/base/IndexConfig)
+- [⟦T12⟧](https://reference.langchain.com/python/langgraph.store/base/BaseStore)
+- [⟦T13⟧](https://reference.langchain.com/python/langgraph.store/base/batch/AsyncBatchedBaseStore)
+- [⟦T14⟧](https://reference.langchain.com/python/langgraph.store/base/embed/EmbeddingsLambda)
 
 ## 函数
 

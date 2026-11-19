@@ -13,7 +13,7 @@ LangChain 提供基于 [LangGraph](/oss/python/langgraph/overview) 原语构建�
 在本教程中，您将：
 
 1. 获取并预处理文档以供检索。
-2. 为这些文档建立索引以进行语义搜索，并为代理创建检索器工具。
+2. 对这些文档进行索引以进行语义搜索，并为代理创建检索器工具。
 3. 构建一个代理 RAG 系统，可以决定何时使用检索器工具。
 
 ![Hybrid RAG](https://mintcdn.com/langchain-5e9cc07a/I6RpA28iE233vhYX/images/langgraph-hybrid-rag-tutorial.png?fit=max\&auto=format\&n=I6RpA28iE233vhYX\&q=85\&s=855348219691485642b22a1419939ea7)
@@ -73,7 +73,7 @@ os.environ["LANGSMITH_API_KEY"] = getpass.getpass()
 
 ## 预处理文档
 
-**1.获取文档**
+**1.获取文件**
 
 使用来自[Lilian Weng's blog](https://lilianweng.github.io/)的三个帖子。使用基于 `requests` 和 `BeautifulSoup` 构建的最小帮助程序获取页面内容。
 
@@ -102,7 +102,7 @@ docs = [load_web_page(url) for url in urls]
 
 **2.拆分文档**
 
-将获取的文档分割成更小的块，以便索引到向量存储中：
+将获取的文档分割成更小的块，以便索引到向量存储中。有关选择块大小和分割策略的指南，请参阅[Chunk documents for retrieval](/oss/python/langchain/chunking)。
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from langchain_text_splitters import RecursiveCharacterTextSplitter
@@ -165,9 +165,9 @@ retriever_tool = retrieve_blog_posts
 retriever_tool.invoke({"query": "types of reward hacking"})
 ```
 
-## 生成查询或响应
+## 生成查询或响应准备好检索器工具后，开始将代理构建为LangGraph图。在[Graph API](/oss/python/langgraph/graph-api)中，图表由以下部分组成：
 
-准备好检索器工具后，开始将代理构建为 LangGraph 图。在[Graph API](/oss/python/langgraph/graph-api)中，图表由以下部分组成：* **[State](/oss/python/langgraph/graph-api#state)**：节点读取和更新的共享数据。本教程使用[⟦T29⟧](/oss/python/langgraph/graph-api#messagesstate)，它存储[chat messages](/oss/python/langchain/messages)的`messages`列表。
+* **[State](/oss/python/langgraph/graph-api#state)**：节点读取和更新的共享数据。本教程使用[⟦T29⟧](/oss/python/langgraph/graph-api#messagesstate)，它存储[chat messages](/oss/python/langchain/messages)的`messages`列表。
 
 * **[Nodes](/oss/python/langgraph/graph-api#nodes)**：获取当前状态、运行步骤（例如，调用模型或工具）并返回状态更新的函数。
 
@@ -320,7 +320,7 @@ grade_documents(input)
 
 **3.结合相关文件进行测试**
 
-确认相关文件分类如下：
+确认相关文件的分类如下：
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 input = {
@@ -579,11 +579,12 @@ def run_agentic_rag() -> None:
 
 ## 另请参阅
 
-* [Retrieval](/oss/python/langchain/retrieval)
+* [Retrieval](/oss/python/deepagents/retrieval)
 * [Graph API](/oss/python/langgraph/graph-api)
 * [Agents](/oss/python/langchain/agents)
 * [Build a RAG agent](/oss/python/deepagents/rag)
 * [Build a semantic search engine](/oss/python/langchain/knowledge-base)
+* [Chunk documents for retrieval](/oss/python/langchain/chunking)
 
 ***
 

@@ -97,7 +97,7 @@ const docs = await Promise.all(urls.map((url) => loadWebPage(url)));
 
 **2. Split documents**
 
-Split the fetched documents into smaller chunks for indexing into the vector store:
+Split the fetched documents into smaller chunks for indexing into the vector store. For guidance on choosing chunk size and a splitting strategy, see [Chunk documents for retrieval](/oss/javascript/langchain/chunking).
 
 ```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 const docsList = docs.flat();
@@ -552,11 +552,12 @@ async function runAgenticRag() {
 
 ## See also
 
-* [Retrieval](/oss/javascript/langchain/retrieval)
+* [Retrieval](/oss/javascript/deepagents/retrieval)
 * [Graph API](/oss/javascript/langgraph/graph-api)
 * [Agents](/oss/javascript/langchain/agents)
 * [Build a RAG agent](/oss/javascript/deepagents/rag)
 * [Build a semantic search engine](/oss/javascript/langchain/knowledge-base)
+* [Chunk documents for retrieval](/oss/javascript/langchain/chunking)
 
 ***
 

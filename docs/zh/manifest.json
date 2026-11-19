@@ -29,8 +29,8 @@
       "translatedAt": "2026-11-12T17:42:26.136Z"
     },
     "oss/javascript/langgraph/agentic-rag.md": {
-      "hash": "a50275a8bc9628e005abd944fc1adf272c3fd6e2",
-      "translatedAt": "2026-10-23T14:21:35.079Z"
+      "hash": "a687e7ac5aa7392981062a85e8b223878811e613",
+      "translatedAt": "2026-11-19T18:32:41.826Z"
     },
     "oss/javascript/langgraph/application-structure.md": {
       "hash": "270a2eff918a58269b9dbbccf9ff6ceea0b5a44c",
@@ -177,8 +177,8 @@
       "translatedAt": "2026-11-07T15:51:18.952Z"
     },
     "oss/python/langgraph/agentic-rag.md": {
-      "hash": "3b59c4cc8161e094bf0bbc625272ce1bc212d55f",
-      "translatedAt": "2026-10-21T14:37:12.167Z"
+      "hash": "80ad3748b0a285167830d2b8cef86e778bb7abe6",
+      "translatedAt": "2026-11-19T18:32:40.827Z"
     },
     "oss/python/langgraph/changelog-py.md": {
       "hash": "b497a905a0587b9a879c0943b896e8cbde5f9f48",
@@ -397,12 +397,12 @@
       "translatedAt": "2026-11-06T16:53:09.020Z"
     },
     "reference/python/langgraph.store.md": {
-      "hash": "8c71254698b9980e0724c2c9874e36a66d4128dd",
-      "translatedAt": "2026-10-29T16:22:40.641Z"
+      "hash": "6a662707a8f63441aae535d7a239b7d2d2c62e86",
+      "translatedAt": "2026-11-19T18:32:38.276Z"
     },
     "reference/python/langgraph.prebuilt.md": {
-      "hash": "04f482b8577f5eb5a2d8809102ab6da93b0e9b43",
-      "translatedAt": "2026-11-05T17:34:48.190Z"
+      "hash": "dba54afbe95ddbf2e2178666f5556037179bac57",
+      "translatedAt": "2026-11-19T18:32:36.788Z"
     },
     "reference/python/langgraph.store.postgres.md": {
       "hash": "33f7e340f7d39ffdb3a9764fe1394290163dfca2",
@@ -561,10 +561,10 @@
       "translatedAt": "2026-11-07T15:51:37.995Z"
     }
   },
-  "updatedAt": "2026-11-18T18:19:34.873Z",
+  "updatedAt": "2026-11-19T18:32:41.826Z",
   "stats": {
-    "translated": 0,
-    "skipped": 114,
+    "translated": 4,
+    "skipped": 110,
     "failed": 0,
     "total": 114
   }
