@@ -8,16 +8,18 @@
 
 ## Classes
 
+- [`ChannelProtocol`](https://reference.langchain.com/python/langgraph.checkpoint/serde/types/ChannelProtocol)
+- [`SendProtocol`](https://reference.langchain.com/python/langgraph.checkpoint/serde/types/SendProtocol)
+- [`JsonPlusSerializer`](https://reference.langchain.com/python/langgraph.checkpoint/serde/jsonplus/JsonPlusSerializer)
+- [`InvalidModuleError`](https://reference.langchain.com/python/langgraph.checkpoint/serde/jsonplus/InvalidModuleError)
+- [`SerdeEvent`](https://reference.langchain.com/python/langgraph.checkpoint/serde/event_hooks/SerdeEvent)
+- [`EncryptedSerializer`](https://reference.langchain.com/python/langgraph.checkpoint/serde/encrypted/EncryptedSerializer)
 - [`UntypedSerializerProtocol`](https://reference.langchain.com/python/langgraph.checkpoint/serde/base/UntypedSerializerProtocol)
 - [`SerializerProtocol`](https://reference.langchain.com/python/langgraph.checkpoint/serde/base/SerializerProtocol)
 - [`SerializerCompat`](https://reference.langchain.com/python/langgraph.checkpoint/serde/base/SerializerCompat)
 - [`CipherProtocol`](https://reference.langchain.com/python/langgraph.checkpoint/serde/base/CipherProtocol)
-- [`EncryptedSerializer`](https://reference.langchain.com/python/langgraph.checkpoint/serde/encrypted/EncryptedSerializer)
-- [`JsonPlusSerializer`](https://reference.langchain.com/python/langgraph.checkpoint/serde/jsonplus/JsonPlusSerializer)
-- [`InvalidModuleError`](https://reference.langchain.com/python/langgraph.checkpoint/serde/jsonplus/InvalidModuleError)
-- [`SerdeEvent`](https://reference.langchain.com/python/langgraph.checkpoint/serde/event_hooks/SerdeEvent)
-- [`ChannelProtocol`](https://reference.langchain.com/python/langgraph.checkpoint/serde/types/ChannelProtocol)
-- [`SendProtocol`](https://reference.langchain.com/python/langgraph.checkpoint/serde/types/SendProtocol)
+- [`InMemorySaver`](https://reference.langchain.com/python/langgraph.checkpoint/memory/InMemorySaver)
+- [`PersistentDict`](https://reference.langchain.com/python/langgraph.checkpoint/memory/PersistentDict)
 - [`CheckpointMetadata`](https://reference.langchain.com/python/langgraph.checkpoint/base/CheckpointMetadata)
 - [`Checkpoint`](https://reference.langchain.com/python/langgraph.checkpoint/base/Checkpoint)
 - [`CheckpointTuple`](https://reference.langchain.com/python/langgraph.checkpoint/base/CheckpointTuple)
@@ -25,14 +27,12 @@
 - [`BaseCheckpointSaver`](https://reference.langchain.com/python/langgraph.checkpoint/base/BaseCheckpointSaver)
 - [`EmptyChannelError`](https://reference.langchain.com/python/langgraph.checkpoint/base/EmptyChannelError)
 - [`UUID`](https://reference.langchain.com/python/langgraph.checkpoint/base/id/UUID)
-- [`InMemorySaver`](https://reference.langchain.com/python/langgraph.checkpoint/memory/InMemorySaver)
-- [`PersistentDict`](https://reference.langchain.com/python/langgraph.checkpoint/memory/PersistentDict)
 
 ## Functions
 
-- [`maybe_add_typed_methods()`](https://reference.langchain.com/python/langgraph.checkpoint/serde/base/maybe_add_typed_methods)
 - [`register_serde_event_listener()`](https://reference.langchain.com/python/langgraph.checkpoint/serde/event_hooks/register_serde_event_listener)
 - [`emit_serde_event()`](https://reference.langchain.com/python/langgraph.checkpoint/serde/event_hooks/emit_serde_event)
+- [`maybe_add_typed_methods()`](https://reference.langchain.com/python/langgraph.checkpoint/serde/base/maybe_add_typed_methods)
 - [`copy_checkpoint()`](https://reference.langchain.com/python/langgraph.checkpoint/base/copy_checkpoint)
 - [`writes_sort_key()`](https://reference.langchain.com/python/langgraph.checkpoint/base/writes_sort_key)
 - [`get_checkpoint_id()`](https://reference.langchain.com/python/langgraph.checkpoint/base/get_checkpoint_id)
