@@ -4,7 +4,7 @@
 
 # 中断
 
-中断允许您在特定点暂停图形执行并在继续之前等待外部输入。这可以实现需要外部输入才能继续的人机交互模式。当触发中断时，LangGraph 使用其[persistence](https://docs.langchain.com/oss/python/langgraph/persistence.md) 层保存图形状态，并无限期等待，直到恢复执行。
+中断允许您在特定点暂停图形执行并在继续之前等待外部输入。这可以实现需要外部输入才能继续的人机交互模式。触发中断时，LangGraph 使用其[persistence](https://docs.langchain.com/oss/python/langgraph/persistence.md) 层保存图形状态，并无限期等待，直到恢复执行。
 
 中断通过在图形节点中的任意点调用 `interrupt()` 函数来工作。该函数接受向调用者显示的任何 JSON 可序列化值。当您准备好继续时，您可以通过使用 `Command` 重新调用图形来恢复执行，然后该图将成为从节点内部调用 `interrupt()` 的返回值。
 
@@ -39,7 +39,7 @@ def approval_node(state: State):
 
 1. **图形执行在调用 [⟦T51⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 的确切位置暂停**2. **使用检查指针保存状态**，以便稍后可以恢复执行，在生产中，这应该是一个持久的检查指针（例如由数据库支持）
 
-3. 使用[event streaming](https://docs.langchain.com/oss/python/langgraph/event-streaming.md)（`graph.stream_events(..., version="v3")`）时，**在`stream.interrupts`上，或在使用默认`invoke()` API时，在`__interrupt__`下，将值返回给调用者；它可以是任何 JSON 可序列化的值（字符串、对象、数组等）
+3. 当使用[event streaming](https://docs.langchain.com/oss/python/langgraph/event-streaming.md)（`graph.stream_events(..., version="v3")`）时，**在`stream.interrupts`上将值返回**给调用者，或者在`__interrupt__`下使用默认的`invoke()` API；它可以是任何 JSON 可序列化的值（字符串、对象、数组等）
 
 4. **Graph 无限期地等待**，直到您通过响应恢复执行
 
@@ -360,7 +360,7 @@ graph.stream_events(Command(resume=False), config=config, version="v3").output
 
 ### 查看和编辑状态
 
-有时，您希望在继续之前让人工检查并编辑部分图形状态。这对于纠正法学硕士、添加缺失的信息或进行调整非常有用。
+有时您希望在继续之前让人工检查并编辑部分图形状态。这对于纠正法学硕士、添加缺失的信息或进行调整非常有用。
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from langgraph.types import interrupt
@@ -582,7 +582,7 @@ def send_email(to: str, subject: str, body: str):
 
 > [!警告]
 >
-> **避免 `while True` + `interrupt()` 在单个节点内循环。** 因为节点在每次恢复时都从头重新运行（请参阅 [Rules of interrupts](#rules-of-interrupts)），多次调用 `interrupt()` 的循环会导致每个恢复重播所有先前的迭代：第一个恢复重播 1 次迭代，第二次重播 2 次迭代，依此类推。
+> **避免 `while True` + `interrupt()` 在单个节点内循环。** 因为节点在每次恢复时都从头重新运行（请参阅 [Rules of interrupts](#rules-of-interrupts)），所以多次调用 `interrupt()` 的循环会导致每个恢复重播所有先前的迭代：第一个恢复重播 1 次迭代，第二次重播 2 次迭代，依此类推。
 
 正确的模式：
 
@@ -675,9 +675,9 @@ builder.add_conditional_edges("collect_age", route)
 
 ## 中断规则
 
-当您在节点内调用 [⟦T125⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 时，LangGraph 通过引发异常来通知运行时暂停，从而暂停执行。该异常通过调用堆栈向上传播并被运行时捕获，通知图保存当前状态并等待外部输入。
+当您在节点内调用 [⟦T125⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 时，LangGraph 通过引发异常来指示运行时暂停，从而暂停执行。该异常通过调用堆栈向上传播并被运行时捕获，通知图保存当前状态并等待外部输入。
 
-当执行恢复时（在您提供请求的输入之后），运行时会从头开始重新启动整个节点 - 它不会从调用 [⟦T126⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 的确切行恢复。这意味着在 [⟦T127⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 之前运行的任何代码都将再次执行。因此，在处理中断时需要遵循一些重要规则，以确保它们按预期运行。
+当执行恢复时（在提供请求的输入之后），运行时会从头开始重新启动整个节点 - 它不会从调用 [⟦T126⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 的确切行恢复。这意味着在 [⟦T127⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 之前运行的任何代码都将再次执行。因此，在处理中断时需要遵循一些重要规则，以确保它们按预期运行。
 
 ### 不要将 `interrupt` 调用包装在 try/ except 中[⟦T129⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 在调用点暂停执行的方法是抛出一个特殊的异常。如果将 [⟦T130⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 调用包装在 try/ except 块中，您将捕获此异常，并且中断将不会传递回图表。
 
@@ -725,7 +725,7 @@ def node_a(state: State):
 
 在单个节点中使用多个中断是很常见的，但是如果处理不仔细，这可能会导致意外的行为。
 
-当节点包含多个中断调用时，LangGraph 会保留特定于执行该节点的任务的恢复值列表。每当执行恢复时，它都会从节点的开头开始。对于遇到的每个中断，LangGraph 检查任务的恢复列表中是否存在匹配的值。匹配**严格基于索引**，因此节点内中断调用的顺序很重要。
+当节点包含多个中断调用时，LangGraph 保留特定于执行该节点的任务的恢复值列表。每当执行恢复时，它都会从节点的开头开始。对于遇到的每个中断，LangGraph 检查任务的恢复列表中是否存在匹配的值。匹配**严格基于索引**，因此节点内中断调用的顺序很重要。
 
 * ✅ 保持 [⟦T134⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 调用在节点执行之间保持一致
 
@@ -800,7 +800,7 @@ def node_a(state: State):
     return {"user": response}
 ```
 
-* 🔴 不要将函数、类实例或其他复杂对象传递给[⟦T140⟧](https://reference.langchain.com/python/langgraph/types/interrupt)
+* 🔴不要将函数、类实例或其他复杂对象传递给[⟦T140⟧](https://reference.langchain.com/python/langgraph/types/interrupt)
 
 ```python Functions theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 def validate_input(value):
@@ -840,6 +840,7 @@ def node_a(state: State):
 * ✅ 在[⟦T144⟧](https://reference.langchain.com/python/langgraph/types/interrupt)之前使用幂等操作
 * ✅ 在 [⟦T145⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 调用之后放置副作用
 * ✅尽可能将副作用分离到单独的节点中
+* ✅ 在长时间中断后，在变异副作用发生之前重新读取外部状态（价格、库存、政策）。不要假设暂停前的世界仍然有效。
 
 在下面的批准后示例中，副作用仅在批准成功时运行。如果节点在提交副作用后但完成之前失败，重试该节点可以重复该效果。在外部系统中使用幂等操作或重复写入。
 
@@ -920,9 +921,15 @@ def node_a(state: State):
     return {"approved": approved}
 ```
 
+### 当批准存在于图表之外时某些工作流程使用外部系统进行审批和作业执行。在这种情况下，请将恢复值视为操作员返回的确认，而不是批准决定本身。
+
+* 在一个节点中提交受管理的作业，并在单独的中断之前检查其标识符。
+* 在恢复时，观察外部系统中该作业的状态。如果仍待批准，请再次致电[⟦T147⟧](https://reference.langchain.com/python/langgraph/types/interrupt)，而不是提交新作业。
+* 将授权和请求编辑保留在自己的边界内。更改的请求需要新的受管理作业，而不是重写原始请求的恢复负载。
+
 ## 与称为函数的子图一起使用
 
-当调用节点内的子图时，父图将从调用子图并触发[⟦T147⟧](https://reference.langchain.com/python/langgraph/types/interrupt)的**节点**开始处恢复执行。同样，**子图**也会从调用 [⟦T148⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 的节点的开头开始恢复。
+当调用节点内的子图时，父图将从调用子图并触发[⟦T148⟧](https://reference.langchain.com/python/langgraph/types/interrupt)的**节点**开始处恢复执行。同样，**子图**也会从调用 [⟦T149⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 的节点的开头开始恢复。
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 def node_in_parent_graph(state: State):
@@ -938,11 +945,11 @@ def node_in_subgraph(state: State):
     # ...
 ```
 
-## 使用中断进行调试要调试和测试图形，您可以使用静态中断作为断点，一次单步执行一个节点的图形执行。静态中断在节点执行之前或之后的定义点触发。您可以在编译图表时通过指定 `interrupt_before` 和 `interrupt_after` 来设置这些。
+## 使用中断进行调试要调试和测试图表，您可以使用静态中断作为断点，一次单步执行一个节点的图表执行。静态中断在节点执行之前或之后的定义点触发。您可以在编译图表时通过指定 `interrupt_before` 和 `interrupt_after` 来设置这些。
 
 > [!注意]
 >
-> **不**建议将静态中断用于人机交互工作流程。请改用 [⟦T151⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 函数。
+> **不**建议将静态中断用于人机交互工作流程。请改用 [⟦T152⟧](https://reference.langchain.com/python/langgraph/types/interrupt) 函数。
 
 > [选项卡] 编译时
 >

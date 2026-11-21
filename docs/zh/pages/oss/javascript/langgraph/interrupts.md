@@ -144,7 +144,7 @@ Studio 将中断响应架构呈现为键入的输入字段而不是 JSON 编辑�
 
 ### 具有人机交互 (HITL) 中断的流
 
-当使用人机交互工作流程构建交互式代理时，您可以使用[event streaming](/oss/javascript/langgraph/event-streaming)在处理中断的同时同时使用消息块和状态快照。
+在使用人机交互工作流程构建交互式代理时，您可以使用 [event streaming](/oss/javascript/langgraph/event-streaming) 在处理中断的同时同时使用消息块和状态快照。
 
 循环使用 `graph.stream_events(..., version="v3")` 返回的类型化投影，直到运行完成：
 
@@ -354,7 +354,7 @@ await graph.invoke(new Command({ resume: false }), config);
 > console.log(resumed.status); // -> "approved"
 > ```
 
-### 查看和编辑状态有时，您希望在继续之前让人工检查并编辑部分图形状态。这对于纠正法学硕士、添加缺失的信息或进行调整非常有用。
+### 查看和编辑状态有时您希望在继续之前让人工检查并编辑部分图形状态。这对于纠正法学硕士、添加缺失的信息或进行调整非常有用。
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { interrupt } from "@langchain/langgraph";
@@ -663,7 +663,7 @@ const getAgeNode: typeof State.Node = (state) => {
 
 ## 中断规则
 
-当您在节点内调用 [⟦T113⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 时，LangGraph 通过引发异常来指示运行时暂停，从而暂停执行。该异常通过调用堆栈向上传播并被运行时捕获，通知图保存当前状态并等待外部输入。
+当您在节点内调用 [⟦T113⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 时，LangGraph 会引发异常，指示运行时暂停，从而暂停执行。该异常通过调用堆栈向上传播并被运行时捕获，通知图保存当前状态并等待外部输入。
 
 当执行恢复时（在提供请求的输入之后），运行时会从头开始重新启动整个节点 - 它不会从调用 [⟦T114⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 的确切行恢复。这意味着在 [⟦T115⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 之前运行的任何代码都将再次执行。因此，在处理中断时需要遵循一些重要规则，以确保它们按预期运行。
 
@@ -803,7 +803,7 @@ const nodeA: GraphNode<typeof State> = async (state) => {
 }
 ```
 
-* 🔴 不要将函数、类实例或其他复杂对象传递给[⟦T128⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt)
+* 🔴不要将函数、类实例或其他复杂对象传递给[⟦T128⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt)
 
 ```typescript Functions theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 function validateInput(value: string): boolean {
@@ -846,6 +846,7 @@ const nodeA: GraphNode<typeof State> = async (state) => {
 * ✅ 在[⟦T132⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt)之前使用幂等操作
 * ✅ 在 [⟦T133⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 调用之后放置副作用
 * ✅尽可能将副作用分离到单独的节点中
+* ✅ 在长时间中断后，在变异副作用发生之前重新读取外部状态（价格、库存、政策）。不要假设暂停前的世界仍然有效。
 
 在下面的批准后示例中，副作用仅在批准成功时运行。如果节点在提交副作用后但完成之前失败，重试该节点可以重复该效果。在外部系统中使用幂等操作或重复写入。
 
@@ -934,9 +935,15 @@ const nodeA: GraphNode<typeof State> = async (state) => {
 }
 ```
 
+### 当批准存在于图表之外时某些工作流程使用外部系统进行审批和作业执行。在这种情况下，请将恢复值视为操作员返回的确认，而不是批准决定本身。
+
+* 在一个节点中提交受管理的作业，并在单独的中断之前检查其标识符。
+* 在恢复时，观察外部系统中该作业的状态。如果仍待批准，请再次致电[⟦T135⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt)，而不是提交新作业。
+* 将授权和请求编辑保留在自己的边界内。更改的请求需要新的受管理作业，而不是重写原始请求的恢复负载。
+
 ## 与称为函数的子图一起使用
 
-当调用节点内的子图时，父图将从调用子图并触发[⟦T135⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt)的**节点**开始处恢复执行。同样，**子图**也会从调用 [⟦T136⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 的节点的开头开始恢复。
+当调用节点内的子图时，父图将从调用子图并触发[⟦T136⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt)的**节点**开始处恢复执行。同样，**子图**也会从调用 [⟦T137⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 的节点的开头开始恢复。
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 async function nodeInParentGraph(state: State) {
@@ -958,7 +965,7 @@ async function nodeInSubgraph(state: State) {
 
 > [!注意]
 >
-> **不**建议将静态中断用于人机交互工作流程。请改用 [⟦T139⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 函数。
+> **不**建议将静态中断用于人机交互工作流程。请改用 [⟦T140⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/interrupt) 函数。
 
 > [选项卡] 编译时
 >
@@ -1003,7 +1010,7 @@ async function nodeInSubgraph(state: State) {
 > await graph.invoke(null, config);  // [!code highlight]
 > ```
 >
-> 1. 使用`interruptBefore`和`interruptAfter`参数调用`graph.invoke`。这是一个运行时配置，可以在每次调用时更改。
+> 1. 使用`interruptBefore`和`interruptAfter`参数调用`graph.invoke`。这是一个运行时配置，可以针对每次调用进行更改。
 > 2. `interruptBefore` 指定执行该节点之前应暂停执行的节点。
 > 3. `interruptAfter` 指定该节点执行完毕后应暂停执行的节点。
 > 4. 运行图表直至遇到第一个断点。
