@@ -55,7 +55,7 @@ uv sync
 
 > [!注意]
 >
-> 在发送跟踪之前，在[agent-based workspace](/langsmith/agent-registry)、[create an agent](/langsmith/create-an-agent) 中进行一次。使用[agent addressing](/langsmith/log-traces-to-agent)选择其标识符和环境。如果集成需要 `project_name`，请使用所选环境的 [⟦T21⟧](/langsmith/create-an-agent#use-an-environment-project) 作为兼容性值。
+> [Create an agent](/langsmith/create-an-agent) 在发送跟踪之前一次。使用[agent addressing](/langsmith/log-traces-to-agent)选择其标识符和环境。如果集成需要 `project_name`，请使用所选环境的 [⟦T21⟧](/langsmith/create-an-agent#use-an-environment-project)。
 
 您将在新的 LangGraph 应用程序的根目录中找到 `.env.example`。在新的LangGraph应用程序的根目录中创建一个`.env`文件，并将`.env.example`文件的内容复制到其中，填写必要的API密钥：
 
@@ -63,9 +63,9 @@ uv sync
 LANGSMITH_API_KEY=lsv2...
 LANGSMITH_AGENT_ID="<your-agent-id>"
 LANGSMITH_AGENT_ENVIRONMENT="local"
-```## 5.启动代理服务器
+```
 
-本地启动 LangGraph API 服务器：
+## 5.启动代理服务器本地启动 LangGraph API 服务器：
 
 ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 langgraph dev
@@ -90,7 +90,7 @@ This in-memory server is designed for development and testing.
 For production use, please use LangSmith Agent Server.
 ```
 
-`langgraph dev` 命令以内存模式启动 Agent Server。该模式适合开发和测试目的。对于生产使用，部署可以访问持久存储后端的代理服务器。有关更多信息，请参阅[Platform setup overview](/langsmith/platform-setup)。
+`langgraph dev` 命令以内存模式启动 Agent Server。该模式适合开发和测试目的。对于生产使用，部署可以访问持久存储后端的代理服务器。欲了解更多信息，请参阅[Platform setup overview](/langsmith/platform-setup)。
 
 ## 6. 在 Studio 中测试您的代理
 
@@ -145,7 +145,9 @@ https://smith.langchain.com/studio/?baseUrl=http://myhost:3000
 >            print("\n\n")
 >
 >    asyncio.run(main())
->    ```> [选项卡] Python SDK（同步）
+>    ```
+
+> [选项卡] Python SDK（同步）
 >
 > 1.安装LangGraphPython SDK：
 > ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
@@ -171,9 +173,7 @@ https://smith.langchain.com/studio/?baseUrl=http://myhost:3000
 >        print(f"Receiving new event of type: {chunk.event}...")
 >        print(chunk.data)
 >        print("\n\n")
->    ```
-
-> [选项卡] 休息 API
+>    ```> [选项卡] 休息API
 >
 > ```bash theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > curl -s --request POST \
@@ -199,7 +199,7 @@ https://smith.langchain.com/studio/?baseUrl=http://myhost:3000
 
 * [Deployment quickstart](/langsmith/deployment-quickstart)：使用LangSmith部署您的LangGraph应用程序。
 
-* [LangSmith](/langsmith/observability)：了解基本的LangSmith概念。
+* [LangSmith](/langsmith/observability)：了解基本的LangSmith 概念。
 
 * [SDK Reference](https://reference.langchain.com/python/langsmith/deployment-sdk)：探索 SDK API 参考。
 

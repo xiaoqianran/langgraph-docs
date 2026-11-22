@@ -58,7 +58,7 @@ export { agent };
 
 > [!注意]
 >
-> 在发送跟踪之前，在[agent-based workspace](/langsmith/agent-registry)、[create an agent](/langsmith/create-an-agent) 中进行一次。使用[agent addressing](/langsmith/log-traces-to-agent)选择其标识符和环境。如果集成需要 `project_name`，请使用所选环境的 [⟦T10⟧](/langsmith/create-an-agent#use-an-environment-project) 作为兼容性值。
+> [Create an agent](/langsmith/create-an-agent) 在发送跟踪之前一次。使用[agent addressing](/langsmith/log-traces-to-agent)选择其标识符和环境。如果集成需要 `project_name`，请使用所选环境的 [⟦T10⟧](/langsmith/create-an-agent#use-an-environment-project)。
 
 Studio 需要 LangSmith API 密钥来连接您的本地代理。在项目的根目录中创建一个 `.env` 文件，并从 [LangSmith](https://smith.langchain.com/settings) 添加 API 密钥。
 
@@ -86,11 +86,11 @@ LangGraph CLI 使用配置文件来查找代理并管理依赖项。在应用程
 }
 ```
 
-[⟦T14⟧](https://reference.langchain.com/javascript/langchain/index/createAgent) 函数自动返回编译后的 LangGraph 图，这正是 `graphs` 键在配置文件中所期望的。
+[⟦T14⟧](https://reference.langchain.com/javascript/langchain/index/createAgent)函数自动返回编译后的LangGraph图，这正是配置文件中`graphs`键所期望的。
 
 > [!注意]
 >
-> 配置文件的JSON对象中各个key的详细解释请参考[LangGraph configuration file reference](/langsmith/cli#configuration-file)。
+> 配置文件JSON对象中各个key的详细解释请参考[LangGraph configuration file reference](/langsmith/cli#configuration-file)。
 
 此时，项目结构将如下所示：
 
@@ -109,13 +109,13 @@ my-app/
 yarn install
 ```
 
-### 6. 在 Studio 中查看您的代理启动开发服务器以将代理连接到 Studio：
+### 6. 在 Studio 中查看您的代理
+
+启动开发服务器以将代理连接到 Studio：
 
 ```shell theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 npx @langchain/langgraph-cli dev
-```
-
-> [!警告]
+```> [!警告]
 >
 > Safari 阻止 `localhost` 与 Studio 的连接。要解决此问题，请使用 `--tunnel` 运行上述命令，以通过安全隧道访问 Studio。您需要通过单击 Studio UI 中的 **连接到本地服务器** 来手动将隧道 URL 添加到允许的源。步骤请参阅[troubleshooting guide](/langsmith/troubleshooting-studio#safari-connection-issues)。
 
@@ -125,9 +125,9 @@ npx @langchain/langgraph-cli dev
 
 通过 Studio 连接到本地代理，您可以快速迭代代理的行为。运行测试输入，检查完整的执行跟踪，包括提示、工具参数、返回值和[LangSmith](/langsmith/observability-studio)中的令牌/延迟指标。当出现问题时，Studio 会捕获周围状态的异常，以帮助您了解发生的情况。
 
-开发服务器支持热重载——对代码中的提示或工具签名进行更改，Studio 会立即反映它们。从任何步骤重新运行对话线程以测试您的更改，而无需重新开始。该工作流程从简单的单工具代理扩展到复杂的多节点图。有关如何运行 Studio 的更多信息，请参阅 [LangSmith docs](/langsmith/observability) 中的以下指南：
+开发服务器支持热重载——对代码中的提示或工具签名进行更改，Studio 会立即反映它们。从任何步骤重新运行对话线程以测试您的更改，而无需重新开始。该工作流程从简单的单工具代理扩展到复杂的多节点图。
 
-* [Run agent](/langsmith/use-studio#run-application)
+有关如何运行 Studio 的更多信息，请参阅 [LangSmith docs](/langsmith/observability) 中的以下指南：* [Run agent](/langsmith/use-studio#run-application)
 * [Manage assistants](/langsmith/use-studio#manage-assistants)
 * [Manage threads](/langsmith/use-studio#manage-threads)
 * [Iterate on prompts](/langsmith/observability-studio)
@@ -140,6 +140,6 @@ npx @langchain/langgraph-cli dev
 
 ***
 
-[Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时解答。
+[Connect these docs](/use-these-docs) 通过 MCP 发送给您选择的代理以获得实时答案。
 
 [Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/langgraph/studio.mdx) 或 [file an issue](https://github.com/langchain-ai/docs/issues/new/choose)。

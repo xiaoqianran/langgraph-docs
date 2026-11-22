@@ -8,7 +8,7 @@ LangSmith 与 LangGraph（Python 和 JS）顺利集成，以帮助您跟踪代�
 
 > [!注意]
 >
-> 在发送跟踪之前，在[agent-based workspace](/langsmith/agent-registry)、[create an agent](/langsmith/create-an-agent) 中进行一次。使用[agent addressing](/langsmith/log-traces-to-agent)选择其标识符和环境。如果集成需要 `project_name`，请使用所选环境的 [⟦T15⟧](/langsmith/create-an-agent#use-an-environment-project) 作为兼容性值。
+> [Create an agent](/langsmith/create-an-agent) 在发送跟踪之前一次。使用[agent addressing](/langsmith/log-traces-to-agent)选择其标识符和环境。如果集成需要 `project_name`，请使用所选环境的 [⟦T15⟧](/langsmith/create-an-agent#use-an-environment-project)。
 
 ## 与 LangChain
 
@@ -18,7 +18,7 @@ LangSmith 与 LangGraph（Python 和 JS）顺利集成，以帮助您跟踪代�
 
 ### 1.安装
 
-安装适用于 Python 和 JS 的 LangGraph 库和 OpenAI 集成（我们在下面的代码片段中使用 OpenAI 集成）。
+安装LangGraph库以及Python和JS的OpenAI集成（我们在下面的代码片段中使用OpenAI集成）。
 
 有关可用软件包的完整列表，请参阅 [LangChain Python docs](https://docs.langchain.com/oss/python/integrations/providers/overview) 和 [LangChain JS docs](https://docs.langchain.com/oss/javascript/integrations/providers/overview)。
 
@@ -51,7 +51,7 @@ export OPENAI_API_KEY=<your-openai-api-key>
 export LANGSMITH_WORKSPACE_ID=<your-workspace-id>
 ```> [!注意]
 >
-> 如果您的账户位于美国以外的区域（默认），还需将 `LANGSMITH_ENDPOINT` 设置为您所在区域的 API URL。如果没有这个，您的 API 密钥将不会被识别，并且请求将无法通过身份验证。
+> 如果您的帐户位于美国以外的区域（默认），还需将 `LANGSMITH_ENDPOINT` 设置为您所在区域的 API URL。如果没有这个，您的 API 密钥将不会被识别，并且请求将无法通过身份验证。
 >
 > <table>
 > <thead>
@@ -355,7 +355,7 @@ export OPENAI_API_KEY=<your-openai-api-key>
 
 ### 3. 记录跟踪
 
-设置好环境后，您想要跟踪[wrap or decorate the custom functions/SDKs](/langsmith/annotate-code#use-%40traceable-%2F-traceable)。然后LangSmith将推断正确的跟踪配置：
+设置好环境后，您想要跟踪[wrap or decorate the custom functions/SDKs](/langsmith/annotate-code#use-%40traceable-%2F-traceable)。然后LangSmith将推断出正确的跟踪配置：
 
 ```python Python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import json

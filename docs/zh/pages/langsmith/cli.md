@@ -36,7 +36,7 @@
 
 ### 快速命令
 
-|命令 |它有什么作用 |
+|命令|它有什么作用 |
 | - | - |
 | [⟦T53⟧](#dev) |启动轻量级本地开发服务器（不需要 Docker），非常适合快速测试。 |
 | [⟦T54⟧](#build) |构建代理服务器的 Docker 映像以进行部署。 |
@@ -243,7 +243,7 @@
 > }
 > ```
 >
-> 请参阅 [authentication conceptual guide](https://docs.langchain.com/langsmith/auth.md) 了解详细信息，并参阅 [setting up custom authentication](https://docs.langchain.com/langsmith/set-up-custom-auth.md) 指南以实际演练该过程。
+> 请参阅 [authentication conceptual guide](https://docs.langchain.com/langsmith/auth.md) 了解详细信息，并参阅 [setting up custom authentication](https://docs.langchain.com/langsmith/set-up-custom-auth.md) 指南了解该过程的实际演练。
 >
 > #### 配置商店商品生存时间
 >> 您可以使用 `store.ttl` 键为 BaseStore 中的项目/内存配置默认数据过期时间。这决定了项目在上次访问后保留的时间（读取可能会根据`refresh_on_read`刷新计时器）。请注意，可以通过修改 `get`、`search` 等中的相应参数来覆盖每次调用的默认值。
@@ -566,8 +566,8 @@
 > | `--debug-port INTEGER` | |调试器监听的端口 |> | `--wait-for-client` | `False` |在启动服务器之前等待调试器客户端连接到调试端口 |
 > | `--no-browser` | |跳过服务器启动时自动打开浏览器 |
 > | `--studio-url TEXT` | |要连接的 Studio 实例的 URL。默认为 [https://smith.langchain.com](https://smith.langchain.com) |
-> | `--allow-blocking` | `False` | Do not raise errors for synchronous I/O blocking operations in your code |
-> | `--tunnel` | `False` |通过公共隧道 (Cloudflare) 公开本地服务器以进行远程前端访问。 This avoids issues with browsers or networks blocking localhost connections |
+> | `--allow-blocking` | `False` |不要在代码中引发同步 I/O 阻塞操作的错误 |
+> | `--tunnel` | `False` |通过公共隧道 (Cloudflare) 公开本地服务器以进行远程前端访问。这可以避免浏览器或网络阻止本地主机连接的问题 |
 > | `--help` | |显示命令文档 |
 
 ### `build`> [选项卡] Python
@@ -644,17 +644,17 @@
 > | - | - | - |> | `--api-key TEXT` | | API 密钥。也可以通过 `LANGGRAPH_HOST_API_KEY`、`LANGSMITH_API_KEY` 或 `LANGCHAIN_API_KEY` 环境变量或 `.env` 文件进行设置。 |
 > | `--name TEXT` |当前目录名称 |代理服务器名称。也可以通过 `LANGSMITH_DEPLOYMENT_NAME` 环境变量或 `.env` 文件设置。 |
 > | `--agent-server-id TEXT` | |要更新的现有代理服务器的 ID。如果省略，`--name` 用于查找或创建代理服务器。 |
-> | `--agent-id TEXT` | |通过标识符部署到基于代理的工作区中的代理。需要`--agent-environment`，且不能与`--name`或`--agent-server-id`组合使用。也可以通过`LANGSMITH_AGENT_ID`设置。参见[Deploy to an agent environment](https://docs.langchain.com/langsmith/deploy-to-agent-environment.md)。提供`langgraph-cli>=0.4.32`。 |
+> | `--agent-id TEXT` | |按标识符部署到的代理。需要`--agent-environment`，且不能与`--name`或`--agent-server-id`组合使用。也可以通过`LANGSMITH_AGENT_ID`设置。参见[Deploy to an agent environment](https://docs.langchain.com/langsmith/deploy-to-agent-environment.md)。提供`langgraph-cli>=0.4.32`。 |
 > | `--agent-environment TEXT` | | Agent 服务器报告的环境：`development`、`staging` 或 `production`。需要`--agent-id`。也可以通过`LANGSMITH_AGENT_ENVIRONMENT`设置。提供`langgraph-cli>=0.4.32`。 |
 > | `--agent-server-type TEXT` | `serverless` |在云上创建新代理服务器时的代理服务器类型。通过 `dedicated` 以获得始终在线的容量。旧版 `dev` 和 `prod` 也被接受。 |
 > | `--remote / --no-remote` | |强制远程或本地构建。默认情况下，如果 Docker 本地不可用，则远程构建。 |> | `--push-to TEXT` | |将映像推送到您管理的注册表中的此存储库（例如`123456789.dkr.ecr.us-east-1.amazonaws.com/agents/my-agent`），然后从中进行部署。自托管 LangSmith 和通过侦听器部署的工作区是必需的，除非您使用 `--image-uri` 代替。使用您现有的 Docker 凭据。在值中给出标签或使用`-t`。不能与`--remote`或`--image-uri`组合使用。 |
-> | `--image TEXT` | |使用现有的本地镜像（例如`my-agent:dev`）而不是构建。该图像必须定位`linux/amd64`。使用`--push-to`，图像会被重新标记并推送。 |
+> | `--image TEXT` | |使用现有的本地镜像（例如`my-agent:dev`）而不是构建。该图像必须定位`linux/amd64`。使用`--push-to`，图像将被重新标记并推送。 |
 > | `-t, --tag TEXT` | `latest` |推送图像的标签。 |
 > | `--image-uri TEXT` | |部署您管理的注册表中已有的映像（例如 `123456789.dkr.ecr.us-east-1.amazonaws.com/agents/my-agent@sha256:<digest>`），无需构建、重新标记或推送。对于自托管 LangSmith 以及通过侦听器部署的工作区。必须包括摘要；可变标签会被拒绝，因为 Kubernetes 可以按标签缓存图像，并且会默默地继续运行前一个标签。不能与 `--push-to`、`--image`、`-t` 或 `--remote` 组合使用。 |> | `--listener-id TEXT` | |将运行代理服务器的侦听器，适用于通过您自己的集群中的侦听器部署的工作区。仅在使用 `--push-to` 或 `--image-uri` 创建代理服务器时使用。在 LangSmith 云上，默认为工作区的唯一监听器。 |
 > | `--k8s-namespace TEXT` | |侦听器部署到的 Kubernetes 命名空间。仅在使用 `--push-to` 或 `--image-uri` 创建代理服务器时使用。默认为侦听器的唯一命名空间。 |
 > | `--image-pull-secret TEXT` | |代理服务器命名空间中的 Kubernetes 密钥名称（类型 `kubernetes.io/dockerconfigjson`），用于从私有注册表中提取映像。重复给予多个。仅在使用 `--push-to` 或 `--image-uri` 创建代理服务器时使用。 |
 > | `--no-wait` | `False` |推送后跳过等待部署状态。 |
-> | `--verbose` | `False` |显示详细输出，包括 Docker 构建和推送日志。 |
+> | `--verbose` | `False` |显示详细的输出，包括 Docker 构建和推送日志。 |
 > | `--help` | |显示命令文档。 |
 >
 >> [!注意]
@@ -686,7 +686,7 @@
 >
 >> [!注意]
 >>
->> CLI 更新取决于代理服务器的源和所选的构建模式。推送到托管注册表的本地构建需要 `internal_docker` 源。要从您管理的注册表更新代理服务器，请使用 `--push-to` 或 `--image-uri`。不要假设通过 UI 或 GitHub 集成创建的每个代理服务器都支持每种 CLI 构建模式。
+>> CLI 更新取决于代理服务器的源和所选的构建模式。推送到托管注册表的本地构建需要 `internal_docker` 源。要从您管理的注册表更新代理服务器，请使用 `--push-to` 或 `--image-uri`。不要假设通过 UI 或 GitHub 集成创建的每个代理服务器都支持每个 CLI 构建模式。
 >
 > #### 从您管理的注册表进行部署
 >
@@ -716,7 +716,7 @@
 > langgraph deploy --image-uri 123456789.dkr.ecr.us-east-1.amazonaws.com/agents/my-agent@sha256:1a2b3c4d...
 > ```
 >
-> `--image-uri` 必须包含摘要 (`@sha256:<digest>`)，而不是可变标签。 Kubernetes 可以按标签缓存镜像，因此重新部署相同的标签可以默默地继续运行之前的镜像。如果您的管道已经捕获了推送步骤中的摘要，请将其直接通过；否则首先解决它，例如使用 `docker buildx imagetools inspect <repository>:<tag> --format '{{json .Manifest.Digest}}'` 或您的注册表自己的 CLI。
+> `--image-uri` 必须包含摘要 (`@sha256:<digest>`)，而不是可变标签。 Kubernetes 可以按标签缓存镜像，因此重新部署相同的标签可以默默地继续运行之前的镜像。如果您的管道已经从其推送步骤捕获了摘要，请将其直接通过；否则首先解决它，例如使用 `docker buildx imagetools inspect <repository>:<tag> --format '{{json .Manifest.Digest}}'` 或您的注册表自己的 CLI。
 >> 使用 `--image-uri` 创建的代理服务器使用与 `--push-to` 相同的 `external_docker` 源，因此任一选项都可以更新另一个创建的代理服务器。
 >
 > #### 选择监听器和命名空间
@@ -793,7 +793,7 @@
 >
 > **命令**
 >
-> |命令 |描述 |
+> |命令|描述 |
 > | - | - |
 > | `list` | \[Beta] 列出此工作区可用的侦听器。 |
 >
@@ -836,7 +836,7 @@
 > | `--help` | |显示此消息并退出。 |
 >
 > **命令**
->> |命令 |描述 |
+>> |命令|描述 |
 > | - | - |
 > | `list` | \[Beta] 列出代理服务器的修订版本。 |
 >
