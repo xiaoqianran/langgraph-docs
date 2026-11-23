@@ -51,7 +51,7 @@ When you call [`interrupt`](https://reference.langchain.com/python/langgraph/typ
 
 After an interrupt pauses execution, you resume the graph by invoking it again with a `Command` that contains the resume value. The resume value is passed back to the `interrupt` call, allowing the node to continue execution with the external input.
 
-The recommended way to drive a graph that may interrupt is [event streaming](https://docs.langchain.com/oss/python/langgraph/event-streaming.md) — it surfaces interrupts via `stream.interrupts` and `stream.interrupted`, and exposes the final state through `stream.output`.
+With `version="v2"`, `graph.invoke(...)` returns a [`GraphOutput`](https://reference.langchain.com/python/langgraph/types/GraphOutput). Its `interrupts` field holds the payloads passed to `interrupt()`, and its `value` field holds the graph state.
 
 ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from langgraph.types import Command
@@ -59,21 +59,16 @@ from langgraph.types import Command
 # Initial run - hits the interrupt and pauses
 # thread_id is the persistent pointer (stores a stable ID in production)
 config = {"configurable": {"thread_id": "thread-1"}}
-stream = graph.stream_events({"input": "data"}, config=config, version="v3")
+result = graph.invoke({"input": "data"}, config=config, version="v2")
 
-# Drain the stream to drive the run; stream.output awaits the final state.
-final = stream.output
-
-# stream.interrupted is True when the run paused for human input, and
-# stream.interrupts contains the payloads passed to interrupt().
-if stream.interrupted:
-    print(stream.interrupts)
-    # > (Interrupt(value='Do you approve this action?'),)
+# result is a GraphOutput with .value and .interrupts
+# .interrupts contains the payloads passed to interrupt()
+print(result.interrupts)
+# > (Interrupt(value='Do you approve this action?'),)
 
 # Resume with the human's response
 # The resume payload becomes the return value of interrupt() inside the node
-resumed = graph.stream_events(Command(resume=True), config=config, version="v3")
-final = resumed.output
+resumed = graph.invoke(Command(resume=True), config=config, version="v2")
 ```
 
 > [card] [View example trace](https://smith.langchain.com/public/cd7406ad-294e-4d98-b0ae-d9ed7930e117/r)
@@ -82,7 +77,7 @@ final = resumed.output
 
 > [!NOTE]
 >
-> The default `graph.invoke(...)` API still works and surfaces interrupts under `result["__interrupt__"]`. Use it when you don't need streamed projections; otherwise prefer `graph.stream_events(..., version="v3")`.
+> Without `version="v2"`, `graph.invoke(...)` surfaces interrupts under `result["__interrupt__"]`.
 
 **Key points about resuming:**
 

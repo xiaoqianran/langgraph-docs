@@ -4,17 +4,13 @@
 
 # 流媒体
 
-> [!提示]
->
-> 对于新应用程序，我们推荐[event streaming](/oss/javascript/langgraph/event-streaming)——LangGraph v1.2 中引入的类型化投影 API。事件流为每个投影（消息、值、子图、输出）提供单独的迭代器，因此您可以独立使用它们，而不是在 `stream_mode` 块上分支。
-
-本页介绍了 LangGraph 的流模式 API。它通过`updates`、`values`、`messages`、`custom`、`checkpoints`、`tasks`和`debug`等流模式公开图形执行。当您需要直接访问图形运行时事件或特定流模式输出时，请使用它。
+LangGraph实现了流媒体系统来显示实时更新。流媒体对于增强基于 LLM 构建的应用程序的响应能力至关重要。通过逐步显示输出，甚至在完整响应准备好之前，流式传输可以显着改善用户体验 (UX)，特别是在处理 LLM 的延迟时。
 
 ## 开始吧
 
 ### 基本用法
 
-LangGraph 图公开了 [⟦T35⟧](https://reference.langchain.com/javascript/langchain-langgraph/pregel/Pregel/stream) 方法以将流式输出作为迭代器生成。
+LangGraph 图公开了 [⟦T27⟧](https://reference.langchain.com/javascript/langchain-langgraph/pregel/Pregel/stream) 方法以将流输出作为迭代器生成。
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 for await (const chunk of await graph.stream(inputs, {
@@ -30,7 +26,9 @@ for await (const chunk of await graph.stream(inputs, {
 
 ## 流模式
 
-将以下一种或多种流模式作为列表传递给 [⟦T36⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/CompiledStateGraph/stream) 方法：|模式|描述 |
+将以下一种或多种流模式作为列表传递给 [⟦T28⟧](https://reference.langchain.com/javascript/langchain-langgraph/index/CompiledStateGraph/stream) 方法：
+
+|模式|描述 |
 | :- | :- |
 | [values](#graph-state) |每一步后的完整状态。 |
 | [updates](#graph-state) |每个步骤后状态都会更新。同一步骤中的多个更新分别进行流式传输。 |
@@ -39,9 +37,7 @@ for await (const chunk of await graph.stream(inputs, {
 | [tools](#tool-progress) |工具调用生命周期事件（`on_tool_start`、`on_tool_event`、`on_tool_end`、`on_tool_error`）。 |
 | [debug](#debug) |整个图表执行过程中的所有可用信息。 |
 
-### 图状态
-
-使用流模式 `updates` 和 `values` 在图执行时流式传输图的状态。
+### 图状态使用流模式 `updates` 和 `values` 在图执行时流式传输图的状态。
 
 * `updates` 将**更新**流式传输到图的每个步骤之后的状态。
 * `values` 在图表的每个步骤之后流式传输状态的**完整值**。
@@ -98,7 +94,9 @@ const graph = new StateGraph(State)
 
 ### LLM 代币
 
-使用 `messages` 流模式从图形的任何部分（包括节点、工具、子图或任务）**逐个令牌**流式传输大型语言模型 (LLM) 输出。[⟦T47⟧ mode](#stream-modes) 的流式输出是一个元组 `[message_chunk, metadata]`，其中：
+使用 `messages` 流模式从图形的任何部分（包括节点、工具、子图或任务）**逐个令牌**流式传输大型语言模型 (LLM) 输出。
+
+[⟦T39⟧ mode](#stream-modes) 的流式输出是一个元组 `[message_chunk, metadata]`，其中：
 
 * `message_chunk`：LLM 的令牌或消息段。
 * `metadata`：包含有关图节点和LLM调用详细信息的字典。
@@ -176,9 +174,7 @@ for await (const [msg, metadata] of await graph.stream(
     console.log(msg.content + "|");
   }
 }
-```
-
-> [accordion] 扩展示例：按标签过滤
+```> [accordion] 扩展示例：按标签过滤
 >
 > ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > import { ChatOpenAI } from "@langchain/openai";
@@ -322,7 +318,9 @@ const stream = await graph.streamEvents(
 >
 > 为此示例打开公共 LangSmith 运行。
 
-#### 按节点过滤要仅从特定节点流式传输令牌，请使用 `stream_mode="messages"` 并通过流式元数据中的 `langgraph_node` 字段过滤输出：
+#### 按节点过滤
+
+要仅从特定节点流式传输令牌，请使用 `stream_mode="messages"` 并通过流式元数据中的 `langgraph_node` 字段过滤输出：
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 // The "messages" stream mode returns a tuple of [messageChunk, metadata]
@@ -399,9 +397,7 @@ for await (const [msg, metadata] of await graph.stream(
 要从 LangGraph 节点或工具内部发送**自定义用户定义数据**，请按照以下步骤操作：
 
 1. 使用 `LangGraphRunnableConfig` 中的 `writer` 参数发出自定义数据。
-2. 调用`.stream()`时设置`streamMode: "custom"`，获取流中的自定义数据。您可以组合多种模式（例如，`["updates", "custom"]`），但至少一种必须是`"custom"`。
-
-> [选项卡] 节点
+2. 调用`.stream()`时设置`streamMode: "custom"`，获取流中的自定义数据。您可以组合多种模式（例如，`["updates", "custom"]`），但至少一种必须是`"custom"`。> [选项卡] 节点
 >
 > ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > import { StateGraph, StateSchema, GraphNode, START, LangGraphRunnableConfig } from "@langchain/langgraph";
@@ -477,7 +473,9 @@ for await (const [msg, metadata] of await graph.stream(
 | `on_tool_end` |工具返回其最终结果 | `name`、`output`、`toolCallId` |
 | `on_tool_error` |工具抛出错误 | `name`、`error`、`toolCallId` |
 
-#### 定义传输进度的工具要发出 `on_tool_event` 事件，请将您的工具函数定义为 **异步生成器** (`async function*`)。每个`yield`将中间数据发送到流，`return`值用作工具的最终结果。
+#### 定义传输进度的工具
+
+要发出 `on_tool_event` 事件，请将您的工具函数定义为 **异步生成器** (`async function*`)。每个`yield`将中间数据发送到流，`return`值用作工具的最终结果。
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { tool } from "@langchain/core/tools";
@@ -551,17 +549,15 @@ for await (const [mode, chunk] of await graph.stream(
 }
 ```
 
-#### 在 React 中使用工具进度 `useStream`
-
-当您在流模式中包含 `"tools"` 时，来自 `@langchain/langgraph-sdk/react` 的 [⟦T94⟧](https://reference.langchain.com/javascript/langchain-react/index/useStream) 挂钩会公开 `toolProgress` 数组。每个条目都是一个 `ToolProgress` 对象，用于跟踪正在运行的工具的当前状态：
+#### 在 React 中使用工具进度 `useStream`当您在流模式中包含 `"tools"` 时，来自 `@langchain/langgraph-sdk/react` 的 [⟦T86⟧](https://reference.langchain.com/javascript/langchain-react/index/useStream) 挂钩会公开 `toolProgress` 数组。每个条目都是一个 `ToolProgress` 对象，用于跟踪正在运行的工具的当前状态：
 
 |领域 |描述 |
 | - | - |
-| `name` |工具名称 |
+| `name` |工具名称|
 | `state` |当前生命周期状态：`"starting"`、`"running"`、`"completed"` 或 `"error"` |
 | `toolCallId` | LLM 的工具调用 ID |
 | `input` |该工具的输入参数 |
-| `data` | `on_tool_event`最新产生的数据 |
+| `data` | `on_tool_event` 最新产生的数据 |
 | `result` |最终结果，定于`on_tool_end` |
 | `error` |错误，设置在`on_tool_error` |
 
@@ -597,7 +593,9 @@ function Chat() {
     </div>
   );
 }
-```> [手风琴] 扩展示例：带有工具进度的旅行规划代理
+```
+
+> [手风琴] 扩展示例：带有工具进度的旅行规划代理
 >
 > 此示例显示了一个带有异步生成器工具的完整代理，该工具将搜索进度流式传输到 React UI。
 >
@@ -739,9 +737,7 @@ function Chat() {
 
 #### `tools` 与 `custom` 流模式
 
-两种流模式都可以显示工具进度，但它们有不同的目的：
-
-* **`tools`** — 自动发出结构化生命周期事件（`on_tool_start`、`on_tool_event`、`on_tool_end`、`on_tool_error`），除了使用 `async function*` 之外，无需在工具中进行任何代码更改。 `useStream` 钩子提供开箱即用的反应式 `toolProgress` 数组。
+两种流模式都可以显示工具进度，但它们有不同的目的：* **`tools`** — 自动发出结构化生命周期事件（`on_tool_start`、`on_tool_event`、`on_tool_end`、`on_tool_error`），除了使用 `async function*` 之外，无需在工具中进行任何代码更改。 `useStream` 钩子提供开箱即用的反应式 `toolProgress` 数组。
 * **`custom`**—让您可以完全控制发送哪些数据以及何时使用`config.writer()`。当您需要不映射到工具生命周期的自由格式数据时，或者当您想要从节点（不仅仅是工具）进行流式传输时，请使用此选项。
 
 ### 子图输出
@@ -761,9 +757,11 @@ for await (const chunk of await graph.stream(
 )) {
   console.log(chunk);
 }
-```> [!注意]
+```
+
+> [!注意]
 >
-> 这适用于所有`streamMode`，包括`"messages"`。 [⟦T132⟧](https://reference.langchain.com/javascript/langchain/index/createAgent) 返回一个 `ReactAgent` 包装器；将其添加为节点时传递`agent.graph`，以便父级将其视为子图。对于`subgraphs: true`，消息块是`[namespace, [token, metadata]]`，因此您可以知道哪个子图发出了它们。
+> 这适用于所有`streamMode`，包括`"messages"`。 [⟦T124⟧](https://reference.langchain.com/javascript/langchain/index/createAgent) 返回一个 `ReactAgent` 包装器；将其添加为节点时传递`agent.graph`，以便父级将其视为子图。对于`subgraphs: true`，消息块是`[namespace, [token, metadata]]`，因此您可以知道哪个子图发出了它们。
 >
 > ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > import { createAgent } from "langchain";
@@ -787,9 +785,7 @@ for await (const chunk of await graph.stream(
 >     const [token, metadata] = data;
 >     console.log(ns, token, metadata);
 > }
-> ```
-
-> [accordion] 扩展示例：从子图流式传输
+> ```> [accordion] 扩展示例：从子图流式传输
 >
 > ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > import { StateGraph, StateSchema, START } from "@langchain/langgraph";
@@ -864,7 +860,7 @@ for await (const chunk of await graph.stream(
 
 您可以将数组作为 `streamMode` 参数传递，以同时传输多种模式。
 
-流式输出将是 `[mode, chunk]` 的元组，其中 `mode` 是流模式的名称，`chunk` 是该模式流式传输的数据。
+流式输出将是`[mode, chunk]`的元组，其中`mode`是流模式的名称，`chunk`是该模式流式传输的数据。
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 for await (const [mode, chunk] of await graph.stream(inputs, {
@@ -878,7 +874,9 @@ for await (const [mode, chunk] of await graph.stream(inputs, {
 
 ### 与任何 LLM 一起使用
 
-您可以使用 `streamMode: "custom"` 从**任何 LLM API** 流式传输数据，即使该 API **未**实现 LangChain 聊天模型接口。这使您可以集成原始 LLM 客户端或提供自己的流接口的外部服务，使 LangGraph 对于自定义设置高度灵活。
+您可以使用 `streamMode: "custom"` 从**任何 LLM API** 流式传输数据，即使该 API **未**实现 LangChain 聊天模型接口。
+
+这使您可以集成原始 LLM 客户端或提供自己的流接口的外部服务，使 LangGraph 对于自定义设置高度灵活。
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { StateGraph, GraphNode, StateSchema } from "@langchain/langgraph";
@@ -1004,7 +1002,7 @@ for await (const chunk of await graph.stream(
 >   .compile();
 > ```
 >
-> 让我们使用包含工具调用的 [⟦T143⟧](https://reference.langchain.com/javascript/langchain-core/messages/AIMessage) 来调用该图：
+> 让我们使用包含工具调用的 [⟦T135⟧](https://reference.langchain.com/javascript/langchain-core/messages/AIMessage) 来调用图表：
 >
 > ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 > const inputs = {
@@ -1032,9 +1030,7 @@ for await (const chunk of await graph.stream(
 > )) {
 >   console.log(chunk.content + "|");
 > }
-> ```
-
-### 禁用特定聊天模型的流式传输
+> ```### 禁用特定聊天模型的流式传输
 
 如果您的应用程序将支持流式传输的模型与不支持流式传输的模型混合在一起，您可能需要显式禁用流式传输
 不支持的型号。

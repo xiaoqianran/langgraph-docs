@@ -25,7 +25,7 @@ npm install @langchain/langgraph
 
 ## 定义子图通信
 
-添加子图时，需要定义父图和子图如何通信：|图案|何时使用 |状态模式 |
+添加子图时，需要定义父图和子图如何通信：|图案|何时使用 |状态模式|
 | - | - | - |
 | [Call a subgraph inside a node](#call-a-subgraph-inside-a-node) |父图和子图具有**不同的状态模式**（没有共享密钥），或者您需要在它们之间转换状态 |您编写一个包装函数，将父状态映射到子图输入，并将子图输出映射回父状态 |
 | [Add a subgraph as a node](#add-a-subgraph-as-a-node) |父图和子图 **共享状态键** - 子图与父图读取和写入相同的通道 |您将编译后的子图直接传递给`add_node`——无需包装函数 |
@@ -319,7 +319,7 @@ const graph = builder.compile();
 
 `.compile()`上的`checkpointer`参数控制子图持久化：|模式| `checkpointer=` |行为 |
 | - | - | - |
-| [Per-invocation](#per-invocation-default) | `None`（默认）|每个调用都重新开始并继承父级的检查指针以在单个调用中支持[interrupts](/oss/javascript/langgraph/interrupts)和[durable execution](/oss/javascript/langgraph/persistence)。 |
+| [Per-invocation](#per-invocation-default) | `None`（默认）|每个调用都会重新开始并继承父级的检查指针以在单个调用中支持[interrupts](/oss/javascript/langgraph/interrupts)和[durable execution](/oss/javascript/langgraph/persistence)。 |
 | [Per-thread](#per-thread) | `True` |状态在同一线程上的调用之间累积。每个呼叫都会从上一个呼叫中断的地方接续。 |
 | [Stateless](#stateless) | `False` |根本没有检查点——像普通函数调用一样运行。无中断或持久执行。 |
 
@@ -500,7 +500,7 @@ const agent = createAgent({
 >
 > 每线程子图不支持并行工具调用。当 LLM 可以访问每线程子代理作为工具时，它可能会尝试并行多次调用该工具（例如，同时向水果专家询问有关苹果和香蕉的信息）。这会导致检查点冲突，因为两个调用都写入同一名称空间。
 >
-> 下面的示例使用 LangChain 的 `ToolCallLimitMiddleware` 来防止这种情况。如果您使用纯 LangGraph `StateGraph` 进行构建，则需要自行防止并行工具调用 - 例如，通过配置模型以禁用并行工具调用或添加逻辑以确保不会并行调用同一子图多次。
+> 下面的示例使用 LangChain 的 `ToolCallLimitMiddleware` 来防止这种情况。如果您使用纯 LangGraph `StateGraph` 进行构建，则需要自行防止并行工具调用，例如，通过配置模型以禁用并行工具调用或添加逻辑以确保不会多次并行调用同一子图。
 
 以下示例使用使用`checkpointer=True`编译的水果专家子代理：
 
@@ -671,7 +671,7 @@ const subgraph = subgraphBuilder.compile({ checkpointer: false });  // [!code hi
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 const subgraph = builder.compile({ checkpointer: false });  // or true, or null
-```|特色 |每次调用（默认）|每线程 |无国籍|
+```|特色|每次调用（默认）|每线程 |无国籍|
 | - | - | - | - |
 | `checkpointer=` | `None` | `True` | `False` |
 |中断（HITL）| ✅ | ✅ | ❌ |
@@ -679,7 +679,7 @@ const subgraph = builder.compile({ checkpointer: false });  // or true, or null
 |多次调用（不同子图）| ✅ | ⚠️（调用同一节点中的多个每线程子图可能会导致命名空间冲突。有解决方法。） ✅ |
 |多次调用（同一子图）| ✅ | ❌ | ✅ |
 |国家检验| ⚠️（具有每次调用持久性的状态检查仅适用于当前调用（在中断时）。每个调用都是全新开始的，因此在调用完成后没有累积的状态可供检查。） ✅ | ❌ |* **中断（HITL）**：子图可以使用[interrupt()](/oss/javascript/langgraph/interrupts)暂停执行并等待用户输入，然后从中断处恢复。
-* **多轮记忆**：子图在同一[thread](/oss/javascript/langgraph/checkpointers#threads)内的多次调用中保留其状态。每次调用都会从上一个调用的地方继续，而不是重新开始。
+* **多轮内存**：子图在同一[thread](/oss/javascript/langgraph/checkpointers#threads)内的多次调用中保留其状态。每次调用都会从上一个调用的地方继续，而不是重新开始。
 * **多次调用（不同的子图）**：可以在单个节点内调用多个不同的子图实例，而不会发生检查点命名空间冲突。
 * **多次调用（同一子图）**：同一子图实例可以在单个节点内多次调用。通过有状态持久性，这些调用会写入相同的检查点命名空间并发生冲突 - 请改用每次调用持久性。
 * **状态检查**：子图的状态可通过`get_state(config, subgraphs=True)`进行调试和监控。
@@ -688,7 +688,7 @@ const subgraph = builder.compile({ checkpointer: false });  // or true, or null
 
 当您启用[persistence](/oss/javascript/langgraph/persistence)时，您可以使用子图选项检查子图状态。使用[stateless](#stateless)检查点（`checkpointer=False`），不会保存子图检查点，因此子图状态不可用。> [!注意]
 >
-> 查看子图状态要求LangGraph可以**静态发现**子图，即，它是[added as a node](#add-a-subgraph-as-a-node)或[called inside a node](#call-a-subgraph-inside-a-node)。当在 [tool](/oss/javascript/langchain/tools) 函数或其他间接（例如 [subagents](/oss/javascript/langchain/multi-agent/subagents) 模式）内调用子图时，它不起作用。无论嵌套如何，中断仍然会传播到顶层图。
+> 查看子图状态要求LangGraph可以**静态发现**子图，即它是[added as a node](#add-a-subgraph-as-a-node)或[called inside a node](#call-a-subgraph-inside-a-node)。当在 [tool](/oss/javascript/langchain/tools) 函数或其他间接（例如 [subagents](/oss/javascript/langchain/multi-agent/subagents) 模式）内调用子图时，它不起作用。无论嵌套如何，中断仍然会传播到顶层图。
 
 > [选项卡] 每次调用
 >
@@ -766,18 +766,17 @@ const subgraph = builder.compile({ checkpointer: false });  // or true, or null
 
 ## 流子图输出
 
-要观察嵌套图执行，我们建议使用 [event streaming](/oss/javascript/langgraph/event-streaming)：`stream.subgraphs` 投影会发现每个嵌套运行并公开其 `path`、`messages` 和 `values`，而无需解析命名空间字符串。
+要在流式输出中包含子图的输出，请在父图的 `stream` 方法中设置 `subgraphs` 选项。这会流式传输来自父图和任何子图的输出。
 
 ```typescript theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-const stream = await graph.streamEvents(
+for await (const chunk of await graph.stream(
   { foo: "foo" },
   {
     subgraphs: true,   // [!code highlight]
-    version: "v3",
+    streamMode: "updates",
   }
-);
-for await (const snapshot of stream.values) {
-  console.log(snapshot);
+)) {
+  console.log(chunk);
 }
 ```
 

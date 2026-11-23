@@ -4,9 +4,9 @@
 
 # 事件流
 
-流 LangGraph 使用消息、状态、子图、输出和扩展的类型化投影运行。
+Stream LangGraph 使用消息、状态、子图、输出和扩展的类型化投影运行。
 
-对于大多数 LangGraph 应用程序代码，事件流是推荐的进程内流模型。它返回一个运行流对象，可以同时以多种方式使用。
+事件流是LangGraph应用程序代码的进程内流模型。它返回一个运行流对象，可以同时以多种方式使用。
 
 ## 快速入门
 
@@ -444,7 +444,7 @@ const graph = builder.compile({
 LangGraph 定义流原语。要使用 LangChain 或 Deep Agents 进行流式传输，请查看相关产品文档：* [LangChain agent streaming](/oss/javascript/langchain/event-streaming) 涵盖 ReAct 风格的代理消息、工具调用和中间件更新。
 * [Deep Agents streaming](/oss/javascript/deepagents/event-streaming) 涵盖子代理、嵌套消息和子代理工具调用。
 * [LangChain frontend patterns](/oss/javascript/langchain/frontend/overview) 和 [LangGraph frontend patterns](/oss/javascript/langgraph/frontend/overview) 显示构建在流状态之上的 UI 用例。
-* [LangSmith Streaming API](/langsmith/streaming) 涵盖针对部署在代理服务器后面的图表的流式传输。
+* [LangSmith Streaming API](/langsmith/streaming) 涵盖针对部署在代理服务器后面的图形的流式传输。
 
 线级事件和命令格式在 [Agent Protocol](https://github.com/langchain-ai/agent-protocol) 存储库中定义，并且在 PyPI 上定义为 [⟦T183⟧](https://pypi.org/project/langchain-protocol/)，在 npm 上定义为 [⟦T184⟧](https://www.npmjs.com/package/@langchain/protocol)。
 

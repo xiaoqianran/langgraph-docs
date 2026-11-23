@@ -758,28 +758,34 @@ When you enable [persistence](/oss/python/langgraph/persistence), you can inspec
 
 ## Stream subgraph outputs
 
-To observe nested graph executions, we recommend [event streaming](/oss/python/langgraph/event-streaming): the `stream.subgraphs` projection discovers each nested run and exposes its `path`, `messages`, and `values` without parsing namespace strings.
+To include outputs from subgraphs in the streamed outputs, set the `subgraphs` option in the `stream` method of the parent graph. This streams outputs from both the parent graph and any subgraphs.
 
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-stream = graph.stream_events({"foo": "foo"}, version="v3")  # [!code highlight]
+> [tab] v2 (LangGraph 1.1 or later)
+>
+> With `version="v2"`, subgraph events use the same `StreamPart` format. The `ns` field identifies the source graph:
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> for chunk in graph.stream(
+>     {"foo": "foo"},
+>     subgraphs=True, # [!code highlight]
+>     stream_mode="updates",
+>     version="v2", # [!code highlight]
+> ):
+>     print(chunk["type"])  # "updates"
+>     print(chunk["ns"])    # () for root, ("node_2:<task_id>",) for subgraph
+>     print(chunk["data"])  # {"node_name": {"key": "value"}}
+> ```
 
-for subgraph in stream.subgraphs:
-    print(subgraph.graph_name, subgraph.path)
-
-    for snapshot in subgraph.values:
-        print(subgraph.path, snapshot)
-```
-
-If you need the raw protocol events, iterate the stream directly and filter on `event["method"]` and `event["params"]["namespace"]`:
-
-```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
-from langgraph.stream import UpdatesTransformer
-
-stream = graph.stream_events({"foo": "foo"}, version="v3", transformers=[UpdatesTransformer])
-for event in stream:
-    if event["method"] == "updates":
-        print(event["params"]["namespace"], event["params"]["data"])
-```
+> [tab] v1 (default)
+>
+> ```python theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
+> for chunk in graph.stream(
+>     {"foo": "foo"},
+>     subgraphs=True, # [!code highlight]
+>     stream_mode="updates",
+> ):
+>     print(chunk)
+> ```
 
 > [accordion] Stream from subgraphs
 >
