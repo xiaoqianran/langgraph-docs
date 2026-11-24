@@ -65,8 +65,8 @@
       "translatedAt": "2026-10-21T14:35:34.008Z"
     },
     "oss/javascript/langgraph/event-streaming.md": {
-      "hash": "82ab227128053f092e6e77b4566112d0088645ac",
-      "translatedAt": "2026-11-23T21:37:14.927Z"
+      "hash": "0e26f6f426b7ed11159400deea3ee270f99b06f9",
+      "translatedAt": "2026-11-24T20:17:35.885Z"
     },
     "oss/javascript/langgraph/frontend/custom-stream-channels.md": {
       "hash": "ab3c7f58919e7ad0239558cab7db0c73df437e5d",
@@ -217,8 +217,8 @@
       "translatedAt": "2026-10-21T14:37:35.231Z"
     },
     "oss/python/langgraph/event-streaming.md": {
-      "hash": "77e2aead8fd09d2e9e2e4ac6a1687c6fb0af9ccb",
-      "translatedAt": "2026-11-23T21:37:17.113Z"
+      "hash": "486f5758e5e8c5f4e4d18a3ee94193ffe8916811",
+      "translatedAt": "2026-11-24T20:17:34.807Z"
     },
     "oss/python/langgraph/functional-api.md": {
       "hash": "775c07d25001d534ee726d9c877cf7a709961629",
@@ -561,10 +561,10 @@
       "translatedAt": "2026-11-07T15:51:37.995Z"
     }
   },
-  "updatedAt": "2026-11-23T21:37:19.480Z",
+  "updatedAt": "2026-11-24T20:17:35.885Z",
   "stats": {
-    "translated": 8,
-    "skipped": 106,
+    "translated": 2,
+    "skipped": 112,
     "failed": 0,
     "total": 114
   }

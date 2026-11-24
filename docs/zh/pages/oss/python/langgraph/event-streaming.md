@@ -4,7 +4,7 @@
 
 # 事件流
 
-流 LangGraph 使用消息、状态、子图、输出和扩展的类型化投影运行。
+Stream LangGraph 使用消息、状态、子图、输出和扩展的类型化投影运行。
 
 事件流是LangGraph应用程序代码的进程内流模型。它返回一个运行流对象，可以同时以多种方式使用。
 
@@ -55,7 +55,7 @@ ValuesTransformerMessagesTransformer...自定义变压器
 
 运行流公开了一个底层事件流上的类型化投影：
 
-|投影|使用 |
+|投影|使用|
 | - | - |
 | `stream` |迭代每个协议事件。 |
 | `stream.messages` |流式传输聊天模型消息和令牌增量。 |
@@ -230,17 +230,21 @@ class ProtocolEventParams(TypedDict):
 * `content-block-finish`
 * `message-finish`
 
-内容块具有明确的边界：一个块开始，发出零个或多个增量，并在同一消息中的下一个块开始之前完成。这使得令牌流、推理块、工具调用块和多模式内容变得明确，而不需要提供者特定的格式。 `message-finish` 可能包括代币使用；不可恢复的模型调用失败作为消息错误事件到达。
+内容块具有明确的边界：一个块开始，发出零个或多个增量，并在同一消息中的下一个块开始之前完成。这使得令牌流、推理块、工具调用块和多模式内容变得明确，而不需要提供者特定的格式。
 
-每个`content-block-delta`事件都在其`index`处为区块携带一个增量：
+`message-finish` 可能在`finish_reason`、`normalized_finish_reason` 和 `finish_state` 中包含令牌使用情况以及模型停止的原因；有关值，请参阅[Finish reason](/oss/python/langchain/messages#finish-reason)。
 
-|达美`type` |对区块的影响|
+不可恢复的模型调用失败作为消息错误事件到达。
+
+每个`content-block-delta`事件都在其`index`处为区块携带一个增量：|达美航空`type` |对区块的影响|
 | - | - |
 | `text-delta` |将其 `text` 附加到块的 `text`。 |
 | `reasoning-delta` |将其 `reasoning` 附加到块的 `reasoning`。 |
 | `data-delta` |将其 `data` 附加到块的 `base64`。 |
 | `tool-call-delta` |将其 `args` 附加到块的 `args`。 |
-| `block-delta` |设置块上`fields`中的每个键，替换之前的值。 |`content-block-finish` 携带完整的块。忽略任何您不认识的增量类型，并继续读取流。
+| `block-delta` |设置块上`fields`中的每个键，替换之前的值。 |
+
+`content-block-finish` 携带完整的块。忽略任何您不认识的增量类型，并继续读取流。
 
 直接使用原始内容块事件而不是使用 `stream.messages` 投影：
 
@@ -287,9 +291,9 @@ for event in stream:
 
 除了`event`之外，生命周期数据还可能包括可选的`graph_name`、`error`和`cause`，描述子作用域启动的原因（父工具调用、扇出发送、边缘转换）。
 
-## 构建你自己的投影
+## 构建你自己的投影流转换器是事件流中的投影层。他们观察协议事件，保持自己的状态，并公开运行的派生视图——例如工具活动、令牌总数、进度事件、工件或另一个协议的消息。 `StreamChannel` 是用于发布这些视图的投影基元转换器。
 
-流转换器是事件流中的投影层。他们观察协议事件，保持自己的状态，并公开运行的派生视图——例如工具活动、令牌总数、进度事件、工件或另一个协议的消息。 `StreamChannel` 是用于发布这些视图的投影基元转换器。内置投影（`stream.messages`、`stream.values`、`stream.subgraphs`、`stream.output`）和产品特定投影（LangChain的`stream.tool_calls`、Deep Agents'`stream.subagents`）本身就是使用相同合约的变压器。用户转换器通过编译时或调用时注册堆叠在顶部，它们的投影出现在 `stream.extensions` 下。
+内置投影（`stream.messages`、`stream.values`、`stream.subgraphs`、`stream.output`）和产品特定投影（LangChain的`stream.tool_calls`、Deep Agents'`stream.subagents`）本身就是使用相同合约的变压器。用户转换器通过编译时或调用时注册堆叠在顶部，它们的投影出现在 `stream.extensions` 下。
 
 当现有投影与应用程序所需的形状不匹配时，编写一个。
 
@@ -305,16 +309,16 @@ flowchart TD
     D --> E[Run projections]
 ```
 
-流处理程序是一个流的中央调度程序。对于每个协议事件，它：
-
-1. 按顺序调用每个已注册变压器的`process(event)`钩子。
+流处理程序是一个流的中央调度程序。对于每个协议事件，它：1. 按顺序调用每个已注册变压器的`process(event)`钩子。
 2. 名为 `StreamChannel` 的线路推回协议事件流。
 3. 将事件存储在运行流中，除非转换器抑制它。
 4. 运行结束时在每个变压器上调用`finalize()` 或`fail()`。
 
 变形金刚是观察性的。他们不会回调图运行时。相反，它们使用事件并将派生值推送到 `StreamChannel`、promise 或其他投影对象中。
 
-### 变压器形状变压器实现 `StreamTransformer` 接口：
+### 变压器形状
+
+变压器实现 `StreamTransformer` 接口：
 
 ```py theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from langgraph.stream import ProtocolEvent, StreamTransformer
@@ -339,9 +343,7 @@ class MyTransformer(StreamTransformer):
 * `finalize()` 在成功流后关闭或解析非通道投影。
 * `fail()` 将误差传播到非通道投影。
 
-### 声明所需的流模式
-
-`required_stream_modes` 控制底层图在流期间发出的 Pregel 流模式。运行时获取每个已注册变压器的 `required_stream_modes` 的并集，并将该并集作为 `stream_mode` 参数传递给图的 `.stream()` 调用。 **永远不会发出任何变压器请求的模式** - 声明 `("custom",)` 是导致 `custom` 事件在运行中流动的原因。
+### 声明所需的流模式`required_stream_modes` 控制底层图在流期间发出的 Pregel 流模式。运行时获取每个已注册变压器的 `required_stream_modes` 的并集，并将该并集作为 `stream_mode` 参数传递给图的 `.stream()` 调用。 **永远不会发出任何变压器请求的模式** - 声明 `("custom",)` 是导致 `custom` 事件在运行中流动的原因。
 
 ```py theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 class CustomTransformer(StreamTransformer):
@@ -351,18 +353,20 @@ class CustomTransformer(StreamTransformer):
         if event["method"] == "custom":
             ...
         return True
-````process()`接收图表发出的每个事件，并负责通过`event["method"]`进行过滤。该声明开启上游排放；它并没有缩小`process()`的视野。有效值为 Pregel 流模式：`"messages"`、`"tools"`、`"custom"`、`"values"`、`"updates"`、`"checkpoints"`、`"tasks"`、`"debug"`。每个变压器必须声明它作用的每个模式 - 省略的模式不会由图发出，并且永远不会达到 `process()`。
+```
+
+`process()`接收图表发出的每个事件，并负责通过`event["method"]`进行过滤。该声明开启上游排放；它并没有缩小`process()`的视野。有效值为 Pregel 流模式：`"messages"`、`"tools"`、`"custom"`、`"values"`、`"updates"`、`"checkpoints"`、`"tasks"`、`"debug"`。每个变压器必须声明它作用的每个模式 - 省略的模式不会由图发出，并且永远不会达到`process()`。
 
 ### 流频道
 
-`StreamChannel` 是转换器用于流式传输值的投影基元。它总是在 `stream.extensions.<name>` 上公开一个可迭代流。构造函数参数决定每个 `push()` 是否也作为 `custom:<name>` 事件流入运行的主事件流，即在迭代原始协议事件时是否显示投影的值。
-
-|需要|使用 |
+`StreamChannel` 是转换器用于流式传输值的投影基元。它总是在 `stream.extensions.<name>` 上公开一个可迭代流。构造函数参数决定每个 `push()` 是否也作为 `custom:<name>` 事件流入运行的主事件流，即在迭代原始协议事件时是否显示投影的值。|需要|使用|
 | - | - |
 |仅侧通道投影 | `StreamChannel()` |
 |还将每次推送流入主事件流 | `StreamChannel(name)` |
 
-命名通道有效负载必须是可序列化的，因为每个推送的值也会成为主流中的`custom:<name>`协议事件。将承诺、异步迭代、类实例和其他进程内句柄保留在未命名通道中。流处理程序拥有通道生命周期。一旦 `init()` 返回一个通道，处理程序就会在运行结束时关闭该通道或使其失败。变压器只推动价值。
+命名通道有效负载必须是可序列化的，因为每个推送的值也会成为主流中的`custom:<name>`协议事件。将承诺、异步迭代、类实例和其他进程内句柄保留在未命名通道中。
+
+流处理程序拥有通道生命周期。一旦 `init()` 返回一个通道，处理程序就会在运行结束时关闭该通道或使其失败。变压器只推动价值。
 
 ### 示例：命名通道
 
@@ -402,9 +406,7 @@ class ToolActivityTransformer(StreamTransformer):
 
 ### 示例：未命名频道
 
-如果没有名称，该通道只是一个侧通道投影 - 可在 `stream.extensions` 上访问，但对迭代原始事件的消费者不可见。对于保存无法序列化到主事件流的进程内句柄（承诺、异步迭代、类实例）的投影来说，这是正确的选择。
-
-下面的示例将未命名通道与 `get_stream_writer` 配对，这让图形节点发出 `custom` 通道事件，然后转换器将其排入投影：
+如果没有名称，该通道只是一个侧通道投影 - 可在 `stream.extensions` 上访问，但对迭代原始事件的消费者不可见。对于保存无法序列化到主事件流的进程内句柄（承诺、异步迭代、类实例）的投影来说，这是正确的选择。下面的示例将未命名通道与 `get_stream_writer` 配对，这让图形节点发出 `custom` 通道事件，然后转换器将其排入投影：
 
 ```py theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 from langgraph.config import get_stream_writer
@@ -480,7 +482,9 @@ stream = graph.stream_events(
     version="v3",
     transformers=[StatsTransformer, ToolActivityTransformer],
 )
-```当该图的每次运行都应产生投影时，将转换器编译到图中：
+```
+
+当该图的每次运行都应产生投影时，将转换器编译到图中：
 
 ```py theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 graph = builder.compile(
@@ -508,9 +512,7 @@ LangGraph 定义流原语。要使用 LangChain 或 Deep Agents 进行流式传�
 * [LangChain agent streaming](/oss/python/langchain/event-streaming) 涵盖 ReAct 风格的代理消息、工具调用和中间件更新。
 * [Deep Agents streaming](/oss/python/deepagents/event-streaming) 涵盖子代理、嵌套消息和子代理工具调用。
 * [LangChain frontend patterns](/oss/python/langchain/frontend/overview) 和 [LangGraph frontend patterns](/oss/python/langgraph/frontend/overview) 显示构建在流状态之上的 UI 用例。
-* [LangSmith Streaming API](/langsmith/streaming) 涵盖针对部署在代理服务器后面的图表的流式传输。
-
-线路级事件和命令格式在 [Agent Protocol](https://github.com/langchain-ai/agent-protocol) 存储库中定义，并且在 PyPI 上定义为 [⟦T198⟧](https://pypi.org/project/langchain-protocol/)，在 npm 上定义为 [⟦T199⟧](https://www.npmjs.com/package/@langchain/protocol)。
+* [LangSmith Streaming API](/langsmith/streaming) 涵盖针对部署在代理服务器后面的图表的流式传输。线路级事件和命令格式在 [Agent Protocol](https://github.com/langchain-ai/agent-protocol) 存储库中定义，并且在 PyPI 上定义为 [⟦T201⟧](https://pypi.org/project/langchain-protocol/)，在 npm 上定义为 [⟦T202⟧](https://www.npmjs.com/package/@langchain/protocol)。
 
 ***
 

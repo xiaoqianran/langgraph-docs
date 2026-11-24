@@ -4,7 +4,7 @@
 
 # 事件流
 
-Stream LangGraph 使用消息、状态、子图、输出和扩展的类型化投影运行。
+流 LangGraph 使用消息、状态、子图、输出和扩展的类型化投影运行。
 
 事件流是LangGraph应用程序代码的进程内流模型。它返回一个运行流对象，可以同时以多种方式使用。
 
@@ -58,7 +58,7 @@ ValuesTransformerMessagesTransformer...自定义变压器
 
 运行流公开了一个底层事件流上的类型化投影：
 
-|投影|使用 |
+|投影|使用|
 | - | - |
 | `stream` |迭代每个协议事件。 |
 | `stream.messages` |流式传输聊天模型消息和令牌增量。 |
@@ -224,11 +224,15 @@ interface ProtocolEvent {
 * `content-block-start`
 * `content-block-delta`
 * `content-block-finish`
-* `message-finish`内容块具有明确的边界：一个块开始，发出零个或多个增量，并在同一消息中的下一个块开始之前完成。这使得令牌流、推理块、工具调用块和多模式内容变得明确，而不需要提供者特定的格式。 `message-finish` 可能包括代币使用；不可恢复的模型调用失败作为消息错误事件到达。
+* `message-finish`
+
+内容块具有明确的边界：一个块开始，发出零个或多个增量，并在同一消息中的下一个块开始之前完成。这使得令牌流、推理块、工具调用块和多模式内容变得明确，而不需要提供者特定的格式。`message-finish` 可能在`finishReason`、`normalizedFinishReason` 和 `finishState` 中包含令牌使用情况以及模型停止的原因；有关值，请参见[Finish reason](/oss/javascript/langchain/messages#finish-reason)。组装消息的`response_metadata`使用snake_case键`finish_reason`、`normalized_finish_reason`和`finish_state`。旧的 `reason` 字段已弃用；使用 `normalizedFinishReason` 代替。
+
+不可恢复的模型调用失败作为消息错误事件到达。
 
 每个`content-block-delta`事件都在其`index`处为区块携带一个增量：
 
-|达美航空`type` |对区块的影响|
+|达美`type` |对区块的影响|
 | - | - |
 | `text-delta` |将其 `text` 附加到块的 `text`。 |
 | `reasoning-delta` |将其 `reasoning` 附加到块的 `reasoning`。 |
@@ -287,7 +291,7 @@ for await (const event of stream) {
 
 ### 变压器如何工作
 
-事件流从LangGraph Pregel 引擎的流输出开始。运行时将这些块标准化为协议事件，然后流处理程序通过一堆流转换器路由每个事件。
+事件流从 LangGraph Pregel 引擎的流输出开始。运行时将这些块标准化为协议事件，然后流处理程序通过一堆流转换器路由每个事件。
 
 ```mermaid theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 flowchart TD
@@ -326,11 +330,11 @@ interface StreamTransformer<TProjection = unknown> {
 
 `required_stream_modes` 控制底层图在流期间发出的 Pregel 流模式。运行时获取每个已注册变压器的 `required_stream_modes` 的并集，并将该并集作为 `stream_mode` 参数传递给图的 `.stream()` 调用。 **永远不会发出任何变压器请求的模式** - 声明 `("custom",)` 是导致 `custom` 事件在运行中流动的原因。
 
-`process()`接收图表发出的每个事件，并负责通过`event["method"]`进行过滤。该声明开启上游排放；它并没有缩小`process()`的视野。有效值为 Pregel 流模式：`"messages"`、`"tools"`、`"custom"`、`"values"`、`"updates"`、`"checkpoints"`、`"tasks"`、`"debug"`。每个变压器必须声明它作用的每个模式 - 省略的模式不会由图发出，并且永远不会达到 `process()`。
+`process()`接收图表发出的每个事件，并负责通过`event["method"]`进行过滤。该声明开启上游排放；它并没有缩小`process()`的视野。有效值为 Pregel 流模式：`"messages"`、`"tools"`、`"custom"`、`"values"`、`"updates"`、`"checkpoints"`、`"tasks"`、`"debug"`。每个变压器必须声明它所作用的每个模式 - 省略的模式不会由图发出，并且永远不会达到 `process()`。
 
 ### 流频道`StreamChannel` 是转换器用于流式传输值的投影基元。它总是在 `stream.extensions.<name>` 上公开一个可迭代流。构造函数参数决定每个 `push()` 是否也作为 `custom:<name>` 事件流入运行的主事件流，即在迭代原始协议事件时是否显示投影的值。
 
-|需要|使用 |
+|需要|使用|
 | - | - |
 |仅侧通道投影 | `new StreamChannel<T>()` |
 |还将每次推送流入主事件流 | `new StreamChannel<T>(name)` |
@@ -341,7 +345,7 @@ interface StreamTransformer<TProjection = unknown> {
 
 ### 示例：命名通道
 
-将字符串名称传递给 `StreamChannel` 以通过 `stream.extensions` 公开流式投影 *并*将每个推送的值作为 `custom:<name>` 协议事件转发到运行的主事件流中：
+将字符串名称传递给`StreamChannel`，以通过`stream.extensions`公开流式投影*并*将每个推送的值作为`custom:<name>`协议事件转发到运行的主事件流中：
 
 ```ts theme={"theme":{"light":"catppuccin-latte","dark":"catppuccin-mocha"}}
 import { StreamChannel } from "@langchain/langgraph";
@@ -370,7 +374,7 @@ const toolActivityTransformer = () => {
 };
 ```
 
-### 示例：未命名频道如果没有名称，该通道只是一个侧通道投影 - 可在 `stream.extensions` 上访问，但对迭代原始事件的消费者不可见。对于保存无法序列化到主事件流的进程内句柄（承诺、异步迭代、类实例）的投影来说，这是正确的选择。
+### 示例：未命名频道如果没有名称，该通道只是一个侧通道投影 - 可在 `stream.extensions` 上访问，但对于迭代原始事件的消费者不可见。对于保存无法序列化到主事件流的进程内句柄（承诺、异步迭代、类实例）的投影来说，这是正确的选择。
 
 下面的示例将未命名通道与 `get_stream_writer` 配对，这让图形节点发出 `custom` 通道事件，然后转换器将其排入投影：
 
@@ -444,9 +448,9 @@ const graph = builder.compile({
 LangGraph 定义流原语。要使用 LangChain 或 Deep Agents 进行流式传输，请查看相关产品文档：* [LangChain agent streaming](/oss/javascript/langchain/event-streaming) 涵盖 ReAct 风格的代理消息、工具调用和中间件更新。
 * [Deep Agents streaming](/oss/javascript/deepagents/event-streaming) 涵盖子代理、嵌套消息和子代理工具调用。
 * [LangChain frontend patterns](/oss/javascript/langchain/frontend/overview) 和 [LangGraph frontend patterns](/oss/javascript/langgraph/frontend/overview) 显示构建在流状态之上的 UI 用例。
-* [LangSmith Streaming API](/langsmith/streaming) 涵盖针对部署在代理服务器后面的图形的流式传输。
+* [LangSmith Streaming API](/langsmith/streaming) 涵盖针对部署在代理服务器后面的图表的流式传输。
 
-线级事件和命令格式在 [Agent Protocol](https://github.com/langchain-ai/agent-protocol) 存储库中定义，并且在 PyPI 上定义为 [⟦T183⟧](https://pypi.org/project/langchain-protocol/)，在 npm 上定义为 [⟦T184⟧](https://www.npmjs.com/package/@langchain/protocol)。
+线路级事件和命令格式在 [Agent Protocol](https://github.com/langchain-ai/agent-protocol) 存储库中定义，并且在 PyPI 上定义为 [⟦T192⟧](https://pypi.org/project/langchain-protocol/)，在 npm 上定义为 [⟦T193⟧](https://www.npmjs.com/package/@langchain/protocol)。
 
 ***
 
